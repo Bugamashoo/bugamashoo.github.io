@@ -1,1 +1,72 @@
-Hello World
+<!DOCTYPE html>
+<html>
+
+
+
+<head>
+    <title>iDEW Trivia</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+<body>
+    <!-------------- WELCOME SCREEN --------------->
+    <div class='screen' id='welcome-screen'>
+        <h1>Welcome to cybersecurity trivia!</h1>
+        <h4>We have been waiting for you.</h4>
+        <button class="start-btn">Start</button>
+        <div class="feedbackform">
+            <form id="test-form">
+                <h1 class="fb">Feedback</h1>
+                <input type="text" name="name" class="yeet2" placeholder="Name? (Optional)" width="30px"><br>
+                <input type="text" name="like" class="yeet" placeholder="What did you like?"><br>
+                <input type="text" name="dislike" class="yeet" placeholder="What did you dislike?"><br>
+                <input type="text" name="changes" class="yeet" placeholder="What should we change?"><br>
+                <input type="submit" class="submitt" value="Submit">
+            </form>
+
+        </div>
+    </div>
+    <!-------------- QUESTION SCREEN --------------->
+    <div class='screen' id='question-screen'>
+        <h4 id="category">Cybersecurity</h4>
+        <h1 id="question">Question goes here?</h1>
+        <div id="answer-set">
+            <button class="answer-btn" id="correctAnswer">Correct Answer</button>
+            <button class="answer-btn" id="incorrectAnswer1">Wrong Answer</button>
+            <button class="answer-btn" id="incorrectAnswer2">Wrong Answer</button>
+            <button class="answer-btn" id="incorrectAnswer3">Wrong Answer</button>
+        </div>
+        <h1 id="feedback">Feedback will go here.</h1>
+    </div>
+    <!-------------- THANK YOU SCREEN --------------->
+    <div class='screen' id='thankyou-screen'>
+        <h1>Thanks for playing our game!</h1>
+        <h4 id='game-results'>Looks like you did pretty well.</h4>
+        <button class="start-btn">Restart</button>
+        <div class="feedbackform">
+            <form>
+                <h1 class="fb">Feedback</h1>
+                <input type="text" name="name" class="yeet2" placeholder="Name? (Optional)" width="30px"><br>
+                <input type="text" name="like" class="yeet" placeholder="What did you like?"><br>
+                <input type="text" name="dislike" class="yeet" placeholder="What did you dislike?"><br>
+                <input type="text" name="changes" class="yeet" placeholder="What should we change?"><br>
+                <input type="submit" class="submitt" value="Submit">
+            </form>
+        </div>
+    </div>
+    <div>
+        <audio id="player" autoplay controls>
+            <source src="0.mp3" type="audio/mp3">
+        </audio>
+    </div>
+    <!-- JS Libraries -->
+    <script class='code' src='https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js'></script>
+    <script class='code' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script class='code' src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.min.js'></script>
+    <script class='code' src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.min.js'></script>
+    <!-- <script type="text/javascript" src="http://yourjavascript.com/53002541911/customcode.js"></script> -->
+    <script type="text/javascript" src="./customcode.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <!-- iDEW trivia -->
+</body>
