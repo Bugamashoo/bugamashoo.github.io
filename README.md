@@ -1,0 +1,2 @@
+# bugamashoo.github.io
+cybertriv
