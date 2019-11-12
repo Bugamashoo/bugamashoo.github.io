@@ -1,6 +1,11 @@
 var tPoints = 0; //storage for total points - should start at zero
-var cPoints = 100; //points for correct
+var cPoints = 0; //points for correct
 var iPoints = -100; //points for incorrect
+var sound = 0;
+var rSound = 0;
+var soundImport = 0;
+var soundPicker = 0;
+var soundTemp = 0;
 function sound(src) {
   this.sound = document.createElement("audio");
   this.sound.src = src;
@@ -16,6 +21,7 @@ function sound(src) {
   };
 }
 function setup() {
+  loadSounds();
   myMusic = new sound("0.mp3");
   var googleSheetLink = "1NVjO-sR4fXAIAsNsjt5FzexCc0eMbvMmKqnarKYAt54";
   trivia.loadGoogleSheet(googleSheetLink).then(displayWelcome);
@@ -37,9 +43,9 @@ function setup() {
 function draw() {
   if (trivia.state == "welcome") background("purple");
   else if (trivia.state == "question") background("purple");
-    else if (trivia.state == "correct") background("green");
-    else if (trivia.state == "incorrect") background("red");
-    else if (trivia.state == "thankyou") background("purple");
+  else if (trivia.state == "correct") background("green");
+  else if (trivia.state == "incorrect") background("red");
+  else if (trivia.state == "thankyou") background("purple");
 }
 
 function displayWelcome() {
@@ -59,22 +65,20 @@ function displayQuestion() {
 function displayThankyou() {
   $(".screen").hide();
   $("#thankyou-screen").show();
-  $("#game-results").html(
-    "You got ${trivia.totalCorrect} of ${trivia.totalAnswered} correct and scored" +
-      tPoints +
-      "points!"
-  );
+  $("#game-results").html("YOUR FINAL SCORE IS: " + tPoints + "POINTS!");
 }
 
 function onClickedAnswer(isCorrect) {
   if (isCorrect) {
-    tPoints = cPoints + tPoints;
+    tPoints = cPoints * 50 + tPoints + 100;
+    cSound();
     $("#feedback")
-      .html("Correct! +" + cPoints + " points! Keep it up!")
+      .html("Correct! +" + (cPoints + 100) + " points! Keep it up!")
       .show();
-    cPoints = (cPoints * 1.1 * (cPoints / 100)).toFixed(0);
+    cPoints = cPoints++;
   } else {
-    (tPoints = iPoints + tPoints), (cPoints = 100);
+    (tPoints = iPoints + tPoints), (cPoints = 0);
+    iSound();
     $("#feedback")
       .html("Incorrect! " + iPoints + " points! Streak reset!")
       .show();
@@ -84,7 +88,7 @@ function onClickedAnswer(isCorrect) {
 }
 
 function onClickedStart() {
-  (points = 0), (iPoints = -100), (cPoints = 100);
+  (points = 0), (iPoints = -100), (cPoints = 0);
   displayQuestion();
   var myMusic;
   myMusic = new sound("0.mp3");
@@ -93,3 +97,30 @@ function onClickedStart() {
 var $form = $("form#test-form"),
   url =
     "https://script.google.com/macros/s/AKfycbzvwiUH1wQsqqJiLDFwRmdXysiPFVnMBEaPxgtJVNSiXE_L0qPo/exec";
+function iSound() {
+  sound = Math.ceil(Math.random() * 9);
+  rSound = "sound(i" + sound + ".mp3)";
+  soundTemp = rSound;
+  soundTemp.play();
+}
+function cSound() {
+  sound = Math.ceil(Math.random() * 7);
+  rSound = "c" + sound + ".mp3";
+  soundTemp = rSound;
+  soundTemp.play();
+}
+function loadSounds() {
+  soundImport = 0;
+  var i;
+  for (i = 0; i < 7; i++) {
+    soundImport++;
+    soundPicker = "c" + soundImport + ".mp3";
+    soundTemp = new sound(soundPicker);
+  }
+  soundImport = 0;
+  for (i = 0; i < 9; i++) {
+    soundImport++;
+    soundPicker = "i" + soundImport + ".mp3";
+    soundTemp = new sound(soundPicker);
+  }
+}
