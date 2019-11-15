@@ -46,7 +46,7 @@ function draw() {
   else if (trivia.state == "incorrect") background("red");
   else if (trivia.state == "thankyou") background("purple");
 }
-
+ 
 function displayWelcome() {
   $(".screen").hide();
   $("#welcome-screen").show();
