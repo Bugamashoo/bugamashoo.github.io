@@ -6,6 +6,23 @@ var rSound = 0;
 var soundImport = 0;
 var soundPicker = 0;
 var soundTemp = 0;
+var i1 = new sound("i1.mp3");
+    var i2 = new sound("i2.mp3");
+    var i3 = new sound("i3.mp3");
+    var i4 = new sound("i4.mp3");
+    var i5 = new sound("i5.mp3");
+    var i6 = new sound("i6.mp3");
+    var i7 = new sound("i7.mp3");
+    var i8 = new sound("i8.mp3");
+    var i9 = new sound("i9.mp3");
+    var c1 = new sound("c1.mp3");
+    var c2 = new sound("c2.mp3");
+    var c3 = new sound("c3.mp3");
+    var c4 = new sound("c4.mp3");
+    var c5 = new sound("c5.mp3");
+    var c6 = new sound("c6.mp3");
+    var c7 = new sound("c7.mp3");
+
 var googleSheetLink = "1NVjO-sR4fXAIAsNsjt5FzexCc0eMbvMmKqnarKYAt54";
 function sound(src) {
   this.sound = document.createElement("audio");
@@ -98,34 +115,35 @@ var $form = $("form#test-form"),
     "https://script.google.com/macros/s/AKfycbzvwiUH1wQsqqJiLDFwRmdXysiPFVnMBEaPxgtJVNSiXE_L0qPo/exec";
 function iSound() {
   ssound = Math.ceil(Math.random() * 9);
-  rSound = String("i" + ssound);
-  soundTemp = rSound;
-  soundTemp.play();
+//  rSound = String("i" + ssound);
+//  soundTemp = rSound;
+//  toString(soundTemp).play();
+    if (ssound == 1) {i1.play();}
+else if (ssound == 2) {i2.play();}
+else if (ssound == 3) {i3.play();}
+else if (ssound == 4) {i4.play();}
+else if (ssound == 5) {i5.play();}
+else if (ssound == 6) {i6.play();}
+else if (ssound == 7) {i7.play();}
+else if (ssound == 8) {i8.play();}
+else if (ssound == 9) {i9.play();}
 }
 function cSound() {
   ssound = Math.ceil(Math.random() * 7);
-  rSound = String("c" + ssound);
-  soundTemp = rSound;
-  soundTemp.play();
+//  rSound = String("c" + ssound);
+//  soundTemp = rSound;
+//  toString(soundTemp).play();
+    if (ssound == 1) {c1.play();}
+else if (ssound == 2) {c2.play();}
+else if (ssound == 3) {c3.play();}
+else if (ssound == 4) {c4.play();}
+else if (ssound == 5) {c5.play();}
+else if (ssound == 6) {c6.play();}
+else if (ssound == 7) {c7.play();}
 }
 function loadSounds() {
 //  soundImport = 0;
-    var i1 = new sound("i1.mp3");
-    var i2 = new sound("i2.mp3");
-    var i3 = new sound("i3.mp3");
-    var i4 = new sound("i4.mp3");
-    var i5 = new sound("i5.mp3");
-    var i6 = new sound("i6.mp3");
-    var i7 = new sound("i7.mp3");
-    var i8 = new sound("i8.mp3");
-    var i9 = new sound("i9.mp3");
-    var c1 = new sound("c1.mp3");
-    var c2 = new sound("c2.mp3");
-    var c3 = new sound("c3.mp3");
-    var c4 = new sound("c4.mp3");
-    var c5 = new sound("c5.mp3");
-    var c6 = new sound("c6.mp3");
-    var c7 = new sound("c7.mp3");
+    
 }
 //  var i;
 //  for (i = 0; i < 7; i++) {
