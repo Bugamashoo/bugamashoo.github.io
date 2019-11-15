@@ -103,3 +103,18 @@ form {
 .f {
   color: purple;
 }
+.column {
+  float: left;
+  width: 30%;
+  text-align: center;
+}
+.infoh {
+  margin-left: 28%;
+  margin-bottom: 0;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
