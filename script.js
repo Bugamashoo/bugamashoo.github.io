@@ -1,6 +1,6 @@
 var tPoints = 0; //storage for total points - should start at zero
 var cPoints = 0; //points for correct
-var iPoints = -100; //points for incorrect
+var iPoints = -250; //points for incorrect
 var ssound = 0;
 var rSound = 0;
 var soundImport = 0;
@@ -89,22 +89,23 @@ function onClickedAnswer(isCorrect) {
     tPoints = cPoints * 50 + tPoints + 100;
     cSound();
     $("#feedback")
-      .html("Correct! +" + (cPoints + 100) + " points! Keep it up!")
+      .html("+" + (cPoints * 50 + 100) + " points!")
       .show();
     cPoints = cPoints++;
   } else {
     (tPoints = iPoints + tPoints), (cPoints = 0);
     iSound();
     $("#feedback")
-      .html("Incorrect! " + iPoints + " points! Streak reset!")
+      .html(iPoints + " points! Streak reset!")
       .show();
   }
+    
   $("#correctAnswer").addClass("highlight"); //highlight right answer
-  setTimeout(trivia.gotoNextQuestion, 2000); //wait 3 secs...next question
+  setTimeout(trivia.gotoNextQuestion, 1500); //wait 1 sec...next question
 }
 
 function onClickedStart() {
-  (points = 0), (iPoints = -100), (cPoints = 0);
+  (points = 0), (iPoints = -250), (cPoints = 0);
   displayQuestion();
   var myMusic;
   myMusic = new sound("0.mp3");
