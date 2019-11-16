@@ -112,8 +112,8 @@ function onClickedStart() {
   (points = 0), (iPoints = -250), (cPoints = 0);
   displayQuestion();
   var myMusic;
-  myMusic.setAttribute("loop");
   myMusic = new sound("0.mp3");
+  myMusic.sound.setAttribute("loop", "loop");
   myMusic.play();
 }
 var $form = $("form#test-form"),

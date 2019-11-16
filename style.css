@@ -26,11 +26,12 @@ button {
   border-width: medium;
   outline: none;
   box-shadow: 0px 6px 10px rgb(50, 50, 50);
-  font-size: calc(2.5vw * 0.75 + 4px);
+  font-size: calc(2.5vw * 0.5 + 4px);
   display: block;
-  margin: 5px auto;
-  min-height: 75px;
-  width: 90%;
+  margin: 7px auto;
+  min-height: calc(3em + 4px);
+  min-width: 85%;
+  max-width: 85%;
 }
 
 .highlight {
@@ -112,8 +113,18 @@ form {
   text-align: center;
 }
 .startstuff {
-    text-align: center;
+  text-align: center;
 }
 .ss2 {
-    text-align: center;
+  text-align: center;
+}
+#pts {
+  margin-left: 40%;
+  margin-right: 40%;
+  padding-top: 0.2%;
+  padding-bottom: 0.2%;
+  border-color: black;
+  border-style: solid;
+  border-width: medium;
+  background-color: rgba(140, 0, 140, 0.5);
 }
