@@ -11,6 +11,9 @@ var i6 = new sound("i6.mp3");
 var i7 = new sound("i7.mp3");
 var i8 = new sound("i8.mp3");
 var i9 = new sound("i9.mp3");
+var i10 = new sound("i10.mp3");
+var i11 = new sound("i11.mp3");
+var i12 = new sound("i12.mp3");
 var c1 = new sound("c1.mp3");
 var c2 = new sound("c2.mp3");
 var c3 = new sound("c3.mp3");
@@ -18,6 +21,8 @@ var c4 = new sound("c4.mp3");
 var c5 = new sound("c5.mp3");
 var c6 = new sound("c6.mp3");
 var c7 = new sound("c7.mp3");
+var c8 = new sound("c8.mp3");
+var c9 = new sound("c9.mp3");
 
 var googleSheetLink = "1NVjO-sR4fXAIAsNsjt5FzexCc0eMbvMmKqnarKYAt54";
 function sound(src) {
@@ -35,7 +40,7 @@ function sound(src) {
   };
 }
 function setup() {
-    $("pts") .html("0")
+  $("pts").html("0");
   myMusic = new sound("0.mp3");
   trivia.loadGoogleSheet(googleSheetLink).then(displayWelcome);
   $(".submitt").on("click", function(e) {
@@ -71,7 +76,7 @@ function displayQuestion() {
   $("#feedback").hide();
   trivia.insertQuestionInfo();
   trivia.shuffleAnswers();
-    $(pts)
+  $(pts);
 }
 
 function displayThankyou() {
@@ -87,16 +92,16 @@ function onClickedAnswer(isCorrect) {
     $("#feedback")
       .html("+" + (cPoints * 50 + 100) + " points!")
       .show();
-      $("#pts") .html("  |  " + tPoints + " points");
+    $("#pts").html(tPoints + " points");
     cPoints++;
   } else {
     tPoints = iPoints + tPoints;
-      cPoints = 0;
+    cPoints = 0;
     iSound();
     $("#feedback")
       .html(iPoints + " points! Streak reset!")
       .show();
-      $("#pts") .html(tPoints + " points");
+    $("#pts").html(tPoints + " points");
   }
 
   $("#correctAnswer").addClass("highlight"); //highlight right answer
@@ -107,6 +112,7 @@ function onClickedStart() {
   (points = 0), (iPoints = -250), (cPoints = 0);
   displayQuestion();
   var myMusic;
+  myMusic.setAttribute("loop");
   myMusic = new sound("0.mp3");
   myMusic.play();
 }
@@ -114,7 +120,7 @@ var $form = $("form#test-form"),
   url =
     "https://script.google.com/macros/s/AKfycbzvwiUH1wQsqqJiLDFwRmdXysiPFVnMBEaPxgtJVNSiXE_L0qPo/exec";
 function iSound() {
-  ssound = Math.ceil(Math.random() * 9);
+  ssound = Math.ceil(Math.random() * 12);
   //  rSound = String("i" + ssound);
   //  soundTemp = rSound;
   //  toString(soundTemp).play();
@@ -136,10 +142,16 @@ function iSound() {
     i8.play();
   } else if (ssound == 9) {
     i9.play();
+  } else if (ssound == 10) {
+    i10.play();
+  } else if (ssound == 11) {
+    i11.play();
+  } else if (ssound == 12) {
+    i12.play();
   }
 }
 function cSound() {
-  ssound = Math.ceil(Math.random() * 7);
+  ssound = Math.ceil(Math.random() * 9);
   //  rSound = String("c" + ssound);
   //  soundTemp = rSound;
   //  toString(soundTemp).play();
@@ -157,5 +169,9 @@ function cSound() {
     c6.play();
   } else if (ssound == 7) {
     c7.play();
+  } else if (ssound == 8) {
+    c8.play();
+  } else if (ssound == 9) {
+    c9.play();
   }
 }

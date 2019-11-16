@@ -9,7 +9,6 @@ body {
   box-sizing: border-box;
   margin: 15px auto;
   padding: 15px;
-  max-width: 700px;
   width: calc(100vw - 30px);
   height: calc(100vh - 30px);
 }
@@ -27,7 +26,7 @@ button {
   border-width: medium;
   outline: none;
   box-shadow: 0px 6px 10px rgb(50, 50, 50);
-  font-size: 20px;
+  font-size: calc(2.5vw * 0.75 + 4px);
   display: block;
   margin: 5px auto;
   min-height: 75px;
@@ -98,23 +97,23 @@ form {
 }
 
 .start-btn {
-  margin-bottom: 4%;
+  margin-bottom: 6%;
 }
 .f {
   color: purple;
-}
-.column {
-  float: left;
-  width: 30%;
-  text-align: center;
 }
 .infoh {
   margin-left: 28%;
   margin-bottom: 0;
 }
-
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
+.column {
+  margin-left: auto;
+  margin-left: auto;
+  text-align: center;
+}
+.startstuff {
+    text-align: center;
+}
+.ss2 {
+    text-align: center;
 }

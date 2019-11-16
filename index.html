@@ -10,28 +10,16 @@
     <!-------------- WELCOME SCREEN --------------->
     <div class='screen' id='welcome-screen'>
         <h1>Welcome to cybersecurity trivia!</h1>
-        <h4>We have been waiting for you.</h4>
+        <h2 class="startstuff">We have been waiting for you.</h2>
         <button class="start-btn">Start</button>
-        <div class="feedbackform">
-            <form id="test-form">
-                <h1 class="fb">Feedback</h1>
-                <input type="text" name="name" class="yeet2" placeholder="Name? (Optional)" width="30px"><br>
-                <input type="text" name="like" class="yeet" placeholder="What did you like?"><br>
-                <input type="text" name="dislike" class="yeet" placeholder="What did you dislike?"><br>
-                <input type="text" name="changes" class="yeet" placeholder="What should we change?"><br>
-                <input type="submit" class="submitt" value="Submit">
-            </form>
-
-        </div>
+        <div><h3 class="ss2">If you stick around until the end, you can submit feedback which would really be appreciated!</h3>
+        <h3 class="ss2">It is also recommended to turn on your sound! This app has an OST!</h3></div>
     </div>
     <!-------------- QUESTION SCREEN --------------->
     <div class='screen' id='question-screen'>
-        <div class="infoh">
-       <div class="row">
-  <div class="column"><h2 id="category">Cybersecurity</h2></div>
-  <div class="column"><h2 id="pts">0 points</h2></div>
-</div>
-    </div>
+     <div class="column"><h1 id="pts">0 points</h1></div>
+  <div class="column"><h3 id="category">Cybersecurity</h3></div>
+  
         <h1 id="question">Question goes here?</h1>
         <div id="answer-set">
             <button class="answer-btn" id="correctAnswer">Correct Answer</button>
@@ -47,6 +35,16 @@
         <h3 id='game-results'>Not bad, not bad at all.</h3>
         <h4>It would be appreciated if you would submit feedback!</h4>
         <button class="start-btn">Restart or Submit Feedback</button>
+        <div class="feedbackform">
+            <form id="test-form">
+                <h1 class="fb">Feedback</h1>
+                <input type="text" name="name" class="yeet2" placeholder="Name? (Optional)" width="30px"><br>
+                <input type="text" name="like" class="yeet" placeholder="What did you like?"><br>
+                <input type="text" name="dislike" class="yeet" placeholder="What did you dislike?"><br>
+                <input type="text" name="changes" class="yeet" placeholder="What should we change?"><br>
+                <input type="submit" class="submitt" value="Submit">
+            </form>
+        </div>
     </div>
     <div>
     </div>
