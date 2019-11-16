@@ -23,6 +23,7 @@ var c6 = new sound("c6.mp3");
 var c7 = new sound("c7.mp3");
 var c8 = new sound("c8.mp3");
 var c9 = new sound("c9.mp3");
+var isPlaying = 0;
 
 var googleSheetLink = "1NVjO-sR4fXAIAsNsjt5FzexCc0eMbvMmKqnarKYAt54";
 function sound(src) {
@@ -92,7 +93,7 @@ function onClickedAnswer(isCorrect) {
     $("#feedback")
       .html("+" + (cPoints * 50 + 100) + " points!")
       .show();
-    $("#pts").html(tPoints + " points");
+    $("#pts").html(tPoints + " Points");
     cPoints++;
   } else {
     tPoints = iPoints + tPoints;
@@ -111,10 +112,13 @@ function onClickedAnswer(isCorrect) {
 function onClickedStart() {
   (points = 0), (iPoints = -250), (cPoints = 0);
   displayQuestion();
-  var myMusic;
-  myMusic = new sound("0.mp3");
-  myMusic.sound.setAttribute("loop", "loop");
-  myMusic.play();
+  if (isPlaying == 0) {
+    var myMusic;
+    myMusic = new sound("0.mp3");
+    myMusic.sound.setAttribute("loop", "loop");
+    myMusic.play();
+    isPlaying = 1;
+  }
 }
 var $form = $("form#test-form"),
   url =
