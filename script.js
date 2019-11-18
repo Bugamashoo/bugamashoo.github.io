@@ -14,6 +14,15 @@ var i9 = new sound("i9.mp3");
 var i10 = new sound("i10.mp3");
 var i11 = new sound("i11.mp3");
 var i12 = new sound("i12.mp3");
+var i13 = new sound("i13.mp3");
+var i14 = new sound("i14.mp3");
+var i15 = new sound("i15.mp3");
+var i16 = new sound("i16.mp3");
+var i17 = new sound("i17.mp3");
+var i18 = new sound("i18.mp3");
+var i19 = new sound("i19.mp3");
+var i20 = new sound("i20.mp3");
+var i21 = new sound("i21.mp3");
 var c1 = new sound("c1.mp3");
 var c2 = new sound("c2.mp3");
 var c3 = new sound("c3.mp3");
@@ -23,6 +32,16 @@ var c6 = new sound("c6.mp3");
 var c7 = new sound("c7.mp3");
 var c8 = new sound("c8.mp3");
 var c9 = new sound("c9.mp3");
+var c10 = new sound("c10.mp3");
+var c11 = new sound("c11.mp3");
+var c12 = new sound("c12.mp3");
+var c13 = new sound("c13.mp3");
+var c14 = new sound("c14.mp3");
+var c15 = new sound("c15.mp3");
+var c16 = new sound("c16.mp3");
+var c17 = new sound("c17.mp3");
+var c18 = new sound("c18.mp3");
+
 var isPlaying = 0;
 
 var googleSheetLink = "1NVjO-sR4fXAIAsNsjt5FzexCc0eMbvMmKqnarKYAt54";
@@ -124,7 +143,7 @@ var $form = $("form#test-form"),
   url =
     "https://script.google.com/macros/s/AKfycbzvwiUH1wQsqqJiLDFwRmdXysiPFVnMBEaPxgtJVNSiXE_L0qPo/exec";
 function iSound() {
-  ssound = Math.ceil(Math.random() * 12);
+  ssound = Math.ceil(Math.random() * 21);
   //  rSound = String("i" + ssound);
   //  soundTemp = rSound;
   //  toString(soundTemp).play();
@@ -152,10 +171,28 @@ function iSound() {
     i11.play();
   } else if (ssound == 12) {
     i12.play();
+  } else if (ssound == 13) {
+    i13.play();
+  } else if (ssound == 14) {
+    i14.play();
+  } else if (ssound == 15) {
+    i15.play();
+  } else if (ssound == 16) {
+    i16.play();
+  } else if (ssound == 17) {
+    i17.play();
+  } else if (ssound == 18) {
+    i18.play();
+  } else if (ssound == 19) {
+    i19.play();
+  } else if (ssound == 20) {
+    i20.play();
+  } else if (ssound == 21) {
+    i21.play();
   }
 }
 function cSound() {
-  ssound = Math.ceil(Math.random() * 9);
+  ssound = Math.ceil(Math.random() * 18);
   //  rSound = String("c" + ssound);
   //  soundTemp = rSound;
   //  toString(soundTemp).play();
@@ -177,5 +214,23 @@ function cSound() {
     c8.play();
   } else if (ssound == 9) {
     c9.play();
+  } else if (ssound == 10) {
+    c10.play();
+  } else if (ssound == 11) {
+    c11.play();
+  } else if (ssound == 12) {
+    c12.play();
+  } else if (ssound == 13) {
+    c13.play();
+  } else if (ssound == 14) {
+    c14.play();
+  } else if (ssound == 15) {
+    c15.play();
+  } else if (ssound == 16) {
+    c16.play();
+  } else if (ssound == 17) {
+    c17.play();
+  } else if (ssound == 18) {
+    c18.play();
   }
 }
