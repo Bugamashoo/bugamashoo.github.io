@@ -83,7 +83,7 @@ function displayQuestion() {
 function displayThankyou() {
   $(".screen").hide();
   $("#thankyou-screen").show();
-  $("#game-results").html("YOUR FINAL SCORE IS: " + tPoints + "POINTS!");
+  $("#game-results").html("YOUR FINAL SCORE IS: " + tPoints + " POINTS!");
 }
 
 function onClickedAnswer(isCorrect) {
