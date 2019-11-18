@@ -1,6 +1,6 @@
 var tPoints = 0; //storage for total points - should start at zero
 var cPoints = 0; //points for correct
-var iPoints = -250; //points for incorrect
+var iPoints = -200; //points for incorrect
 var ssound = 0;
 var i1 = new sound("i1.mp3");
 var i2 = new sound("i2.mp3");
@@ -129,7 +129,7 @@ function onClickedAnswer(isCorrect) {
 }
 
 function onClickedStart() {
-  (points = 0), (iPoints = -250), (cPoints = 0);
+  (points = 0), (iPoints = -200), (cPoints = 0);
   displayQuestion();
   if (isPlaying == 0) {
     var myMusic;
