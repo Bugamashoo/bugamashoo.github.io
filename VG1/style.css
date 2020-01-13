@@ -6,15 +6,16 @@
 }
 
 body {
-    background-color: #E0FFFF;
+    background-color: maroon;
     font-family: cursive;
     text-align: center;
 }
 
 h1 {
-    color: #663399;
+    color: lightpink;
 }
 
-p {
+h3 {
     font-size: 1.25em;
+    color: lightpink;
 }
