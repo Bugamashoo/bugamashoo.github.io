@@ -1,7 +1,7 @@
 #my-game {
     width: 800px;
     height: 600px;
-    margin: 0 auto;
+    margin: auto;
     border: 1px solid black;
 }
 
