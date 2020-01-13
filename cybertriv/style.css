@@ -1,0 +1,153 @@
+body {
+    margin: 0;
+    background-color: gray;
+    font-family: sans-serif;
+}
+
+.screen {
+    background-color: rgba(255, 255, 255, 0.5);
+    box-sizing: border-box;
+    margin: 15px auto;
+    padding: 15px;
+    width: calc(100vw - 30px);
+    height: calc(100vh - 30px);
+}
+
+h1,
+h4 {
+    text-align: center;
+}
+
+button {
+    background-color: rgb(120, 0, 200);
+    border: solid;
+    border-radius: 15px;
+    border-color: rgb(80, 0, 150);
+    border-width: medium;
+    outline: none;
+    box-shadow: 0px 6px 10px rgb(50, 50, 50);
+    font-size: calc(3vw * 0.45 + 10px);
+    display: block;
+    margin: 7px auto;
+    min-height: calc(2.5em + 8px);
+    min-width: 92%;
+    max-width: 92%;
+}
+
+.highlight {
+    background-color: green;
+    color: white;
+}
+
+canvas {
+    min-width: 100vw;
+    min-height: 100vh;
+    position: absolute;
+    top: 0;
+    z-index: -1;
+}
+
+.yeet {
+    width: 90%;
+    height: auto;
+    min-height: 35px;
+    flex-wrap: wrap;
+    text-align: center;
+    margin-bottom: 0.5%;
+    border-style: solid;
+    border-width: medium;
+    background-color: rgb(235, 180, 255);
+}
+
+.yeet2 {
+    width: calc(30% + 80px);
+    height: 10%;
+    text-align: center;
+    border-style: solid;
+    border-width: medium;
+    background-color: rgb(235, 180, 255);
+    margin-bottom: 0.5%;
+}
+
+form {
+    align-items: center;
+    align-self: center;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.feedbackform {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    border-color: black;
+    border-style: solid;
+    border-width: medium;
+    background-color: rgba(140, 0, 140, 0.5);
+}
+
+.submitt {
+    width: 20%;
+    height: 10%;
+    margin-bottom: 20px;
+}
+
+.fb {
+    margin-top: 10px;
+    font-size: 30px;
+}
+
+.start-btn {
+    margin-bottom: 4%;
+}
+
+.f {
+    color: purple;
+}
+
+.infoh {
+    margin-left: 28%;
+    margin-bottom: 0;
+}
+
+.column {
+    margin-left: auto;
+    margin-left: auto;
+    text-align: center;
+}
+
+.startstuff {
+    text-align: center;
+}
+
+.ss2 {
+    text-align: center;
+}
+
+#pts {
+    margin-left: calc(50% - 70pt);
+    margin-right: calc(50% - 70pt);
+    padding-top: 0.3%;
+    padding-bottom: 0.3%;
+    border-color: black;
+    border-style: solid;
+    border-width: 2px;
+    background-color: rgba(140, 0, 140, 0.5);
+    font-size: calc(0.15em * 10);
+}
+
+#question {
+    font-size: calc(0.5em + 12px);
+}
+
+#category {
+    font-size: calc(0.5em + 6px);
+}
+
+#game-results {
+    text-align: center;
+}
+
+.thx {
+    font-size: calc(1em + 14px);
+}
