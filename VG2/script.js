@@ -28,9 +28,9 @@ function create() {
     hello3.anchor.set(0.5, 0.5);
     spacebar = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spinSound = game.add.audio('spin', 0.4);
-    match1Sound = game.add.audio('oof', 0.2)
+    match1Sound = game.add.audio('oof', 0.15)
     match2Sound = game.add.audio('coin', 0.7);
-    match3Sound = game.add.audio('doot', 100);
+    match3Sound = game.add.audio('doot', 1000);
     spinSound.loop = true;
     scoreText = game.add.text(game.world.centerX, game.world.centerY + 80,
         'Use Spacebar to Spin', {
@@ -60,17 +60,20 @@ function update() {
 function checkMatch() {
     if (hello1.frame == hello2.frame && hello2.frame == hello3.frame) {
         // all 3 match
-        score = score + 100 + " points nice one my dude";
+        score = score + 100;
         match3Sound.play();
+        scoreText.text = score + " points nice one my dude";
     } else if (hello1.frame == hello2.frame || hello2.frame == hello3.frame ||
         hello1.frame == hello3.frame) {
         // any 2 match
-        score = score + 20 + " points that's cool I guess";
+        score = score + 20;
         match2Sound.play();
+        scoreText.text = score + " points that's cool I guess";
     } else {
         // none match
-        score = score - 10 + " points rip lol";
+        score = score - 10;
         match1Sound.play();
+        scoreText.text = score + " points rip lol";
     }
-    scoreText.text = score;
+
 }
