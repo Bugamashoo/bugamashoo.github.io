@@ -1,0 +1,9 @@
+body {
+    background: #dddddd;
+    text-align: center;
+}
+
+#my-game {
+    margin: auto;
+    align-self: center;
+}

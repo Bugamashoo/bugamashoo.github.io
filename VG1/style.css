@@ -3,6 +3,8 @@
     height: 600px;
     margin: auto;
     border: 1px solid black;
+    padding-left: calc(50vw - 800px);
+    padding-right: calc(50vw - 800px);
 }
 
 body {
