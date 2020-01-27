@@ -1,0 +1,9 @@
+#my-game {
+    /* optional */
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+    border: 3px solid black;
+}
+
+game.stage.backgroundColor='#ff00ff';

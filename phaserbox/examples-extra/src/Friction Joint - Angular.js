@@ -1,0 +1,140 @@
+
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, render: render, update: update });
+
+function preload() {
+    game.load.image('a', 'assets/sprites/a.png');
+	game.load.image('b', 'assets/sprites/b.png');
+}
+
+
+var spriteB;
+var torqueText;
+var maxTorqueText;
+var cursors;
+var joint;
+function create() {
+	
+	game.stage.backgroundColor = '#124184';
+
+	// Enable Box2D physics
+	game.physics.startSystem(Phaser.Physics.BOX2D);
+    
+    game.physics.box2d.setBoundsToWorld();
+    game.physics.box2d.debugDraw.joints = true;
+    
+    game.physics.box2d.restitution = 0.5;
+    
+    
+    // Static box
+	var spriteA = game.add.sprite(game.world.centerX, 300, 'a');
+	game.physics.box2d.enable(spriteA);
+	spriteA.body.static = true;
+		
+	// Dynamic box
+	spriteB = game.add.sprite(game.world.centerX, 300, 'b');
+	game.physics.box2d.enable(spriteB);
+		
+	// bodyA, bodyB, maxForce, maxTorque, ax, ay, bx, by
+	joint = game.physics.box2d.frictionJoint(spriteA, spriteB, 0, 50);
+		
+    
+    
+    //Text to tell user how to use this example
+    game.add.text(5, 10, 'Friction Joint - Angular friction only. Click + Drag Box B left or right, then release mouse button to spin', { fill: '#ffffff', font: '13pt Arial' });
+    game.add.text(5, 30, 'Use the up and down arrow keys to change the MaxTorque parameter of the friction joint', { fill: '#ffffff', font: '13pt Arial' });
+   
+    //Text to display torque to be applied to box from click+drag
+    torqueText = game.add.text(game.world.centerX, 100, 'Torque: 0', { fill: '#ccffcc', font: '14pt Arial' });
+    torqueText.anchor.set(0.5);
+    
+    //Text to display the current MaxTorque property of the friction joint
+    maxTorqueText = game.add.text(game.world.centerX, 75, 'Friction joint MaxTorque: ' + joint.GetMaxTorque(), { fill: '#ccffcc', font: '14pt Arial' });
+    maxTorqueText.anchor.set(0.5);
+    
+    //input callbacks to keep track of mouse drags
+    game.input.onDown.add(mouseDragStart, this);
+	game.input.addMoveCallback(mouseDragMove, this);
+	game.input.onUp.add(mouseDragEnd, this);
+    
+    //arrow key input
+    cursors = game.input.keyboard.createCursorKeys();
+}
+
+
+var pressed = false;
+function update() {
+    
+    //Increase max torque when up is pressed.
+	if (cursors.up.isDown) {
+        if (!pressed) {
+            joint.SetMaxTorque(joint.GetMaxTorque() + 5);
+            maxTorqueText.text = 'Friction joint MaxTorque: ' + joint.GetMaxTorque();
+            pressed = true;
+        }
+    } else if (cursors.down.isDown) { //Decrease when down is pressed
+        if (!pressed) {
+            joint.SetMaxTorque(joint.GetMaxTorque() - 5);
+            maxTorqueText.text = 'Friction joint MaxTorque: ' + joint.GetMaxTorque();
+            pressed = true;
+        }
+    } else {
+        pressed = false;
+    }
+	
+}
+
+//flag to keep track of whether spriteB is being clicked+dragged
+var dragging;
+
+//X coordinate for the start point of mouse drag motion
+var startX
+
+//variable to keep track of the distance between drag start and current pointer location, used to calculate torque applied to box when mouse button is released
+var torque = 0;
+
+//when mouse button is pressed check if pointer overlaps spriteB, if so start recording drag and set dragStart coords
+function mouseDragStart() 
+{ 
+    if (spriteB.body.containsPoint(game.input.mousePointer)) {
+        dragging = true;
+        startX = game.input.mousePointer.x;
+    }
+        
+}
+
+//if dragging=true update torque variable and torqueText based on mouse position
+function mouseDragMove() 
+{  
+    if (dragging) {
+        torque = game.input.mousePointer.x - startX;
+        torqueText.text = 'Torque: ' + torque;
+    }
+}
+
+//when mouse butotn is released, check if dragging is true and if so complete the drag motion by applying torque to spriteB and setting dragging=false
+function mouseDragEnd()
+{   
+    if (dragging) {
+        dragging = false;
+        spriteB.body.rotateRight(torque * 5);
+        torque = 0;
+        torqueText.text = 'Torque: ' + torque;
+        
+    }
+}
+
+
+function render() {
+	
+	game.debug.box2dWorld();
+	
+}
+
+
+
+
+
+
+
+
+

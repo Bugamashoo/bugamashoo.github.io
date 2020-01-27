@@ -1,0 +1,90 @@
+
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+function preload() {
+
+	game.load.image('a', 'assets/sprites/a.png');
+	game.load.image('b', 'assets/sprites/b.png');
+
+}
+
+var joint;
+var speedCaption;
+//store speedText in variable so a new String object isn't created every time "Motor Speed: " occurs in the code
+var speedText = "Motor speed: ";
+function create() {
+	
+	game.stage.backgroundColor = '#124184';
+
+	// Enable Box2D physics
+	game.physics.startSystem(Phaser.Physics.BOX2D);
+	game.physics.box2d.debugDraw.joints = true;
+	game.physics.box2d.setBoundsToWorld();
+	game.physics.box2d.gravity.y = 500;
+
+		
+    // Wheel joint with motor enabled
+	{
+		// Static box
+		var spriteA = game.add.sprite(game.world.centerX, game.world.centerY, 'a');
+		game.physics.box2d.enable(spriteA);
+		spriteA.body.static = true;
+		
+		// Dynamic box
+		var spriteB = game.add.sprite(game.world.centerX, game.world.centerY, 'b');
+		game.physics.box2d.enable(spriteB);
+		
+		// bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled
+		joint = game.physics.box2d.wheelJoint(spriteA, spriteB, 0,125,0,0, 0, 1, 3, 0.5, -350, 100, true);
+	}
+
+	// Set up handlers for mouse events
+	game.input.onDown.add(mouseDragStart, this);
+	game.input.addMoveCallback(mouseDragMove, this);
+	game.input.onUp.add(mouseDragEnd, this);
+	
+	game.add.text(5, 5, 'Wheel joint with motor enabled. Press UP to increase motor speed and down to decrease', { fill: '#ffffff', font: '14pt Arial' });
+    speedCaption = game.add.text(5, 45, speedText, { fill: '#ccffcc', font: '14pt Arial' });
+	
+	// Start paused so user can see how the joints start out
+	game.paused = true;
+	game.input.onDown.add(function(){game.paused = false;}, this);
+    
+    cursors = game.input.keyboard.createCursorKeys();
+}
+
+function mouseDragStart() { game.physics.box2d.mouseDragStart(game.input.mousePointer); }
+function mouseDragMove() {  game.physics.box2d.mouseDragMove(game.input.mousePointer); }
+function mouseDragEnd() {   game.physics.box2d.mouseDragEnd(); }
+
+var pressed;
+function update() {
+	
+    if (cursors.down.isDown) { //If user presses down decrease the motor speed by 1. only works if key isn't already pressed, to prevent speed from changing too rapidly
+        if (!pressed) {
+            pressed = true;
+            joint.SetMotorSpeed(joint.GetMotorSpeed() - 1);
+        }
+    } else if (cursors.up.isDown) { //If user presses up increase motorspeed. Only works if key isn't already pressed
+        if (!pressed) {
+            pressed = true;
+            joint.SetMotorSpeed(joint.GetMotorSpeed() + 1);
+        }
+    } else {
+        pressed = false;
+    }
+
+	speedCaption.text = speedText + joint.GetMotorSpeed();
+	
+}
+
+function render() {
+	
+	// update will not be called while paused, but we want to change the caption on mouse-over
+	if ( game.paused ) {
+		update();
+	}
+	
+	game.debug.box2dWorld();
+	
+}

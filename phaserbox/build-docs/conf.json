@@ -1,0 +1,45 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "___source": {
+        "include": [ 
+            "./src/" 
+        ],
+        "exclude": [
+            "./src/box2d/box2d-html5.js"
+        ],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "plugins"   : [
+        "plugins/markdown"
+    ],
+    "templates": {
+        "cleverLinks"     : false,
+        "monospaceLinks"  : false,
+        "default"         : {
+            "outputSourceFiles" : true
+        },
+        "systemName"      : "Phaser Box2D",
+        "footer"          : "",
+        "copyright"       : "Phaser Copyright © 2012-2015 Photon Storm Ltd.",
+        "navType"         : "vertical",
+        "theme"           : "cerulean",
+        "linenums"        : true,
+        "collapseSymbols" : false,
+        "inverseNav"      : true
+    },
+    "markdown"  : {
+        "parser"   : "gfm",
+        "hardwrap" : true
+    },
+    "___opts": {
+        "template": "./build-docs/docstrap-master/template/",
+        "encoding": "utf8",
+        "destination": "./api-docs/",
+        "recurse": true,
+        "private": false,
+        "lenient": true
+    }
+}
