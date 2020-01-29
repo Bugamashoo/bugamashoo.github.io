@@ -28,8 +28,8 @@ function create() {
 
     // Enable Box2D physics
     game.physics.startSystem(Phaser.Physics.BOX2D);
-    game.physics.box2d.gravity.y = 360;
-    game.physics.box2d.friction = 0.9;
+    game.physics.box2d.gravity.y = 250;
+    game.physics.box2d.friction = 0.75;
 
     // Make the ground body
     var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -51,9 +51,11 @@ function create() {
     wheelBodies[0].setCircle(0.3 * PTM);
     wheelBodies[1] = new Phaser.Physics.Box2D.Body(this.game, null, cCarWheel[1].xPos * PTM, 0.6 * -PTM);
     wheelBodies[1].setCircle(0.3 * PTM);
+    //wheelBodies[1].setAttribute.friction(0.95);
     if (cCar.carNumWheels == 3) {
         wheelBodies[2] = new Phaser.Physics.Box2D.Body(this.game, null, cCarWheel[2].xPos * PTM, 0.6 * -PTM);
         wheelBodies[2].setCircle(0.3 * PTM);
+        //wheelBodies[2].setAttribute.friction(0.95);
     }
 
 

@@ -1,33 +1,33 @@
 var apc = {
     name: "APC",
     carVertices: [5, -20, 60, -15, 70, -5, 60, 20, 55, 20, 50, 10, 30, 10, 25, 20, 15, 20, 10, 10, -10, 10, -15, 20, -25, 20, -30, 10, -50, 10, -55, 20, -60, 20, -70, -10, -60, -20, -30, -20, -25, -30, 0, -30],
-    carPower: 1.2,
-    height: 0.5,
-    carPTM: 1, //chassis size multiplier
+    carPower: 1.6,
+    height: 0.43,
+    carPTM: 1.2, //chassis weight multiplier
     carNumWheels: 3,
     carWheel: [
         {
-            xPos: -0.8, //back wheel
-            size: 0.3,
+            xPos: -0.67, //back wheel
+            size: 0,
             active: 1,
             grip: 0.5,
-            springs: 3,
-            damping: 0.7
+            springs: 2.2,
+            damping: 0.5
         },
         {
             xPos: 0, //middle wheel
-            size: 0.3,
+            size: 0,
             active: 1,
             grip: 0.5,
-            springs: 3,
-            damping: 0.7
+            springs: 2.2,
+            damping: 0.5
         },
         {
-            xPos: 0.8, //front wheel
-            size: 0.3,
+            xPos: 0.67, //front wheel
+            size: 0,
             active: 1,
             grip: 0.5,
-            springs: 3,
-            damping: 0.7
+            springs: 2.2,
+            damping: 0.5
         }],
 }
