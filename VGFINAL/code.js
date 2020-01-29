@@ -44,11 +44,11 @@ function create() {
 
     game.world.setBounds(-10000, -10000, 20000, 20000);
 
-    game.stage.backgroundColor = '#124184';
+    game.stage.backgroundColor = '#203050';
 
     // Enable Box2D physics
     game.physics.startSystem(Phaser.Physics.BOX2D);
-    game.physics.box2d.gravity.y = 300;
+    game.physics.box2d.gravity.y = 360;
     game.physics.box2d.friction = 0.8;
 
     // Make the ground body
