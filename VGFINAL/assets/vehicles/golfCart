@@ -2,6 +2,8 @@ var golfCart = {
     name: "Golf Cart",
     carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 8, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 8],
     carPower: 1,
+    airResist: 0.01,
+    tilt: 1,
     height: 0.8,
     carPTM: 0.4, //chassis size multiplier
     carNumWheels: 2,

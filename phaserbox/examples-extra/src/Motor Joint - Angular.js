@@ -30,7 +30,7 @@ function create() {
 		game.physics.box2d.enable(spriteB);
 		
 		// bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
-		game.physics.box2d.motorJoint(spriteA, spriteB, 0, 50, 0.5);
+		game.physics.box2d.motorJoint(spriteA, spriteB, 5, 5, 0);
 		
 	}
 	

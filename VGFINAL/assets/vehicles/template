@@ -1,0 +1,25 @@
+var template = {
+    name: "name",
+    carVertices: [],
+    carPower: 1,
+    height: 0.5,
+    carPTM: 1, //chassis size multiplier
+    carNumWheels: 2,
+    carWheel: [
+        {
+            xPos: -1, //back wheel
+            size: 0.3,
+            active: 1,
+            grip: 0.5,
+            springs: 2.5,
+            damping: 0.5
+        },
+        {
+            xPos: 1, //front wheel
+            size: 0.3,
+            active: 1,
+            grip: 0.5,
+            springs: 2.5,
+            damping: 0.5
+        }],
+}
