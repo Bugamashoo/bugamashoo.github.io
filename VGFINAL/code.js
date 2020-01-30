@@ -5,12 +5,12 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 });
 
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar]; //Load all the cars
-
+var selection = 4;
 var vehicleVertices = [];
-var selection = 4; //Car selection
+//Car selection
+
 var sSelection = 0; //Stage selection
 var groundVertices;
-var updat = 2;
 
 //upgrades
 var susUp;
@@ -35,6 +35,7 @@ function create() {
     var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
     groundBody.setChain(groundVertices[sSelection].data);
 
+
     var jointAnchor = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0); //car limit physics
     jointAnchor.setPolygon[10, 10, 10, -10, -10, -10, -10, 10];
 
@@ -44,7 +45,8 @@ function create() {
     vehicleVertices = cCar.carVertices;
     vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -1 * PTM);
     vehicleBody.setPolygon(vehicleVertices);
-    game.physics.box2d.motorJoint(jointAnchor, vehicleBody, 0.1, 0, 0);
+    // bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
+    flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, 0.005, 0.05, 0);
     // Make the wheel bodies
 
 

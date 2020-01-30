@@ -14,12 +14,12 @@ var foodCart = {
             active: 1,
             grip: 0.5,
             springs: 4,
-            damping: 0.8
+            damping: 0.2
         },
         {
             xPos: 1.1, //front wheel
             size: 0.5,
-            active: 0.1,
+            active: 0.05,
             grip: 0.5,
             springs: 6,
             damping: 0.95
