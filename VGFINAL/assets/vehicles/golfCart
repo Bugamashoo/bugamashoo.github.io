@@ -1,7 +1,7 @@
 var golfCart = {
     name: "Golf Cart",
     carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 5, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 5],
-    carPower: 0.8,
+    carPower: 1.2,
     airResist: 0.01,
     tilt: 1,
     height: 0.95,
@@ -11,17 +11,17 @@ var golfCart = {
         {
             xPos: -1.4, //back wheel
             size: 1.2,
-            active: 0.8,
+            active: 0.5,
             grip: 0.5,
-            springs: 4,
+            springs: 5,
             damping: 0.6
         },
         {
             xPos: 1.4, //front wheel
             size: 1.2,
-            active: 0.2,
+            active: 0.3,
             grip: 0.5,
-            springs: 4,
+            springs: 5,
             damping: 0.6
         }]
 }

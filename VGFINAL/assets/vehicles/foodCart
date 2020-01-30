@@ -1,25 +1,25 @@
 var foodCart = {
     name: "Food Cart",
     carVertices: [45, 0, 45, -20, 0, -20, 0, 0, -5, 5, -20, 5, -25, -10, -35, -10, -30, -5, -30, 10, -5, 10, 5, 5, 15, 5, 20, 0, 25, 0, 30, 5, 40, 5],
-    carPower: 2,
+    carPower: 2.5,
     airResist: 0.01,
     tilt: 1,
-    height: 0.5,
+    height: 0.55,
     carPTM: 0.4, //chassis size multiplier
     carNumWheels: 2,
     carWheel: [
         {
             xPos: -1.4, //back wheel
-            size: 0.4,
+            size: 0.7,
             active: 1,
             grip: 0.5,
-            springs: 4,
+            springs: 3,
             damping: 0.2
         },
         {
             xPos: 1.1, //front wheel
-            size: 0.5,
-            active: 0.05,
+            size: 1,
+            active: 0.04,
             grip: 0.5,
             springs: 6,
             damping: 0.95
