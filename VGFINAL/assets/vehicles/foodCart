@@ -10,15 +10,15 @@ var foodCart = {
     carWheel: [
         {
             xPos: -1.4, //back wheel
-            size: 0.7,
-            active: 1,
+            size: 1,
+            active: 2,
             grip: 0.5,
             springs: 3,
             damping: 0.2
         },
         {
             xPos: 1.1, //front wheel
-            size: 1,
+            size: 1.4,
             active: 0.04,
             grip: 0.5,
             springs: 6,
