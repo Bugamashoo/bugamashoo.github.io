@@ -1,94 +1,94 @@
 var tank = {
-    name: "Tank",
-    carVertices: [90, -10, 30, -20, 10, -20, 0, -40, -30, -40, -40, -30, -80, -30, -90, -20, -90, 10, -70, 20, 70, 20, 83, 10],
-    carPower: 1,
-    airResist: 0.01,
+	name: "Tank",
+	carVertices: [90, -10, 30, -20, 10, -20, 0, -40, -30, -40, -40, -30, -80, -30, -90, -20, -90, 10, -70, 20, 70, 20, 83, 10],
+	carPower: 1,
+	airResist: 0.1,
 	carMass: 1,
-    tilt: 1,
-    carPTM: 0.4, //chassis size multiplier
-    carNumWheels: 9,
-    carWheel: [
-        {
-            xPos: -3.95, //back wheel
+	tilt: 1,
+	carPTM: 0.4, //chassis size multiplier
+	carNumWheels: 9,
+	carWheel: [
+		{
+			xPos: -3.95, //back wheel
 			mass: 1,
-            size: 2,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 3,
-            damping: 0.3
+			size: 2,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 3,
+			damping: 0.3
         }, {
-            xPos: -3, //back wheel
+			xPos: -3, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         }, {
-            xPos: -2, //back wheel
+			xPos: -2, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         }, {
-            xPos: -1, //back wheel
+			xPos: -1, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         }, {
-            xPos: 0, //back wheel
+			xPos: 0, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         }, {
-            xPos: 1, //back wheel
+			xPos: 1, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         }, {
-            xPos: 2, //back wheel
+			xPos: 2, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         }, {
-            xPos: 3, //back wheel
+			xPos: 3, //back wheel
 			mass: 1,
-            size: 2.8,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2,
-            damping: 0.35
+			size: 2.8,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 2,
+			damping: 0.35
         },
-        {
-            xPos: 3.95, //front wheel
+		{
+			xPos: 3.95, //front wheel
 			mass: 1,
-            size: 2,
-            height: 1.3,
-            active: 1,
-            grip: 0.5,
-            springs: 3,
-            damping: 0.3
+			size: 2,
+			height: 1.3,
+			active: 1,
+			grip: 0.5,
+			springs: 3,
+			damping: 0.3
         }],
 }

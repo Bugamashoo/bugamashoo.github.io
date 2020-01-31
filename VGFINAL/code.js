@@ -5,7 +5,7 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 });
 
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar]; //Load all the cars
-var selection = 6;
+var selection = 3;
 var vehicleVertices = [];
 //Car selection
 
@@ -28,8 +28,8 @@ function create() {
 
 	// Enable Box2D physics
 	game.physics.startSystem(Phaser.Physics.BOX2D);
-	game.physics.box2d.gravity.y = 340;
-	game.physics.box2d.friction = 0.35;
+	game.physics.box2d.gravity.y = 320;
+	game.physics.box2d.friction = 0.3;
 
 	// Make the ground body
 	var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -95,7 +95,7 @@ function update() {
 
 	for (var i = 0; i < cCar.carNumWheels; i++) {
 		driveJoints[i].EnableMotor(motorEnabled);
-		driveJoints[i].SetMotorSpeed(motorSpeed);
+		driveJoints[i].SetMotorSpeed(motorSpeed * cCarWheel[i].active);
 	}
 }
 

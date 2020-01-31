@@ -1,31 +1,31 @@
 var truck = {
 	name: "Truck",
 	carVertices: [-1, -7, -70, -8, -73, 8, -68, 13, -57, 13, -48, 3.5, -35, 2.5, -23, 15, 34, 16, 45, 4, 60, 4, 67, 10, 72, 10, 73, 1, 69, -5.5, 35, -7, 22, -22, 1, -22],
-	carPower: 1,
+	carPower: 1.5,
 	airResist: 0.01,
-	carMass: 1,
+	carMass: 0.8,
 	tilt: 1,
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -0.85, //back wheel
-			mass: 1,
-			size: 0.3,
-			height: 0.5,
+			xPos: -4, //back wheel
+			mass: 0.6,
+			size: 14,
+			height: 2,
 			active: 1,
-			grip: 0.5,
-			springs: 2.2,
-			damping: 0.5
+			grip: 1,
+			springs: 2.4,
+			damping: 0.3
         },
 		{
-			xPos: 1.05, //front wheel
-			mass: 1,
-			size: 0.3,
-			height: 0.5,
+			xPos: 5.3, //front wheel
+			mass: 0.6,
+			size: 14,
+			height: 2,
 			active: 1,
 			grip: 0.5,
-			springs: 2.2,
-			damping: 0.5
+			springs: 2.4,
+			damping: 0.3
         }],
 }
