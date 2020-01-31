@@ -3,12 +3,14 @@ var golfCart = {
     carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 5, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 5],
     carPower: 1.2,
     airResist: 0.01,
+	carMass: 1,
     tilt: 1,
     carPTM: 0.3, //chassis size multiplier
     carNumWheels: 2,
     carWheel: [
         {
             xPos: -1.4, //back wheel
+			mass: 1,
             size: 1.2,
             height: 0.95,
             active: 0.5,
@@ -18,6 +20,7 @@ var golfCart = {
         },
         {
             xPos: 1.4, //front wheel
+			mass: 1,
             size: 1.2,
             height: 0.95,
             active: 0.3,

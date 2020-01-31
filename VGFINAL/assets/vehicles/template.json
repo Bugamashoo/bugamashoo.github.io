@@ -1,25 +1,31 @@
 var template = {
-    name: "name",
-    carVertices: [],
-    carPower: 1,
-    height: 0.5,
-    carPTM: 1, //chassis size multiplier
-    carNumWheels: 2,
-    carWheel: [
-        {
-            xPos: -1, //back wheel
-            size: 0.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2.5,
-            damping: 0.5
+	name: "name",
+	carVertices: [],
+	carPower: 1,
+	airResist: 0.01,
+	carMass: 1,
+	tilt: 0.01,
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -1, //back wheel
+			mass: 1,
+			size: 5,
+			height: 1,
+			active: 1,
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5
         },
-        {
-            xPos: 1, //front wheel
-            size: 0.3,
-            active: 1,
-            grip: 0.5,
-            springs: 2.5,
-            damping: 0.5
+		{
+			xPos: 1, //front wheel
+			mass: 1,
+			size: 5,
+			height: 1,
+			active: 1,
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5
         }],
 }

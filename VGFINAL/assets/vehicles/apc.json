@@ -3,12 +3,14 @@ var apc = {
     carVertices: [5, -20, 60, -15, 70, -5, 60, 17, 55, 20, 50, 10, 30, 10, 25, 20, 15, 20, 10, 10, -10, 10, -15, 20, -25, 20, -30, 10, -50, 10, -55, 20, -60, 17, -70, -10, -60, -20, -30, -20, -25, -30, 0, -30],
     carPower: 1.6,
     airResist: 0.01,
+	carMass: 1,
     tilt: 1,
     carPTM: 1.2, //chassis weight multiplier
     carNumWheels: 3,
     carWheel: [
         {
             xPos: -0.67, //back wheel
+			mass: 1,
             size: 0,
             height: 0.43,
             active: 1,
@@ -18,6 +20,7 @@ var apc = {
         },
         {
             xPos: 0, //middle wheel
+			mass: 1,
             size: 0,
             height: 0.43,
             active: 1,
@@ -27,6 +30,7 @@ var apc = {
         },
         {
             xPos: 0.67, //front wheel
+			mass: 1,
             size: 0,
             height: 0.43,
             active: 1,
