@@ -43,7 +43,7 @@ function create() {
 
     // Make the car body
     vehicleVertices = cCar.carVertices;
-    vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -1 * PTM);
+    vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -40);
     vehicleBody.setPolygon(vehicleVertices);
     // bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
     flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, 0.005, 0, 0);
@@ -53,9 +53,9 @@ function create() {
 
     var wheelBodies = [];
     for (var i = 0; i < cCar.carNumWheels; i++) {
-        wheelBodies[i] = new Phaser.Physics.Box2D.Body(this.game, null, cCarWheel[i].xPos * PTM, 0.6 * -PTM, 2);
-        wheelBodies[i].setCircle(0.3 * PTM + cCarWheel[i].size);
-        //wheelBodies[i].friction(cCarWheel[i].grip);
+        wheelBodies[i] = new Phaser.Physics.Box2D.Body(this.game, null, cCarWheel[i].xPos, cCarWheel[i].height, 2);
+        wheelBodies[i].setCircle(cCarWheel[i].size);
+        wheelBodies[i].b2Body.setMassData(cCarWheel[i].grip);
 
     }
 
@@ -65,7 +65,7 @@ function create() {
     // Make wheel joints
     // bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled	
     for (var i = 0; i < cCar.carNumWheels; i++) {
-        driveJoints[i] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i], cCarWheel[i].xPos * PTM, cCarWheel[i].height * PTM, 0, 0, 0, 1, cCarWheel[i].springs, cCarWheel[i].damping, 0, motorTorque * cCarWheel[i].active, true);
+        driveJoints[i] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i], cCarWheel[i].xPos * 10, cCarWheel[i].height * 10, 0, 0, 0, 1, cCarWheel[i].springs, cCarWheel[i].damping, 0, motorTorque * cCarWheel[i].active, true);
     }
 
     cursors = game.input.keyboard.createCursorKeys();

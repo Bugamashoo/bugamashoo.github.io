@@ -4,25 +4,25 @@ var nascar = {
     carPower: 4,
     airResist: 0.005,
     tilt: 1,
-    carPTM: 0.5, //chassis size multiplier
+    carPTM: 3, //Wheel weight maybe
     carNumWheels: 2,
     carWheel: [
         {
-            xPos: -1.6, //back wheel
-            size: 5,
-            height: 0.6,
+            xPos: -4, //back wheel
+            size: 13.5,
+            height: 1.55,
             active: 0.5,
             grip: 0.5,
-            springs: 5,
-            damping: 0.5
+            springs: 6,
+            damping: 0.2
         },
         {
-            xPos: 1.78, //front wheel
-            size: 1,
-            height: 0.55,
+            xPos: 4.48, //front wheel
+            size: 9,
+            height: 1.45,
             active: 0.01,
             grip: 0.5,
             springs: 7,
-            damping: 0.5
+            damping: 0.2
         }],
 }
