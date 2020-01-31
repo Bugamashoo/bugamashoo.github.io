@@ -5,7 +5,7 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 });
 
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar]; //Load all the cars
-var selection = 3;
+var selection = 6;
 var vehicleVertices = [];
 //Car selection
 
@@ -28,8 +28,8 @@ function create() {
 
     // Enable Box2D physics
     game.physics.startSystem(Phaser.Physics.BOX2D);
-    game.physics.box2d.gravity.y = 250;
-    game.physics.box2d.friction = 0.75;
+    game.physics.box2d.gravity.y = 280;
+    game.physics.box2d.friction = 0.8;
 
     // Make the ground body
     var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -46,7 +46,7 @@ function create() {
     vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -1 * PTM);
     vehicleBody.setPolygon(vehicleVertices);
     // bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
-    flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, 0.005, 0.05, 0);
+    flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, 0.005, 0, 0);
     // Make the wheel bodies
 
 
@@ -61,12 +61,11 @@ function create() {
 
 
     var motorTorque = cCar.carPower;
-    var rideHeight = cCar.height;
 
     // Make wheel joints
     // bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled	
     for (var i = 0; i < cCar.carNumWheels; i++) {
-        driveJoints[i] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i], cCarWheel[i].xPos * PTM, rideHeight * PTM, 0, 0, 0, 1, cCarWheel[i].springs, cCarWheel[i].damping, 0, motorTorque * cCarWheel[i].active, true);
+        driveJoints[i] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i], cCarWheel[i].xPos * PTM, cCarWheel[i].height * PTM, 0, 0, 0, 1, cCarWheel[i].springs, cCarWheel[i].damping, 0, motorTorque * cCarWheel[i].active, true);
     }
 
     cursors = game.input.keyboard.createCursorKeys();

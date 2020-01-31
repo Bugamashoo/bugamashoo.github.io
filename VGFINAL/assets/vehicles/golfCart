@@ -4,13 +4,13 @@ var golfCart = {
     carPower: 1.2,
     airResist: 0.01,
     tilt: 1,
-    height: 0.95,
     carPTM: 0.3, //chassis size multiplier
     carNumWheels: 2,
     carWheel: [
         {
             xPos: -1.4, //back wheel
             size: 1.2,
+            height: 0.95,
             active: 0.5,
             grip: 0.5,
             springs: 5,
@@ -19,6 +19,7 @@ var golfCart = {
         {
             xPos: 1.4, //front wheel
             size: 1.2,
+            height: 0.95,
             active: 0.3,
             grip: 0.5,
             springs: 5,

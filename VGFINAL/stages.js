@@ -30,3 +30,36 @@ var groundVertices = [{
 }, {
     data: []
    }];
+
+function Terrain(options) {
+    options = options || {};
+    this.terrain = document.createElement("canvas");
+    this.terCtx = this.terrain.getContext("2d");
+    this.scrollDelay = options.scrollDelay || 90;
+    this.lastScroll = new Date().getTime();
+
+    this.terrain.width = width;
+    this.terrain.height = height;
+    this.fillStyle = options.fillStyle || "#191D4C";
+    this.mHeight = options.mHeight || height;
+
+    // generate
+    this.points = [];
+
+    var displacement = options.displacement || 140,
+        power = Math.pow(2, Math.ceil(Math.log(width) / (Math.log(2))));
+
+    // set the start height and end height for the terrain
+    this.points[0] = this.mHeight; //(this.mHeight - (Math.random() * this.mHeight / 2)) - displacement;
+    this.points[power] = this.points[0];
+
+    // create the rest of the points
+    for (var i = 1; i < power; i *= 2) {
+        for (var j = (power / i) / 2; j < power; j += power / i) {
+            this.points[j] = ((this.points[j - (power / i) / 2] + this.points[j + (power / i) / 2]) / 2) + Math.floor(Math.random() * -displacement + displacement);
+        }
+        displacement *= 0.6;
+    }
+
+    document.body.appendChild(this.terrain);
+}

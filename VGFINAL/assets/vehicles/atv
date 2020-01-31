@@ -4,13 +4,13 @@ var atv = {
     carPower: 0.35,
     airResist: 0.01,
     tilt: 1,
-    height: 0.55,
     carPTM: 0.5, //chassis size multiplier
     carNumWheels: 2,
     carWheel: [
         {
             xPos: -0.87, //back wheel
             size: 1,
+            height: 0.55,
             active: 1,
             grip: 0.5,
             springs: 3,
@@ -19,6 +19,7 @@ var atv = {
         {
             xPos: 0.65, //front wheel
             size: 1,
+            height: 0.55,
             active: 1,
             grip: 0.5,
             springs: 3,

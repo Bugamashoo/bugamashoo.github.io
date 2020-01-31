@@ -4,13 +4,13 @@ var apc = {
     carPower: 1.6,
     airResist: 0.01,
     tilt: 1,
-    height: 0.43,
     carPTM: 1.2, //chassis weight multiplier
     carNumWheels: 3,
     carWheel: [
         {
             xPos: -0.67, //back wheel
             size: 0,
+            height: 0.43,
             active: 1,
             grip: 0.5,
             springs: 2.2,
@@ -19,6 +19,7 @@ var apc = {
         {
             xPos: 0, //middle wheel
             size: 0,
+            height: 0.43,
             active: 1,
             grip: 0.5,
             springs: 2.2,
@@ -27,6 +28,7 @@ var apc = {
         {
             xPos: 0.67, //front wheel
             size: 0,
+            height: 0.43,
             active: 1,
             grip: 0.5,
             springs: 2.2,

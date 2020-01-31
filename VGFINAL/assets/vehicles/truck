@@ -4,13 +4,13 @@ var truck = {
     carPower: 1,
     airResist: 0.01,
     tilt: 1,
-    height: 0.5,
     carPTM: 1, //chassis size multiplier
     carNumWheels: 2,
     carWheel: [
         {
             xPos: -0.85, //back wheel
             size: 0.3,
+            height: 0.5,
             active: 1,
             grip: 0.5,
             springs: 2.2,
@@ -19,6 +19,7 @@ var truck = {
         {
             xPos: 1.05, //front wheel
             size: 0.3,
+            height: 0.5,
             active: 1,
             grip: 0.5,
             springs: 2.2,
