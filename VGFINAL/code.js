@@ -28,8 +28,8 @@ function create() {
 
 	// Enable Box2D physics
 	game.physics.startSystem(Phaser.Physics.BOX2D);
-	game.physics.box2d.gravity.y = 280;
-	game.physics.box2d.friction = 0.3;
+	game.physics.box2d.gravity.y = 340;
+	game.physics.box2d.friction = 0.35;
 
 	// Make the ground body
 	var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -45,6 +45,7 @@ function create() {
 	vehicleVertices = cCar.carVertices;
 	vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -40);
 	vehicleBody.setPolygon(vehicleVertices);
+	vehicleBody.mass = cCar.carMass;
 	// bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
 	flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, 0.005, 0, 0);
 	// Make the wheel bodies
