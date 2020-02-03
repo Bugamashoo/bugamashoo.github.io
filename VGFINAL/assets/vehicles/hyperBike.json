@@ -5,7 +5,8 @@ var hyperBike = {
 	carMaxSpeed: 100, //rad per sec
 	airResist: 0.5,
 	carMass: 0.6,
-	tilt: 0.1,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 0.55, //tilt speed and strength
 	gas: 100,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
@@ -14,21 +15,21 @@ var hyperBike = {
 		{
 			xPos: -30, //back wheel
 			mass: 0.2,
-			size: 10,
+			size: 12,
 			height: 0,
 			active: 1,
 			grip: 5,
 			springs: 8,
-			damping: 0.2
+			damping: 0.5
         },
 		{
 			xPos: 30, //front wheel
-			mass: 0.2,
-			size: 10,
+			mass: 0.3,
+			size: 12,
 			height: 0,
-			active: 0.1,
-			grip: 5,
+			active: 0,
+			grip: 1,
 			springs: 8,
-			damping: 0.2
+			damping: 0.5
         }],
 }

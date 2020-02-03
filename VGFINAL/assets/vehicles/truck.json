@@ -5,7 +5,8 @@ var truck = {
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 0.8,
-	tilt: 1,
+	tilt: 1, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
 	gas: 150,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
