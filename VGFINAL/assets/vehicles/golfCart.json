@@ -2,9 +2,12 @@ var golfCart = {
 	name: "Golf Cart",
 	carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 5, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 5],
 	carPower: 1.5,
+	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 0.8,
 	tilt: 1,
+	gas: 150,
+	gasType: 1, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [

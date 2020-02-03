@@ -2,9 +2,12 @@ var template = {
 	name: "name",
 	carVertices: [],
 	carPower: 1,
+	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 1,
 	tilt: 0.01,
+	gas: 150,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [

@@ -1,94 +1,97 @@
 var tank = {
 	name: "Tank",
-	carVertices: [90, -10, 30, -20, 10, -20, 0, -40, -30, -40, -40, -30, -80, -30, -90, -20, -90, 10, -70, 20, 70, 20, 83, 10],
-	carPower: 1,
-	airResist: 0.1,
-	carMass: 1,
+	carVertices: [90, -20, 30, -30, 10, -30, 0, -50, -30, -50, -40, -40, -80, -40, -90, -30, -90, 0, -70, 10, 70, 10, 85, 0],
+	carPower: 8,
+	carMaxSpeed: 28, //rad per sec
+	airResist: 0.05,
+	carMass: 2.5,
 	tilt: 1,
-	carPTM: 0.4, //chassis size multiplier
+	gas: 170,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
 	carNumWheels: 9,
 	carWheel: [
 		{
-			xPos: -3.95, //back wheel
-			mass: 1,
-			size: 2,
-			height: 1.3,
+			xPos: -79, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 5,
 			active: 1,
-			grip: 0.5,
-			springs: 3,
-			damping: 0.3
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
-			xPos: -3, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			xPos: -60, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
-			xPos: -2, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			xPos: -40, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
-			xPos: -1, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			xPos: -20, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
 			xPos: 0, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
-			xPos: 1, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			xPos: 20, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
-			xPos: 2, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			xPos: 40, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }, {
-			xPos: 3, //back wheel
-			mass: 1,
-			size: 2.8,
-			height: 1.3,
+			xPos: 60, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 10,
 			active: 1,
-			grip: 0.5,
-			springs: 2,
-			damping: 0.35
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         },
 		{
-			xPos: 3.95, //front wheel
-			mass: 1,
-			size: 2,
-			height: 1.3,
+			xPos: 79, //front wheel
+			mass: 0.2,
+			size: 9,
+			height: 5,
 			active: 1,
-			grip: 0.5,
-			springs: 3,
-			damping: 0.3
+			grip: 10,
+			springs: 3.7,
+			damping: 0.15
         }],
 }

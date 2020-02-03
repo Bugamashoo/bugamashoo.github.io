@@ -1,5 +1,5 @@
 var groundVertices = [{
-    data: [-200, -0, -130.128, 5.08323, -89.0526, -0.105309, -31.5464, 1.19183, 1.31426, 5.5156,
+	data: [-200, -0, -130.128, 5.08323, -89.0526, -0.105309, -31.5464, 1.19183, 1.31426, 5.5156,
 50.6053, 4.21846, 87.7897, -2.26719, 148.755, -4.42908, 200, -0, 251.899, 4.99306,
 289.063, 13.0285, 335.267, 18.0508, 369.418, 9.01079, 383.48, 14.033, 410.6, 3.9886,
 433.702, 2.98414, 467.853, 10.0152, 487.942, 20.0596, 512.048, 23.073, 545.195, 8.00633,
@@ -26,40 +26,8 @@ var groundVertices = [{
 4674.48, 29.5702, 4713.99, 14.847, 4760.58, 14.6627, 4803.11, 38.8688, 4819.84, 15.0291,
 4858.19, -1.45256, 4896.91, 5.9419, 4925.06, 31.9846, 4960.49, 17.0905, 5006.14, 15.8518,
 5050.86, 24.3401, 5078.48, 41.8191, 5498.61, 41.7032, 5499.5, -306.024],
-    stageName: "Testing Stage (debug only)"
+	stageName: "Testing Stage (debug only)"
 }, {
-    data: []
+	data: [0, 0],
+	stageName: "null"
    }];
-
-function Terrain(options) {
-    options = options || {};
-    this.terrain = document.createElement("canvas");
-    this.terCtx = this.terrain.getContext("2d");
-    this.scrollDelay = options.scrollDelay || 90;
-    this.lastScroll = new Date().getTime();
-
-    this.terrain.width = width;
-    this.terrain.height = height;
-    this.fillStyle = options.fillStyle || "#191D4C";
-    this.mHeight = options.mHeight || height;
-
-    // generate
-    this.points = [];
-
-    var displacement = options.displacement || 140,
-        power = Math.pow(2, Math.ceil(Math.log(width) / (Math.log(2))));
-
-    // set the start height and end height for the terrain
-    this.points[0] = this.mHeight; //(this.mHeight - (Math.random() * this.mHeight / 2)) - displacement;
-    this.points[power] = this.points[0];
-
-    // create the rest of the points
-    for (var i = 1; i < power; i *= 2) {
-        for (var j = (power / i) / 2; j < power; j += power / i) {
-            this.points[j] = ((this.points[j - (power / i) / 2] + this.points[j + (power / i) / 2]) / 2) + Math.floor(Math.random() * -displacement + displacement);
-        }
-        displacement *= 0.6;
-    }
-
-    document.body.appendChild(this.terrain);
-}

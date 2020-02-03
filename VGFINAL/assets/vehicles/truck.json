@@ -2,9 +2,12 @@ var truck = {
 	name: "Truck",
 	carVertices: [-1, -7, -70, -8, -73, 8, -68, 13, -57, 13, -48, 3.5, -35, 2.5, -23, 15, 34, 16, 45, 4, 60, 4, 67, 10, 72, 10, 73, 1, 69, -5.5, 35, -7, 22, -22, 1, -22],
 	carPower: 1.5,
+	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 0.8,
 	tilt: 1,
+	gas: 150,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [

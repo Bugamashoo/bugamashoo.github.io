@@ -2,9 +2,12 @@ var foodCart = {
 	name: "Food Cart",
 	carVertices: [45, 0, 45, -20, 0, -20, 0, 0, -5, 5, -20, 5, -25, -10, -35, -10, -30, -5, -30, 10, -5, 10, 5, 5, 15, 5, 20, 0, 25, 0, 30, 5, 40, 5],
 	carPower: 2.5,
+	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 1.1,
 	tilt: 1,
+	gas: 180,
+	gasType: 2, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [
