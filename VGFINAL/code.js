@@ -22,7 +22,7 @@ var driveJoints = [];
 
 function create() {
 
-	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, down arrow key to brake.', {
+	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, down arrow key to brake, up arrow to reset.', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
