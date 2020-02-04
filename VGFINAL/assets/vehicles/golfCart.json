@@ -1,35 +1,35 @@
 var golfCart = {
 	name: "Golf Cart",
 	carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 5, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 5],
-	carPower: 1.5,
-	carMaxSpeed: 50, //rad per sec
-	airResist: 0.01,
-	carMass: 0.8,
-	tilt: 1, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	carPower: 0.62,
+	carMaxSpeed: 60, //rad per sec
+	airResist: 0.005,
+	carMass: 0.385,
+	tilt: 0.6, //tilt resistance -- changing this value may cause issues
+	agility: 0.35, //tilt speed
 	gas: 150,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -2, //back wheel
-			mass: 0.7,
-			size: 6.2,
-			height: 1.3,
-			active: 0.9,
-			grip: 1.5,
-			springs: 3,
+			xPos: -20, //back wheel
+			mass: 0.1,
+			size: 6.5,
+			height: 13,
+			active: 1.2,
+			grip: 3,
+			springs: 5,
 			damping: 0.6
         },
 		{
-			xPos: 2, //front wheel
-			mass: 0.7,
-			size: 6.2,
-			height: 1.3,
-			active: 0,
-			grip: 1,
-			springs: 3,
-			damping: 0.6
+			xPos: 20, //front wheel
+			mass: 0.28,
+			size: 6.5,
+			height: 13,
+			active: 0.5,
+			grip: 2,
+			springs: 4.5,
+			damping: 0.4
         }]
 }

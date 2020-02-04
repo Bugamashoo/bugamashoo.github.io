@@ -5,8 +5,8 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 });
 
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike]; //Load all the cars
-
-var selection = 6; //CURRENTLY SELECTED CAR
+var random
+var selection = Math.floor(Math.random() * 7); //CURRENTLY SELECTED CAR
 
 var vehicleVertices = [];
 //Car selection

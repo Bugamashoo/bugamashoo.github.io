@@ -1,34 +1,34 @@
 var truck = {
 	name: "Truck",
 	carVertices: [-1, -7, -70, -8, -73, 8, -68, 13, -57, 13, -48, 3.5, -35, 2.5, -23, 15, 34, 16, 45, 4, 60, 4, 67, 10, 72, 10, 73, 1, 69, -5.5, 35, -7, 22, -22, 1, -22],
-	carPower: 1.5,
+	carPower: 1.2,
 	carMaxSpeed: 50, //rad per sec
-	airResist: 0.01,
+	airResist: 0.03,
 	carMass: 0.8,
-	tilt: 1, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	tilt: 0.7, //tilt resistance -- changing this value may cause issues
+	agility: 0.7, //tilt speed
 	gas: 150,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -4, //back wheel
-			mass: 0.6,
+			xPos: -40, //back wheel
+			mass: 0.4,
 			size: 14,
-			height: 2,
+			height: 20,
 			active: 1,
-			grip: 1,
+			grip: 1.4,
 			springs: 2.4,
 			damping: 0.3
         },
 		{
-			xPos: 5.3, //front wheel
-			mass: 0.6,
+			xPos: 53, //front wheel
+			mass: 0.4,
 			size: 14,
-			height: 2,
+			height: 20,
 			active: 1,
-			grip: 0.5,
+			grip: 0.8,
 			springs: 2.4,
 			damping: 0.3
         }],
