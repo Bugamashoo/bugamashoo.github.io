@@ -6,7 +6,7 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike]; //Load all the cars
 var random
-var selection = Math.floor(Math.random() * 7); //CURRENTLY SELECTED CAR
+var selection = Math.floor(Math.random() * 8); //CURRENTLY SELECTED CAR
 
 var vehicleVertices = [];
 //Car selection
@@ -34,7 +34,7 @@ function create() {
 // Make the ground body
 function refresh() {
 
-	game.world.setBounds(-10000, -10000, 20000, 20000);
+	game.world.setBounds(-10000, -10000, 50000, 50000);
 
 	game.stage.backgroundColor = '#203050';
 
