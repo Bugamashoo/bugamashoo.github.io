@@ -8,6 +8,7 @@ var apc = {
 			mass: 1,
 			active: false,
 			torque: 1,
+			CorrectionAngle: 0,
 			limCounterclockwise: -90,
 			limClockwise: 90,
 			xPos: -10,
