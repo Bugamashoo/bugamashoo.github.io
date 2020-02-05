@@ -1,5 +1,5 @@
-var template = {
-	name: "name",
+var dumpTruck = {
+	name: "Dump Truck",
 	carVertices: [],
 	carNumParts: 0,
 	carParts: [
@@ -28,7 +28,7 @@ var template = {
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
-	carNumWheels: 2,
+	carNumWheels: 3,
 	carWheel: [
 		{
 			xPos: -1, //back wheel
@@ -39,8 +39,16 @@ var template = {
 			grip: 1,
 			springs: 2.5,
 			damping: 0.5
-        },
-		{
+        },{
+			xPos: -1, //back wheel
+			mass: 1,
+			size: 5,
+			height: 1,
+			active: 1,
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5
+        },{
 			xPos: 1, //front wheel
 			mass: 1,
 			size: 5,

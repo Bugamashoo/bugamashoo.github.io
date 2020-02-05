@@ -1,5 +1,5 @@
-var template = {
-	name: "name",
+var jeep = {
+	name: "jeep",
 	carVertices: [],
 	carNumParts: 0,
 	carParts: [

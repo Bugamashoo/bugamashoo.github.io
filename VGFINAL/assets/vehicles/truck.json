@@ -1,6 +1,22 @@
 var truck = {
 	name: "Truck",
 	carVertices: [-1, -7, -70, -8, -73, 8, -68, 13, -57, 13, -48, 3.5, -35, 2.5, -23, 15, 34, 16, 45, 4, 60, 4, 67, 10, 72, 10, 73, 1, 69, -5.5, 35, -7, 22, -22, 1, -22],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			mass: 1,
+			active: false,
+			torque: 1,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
 	carPower: 1.2,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.03,
@@ -8,6 +24,8 @@ var truck = {
 	tilt: 0.7, //tilt resistance -- changing this value may cause issues
 	agility: 0.7, //tilt speed
 	gas: 150,
+	playerX: 0,
+	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,

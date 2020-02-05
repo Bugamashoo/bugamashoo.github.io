@@ -1,6 +1,22 @@
 var foodCart = {
 	name: "Food Cart",
 	carVertices: [45, 0, 45, -20, 0, -20, 0, 0, -5, 5, -20, 5, -25, -10, -35, -10, -30, -5, -30, 10, -5, 10, 5, 5, 15, 5, 20, 0, 25, 0, 30, 5, 40, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null,null],
+			mass: 1,
+			active: false,
+			torque: 1,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
 	carPower: 2.5,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.05,
@@ -8,6 +24,8 @@ var foodCart = {
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 1.5, //tilt speed
 	gas: 180,
+	playerX: 0,
+	playerY: -10,
 	gasType: 2, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,

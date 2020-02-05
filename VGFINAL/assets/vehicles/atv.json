@@ -1,6 +1,22 @@
 var atv = {
 	name: "ATV",
 	carVertices: [25, 0, 15, -5, 5, -5, 0, 0, -5, 0, -15, -5, -30, -5, -30, 0, -15, 0, -10, 10, 5, 10, 10, 0, 10, 1],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null,null],
+			mass: 1,
+			active: false,
+			torque: 1,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
 	carPower: 1.8,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
@@ -8,6 +24,8 @@ var atv = {
 	tilt: 0.08, //tilt resistance -- changing this value may cause issues
 	agility: 0.2, //tilt speed
 	gas: 150,
+	playerX: 0,
+	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,

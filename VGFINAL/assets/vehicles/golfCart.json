@@ -1,6 +1,22 @@
 var golfCart = {
 	name: "Golf Cart",
 	carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 5, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null,null],
+			mass: 1,
+			active: false,
+			torque: 1,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
 	carPower: 0.62,
 	carMaxSpeed: 60, //rad per sec
 	airResist: 0.005,
@@ -8,6 +24,8 @@ var golfCart = {
 	tilt: 0.6, //tilt resistance -- changing this value may cause issues
 	agility: 0.35, //tilt speed
 	gas: 150,
+	playerX: 0,
+	playerY: -10,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,

@@ -1,6 +1,22 @@
 var hyperBike = {
 	name: "Hyper Bike",
 	carVertices: [45, 0, 45, -10, 40, -17, 20, -20, 0, -15, -10, -15, -15, -20, -45, -22, -45, 0, -40, 5, -30, 0, -20, 5, -10, 0, 10, 0, 20, 5, 30, 0, 40, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null,null],
+			mass: 1,
+			active: false,
+			torque: 1,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
 	carPower: 4,
 	carMaxSpeed: 100, //rad per sec
 	airResist: 0.5,
@@ -8,6 +24,8 @@ var hyperBike = {
 	tilt: 0.1, //tilt resistance -- changing this value may cause issues
 	agility: 0.55, //tilt speed and strength
 	gas: 100,
+	playerX: 0,
+	playerY: -10,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,

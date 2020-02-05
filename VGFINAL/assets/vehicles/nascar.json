@@ -1,6 +1,22 @@
 var nascar = {
 	name: "NASCAR",
 	carVertices: [60, 0, 55, -5, 15, -5, 0, -20, -15, -20, -45, -10, -70, -10, -70, 0, -65, 8, -55, 15, -25, 15, 55, 15, 60, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null,null],
+			mass: 1,
+			active: false,
+			torque: 1,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
 	carPower: 3,
 	carMaxSpeed: 70, //rad per sec
 	airResist: 0.005,
@@ -8,6 +24,8 @@ var nascar = {
 	tilt: 1, //tilt resistance -- changing this value may cause issues
 	agility: 1.5, //tilt speed
 	gas: 140,
+	playerX: 0,
+	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 3, //Wheel weight maybe
 	carNumWheels: 2,

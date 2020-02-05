@@ -4,7 +4,7 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 	render: render
 });
 
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike]; //Load all the cars
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep]; //Load all the cars
 var random
 var selection = Math.floor(Math.random() * 8); //CURRENTLY SELECTED CAR
 
@@ -20,6 +20,7 @@ var tirUp;
 
 var cCar = car[selection]; //get body collision data for selected car
 var cCarWheel = car[selection].carWheel; //get body collision data for selected car 
+var cCarPart = car[selection].carParts;
 var driveJoints = [];
 
 function create() {
@@ -76,7 +77,6 @@ function refresh() {
 		wheelBodies[i].mass = cCarWheel[i].mass;
 	}
 
-
 	var motorTorque = cCar.carPower;
 
 	// Make wheel joints
@@ -85,8 +85,17 @@ function refresh() {
 		driveJoints[i] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i], cCarWheel[i].xPos, cCarWheel[i].height, 0, 0, 0, 1, cCarWheel[i].springs, cCarWheel[i].damping, 0, motorTorque * cCarWheel[i].active, true);
 	}
 
-
-
+	//create extra parts
+	if (cCar.carNumParts !== 0) {
+		var partBodies = [];
+		for (var i = 0; i < cCar.carNumParts; i++) {
+			partBodies[i] = new Phaser.Physics.Box2D.Body(this.game, null, cCarPart[i].xPos, cCarPart[i].yPos);
+			partBodies[i].setPolygon(cCarPart[i].vertices);
+			partBodies[i].mass = cCarPart[i].mass;
+			//bodyA, bodyB, ax, ay, bx, by, motorSpeed, motorTorque, motorEnabled, lowerLimit, upperLimit, limitEnabled
+			game.physics.box2d.revoluteJoint(vehicleBody, partBodies[i], cCarPart[i].xPos, cCarPart[i].yPos, cCarPart[i].xOff, cCarPart[i].yOff, cCarPart[i].spring / 10, cCarPart[i].torque, cCarPart[i].active, cCarPart[i].limCounterclockwise, cCarPart[i].limClockwise, true);
+		}
+	}
 	game.camera.follow(vehicleBody);
 
 }
