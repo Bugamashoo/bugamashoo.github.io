@@ -64,7 +64,12 @@ function refresh() {
 	vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -40);
 	vehicleBody.setPolygon(vehicleVertices);
 	vehicleBody.mass = cCar.carMass;
-
+	
+	//Massdata = vehicleBody.getMass(); //get the mass data from you body
+    /** Set the position of the shape's centroid relative to the shape's origin. **/
+    
+	//data.center.set(10, 10);
+    //vehicleBody.setMassData(data);
 	// bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
 	flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, cCar.airResist * 0.001, cCar.tilt, 0);
 

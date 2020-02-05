@@ -22,6 +22,7 @@ var apc = {
 	carMaxSpeed: 35, //rad per sec
 	airResist: 0.01,
 	carMass: 1.9,
+	carMassX: 0,
 	tilt: 0.05, //tilt resistance -- changing this value may cause issues
 	agility: 0.5, //tilt speed
 	gas: 190,
