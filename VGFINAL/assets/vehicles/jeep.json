@@ -4,7 +4,7 @@ var jeep = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -19,11 +19,13 @@ var jeep = {
 		}
 	],
 	carPower: 1,
-	carMaxSpeed: 50, //rad per sec
+	carMaxSpeed: 65, //rad per sec
 	airResist: 0.01,
 	carMass: 1,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 23,
+	tilt: 0.2, //tilt resistance -- changing this value may cause issues
+	agility: 3, //tilt speed
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -32,23 +34,23 @@ var jeep = {
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -1, //back wheel
-			mass: 1,
-			size: 5,
-			height: 1,
+			xPos: -30, //back wheel
+			mass: 0.5,
+			size: 10,
+			height: 10,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
-			damping: 0.5
+			grip: 2,
+			springs: 2.8,
+			damping: 0.3
         },
 		{
-			xPos: 1, //front wheel
-			mass: 1,
-			size: 5,
-			height: 1,
+			xPos: 35, //front wheel
+			mass: 0.5,
+			size: 10,
+			height: 10,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
-			damping: 0.5
+			grip: 2,
+			springs: 2.8,
+			damping: 0.3
         }],
 }

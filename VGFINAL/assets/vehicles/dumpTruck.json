@@ -1,29 +1,31 @@
 var dumpTruck = {
 	name: "Dump Truck",
-	carVertices: [],
-	carNumParts: 0,
+	carVertices: [60, 0, 65, -5, 65, -20, 50, -25, 50, -40, 55, -45, 25, -45, 20, -15, -65, -15, -65, -5, -60, 0],
+	carNumParts: 1,
 	carParts: [
 		{
-			verticies: [null,null],
-			mass: 1,
+			vertices: [-60, -15, -70, -40, -70, -50, 25, -55, 25, -45, 20, -15],
+			mass: 3,
 			active: false,
-			torque: 1,
+			torque: 0,
 			CorrectionAngle: 0,
-			limCounterclockwise: -90,
-			limClockwise: 90,
-			xPos: -10,
-			yPos: 10,
-			xOff: 0,
-			yOff: 0,
+			limCounterclockwise: -30,
+			limClockwise: 0,
+			xPos: -2,
+			yPos: -0.5,
+			xOff: -60,
+			yOff: -15,
 			spring: null
 		}
 	],
-	carPower: 1,
-	carMaxSpeed: 50, //rad per sec
+	carPower: 4.6,
+	carMaxSpeed: 40, //rad per sec
 	airResist: 0.01,
-	carMass: 1,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	carMass: 5,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 27,
+	tilt: 0.8, //tilt resistance -- changing this value may cause issues
+	agility: 12, //tilt speed
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -32,31 +34,31 @@ var dumpTruck = {
 	carNumWheels: 3,
 	carWheel: [
 		{
-			xPos: -1, //back wheel
-			mass: 1,
-			size: 5,
+			xPos: -20, //back wheel
+			mass: 2,
+			size: 11,
 			height: 1,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
+			grip: 3,
+			springs: 4,
 			damping: 0.5
-        },{
-			xPos: -1, //back wheel
-			mass: 1,
-			size: 5,
+        }, {
+			xPos: -44, //back wheel
+			mass: 2,
+			size: 11,
 			height: 1,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
+			grip: 3,
+			springs: 4,
 			damping: 0.5
-        },{
-			xPos: 1, //front wheel
-			mass: 1,
-			size: 5,
+        }, {
+			xPos: 52, //front wheel
+			mass: 2,
+			size: 11,
 			height: 1,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
+			grip: 3,
+			springs: 4,
 			damping: 0.5
         }],
 }

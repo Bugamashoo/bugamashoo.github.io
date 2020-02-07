@@ -22,8 +22,10 @@ var truck = {
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.03,
 	carMass: 0.8,
-	tilt: 0.7, //tilt resistance -- changing this value may cause issues
-	agility: 0.7, //tilt speed
+	carMassX: 10, //mass offset for vehicle
+	carMassY: 30,
+	tilt: 0.2, //tilt resistance -- changing this value may cause issues
+	agility: 4, //tilt speed
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -38,7 +40,7 @@ var truck = {
 			height: 20,
 			active: 1,
 			grip: 1.4,
-			springs: 2.4,
+			springs: 2.7,
 			damping: 0.3
         },
 		{
@@ -48,7 +50,7 @@ var truck = {
 			height: 20,
 			active: 1,
 			grip: 0.8,
-			springs: 2.4,
+			springs: 2.7,
 			damping: 0.3
         }],
 }

@@ -5,14 +5,15 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 });
 
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep]; //Load all the cars
-var selection = 5; //CURRENTLY SELECTED CAR (PRESET)
-//var selection = Math.floor(Math.random() * 8); //CURRENTLY SELECTED CAR (RANDOM)
+var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
+//var selection = Math.floor(Math.random() * 12); //CURRENTLY SELECTED CAR (RANDOM)
 
 var vehicleVertices = [];
 //Car selection
 var Phaser;
 var cursors;
 var vehicleBody;
+var com;
 var flipr2;
 
 var sSelection = 0; //Stage selection
@@ -22,8 +23,11 @@ var groundVertices;
 var susUp;
 var tirUp;
 
+
 var cCar = car[selection]; //get body collision data for selected car
 var cCarWheel = car[selection].carWheel; //get wheel data for selected car 
+var cCarX;
+var cCarY;
 var cCarPart = car[selection].carParts; //get extra part data for selected car
 var driveJoints = [];
 var partJoints = [];
@@ -31,7 +35,7 @@ var partJoints2 = [];
 
 function create() {
 
-	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, down arrow key to brake, up arrow to reset.', {
+	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset.', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
@@ -48,7 +52,7 @@ function refresh() {
 	// Enable Box2D physics
 	game.physics.startSystem(Phaser.Physics.BOX2D);
 	game.physics.box2d.gravity.y = 320;
-	game.physics.box2d.friction = 0.24;
+	game.physics.box2d.friction = 0.25;
 
 	cursors = game.input.keyboard.createCursorKeys();
 	var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -63,18 +67,25 @@ function refresh() {
 	vehicleVertices = cCar.carVertices;
 	vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -40);
 	vehicleBody.setPolygon(vehicleVertices);
-	vehicleBody.mass = cCar.carMass;
-	
+	vehicleBody.mass = (cCar.carMass * 0.4);
+
 	//Massdata = vehicleBody.getMass(); //get the mass data from you body
-    /** Set the position of the shape's centroid relative to the shape's origin. **/
-    
+	/** Set the position of the shape's centroid relative to the shape's origin. **/
+	cCarX = vehicleBody.x;
+	cCarY = vehicleBody.y;
+	com = new Phaser.Physics.Box2D.Body(this.game, null, cCarX + cCar.carMassX, cCarY + cCar.carMassY)
+	com.setCircle(2.5);
+	com.mass = (cCar.carMass * 0.6);
+	game.physics.box2d.weldJoint(vehicleBody, com, cCarX + cCar.carMassX, cCarY + cCar.carMassY)
+	console.log(com);
+
 	//data.center.set(10, 10);
-    //vehicleBody.setMassData(data);
+	//vehicleBody.setMassData(data);
 	// bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
 	flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, cCar.airResist * 0.001, cCar.tilt, 0);
 
 	// bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled
-	flipr2 = game.physics.box2d.wheelJoint(jointAnchor, vehicleBody, null, null, null, null, null, null, null, null, 5, 1 + cCar.agility, true)
+	flipr2 = game.physics.box2d.wheelJoint(jointAnchor, vehicleBody, null, null, null, null, null, null, null, null, 5, 1, cCar.agility, true)
 	// Make the wheel bodies
 
 
@@ -92,7 +103,7 @@ function refresh() {
 	// Make wheel joints
 	// bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled	
 	for (var i4 = 0; i4 < cCar.carNumWheels; i4++) {
-		driveJoints[i4] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i4], cCarWheel[i4].xPos, cCarWheel[i4].height, 0, 0, 0, 1, cCarWheel[i4].springs, cCarWheel[i4].damping, 0, motorTorque * cCarWheel[i4].active, true);
+		driveJoints[i4] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i4], cCarWheel[i4].xPos, cCarWheel[i4].height, 0, 0, cCarWheel[i4].susAngle + 0, 1, cCarWheel[i4].springs, cCarWheel[i4].damping, 0, motorTorque * cCarWheel[i4].active, true);
 	}
 
 	var partBodies = [];
@@ -105,20 +116,20 @@ function refresh() {
 	}
 	for (var i5 = 0; i5 < cCar.carNumParts; i5++) {
 		// bodyA, bodyB, ax, ay, bx, by, motorSpeed, motorTorque, motorEnabled, lowerLimit, upperLimit, limitEnabled
-		partJoints[i5] = game.physics.box2d.revoluteJoint(vehicleBody, partBodies[i5], cCarPart[i5].xPos + cCarPart[i5].xOff, cCarPart[i5].yPos, cCarPart[i5].xOff, cCarPart[i5].yOff, null, null, false, cCarPart[i5].limCounterclockwise, cCarPart[i5].limClockwise, true);
+		partJoints[i5] = game.physics.box2d.revoluteJoint(vehicleBody, partBodies[i5], cCarPart[i5].xPos + cCarPart[i5].xOff, cCarPart[i5].yPos + cCarPart[i5].yOff, cCarPart[i5].xOff, cCarPart[i5].yOff, null, null, false, cCarPart[i5].limCounterclockwise, cCarPart[i5].limClockwise, true);
 		// bodyA, bodyB, maxForce, maxTorque, correctionFactor, offsetX, offsetY, offsetAngle
 		partJoints2[i5] = game.physics.box2d.motorJoint(vehicleBody, partBodies[i5], null, cCarPart[i5].spring, cCarPart[i5].torque, 0, cCarPart[i5].correctionAngle, cCarPart[i5].correctionAngle)
 
 	}
-	game.camera.follow(vehicleBody);
+	game.camera.follow(com);
 
 }
 
 function update() {
 
-
+	var thrustP = 100;
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
-	var turnSpeed = 3.5 + cCar.agility;
+	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
 	if (cursors.up.isDown) {
 		if (selection >= 6) {
@@ -128,13 +139,18 @@ function update() {
 		}
 		refresh();
 	}
+	vehicleBody.reverse(thrustP * 0.5);
+	com.reverse(thrustP * 0.5);
 	if (cursors.down.isDown) {
-		motorSpeed = 0;
+		//motorEnabled;
+
+		//console.log(com);
+
 	} // prioritize braking
 	else if (cursors.left.isDown && !cursors.right.isDown) {
 		motorSpeed *= -1;
 		turnSpeed *= -1;
-		vehicleBody.speed
+		vehicleBody.speed;
 	} else if (cursors.right.isDown && !cursors.left.isDown) {} else {
 		motorEnabled = false;
 	} // roll if no keys pressed

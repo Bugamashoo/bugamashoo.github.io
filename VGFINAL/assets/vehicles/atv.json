@@ -4,7 +4,7 @@ var atv = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -22,8 +22,10 @@ var atv = {
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 1,
-	tilt: 0.08, //tilt resistance -- changing this value may cause issues
-	agility: 0.2, //tilt speed
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 45,
+	tilt: 0.02, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

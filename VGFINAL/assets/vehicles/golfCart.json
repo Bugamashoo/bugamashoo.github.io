@@ -4,7 +4,7 @@ var golfCart = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -22,8 +22,10 @@ var golfCart = {
 	carMaxSpeed: 60, //rad per sec
 	airResist: 0.005,
 	carMass: 0.385,
-	tilt: 0.6, //tilt resistance -- changing this value may cause issues
-	agility: 0.35, //tilt speed
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 45,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 2, //tilt speed
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

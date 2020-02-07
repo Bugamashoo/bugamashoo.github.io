@@ -4,7 +4,7 @@ var foodCart = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -22,6 +22,8 @@ var foodCart = {
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.05,
 	carMass: 2,
+	carMassX: 5, //mass offset for vehicle
+	carMassY: 30,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 1.5, //tilt speed
 	gas: 180,

@@ -4,7 +4,7 @@ var nascar = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -19,11 +19,13 @@ var nascar = {
 		}
 	],
 	carPower: 3,
-	carMaxSpeed: 70, //rad per sec
+	carMaxSpeed: 74, //rad per sec
 	airResist: 0.005,
 	carMass: 1,
-	tilt: 1, //tilt resistance -- changing this value may cause issues
-	agility: 1.5, //tilt speed
+	carMassX: -15, //mass offset for vehicle
+	carMassY: 40,
+	tilt: 0.5, //tilt resistance -- changing this value may cause issues
+	agility: 2, //tilt speed
 	gas: 140,
 	playerX: 0,
 	playerY: -10,

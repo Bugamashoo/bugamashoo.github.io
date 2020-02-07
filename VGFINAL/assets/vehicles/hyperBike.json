@@ -4,7 +4,7 @@ var hyperBike = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -21,8 +21,10 @@ var hyperBike = {
 	carPower: 4,
 	carMaxSpeed: 100, //rad per sec
 	airResist: 0.5,
-	carMass: 0.6,
-	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	carMass: 0.5,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 30,
+	tilt: 0.05, //tilt resistance -- changing this value may cause issues
 	agility: 0.55, //tilt speed and strength
 	gas: 100,
 	playerX: 0,

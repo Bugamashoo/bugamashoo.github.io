@@ -1,10 +1,10 @@
 var threeWheeler = {
 	name: "3-Wheeled Motorcycle",
-	carVertices: [],
+	carVertices: [-15, 0, 15, 0, 20, -5, 20, -10, -10, -10, -15, -15, -20, -15, -30, -10, -20, -10, -15, -5],
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -18,12 +18,14 @@ var threeWheeler = {
 			spring: null
 		}
 	],
-	carPower: 1,
-	carMaxSpeed: 50, //rad per sec
+	carPower: 2.5,
+	carMaxSpeed: 70, //rad per sec
 	airResist: 0.01,
-	carMass: 1,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	carMass: 1.2,
+	carMassX: -5, //mass offset for vehicle
+	carMassY: 37,
+	tilt: 0.005, //tilt resistance -- changing this value may cause issues
+	agility: 2, //tilt speed
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -32,23 +34,24 @@ var threeWheeler = {
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -1, //back wheel
-			mass: 1,
-			size: 5,
-			height: 1,
+			xPos: -22.5, //back wheel
+			mass: 0.6,
+			size: 7.5,
+			height: 2,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
-			damping: 0.5
+			grip: 5,
+			springs: 5,
+			damping: 0.8,
+			susAngle: -0.4
         },
 		{
-			xPos: 1, //front wheel
-			mass: 1,
+			xPos: 15, //front wheel
+			mass: 0.4,
 			size: 5,
-			height: 1,
+			height: 3,
 			active: 1,
 			grip: 1,
-			springs: 2.5,
-			damping: 0.5
+			springs: 6,
+			damping: 1.2
         }],
 }

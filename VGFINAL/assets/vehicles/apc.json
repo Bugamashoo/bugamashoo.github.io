@@ -4,7 +4,7 @@ var apc = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			mass: 1,
 			active: false,
 			torque: 1,
@@ -22,9 +22,10 @@ var apc = {
 	carMaxSpeed: 35, //rad per sec
 	airResist: 0.01,
 	carMass: 1.9,
-	carMassX: 0,
+	carMassX: 5, //mass offset for vehicle
+	carMassY: 28,
 	tilt: 0.05, //tilt resistance -- changing this value may cause issues
-	agility: 0.5, //tilt speed
+	agility: 4, //tilt speed
 	gas: 190,
 	playerX: 0,
 	playerY: -10,

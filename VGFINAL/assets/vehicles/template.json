@@ -22,6 +22,8 @@ var template = {
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	carMass: 1,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 0,
 	tilt: 0.01, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
 	gas: 150,
