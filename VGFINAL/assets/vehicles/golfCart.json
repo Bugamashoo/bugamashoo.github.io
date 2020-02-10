@@ -5,7 +5,9 @@ var golfCart = {
 	carParts: [
 		{
 			verticies: [null, null],
+			partType: 0,
 			mass: 1,
+			grip: 0.25,
 			active: false,
 			torque: 1,
 			CorrectionAngle: 0,
@@ -18,8 +20,15 @@ var golfCart = {
 			spring: null
 		}
 	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
 	carPower: 0.62,
-	carMaxSpeed: 60, //rad per sec
+	carMaxSpeed: 63, //rad per sec
 	airResist: 0.005,
 	carMass: 0.385,
 	carMassX: 0, //mass offset for vehicle

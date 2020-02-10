@@ -5,7 +5,9 @@ var dumpTruck = {
 	carParts: [
 		{
 			vertices: [-60, -15, -70, -40, -70, -50, 25, -55, 25, -45, 20, -15],
+			partType: 0,
 			mass: 3,
+			grip: 0.25,
 			active: false,
 			torque: 0,
 			CorrectionAngle: 0,
@@ -16,6 +18,13 @@ var dumpTruck = {
 			xOff: -60,
 			yOff: -15,
 			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
 		}
 	],
 	carPower: 4.6,

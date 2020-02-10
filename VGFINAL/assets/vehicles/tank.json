@@ -5,7 +5,9 @@ var tank = {
 	carParts: [
 		{
 			vertices: [2, -3, 5, 4, 80, 0, 81, -5],
+			partType: 0,
 			mass: 0.8,
+			grip: 0.25,
 			active: true,
 			torque: 1.25,
 			correctionAngle: 10,
@@ -16,6 +18,13 @@ var tank = {
 			xOff: 0,
 			yOff: 0,
 			spring: 8
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
 		}
 	],
 	carPower: 4.2,

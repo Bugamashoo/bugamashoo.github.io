@@ -5,7 +5,9 @@ var atv = {
 	carParts: [
 		{
 			verticies: [null, null],
+			partType: 0,
 			mass: 1,
+			grip: 0.25,
 			active: false,
 			torque: 1,
 			CorrectionAngle: 0,
@@ -16,6 +18,13 @@ var atv = {
 			xOff: 0,
 			yOff: 0,
 			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
 		}
 	],
 	carPower: 1.8,

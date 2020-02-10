@@ -5,7 +5,9 @@ var foodCart = {
 	carParts: [
 		{
 			verticies: [null, null],
+			partType: 0,
 			mass: 1,
+			grip: 0.25,
 			active: false,
 			torque: 1,
 			CorrectionAngle: 0,
@@ -18,6 +20,13 @@ var foodCart = {
 			spring: null
 		}
 	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
 	carPower: 2.5,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.05,
@@ -25,7 +34,7 @@ var foodCart = {
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 30,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
-	agility: 1.5, //tilt speed
+	agility: 3, //tilt speed
 	gas: 180,
 	playerX: 0,
 	playerY: -10,
@@ -39,7 +48,7 @@ var foodCart = {
 			size: 6,
 			height: 7.5,
 			active: 1.3,
-			grip: 4.5,
+			grip: 6.5,
 			springs: 7.5,
 			damping: 0.2
         },
