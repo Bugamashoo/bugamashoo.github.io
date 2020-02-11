@@ -4,10 +4,10 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 	render: render
 });
 
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile]; //Load all the cars
-//var selection = 1; //CURRENTLY SELECTED CAR (PRESET)
-var selection = Math.floor(Math.random() * 13); //CURRENTLY SELECTED CAR (RANDOM)
-
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck]; //Load all the cars
+//var selection = 7; //CURRENTLY SELECTED CAR (PRESET)
+var selection = Math.floor(Math.random() * 14); //CURRENTLY SELECTED CAR (RANDOM)
+var chunk;
 var vehicleVertices = [];
 //Car selection
 var Phaser;
@@ -18,6 +18,7 @@ var comCam;
 var flipr2;
 var bodySprite = car[selection];
 var cameraScale = 2;
+
 
 var sSelection = 0; //Stage selection
 var groundVertices;
@@ -36,14 +37,81 @@ var driveJoints = [];
 var partJoints = [];
 var partJoints2 = [];
 
+
+
+var chunkValue;
+var startingPoint;
+var sectOne = true;
+var sectTwo = false;
+var i;
+var amplitude = 50;
+var wavelength = 50;
+
+var s1 = groundVertices[sSelection].s1; // for superSlope
+var s2 = groundVertices[sSelection].s2; // for normalSlope
+var s3 = groundVertices[sSelection].s3; // for miniSlope
+//var generalSlope = ((i + 1) / 7);
+//var miniSlope = ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4)));
+//var normalSlope = ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3)));
+//var superSlope = ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3)));
+//var terrain = ((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + generalSlope + superSlope + normalSlope + miniSlope);
+//var terrain;
+//function calculit() {
+//terrain = ((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + ((i + 1) / 7) + ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4))));
+//}
+
+var groundGen;
+var startPoint = groundVertices[sSelection].length;
+
+function continuousTerrainGen() {
+	if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
+		if (sectOne == true && sectTwo == false) {
+			//moreGroundOne.setChain([0, 100, 5, 100]);
+			groundGen = null;
+			for (var i = 0; i < 1999; i++) {
+				groundGen = ((groundGen) + ((i + 1) * 10) + ", " + toString((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + ((i + 1) / 7) + ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4)))) + ", ");
+			}
+			i = 3999;
+			groundGen = ((groundGen) + ((3999 + 1) * 10) + ", " + toString((((3999 + 1) * 10) / ((7 * ((3999 + 1) * 10)) + (((3999 + 1) * 10) ^ 3))) + ((3999 + 1) / 7) + ((42.35 * s1) + (0.001 * ((3999 + 1) * 10))) * Math.sin(((1.417 / 111) * ((3999 + 1) * 10)) + (0.0206868 * Math.sin(((3999 + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((3999 + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((3999 + 1) * 10) / (-9.4)))));
+			var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, groundGen[3998], groundGen[3999], 0);
+			moreGroundOne.setChain([groundGen]);
+			sectOne = false;
+			sectTwo = true;
+			console.log("Terrain chunk 2 made");
+		}
+	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
+		if (sectOne == false && sectTwo == true) {
+			//moreGroundTwo.setChain([0, 100, 5, 100]);
+			groundGen = null;
+			for (var i = 0; i < 1999; i++) {
+				groundGen = ((groundGen) + ((i + 1) * 10) + ", " + toString((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + ((i + 1) / 7) + ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4)))) + ", ");
+			}
+			groundGen = ((groundGen) + ((3999 + 1) * 10) + ", " + toString((((3999 + 1) * 10) / ((7 * ((3999 + 1) * 10)) + (((3999 + 1) * 10) ^ 3))) + ((3999 + 1) / 7) + ((42.35 * s1) + (0.001 * ((3999 + 1) * 10))) * Math.sin(((1.417 / 111) * ((3999 + 1) * 10)) + (0.0206868 * Math.sin(((3999 + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((3999 + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((3999 + 1) * 10) / (-9.4)))));
+			var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, groundGen[3998], groundGen[3999], 0);
+			moreGroundTwo.setChain([groundGen]);
+			sectOne = true;
+			sectTwo = false;
+			console.log("Terrain chunk 1 made");
+		}
+	} else {
+		console.log("Not time for random terrain yet! cCar.x = " + vehicleBody.x + " chunk is: " + (((Math.floor((game.camera.x) / 5000)) / 4) - 0.75));
+	}
+}
+
+
 function create() {
 
 	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset.', {
 		fill: '#ffffff',
 		font: '14pt Arial'
-	});
+	})
 	caption.fixedToCamera = true;
 	refresh();
+	var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+	var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+	moreGroundTwo.setChain([0, 0]);
+	moreGroundOne.setChain([0, 0]);
+	//var chunk = ((Math.floor(vehicleBody.x / 5000)) / 4) + 0.75;
 }
 // Make the ground body
 function refresh() {
@@ -72,7 +140,6 @@ function refresh() {
 	vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, -40);
 	vehicleBody.setPolygon(vehicleVertices);
 	vehicleBody.mass = (cCar.carMass * 0.4);
-
 	//Massdata = vehicleBody.getMass(); //get the mass data from you body
 	/** Set the position of the shape's centroid relative to the shape's origin. **/
 	cCarX = vehicleBody.x;
@@ -140,20 +207,19 @@ function refresh() {
 	game.camera.follow(com);
 	console.log(comCam);
 	console.log(game.camera);
+	//var chunk = (((Math.floor((game.camera.x) / 5000)) / 4) + 0.75);
 }
 
 function update() {
-
+	if (vehicleBody.x >= 17500) {
+		continuousTerrainGen();
+	}
 	var thrustP = 100;
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
 	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
 	if (cursors.up.isDown) {
-		if (selection >= 6) {
-			selection = 0;
-		} else {
-			selection++;
-		}
+
 		refresh();
 	}
 	vehicleBody.reverse(thrustP * 0.5);
