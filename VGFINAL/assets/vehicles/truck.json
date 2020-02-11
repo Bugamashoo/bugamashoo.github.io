@@ -1,6 +1,6 @@
 var truck = {
 	name: "Truck",
-	carVertices: [-1, -7, -70, -8, -73, 8, -68, 13, -57, 13, -48, 3.5, -35, 2.5, -23, 15, 34, 16, 45, 4, 60, 4, 67, 10, 72, 10, 73, 1, 69, -5.5, 35, -7, 22, -22, 1, -22],
+	carVertices: [30, 0, 35, -5, 45, -5, 50, 0, 55, -5, 55, -17.5, 25, -20, 15, -35, -5, -35, -5, -20, -60, -20, -60, 0, -45, 0, -40, -5, -30, -5, -25, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -27,11 +27,11 @@ var truck = {
 			grip: 0,
 		}
 	],
-	carPower: 1.2,
-	carMaxSpeed: 50, //rad per sec
-	airResist: 0.03,
+	carPower: 1.8,
+	carMaxSpeed: 60, //rad per sec
+	airResist: 0.01,
 	carMass: 0.8,
-	carMassX: 10, //mass offset for vehicle
+	carMassX: 0, //mass offset for vehicle
 	carMassY: 30,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 4, //tilt speed
@@ -43,23 +43,23 @@ var truck = {
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -40, //back wheel
+			xPos: -35, //back wheel
 			mass: 0.4,
-			size: 14,
-			height: 20,
+			size: 12,
+			height: 8,
 			active: 1,
-			grip: 1.4,
-			springs: 2.7,
+			grip: 3,
+			springs: 3,
 			damping: 0.3
         },
 		{
-			xPos: 53, //front wheel
+			xPos: 40, //front wheel
 			mass: 0.4,
-			size: 14,
-			height: 20,
-			active: 1,
-			grip: 0.8,
-			springs: 2.7,
+			size: 12,
+			height: 10,
+			active: 0,
+			grip: 2,
+			springs: 3,
 			damping: 0.3
         }],
 }
