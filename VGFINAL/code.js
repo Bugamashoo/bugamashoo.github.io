@@ -23,6 +23,7 @@ var cameraScale = 2;
 var score;
 var score2 = 0;
 var carName;
+var randomNum = (0.5 - Math.random());
 
 var sSelection = 0; //Stage selection
 var groundVertices;
@@ -31,7 +32,7 @@ var groundVertices;
 var susUp;
 var tirUp;
 
-
+var chunkNum = 0;
 var cCar = car[selection]; //get body collision data for selected car
 var cCarWheel = car[selection].carWheel; //get wheel data for selected car 
 var cCarX;
@@ -189,7 +190,7 @@ function continuousTerrainGen() {
 		if (sectOne == true && sectTwo == false) {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
-				groundGen.push((i + 1) * 20);
+				groundGen.push(((i + 1) * 20));
 				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)));
 			}
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -205,7 +206,7 @@ function continuousTerrainGen() {
 			//moreGroundTwo.setChain([0, 100, 5, 100]);
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
-				groundGen.push((i + 1) * 20);
+				groundGen.push(((i + 1) * 20));
 				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)));
 			}
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);

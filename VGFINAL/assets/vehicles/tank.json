@@ -28,7 +28,7 @@ var tank = {
 		}
 	],
 	carPower: 4.2,
-	carMaxSpeed: 39, //rad per sec
+	carMaxSpeed: 42, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
 	carMass: 4,
