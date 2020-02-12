@@ -28,7 +28,7 @@ var atv = {
 		}
 	],
 	carPower: 1.8,
-	carMaxSpeed: 50, //rad per sec
+	carMaxSpeed: 58, //rad per sec
 	airResist: 0.01,
 	carMass: 1,
 	carMassX: 0, //mass offset for vehicle

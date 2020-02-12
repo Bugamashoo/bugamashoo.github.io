@@ -47,9 +47,9 @@ var monsterTruck = {
 			mass: 0.1,
 			size: 20,
 			height: 5,
-			active: 1,
+			active: 1.2,
 			grip: 2,
-			springs: 5,
+			springs: 4.8,
 			damping: 0.05
         },
 		{
@@ -57,9 +57,9 @@ var monsterTruck = {
 			mass: 0.1,
 			size: 20,
 			height: 5,
-			active: 1,
+			active: 1.2,
 			grip: 2,
-			springs: 5,
+			springs: 4.8,
 			damping: 0.05
         }],
 }

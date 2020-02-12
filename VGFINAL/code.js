@@ -13,12 +13,15 @@ var vehicleVertices = [];
 var Phaser;
 var cursors;
 var vehicleBody;
+var moreGroundOne;
+var moreGroundTwo;
 var com;
 var comCam;
 var flipr2;
 var bodySprite = car[selection];
 var cameraScale = 2;
-
+var score;
+var score2 = 0;
 
 var sSelection = 0; //Stage selection
 var groundVertices;
@@ -37,82 +40,44 @@ var driveJoints = [];
 var partJoints = [];
 var partJoints2 = [];
 
-
+var moreGroundOne;
+var moreGroundTwo;
 
 var chunkValue;
-var startingPoint;
 var sectOne = true;
 var sectTwo = false;
 var i;
 var amplitude = 50;
 var wavelength = 50;
 
-var s1 = groundVertices[sSelection].s1; // for superSlope
-var s2 = groundVertices[sSelection].s2; // for normalSlope
-var s3 = groundVertices[sSelection].s3; // for miniSlope
-//var generalSlope = ((i + 1) / 7);
-//var miniSlope = ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4)));
-//var normalSlope = ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3)));
-//var superSlope = ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3)));
-//var terrain = ((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + generalSlope + superSlope + normalSlope + miniSlope);
-//var terrain;
-//function calculit() {
-//terrain = ((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + ((i + 1) / 7) + ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4))));
-//}
-
 var groundGen;
 var startPoint = groundVertices[sSelection].length;
-
-function continuousTerrainGen() {
-	if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
-		if (sectOne == true && sectTwo == false) {
-			//moreGroundOne.setChain([0, 100, 5, 100]);
-			groundGen = null;
-			for (var i = 0; i < 1999; i++) {
-				groundGen = ((groundGen) + ((i + 1) * 10) + ", " + toString((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + ((i + 1) / 7) + ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4)))) + ", ");
-			}
-			i = 3999;
-			groundGen = ((groundGen) + ((3999 + 1) * 10) + ", " + toString((((3999 + 1) * 10) / ((7 * ((3999 + 1) * 10)) + (((3999 + 1) * 10) ^ 3))) + ((3999 + 1) / 7) + ((42.35 * s1) + (0.001 * ((3999 + 1) * 10))) * Math.sin(((1.417 / 111) * ((3999 + 1) * 10)) + (0.0206868 * Math.sin(((3999 + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((3999 + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((3999 + 1) * 10) / (-9.4)))));
-			var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, groundGen[3998], groundGen[3999], 0);
-			moreGroundOne.setChain([groundGen]);
-			sectOne = false;
-			sectTwo = true;
-			console.log("Terrain chunk 2 made");
-		}
-	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
-		if (sectOne == false && sectTwo == true) {
-			//moreGroundTwo.setChain([0, 100, 5, 100]);
-			groundGen = null;
-			for (var i = 0; i < 1999; i++) {
-				groundGen = ((groundGen) + ((i + 1) * 10) + ", " + toString((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + ((i + 1) / 7) + ((42.35 * s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 111) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((i + 1) * 10) / (-9.4)))) + ", ");
-			}
-			groundGen = ((groundGen) + ((3999 + 1) * 10) + ", " + toString((((3999 + 1) * 10) / ((7 * ((3999 + 1) * 10)) + (((3999 + 1) * 10) ^ 3))) + ((3999 + 1) / 7) + ((42.35 * s1) + (0.001 * ((3999 + 1) * 10))) * Math.sin(((1.417 / 111) * ((3999 + 1) * 10)) + (0.0206868 * Math.sin(((3999 + 1) * 10) / 3))) + ((21 * s2) * Math.sin((((3999 + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * s3) * Math.sin(((3999 + 1) * 10) / (-9.4)))));
-			var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, groundGen[3998], groundGen[3999], 0);
-			moreGroundTwo.setChain([groundGen]);
-			sectOne = true;
-			sectTwo = false;
-			console.log("Terrain chunk 1 made");
-		}
-	} else {
-		console.log("Not time for random terrain yet! cCar.x = " + vehicleBody.x + " chunk is: " + (((Math.floor((game.camera.x) / 5000)) / 4) - 0.75));
-	}
-}
 
 
 function create() {
 
-	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset.', {
+	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score!', {
 		fill: '#ffffff',
 		font: '14pt Arial'
-	})
+	});
+
+	score = game.add.text(5, 28, 'Previous high score: N/A', {
+		fill: '#ffff00',
+		font: '18pt Arial'
+	});
+
 	caption.fixedToCamera = true;
+	score.fixedToCamera = true;
 	refresh();
-	var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-	var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-	moreGroundTwo.setChain([0, 0]);
-	moreGroundOne.setChain([0, 0]);
+	continuousTerrainGen();
+	//var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+	//var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+	//moreGroundTwo.setChain([0, 0]);
+	//moreGroundOne.setChain([0, 0]);
 	//var chunk = ((Math.floor(vehicleBody.x / 5000)) / 4) + 0.75;
 }
+
+
 // Make the ground body
 function refresh() {
 
@@ -210,6 +175,42 @@ function refresh() {
 	//var chunk = (((Math.floor((game.camera.x) / 5000)) / 4) + 0.75);
 }
 
+function continuousTerrainGen() {
+
+	if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
+		if (sectOne == true && sectTwo == false) {
+			groundGen = [0, 0, ];
+			for (var i = 0; i < 1000; i++) {
+				groundGen.push((i + 1) * 20);
+				groundGen.push((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))));
+			}
+			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+			moreGroundOne.x = startPoint;
+			moreGroundOne.y = groundGen[1];
+			moreGroundOne.setChain(groundGen);
+			sectOne = false;
+			sectTwo = true;
+			console.log("Terrain chunk 2 made");
+		}
+	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
+		if (sectOne == false && sectTwo == true) {
+			//moreGroundTwo.setChain([0, 100, 5, 100]);
+			groundGen = [0, 0, ];
+			for (var i = 0; i < 1000; i++) {
+				groundGen.push((i + 1) * 20);
+				groundGen.push((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))));
+			}
+			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+			moreGroundTwo.x = startPoint;
+			moreGroundTwo.y = groundGen[1];
+			moreGroundTwo.setChain(groundGen);
+			sectOne = true;
+			sectTwo = false;
+			console.log("Terrain chunk 1 made");
+		}
+	}
+}
+
 function update() {
 	if (vehicleBody.x >= 17500) {
 		continuousTerrainGen();
@@ -219,7 +220,10 @@ function update() {
 	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
 	if (cursors.up.isDown) {
-
+		if (vehicleBody.x > score2) {
+			score2 = vehicleBody.x;
+			score.text = (cCar.name + ' high score: ' + (Math.floor((vehicleBody.x) / 10) * 10));
+		}
 		refresh();
 	}
 	vehicleBody.reverse(thrustP * 0.5);
