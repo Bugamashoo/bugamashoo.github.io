@@ -1,9 +1,9 @@
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
+var game = new Phaser.Game(1080, 720, Phaser.CANVAS, 'phaser-example', {
 	create: create,
 	update: update,
 	render: render
 });
-var thrustP
+var thrustP;
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, carriage]; //Load all the cars
 //var selection = 17; //CURRENTLY SELECTED CAR (PRESET)
 var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
@@ -24,6 +24,7 @@ var score;
 var score2 = 0;
 var carName;
 var randomNum = (0.5 - Math.random());
+var yPlaceholder = 0;
 
 var sSelection = 0; //Stage selection
 var groundVertices;
@@ -42,8 +43,8 @@ var driveJoints = [];
 var partJoints = [];
 var partJoints2 = [];
 
-var moreGroundOne;
-var moreGroundTwo;
+var moreGroundOne = [];
+var moreGroundTwo = [];
 
 var chunkValue;
 var sectOne = true;
@@ -191,16 +192,18 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
 			}
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-			moreGroundOne.x = (chunkNum * 20000) + 20000;
-			moreGroundOne.y = ((chunkNum + 1) * -3222);
+			moreGroundOne.x = (chunkNum * 19950) + 19950;
+			moreGroundOne.y = yPlaceholder;
 			moreGroundOne.setChain(groundGen);
 			sectOne = false;
 			sectTwo = true;
 			chunkNum = chunkNum + 1;
-			console.log("Terrain chunk 2 made");
+			yPlaceholder = yPlaceholder+(groundGen[groundGen.length-1])+30;
+			console.log("Terrain chunk 1 made");
+			
 		}
 	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
 		if (sectOne == false && sectTwo == true) {
@@ -208,16 +211,17 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
 			}
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-			moreGroundTwo.x = (chunkNum * 20000) + 20000;
-			moreGroundTwo.y = chunkNum * -3222;
+			moreGroundTwo.x = (chunkNum * 19950) + 19950;
+			moreGroundTwo.y = yPlaceholder;
 			moreGroundTwo.setChain(groundGen);
 			sectOne = true;
 			sectTwo = false;
-			chunkNum = ((chunkNum + 1) * -3222);
-			console.log("Terrain chunk 1 made");
+			chunkNum = chunkNum + 1;
+			yPlaceholder = yPlaceholder+(groundGen[groundGen.length-1])+30;
+			console.log("Terrain chunk 2 made");
 		}
 	}
 }
@@ -235,7 +239,7 @@ function update() {
 			thrustP = 250;
 		}
 	} else {
-		thrustP = 100 * cCar.downforce;
+		thrustP = 110 * cCar.downforce;
 	}
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
 	var turnSpeed = 1 + cCar.agility;

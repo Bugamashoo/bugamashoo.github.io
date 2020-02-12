@@ -27,7 +27,7 @@ var truck = {
 			grip: 0,
 		}
 	],
-	carPower: 1.8,
+	carPower: 2.2,
 	carMaxSpeed: 60, //rad per sec
 	airResist: 0.01,
 	downforce: 1,

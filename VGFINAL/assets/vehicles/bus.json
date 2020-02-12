@@ -28,8 +28,8 @@ var bus = {
 			grip: 0,
 		}
 	],
-	carPower: 1.8,
-	carMaxSpeed: 100, //rad per sec
+	carPower: 2.1,
+	carMaxSpeed: 110, //rad per sec
 	airResist: 0,
 	downforce: 1,
 	carMass: 7,
@@ -37,7 +37,7 @@ var bus = {
 	carMassY: 10,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
-	rotateSpeed: 0,
+	rotateSpeed: 0.2,
 	gas: 250,
 	playerX: 0,
 	playerY: -10,

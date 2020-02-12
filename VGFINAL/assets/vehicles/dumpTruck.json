@@ -36,7 +36,7 @@ var dumpTruck = {
 	carMassY: 27,
 	tilt: 0.8, //tilt resistance -- changing this value may cause issues
 	agility: 12, //tilt speed
-	rotateSpeed: 0,
+	rotateSpeed: 0.2,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

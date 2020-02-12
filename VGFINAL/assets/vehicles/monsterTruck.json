@@ -27,7 +27,7 @@ var monsterTruck = {
 			grip: 0,
 		}
 	],
-	carPower: 1.2,
+	carPower: 1.5,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0,
 	downforce: 0.1,

@@ -27,7 +27,7 @@ var jeep = {
 			grip: 0,
 		}
 	],
-	carPower: 1,
+	carPower: 1.5,
 	carMaxSpeed: 65, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
@@ -36,7 +36,7 @@ var jeep = {
 	carMassY: 23,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 3, //tilt speed
-	rotateSpeed: 0,
+	rotateSpeed: 0.3,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

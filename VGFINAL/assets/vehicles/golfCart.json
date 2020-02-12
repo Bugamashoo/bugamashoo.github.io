@@ -27,8 +27,8 @@ var golfCart = {
 			grip: 0,
 		}
 	],
-	carPower: 0.62,
-	carMaxSpeed: 63, //rad per sec
+	carPower: 0.7,
+	carMaxSpeed: 70, //rad per sec
 	airResist: 0.005,
 	downforce: 1,
 	carMass: 0.385,
@@ -37,7 +37,7 @@ var golfCart = {
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
 	agility: 2, //tilt speed
 	rotateSpeed: 0,
-	gas: 150,
+	gas: 170,
 	playerX: 0,
 	playerY: -10,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
@@ -61,7 +61,7 @@ var golfCart = {
 			height: 13,
 			active: 0.5,
 			grip: 2,
-			springs: 4.5,
-			damping: 0.4
+			springs: 5,
+			damping: 0.6
         }]
 }
