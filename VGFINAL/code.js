@@ -195,7 +195,7 @@ function continuousTerrainGen() {
 			}
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundOne.x = (chunkNum * 20000) + 20000;
-			moreGroundOne.y = groundGen[1];
+			moreGroundOne.y = ((chunkNum + 1) * -3222);
 			moreGroundOne.setChain(groundGen);
 			sectOne = false;
 			sectTwo = true;
@@ -212,11 +212,11 @@ function continuousTerrainGen() {
 			}
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundTwo.x = (chunkNum * 20000) + 20000;
-			moreGroundTwo.y = groundGen[1];
+			moreGroundTwo.y = chunkNum * -3222;
 			moreGroundTwo.setChain(groundGen);
 			sectOne = true;
 			sectTwo = false;
-			chunkNum = chunkNum + 1;
+			chunkNum = ((chunkNum + 1) * -3222);
 			console.log("Terrain chunk 1 made");
 		}
 	}
@@ -228,9 +228,9 @@ function update() {
 	}
 	if (selection == 17) {
 		if (vehicleBody.angle > -60 && vehicleBody.angle < 90) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 1.2));
-		} else if ((vehicleBody.velocity.x * 1.2) < 250) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 1.2));
+			thrustP = Math.abs((vehicleBody.velocity.x * 1.5));
+		} else if ((vehicleBody.velocity.x * 1.5) < 250) {
+			thrustP = Math.abs((vehicleBody.velocity.x * 1.5));
 		} else {
 			thrustP = 250;
 		}

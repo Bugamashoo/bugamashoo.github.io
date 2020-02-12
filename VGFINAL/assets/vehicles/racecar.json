@@ -28,7 +28,7 @@ var racecar = {
 		}
 	],
 	carPower: 6,
-	carMaxSpeed: 160, //rad per sec
+	carMaxSpeed: 200, //rad per sec
 	airResist: 0,
 	downforce: 2.8,
 	carMass: 1.5,
