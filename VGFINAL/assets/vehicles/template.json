@@ -4,7 +4,7 @@ var template = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null,null],
+			verticies: [null, null],
 			partType: 0,
 			mass: 1,
 			grip: 0.25,
@@ -30,11 +30,13 @@ var template = {
 	carPower: 1,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
+	downforce: 1,
 	carMass: 1,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: 0,
 	tilt: 0.01, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
+	rotateSpeed: 0,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -50,7 +52,8 @@ var template = {
 			active: 1,
 			grip: 1,
 			springs: 2.5,
-			damping: 0.5
+			damping: 0.5,
+			bounce: 0
         },
 		{
 			xPos: 1, //front wheel
@@ -60,6 +63,7 @@ var template = {
 			active: 1,
 			grip: 1,
 			springs: 2.5,
-			damping: 0.5
+			damping: 0.5,
+			bounce: 0
         }],
 }

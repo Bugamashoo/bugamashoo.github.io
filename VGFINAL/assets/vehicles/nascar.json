@@ -30,11 +30,13 @@ var nascar = {
 	carPower: 3,
 	carMaxSpeed: 74, //rad per sec
 	airResist: 0.005,
+	downforce: 1,
 	carMass: 1,
 	carMassX: -15, //mass offset for vehicle
 	carMassY: 40,
 	tilt: 0.5, //tilt resistance -- changing this value may cause issues
 	agility: 5, //tilt speed
+	rotateSpeed: 0,
 	gas: 140,
 	playerX: 0,
 	playerY: -10,

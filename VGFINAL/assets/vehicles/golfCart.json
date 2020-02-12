@@ -30,11 +30,13 @@ var golfCart = {
 	carPower: 0.62,
 	carMaxSpeed: 63, //rad per sec
 	airResist: 0.005,
+	downforce: 1,
 	carMass: 0.385,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: 45,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
 	agility: 2, //tilt speed
+	rotateSpeed: 0,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

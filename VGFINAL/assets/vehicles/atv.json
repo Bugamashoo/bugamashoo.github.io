@@ -30,11 +30,13 @@ var atv = {
 	carPower: 1.8,
 	carMaxSpeed: 58, //rad per sec
 	airResist: 0.01,
+	downforce: 1,
 	carMass: 1,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: 45,
 	tilt: 0.02, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
+	rotateSpeed: 0,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

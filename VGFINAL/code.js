@@ -3,10 +3,10 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', {
 	update: update,
 	render: render
 });
-
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck]; //Load all the cars
-//var selection = 7; //CURRENTLY SELECTED CAR (PRESET)
-var selection = Math.floor(Math.random() * 14); //CURRENTLY SELECTED CAR (RANDOM)
+var thrustP
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, carriage]; //Load all the cars
+//var selection = 17; //CURRENTLY SELECTED CAR (PRESET)
+var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
 var chunk;
 var vehicleVertices = [];
 //Car selection
@@ -22,6 +22,7 @@ var bodySprite = car[selection];
 var cameraScale = 2;
 var score;
 var score2 = 0;
+var carName;
 
 var sSelection = 0; //Stage selection
 var groundVertices;
@@ -56,18 +57,22 @@ var startPoint = groundVertices[sSelection].length;
 
 function create() {
 
-	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score!', {
+	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score! L+R for rover thrusters!', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
 
-	score = game.add.text(5, 28, 'Previous high score: N/A', {
-		fill: '#ffff00',
-		font: '18pt Arial'
+	score = game.add.text(5, 26, 'Previous high score: N/A', {
+		fill: '#ffffff',
+		font: '14pt Arial'
 	});
-
+	carName = game.add.text(5, 46, '', {
+		fill: '#00ffff',
+		font: '16pt Arial'
+	});
 	caption.fixedToCamera = true;
 	score.fixedToCamera = true;
+	carName.fixedToCamera = true;
 	refresh();
 	continuousTerrainGen();
 	//var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
@@ -81,7 +86,9 @@ function create() {
 // Make the ground body
 function refresh() {
 
-	game.world.setBounds(-10000, -10000, 50000, 50000);
+
+	carName.text = cCar.name;
+	game.world.setBounds(-10000, -50000, 500000, 500000);
 
 	game.stage.backgroundColor = '#203050';
 
@@ -123,7 +130,7 @@ function refresh() {
 	flipr = game.physics.box2d.motorJoint(jointAnchor, vehicleBody, cCar.airResist * 0.001, cCar.tilt, 0);
 
 	// bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled
-	flipr2 = game.physics.box2d.wheelJoint(jointAnchor, vehicleBody, null, null, null, null, null, null, null, null, 5, 1, cCar.agility, true)
+	flipr2 = game.physics.box2d.wheelJoint(jointAnchor, vehicleBody, null, null, null, null, null, null, null, null, 5 + cCar.rotateSpeed, 1, cCar.agility, true)
 	// Make the wheel bodies
 
 
@@ -134,6 +141,7 @@ function refresh() {
 		wheelBodies[i].setCircle(cCarWheel[i].size);
 		wheelBodies[i].friction = cCarWheel[i].grip;
 		wheelBodies[i].mass = cCarWheel[i].mass;
+		//wheelBodies[i].restitution = cCarWheel[i].bounce - 1;
 	}
 
 	var motorTorque = cCar.carPower;
@@ -179,10 +187,10 @@ function continuousTerrainGen() {
 
 	if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
 		if (sectOne == true && sectTwo == false) {
-			groundGen = [0, 0, ];
-			for (var i = 0; i < 2000; i++) {
-				groundGen.push((i + 1) * 10);
-				groundGen.push((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + (((i + 1) * 10) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 121) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 10) / (9.4 - (9.4 * 2)))) * (-1));
+			groundGen = [];
+			for (var i = 0; i < 1000; i++) {
+				groundGen.push((i + 1) * 20);
+				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)));
 			}
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundOne.x = startPoint;
@@ -195,10 +203,10 @@ function continuousTerrainGen() {
 	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
 		if (sectOne == false && sectTwo == true) {
 			//moreGroundTwo.setChain([0, 100, 5, 100]);
-			groundGen = [0, 0, ];
-			for (var i = 0; i < 2000; i++) {
-				groundGen.push((i + 1) * 10);
-				groundGen.push((((i + 1) * 10) / ((7 * ((i + 1) * 10)) + (((i + 1) * 10) ^ 3))) + (((i + 1) * 10) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 10))) * Math.sin(((1.417 / 121) * ((i + 1) * 10)) + (0.0206868 * Math.sin(((i + 1) * 10) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 10) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 10) / (9.4 - (9.4 * 2)))) * (-1));
+			groundGen = [];
+			for (var i = 0; i < 1000; i++) {
+				groundGen.push((i + 1) * 20);
+				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 7.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)));
 			}
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundTwo.x = startPoint;
@@ -215,22 +223,37 @@ function update() {
 	if (vehicleBody.x >= 17500) {
 		continuousTerrainGen();
 	}
-	var thrustP = 100;
+	if (selection == 17) {
+		if ((vehicleBody.rotation % Math.PI) > -1 && (vehicleBody.rotation % Math.PI) < 1.5) {
+			thrustP = Math.abs((vehicleBody.velocity.x * 1.2));
+		} else if ((vehicleBody.velocity.x * 1.2) < 250) {
+			thrustP = Math.abs((vehicleBody.velocity.x * 1.2));
+		} else {
+			thrustP = 250;
+		}
+	} else {
+		thrustP = 100 * cCar.downforce;
+	}
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
 	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
 	if (cursors.up.isDown) {
 		if (vehicleBody.x > score2) {
 			score2 = vehicleBody.x;
-			score.text = (cCar.name + ' high score: ' + (Math.floor((vehicleBody.x) / 10) * 10));
+			score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 10) * 20));
 		}
 		refresh();
 	}
+
 	vehicleBody.reverse(thrustP * 0.5);
 	com.reverse(thrustP * 0.5);
-	if (cursors.down.isDown) {
+	if (cursors.right.isDown && cursors.left.isDown) {
 		//motorEnabled;
-
+		if (selection == 16) {
+			vehicleBody.reverse(100);
+			com.reverse(-600);
+		}
+		motorEnabled = false;
 		//console.log(com);
 
 	} // prioritize braking

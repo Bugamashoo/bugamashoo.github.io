@@ -30,11 +30,13 @@ var transportTruck = {
 	carPower: 2,
 	carMaxSpeed: 58, //rad per sec
 	airResist: 0.01,
+	downforce: 1,
 	carMass: 3,
 	carMassX: 25, //mass offset for vehicle
 	carMassY: 20,
 	tilt: 0.01, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
+	rotateSpeed: 0,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,

@@ -30,11 +30,13 @@ var apc = {
 	carPower: 2.9,
 	carMaxSpeed: 35, //rad per sec
 	airResist: 0.01,
+	downforce: 1,
 	carMass: 1.9,
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 28,
 	tilt: 0.05, //tilt resistance -- changing this value may cause issues
 	agility: 4, //tilt speed
+	rotateSpeed: 0,
 	gas: 190,
 	playerX: 0,
 	playerY: -10,

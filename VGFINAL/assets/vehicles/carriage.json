@@ -1,6 +1,6 @@
-var jeep = {
-	name: "jeep",
-	carVertices: [25, 0, 30, -5, 40, -5, 45, 0, 50, 0, 50, -20, -5, -20, -5, -35, -10, -35, -10, -31, -30, -20, -50, -20, -50, -5, -45, 0, -40, 0, -35, -5, -25, -5, -20, 0],
+var carriage = {
+	name: "Carriage Buggy",
+	carVertices: [],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -28,14 +28,14 @@ var jeep = {
 		}
 	],
 	carPower: 1,
-	carMaxSpeed: 65, //rad per sec
+	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
 	carMass: 1,
 	carMassX: 0, //mass offset for vehicle
-	carMassY: 23,
-	tilt: 0.2, //tilt resistance -- changing this value may cause issues
-	agility: 3, //tilt speed
+	carMassY: 0,
+	tilt: 0.01, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
 	rotateSpeed: 0,
 	gas: 150,
 	playerX: 0,
@@ -45,23 +45,25 @@ var jeep = {
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -30, //back wheel
-			mass: 0.5,
-			size: 10,
-			height: 10,
+			xPos: -1, //back wheel
+			mass: 1,
+			size: 5,
+			height: 1,
 			active: 1,
-			grip: 2,
-			springs: 2.8,
-			damping: 0.3
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5,
+			bounce: 0
         },
 		{
-			xPos: 35, //front wheel
-			mass: 0.5,
-			size: 10,
-			height: 10,
+			xPos: 1, //front wheel
+			mass: 1,
+			size: 5,
+			height: 1,
 			active: 1,
-			grip: 2,
-			springs: 2.8,
-			damping: 0.3
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5,
+			bounce: 0
         }],
 }
