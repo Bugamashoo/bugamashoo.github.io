@@ -1,8 +1,11 @@
-var game = new Phaser.Game(1080, 720, Phaser.CANVAS, 'phaser-example', {
+var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser-example', {
 	create: create,
 	update: update,
 	render: render
 });
+game.antialias = false;
+
+
 var thrustP;
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, carriage]; //Load all the cars
 //var selection = 17; //CURRENTLY SELECTED CAR (PRESET)
@@ -28,6 +31,8 @@ var yPlaceholder = 0;
 
 var sSelection = 0; //Stage selection
 var groundVertices;
+var gStats = groundVertices[sSelection];
+var infStats = (-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
 
 //upgrades
 var susUp;
@@ -103,6 +108,7 @@ function refresh() {
 	cursors = game.input.keyboard.createCursorKeys();
 	var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	groundBody.setChain(groundVertices[sSelection].data);
+	groundBody.autoCull = true;
 
 
 	var jointAnchor = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0); //car limit physics
@@ -180,8 +186,11 @@ function refresh() {
 	}
 
 	game.camera.follow(com);
-	console.log(comCam);
-	console.log(game.camera);
+	//game.camera.width = 800;
+	//game.camera.height = 500;
+	//console.log(comCam);
+	//console.log(game.camera);
+
 	//var chunk = (((Math.floor((game.camera.x) / 5000)) / 4) + 0.75);
 }
 
@@ -200,21 +209,20 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
-				groundVertices[sSelection].s3 = groundVertices[sSelection].s3 + 0.0003;
-				groundVertices[sSelection].s2 = groundVertices[sSelection].s2 + 0.0003;
-				groundVertices[sSelection].s1 = groundVertices[sSelection].s1 + 0.0003;
+				groundGen.push(infStats);
+				gStats.s3 = gStats.s3 + 0.0003;
+				gStats.s2 = gStats.s2 + 0.0003;
+				gStats.s1 = gStats.s1 + 0.0003;
 			}
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-			moreGroundOne.x = (chunkNum * 19950) + 19950;
+			moreGroundOne.x = (chunkNum * 19970) + 19970;
 			moreGroundOne.y = yPlaceholder;
 			moreGroundOne.setChain(groundGen);
+			moreGroundOne.autoCull = true;
 			sectOne = false;
 			sectTwo = true;
 			chunkNum = chunkNum + 1;
 			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
-			console.log("Terrain chunk 1 made");
-
 		}
 	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
 		if (sectOne == false && sectTwo == true) {
@@ -222,20 +230,20 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
-				groundVertices[sSelection].s3 = groundVertices[sSelection].s3 + 0.0003;
-				groundVertices[sSelection].s2 = groundVertices[sSelection].s2 + 0.0003;
-				groundVertices[sSelection].s1 = groundVertices[sSelection].s1 + 0.0003;
+				groundGen.push(infStats);
+				gStats.s3 = gStats.s3 + 0.0003;
+				gStats.s2 = gStats.s2 + 0.0003;
+				gStats.s1 = gStats.s1 + 0.0003;
 			}
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-			moreGroundTwo.x = (chunkNum * 19950) + 19950;
+			moreGroundTwo.x = (chunkNum * 19970) + 19970;
 			moreGroundTwo.y = yPlaceholder;
 			moreGroundTwo.setChain(groundGen);
+			moreGroundTwo.autoCull = true;
 			sectOne = true;
 			sectTwo = false;
 			chunkNum = chunkNum + 1;
 			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
-			console.log("Terrain chunk 2 made");
 		}
 	}
 }
