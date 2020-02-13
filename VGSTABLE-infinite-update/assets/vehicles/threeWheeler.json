@@ -1,0 +1,68 @@
+var threeWheeler = {
+	name: "3-Wheeled Motorcycle",
+	carVertices: [-15, 0, 15, 0, 20, -5, 20, -10, -10, -10, -15, -15, -20, -15, -30, -10, -20, -10, -15, -5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2.5,
+	carMaxSpeed: 70, //rad per sec
+	airResist: 0.01,
+	downforce: 1,
+	carMass: 1.2,
+	carMassX: -5, //mass offset for vehicle
+	carMassY: 37,
+	tilt: 0.005, //tilt resistance -- changing this value may cause issues
+	agility: 2, //tilt speed
+	rotateSpeed: 0,
+	gas: 150,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -22.5, //back wheel
+			mass: 0.6,
+			size: 7.5,
+			height: 2,
+			active: 1,
+			grip: 5,
+			springs: 5,
+			damping: 0.8,
+			susAngle: -0.4
+        },
+		{
+			xPos: 15, //front wheel
+			mass: 0.4,
+			size: 5,
+			height: 3,
+			active: 1,
+			grip: 1,
+			springs: 6,
+			damping: 1.2
+        }],
+}

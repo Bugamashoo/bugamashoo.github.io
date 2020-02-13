@@ -1,0 +1,67 @@
+var golfCart = {
+	name: "Golf Cart",
+	carVertices: [27.5, -5, 17.5, -7.5, 12.5, -27.5, -17.5, -27.5, -20, -10, -25, -10, -30, 5, -27.5, 10, -22.5, 5, -17.5, 5, -12.5, 12, 12.5, 12, 17.5, 5, 22.5, 5, 27.5, 10, 30, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 0.8,
+	carMaxSpeed: 75, //rad per sec
+	airResist: 0.005,
+	downforce: 1,
+	carMass: 0.385,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 45,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 2, //tilt speed
+	rotateSpeed: 0,
+	gas: 170,
+	playerX: 0,
+	playerY: -10,
+	gasType: 1, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -20, //back wheel
+			mass: 0.1,
+			size: 6.5,
+			height: 13,
+			active: 1.2,
+			grip: 3,
+			springs: 5,
+			damping: 0.6
+        },
+		{
+			xPos: 20, //front wheel
+			mass: 0.28,
+			size: 6.5,
+			height: 13,
+			active: 0.5,
+			grip: 2,
+			springs: 5,
+			damping: 0.6
+        }]
+}

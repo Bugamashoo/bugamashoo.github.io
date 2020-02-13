@@ -1,0 +1,67 @@
+var nascar = {
+	name: "NASCAR",
+	carVertices: [60, 0, 55, -5, 15, -5, 0, -20, -15, -20, -45, -10, -70, -10, -70, 0, -65, 8, -55, 15, -25, 15, 55, 15, 60, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 3,
+	carMaxSpeed: 85, //rad per sec
+	airResist: 0.005,
+	downforce: 1,
+	carMass: 1,
+	carMassX: -15, //mass offset for vehicle
+	carMassY: 40,
+	tilt: 0.5, //tilt resistance -- changing this value may cause issues
+	agility: 5, //tilt speed
+	rotateSpeed: 0,
+	gas: 140,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 3, //Wheel weight maybe
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -40, //back wheel
+			mass: 0.6,
+			size: 13.5,
+			height: 15,
+			active: 1,
+			grip: 5,
+			springs: 4,
+			damping: 0.2
+        },
+		{
+			xPos: 45, //front wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 0.5,
+			grip: 0.5,
+			springs: 6,
+			damping: 0.2
+        }],
+}

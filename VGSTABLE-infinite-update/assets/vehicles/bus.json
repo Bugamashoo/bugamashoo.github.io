@@ -1,0 +1,68 @@
+var bus = {
+	name: "School Bus",
+	carVertices: [60, 0, 60, -5, 70, -15, 80, -15, 90, -5, 90, 0, 100, -5, 100, -30, 75, -35, 70, -55, 75, -55, 70, -60, -95, -60, -100, -55, -100, -10, -65, 0, -65, -5, -55, -15, -45, -15, -35, -5, -35, 0
+],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2.4,
+	carMaxSpeed: 110, //rad per sec
+	airResist: 0,
+	downforce: 1,
+	carMass: 7,
+	carMassX: 20, //mass offset for vehicle
+	carMassY: 10,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
+	rotateSpeed: 0.2,
+	gas: 250,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -50, //back wheel
+			mass: 1.5,
+			size: 14,
+			height: 8,
+			active: 5,
+			grip: 10,
+			springs: 5,
+			damping: 1
+        },
+		{
+			xPos: 75, //front wheel
+			mass: 1.5,
+			size: 14,
+			height: 8,
+			active: 1,
+			grip: 10,
+			springs: 5,
+			damping: 1
+        }],
+}
