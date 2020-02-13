@@ -51,8 +51,8 @@ var hyperBike = {
 			height: 0,
 			active: 1,
 			grip: 5,
-			springs: 8,
-			damping: 0.5
+			springs: 8.5,
+			damping: 1
         },
 		{
 			xPos: 30, //front wheel
@@ -61,7 +61,7 @@ var hyperBike = {
 			height: 0,
 			active: 0,
 			grip: 1,
-			springs: 8,
-			damping: 0.5
+			springs: 8.5,
+			damping: 1
         }],
 }

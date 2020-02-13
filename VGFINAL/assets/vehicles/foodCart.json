@@ -27,16 +27,16 @@ var foodCart = {
 			grip: 0,
 		}
 	],
-	carPower: 2.5,
-	carMaxSpeed: 50, //rad per sec
+	carPower: 2.7,
+	carMaxSpeed: 58, //rad per sec
 	airResist: 0.03,
-	downforce: 1,
+	downforce: 1.2,
 	carMass: 2,
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 30,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 3, //tilt speed
-	rotateSpeed: 0.2,
+	rotateSpeed: 0.3,
 	gas: 180,
 	playerX: 0,
 	playerY: -10,
@@ -50,7 +50,7 @@ var foodCart = {
 			size: 6,
 			height: 7.5,
 			active: 1.3,
-			grip: 6.5,
+			grip: 7.5,
 			springs: 7.5,
 			damping: 0.2
         },

@@ -27,8 +27,8 @@ var golfCart = {
 			grip: 0,
 		}
 	],
-	carPower: 0.7,
-	carMaxSpeed: 70, //rad per sec
+	carPower: 0.8,
+	carMaxSpeed: 75, //rad per sec
 	airResist: 0.005,
 	downforce: 1,
 	carMass: 0.385,

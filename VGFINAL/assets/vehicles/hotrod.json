@@ -27,7 +27,7 @@ var hotrod = {
 			grip: 0,
 		}
 	],
-	carPower: 1.6,
+	carPower: 1.8,
 	carMaxSpeed: 120, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
@@ -35,7 +35,7 @@ var hotrod = {
 	carMassX: -5, //mass offset for vehicle
 	carMassY: 25,
 	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 5, //tilt speed
+	agility: 1, //tilt speed
 	rotateSpeed: 0,
 	gas: 110,
 	playerX: 0,
@@ -52,7 +52,7 @@ var hotrod = {
 			active: 1,
 			grip: 3.5,
 			springs: 4.5,
-			damping: .4,
+			damping: 0.4,
 			bounce: 0.2
         },
 		{
@@ -63,7 +63,7 @@ var hotrod = {
 			active: 0.6,
 			grip: 3.5,
 			springs: 4.5,
-			damping: .4,
+			damping: 0.4,
 			bounce: 0.2
         }],
 }

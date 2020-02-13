@@ -27,7 +27,7 @@ var dumpTruck = {
 			grip: 0,
 		}
 	],
-	carPower: 5,
+	carPower: 6,
 	carMaxSpeed: 40, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
@@ -36,7 +36,7 @@ var dumpTruck = {
 	carMassY: 27,
 	tilt: 0.8, //tilt resistance -- changing this value may cause issues
 	agility: 12, //tilt speed
-	rotateSpeed: 0.2,
+	rotateSpeed: 0.5,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -46,7 +46,7 @@ var dumpTruck = {
 	carWheel: [
 		{
 			xPos: -20, //back wheel
-			mass: 2,
+			mass: 1.5,
 			size: 11,
 			height: 1,
 			active: 1,
@@ -55,7 +55,7 @@ var dumpTruck = {
 			damping: 0.5
         }, {
 			xPos: -44, //back wheel
-			mass: 2,
+			mass: 1.5,
 			size: 11,
 			height: 1,
 			active: 1,
@@ -64,7 +64,7 @@ var dumpTruck = {
 			damping: 0.5
         }, {
 			xPos: 52, //front wheel
-			mass: 2,
+			mass: 1.5,
 			size: 11,
 			height: 1,
 			active: 1,

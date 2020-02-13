@@ -36,7 +36,7 @@ var apc = {
 	carMassY: 28,
 	tilt: 0.05, //tilt resistance -- changing this value may cause issues
 	agility: 4, //tilt speed
-	rotateSpeed: 0.1,
+	rotateSpeed: 0.2,
 	gas: 190,
 	playerX: 0,
 	playerY: -10,
@@ -50,7 +50,7 @@ var apc = {
 			size: 16,
 			height: 22,
 			active: 1,
-			grip: 1.8,
+			grip: 2.5,
 			springs: 4.5,
 			damping: 0.3
         },
@@ -60,7 +60,7 @@ var apc = {
 			size: 16,
 			height: 22,
 			active: 1,
-			grip: 1.8,
+			grip: 2.5,
 			springs: 4.5,
 			damping: 0.3
         },
@@ -70,7 +70,7 @@ var apc = {
 			size: 16,
 			height: 22,
 			active: 1,
-			grip: 1.8,
+			grip: 2.5,
 			springs: 4.5,
 			damping: 0.3
         }]

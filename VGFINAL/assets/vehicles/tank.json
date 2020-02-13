@@ -30,12 +30,12 @@ var tank = {
 	carPower: 4.2,
 	carMaxSpeed: 42, //rad per sec
 	airResist: 0.01,
-	downforce: 1,
+	downforce: 0,
 	carMass: 4,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: 20,
 	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 6, //tilt speed
+	agility: 1, //tilt speed
 	rotateSpeed: 0,
 	gas: 170,
 	playerX: 0,

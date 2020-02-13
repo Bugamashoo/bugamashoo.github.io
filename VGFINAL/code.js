@@ -185,6 +185,14 @@ function refresh() {
 	//var chunk = (((Math.floor((game.camera.x) / 5000)) / 4) + 0.75);
 }
 
+
+
+
+
+
+
+
+
 function continuousTerrainGen() {
 
 	if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
@@ -192,7 +200,10 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+				groundVertices[sSelection].s3 = groundVertices[sSelection].s3 + 0.0003;
+				groundVertices[sSelection].s2 = groundVertices[sSelection].s2 + 0.0003;
+				groundVertices[sSelection].s1 = groundVertices[sSelection].s1 + 0.0003;
 			}
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundOne.x = (chunkNum * 19950) + 19950;
@@ -201,9 +212,9 @@ function continuousTerrainGen() {
 			sectOne = false;
 			sectTwo = true;
 			chunkNum = chunkNum + 1;
-			yPlaceholder = yPlaceholder+(groundGen[groundGen.length-1])+30;
+			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
 			console.log("Terrain chunk 1 made");
-			
+
 		}
 	} else if (((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((game.camera.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
 		if (sectOne == false && sectTwo == true) {
@@ -211,7 +222,10 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((42.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 121) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+				groundGen.push(-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+				groundVertices[sSelection].s3 = groundVertices[sSelection].s3 + 0.0003;
+				groundVertices[sSelection].s2 = groundVertices[sSelection].s2 + 0.0003;
+				groundVertices[sSelection].s1 = groundVertices[sSelection].s1 + 0.0003;
 			}
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundTwo.x = (chunkNum * 19950) + 19950;
@@ -220,11 +234,19 @@ function continuousTerrainGen() {
 			sectOne = true;
 			sectTwo = false;
 			chunkNum = chunkNum + 1;
-			yPlaceholder = yPlaceholder+(groundGen[groundGen.length-1])+30;
+			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
 			console.log("Terrain chunk 2 made");
 		}
 	}
 }
+
+
+
+
+
+
+
+
 
 function update() {
 	if (vehicleBody.x >= 17500) {

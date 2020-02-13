@@ -27,7 +27,7 @@ var jeep = {
 			grip: 0,
 		}
 	],
-	carPower: 1.5,
+	carPower: 1.7,
 	carMaxSpeed: 65, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
@@ -50,7 +50,7 @@ var jeep = {
 			size: 10,
 			height: 10,
 			active: 1,
-			grip: 2,
+			grip: 2.5,
 			springs: 2.8,
 			damping: 0.3
         },
@@ -60,7 +60,7 @@ var jeep = {
 			size: 10,
 			height: 10,
 			active: 1,
-			grip: 2,
+			grip: 2.5,
 			springs: 2.8,
 			damping: 0.3
         }],
