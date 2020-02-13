@@ -32,7 +32,7 @@ var yPlaceholder = 0;
 var sSelection = 0; //Stage selection
 var groundVertices;
 var gStats = groundVertices[sSelection];
-var infStats = (-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2);
+var infStats;
 
 //upgrades
 var susUp;
@@ -95,7 +95,7 @@ function refresh() {
 
 
 	carName.text = cCar.name;
-	game.world.setBounds(-10000, -50000, 500000, 500000);
+	game.world.setBounds(-10000, -50000, Infinity, Infinity);
 
 	game.stage.backgroundColor = '#203050';
 
@@ -209,7 +209,7 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(infStats);
+				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2));
 				gStats.s3 = gStats.s3 + 0.0003;
 				gStats.s2 = gStats.s2 + 0.0003;
 				gStats.s1 = gStats.s1 + 0.0003;
@@ -230,7 +230,7 @@ function continuousTerrainGen() {
 			groundGen = [];
 			for (var i = 0; i < 1000; i++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push(infStats);
+				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2));
 				gStats.s3 = gStats.s3 + 0.0003;
 				gStats.s2 = gStats.s2 + 0.0003;
 				gStats.s1 = gStats.s1 + 0.0003;
@@ -262,9 +262,9 @@ function update() {
 	}
 	if (selection == 17) {
 		if (vehicleBody.angle > -60 && vehicleBody.angle < 90) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 1.5));
-		} else if ((vehicleBody.velocity.x * 1.5) < 250) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 1.5));
+			thrustP = Math.abs((vehicleBody.velocity.x * 1.8));
+		} else if ((vehicleBody.velocity.x * 1.8) < 250) {
+			thrustP = Math.abs((vehicleBody.velocity.x * 1.8));
 		} else {
 			thrustP = 250;
 		}
