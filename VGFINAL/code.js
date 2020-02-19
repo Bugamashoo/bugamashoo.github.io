@@ -76,7 +76,7 @@ var tempv;
 
 function create() {
 
-	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score! L+R for rover thrusters!', {
+	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score! Left+Right for rover thrusters!', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
