@@ -1,6 +1,6 @@
-var atv = {
-	name: "ATV",
-	carVertices: [25, 0, 15, -5, 5, -5, 0, 0, -5, 0, -15, -5, -30, -5, -30, 0, -15, 0, -10, 10, 5, 10, 10, 0, 10, 1],
+var carriage = {
+	name: "Carriage Buggy",
+	carVertices: [],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -27,16 +27,16 @@ var atv = {
 			grip: 0,
 		}
 	],
-	carPower: 1.8,
-	carMaxSpeed: 58, //rad per sec
+	carPower: 1,
+	carMaxSpeed: 50, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
-	carMass: 2,
-	carMassX: -2, //mass offset for vehicle
-	carMassY: 5,
-	tilt: 0.02, //tilt resistance -- changing this value may cause issues
+	carMass: 1,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 0,
+	tilt: 0.01, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
-	rotateSpeed: 1,
+	rotateSpeed: 0,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -45,23 +45,25 @@ var atv = {
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -23, //back wheel
-			mass: 0.1,
-			size: 9,
-			height: 13,
+			xPos: -1, //back wheel
+			mass: 1,
+			size: 5,
+			height: 1,
 			active: 1,
-			grip: 3,
-			springs: 7.5,
-			damping: 0.35
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5,
+			bounce: 0
         },
 		{
-			xPos: 18, //front wheel
-			mass: 0.1,
-			size: 9,
-			height: 13,
+			xPos: 1, //front wheel
+			mass: 1,
+			size: 5,
+			height: 1,
 			active: 1,
-			grip: 3,
-			springs: 7.5,
-			damping: 0.35
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5,
+			bounce: 0
         }],
 }
