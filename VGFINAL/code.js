@@ -19,7 +19,6 @@ var vehicleBody;
 var moreGroundOne;
 var moreGroundTwo;
 var com;
-var comCam;
 var flipr;
 var flipr2;
 var bodySprite = car[selection];
