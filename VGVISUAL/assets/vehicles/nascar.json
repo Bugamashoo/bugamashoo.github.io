@@ -1,0 +1,69 @@
+var nascar = {
+	name: "Drag Racer",
+	carVertices: [70, 5, -5, -5, -20, -15, -15, -5, -45, -5, -46, -22, -78, -21, -70, -5, -62, 15, 66, 15, 70, 11],
+	carNumParts: 1,
+	carParts: [
+		{
+			vertices: [-65, 10, -88, 21, -85, 22, -60, 13],
+			partType: 0,
+			mass: 0.1,
+			grip: 2.5,
+			active: true,
+			torque: 0.5,
+			correctionAngle: 0,
+			limCounterclockwise: 10,
+			limClockwise: 30,
+			xPos: 0,
+			yPos: 0,
+			xOff: -62,
+			yOff: 10,
+			spring: 0.35
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 3.5,
+	carMaxSpeed: 65, //rad per sec
+	airResist: 100,
+	downforce: 0.3,
+	carMass: 1,
+	carMassX: -15, //mass offset for vehicle
+	carMassY: 10,
+	tilt: 0.25, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
+	rotateSpeed: 0,
+	gas: 140,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 3, //Wheel weight maybe
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -40, //back wheel
+			mass: 0.8,
+			size: 16,
+			height: 13,
+			active: 1,
+			grip: 6.5,
+			springs: 5,
+			damping: 0.5,
+			bounch: 0.05
+        },
+		{
+			xPos: 58, //front wheel
+			mass: 0.1,
+			size: 8,
+			height: 15,
+			active: 0.5,
+			grip: 0.5,
+			springs: 8,
+			damping: 1,
+			bounce: 0.5
+        }],
+}

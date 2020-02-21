@@ -1,0 +1,77 @@
+var snowmobile = {
+	name: "Snowmobile",
+	carVertices: [-35, 0, -40, -5, -35, -15, -10, -15, -5, -20, 10, -25, 20, -20, 30, -10, 30, -5, 0, -5, -5, 0],
+	carNumParts: 1,
+	carParts: [
+		{
+			vertices: [20, 5, 11, 2, 30, 2, 43, -2, 39, 2.5, 34, 5],
+			partType: 1,
+			mass: 0.2,
+			grip: 0,
+			active: true,
+			torque: 0.8,
+			CorrectionAngle: null,
+			limCounterclockwise: null,
+			limClockwise: null,
+			xPos: -4,
+			yPos: -1,
+			xOff: 15,
+			yOff: -6,
+			spring: 16
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 1.8,
+	carMaxSpeed: 100, //rad per sec
+	airResist: 0,
+	downforce: 1.1,
+	carMass: 1.5,
+	carMassX: 10, //mass offset for vehicle
+	carMassY: -10,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 0.7, //tilt speed
+	rotateSpeed: 0,
+	gas: 150,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 3,
+	carWheel: [
+		{
+			xPos: -31, //back wheel
+			mass: 0.2,
+			size: 4.8,
+			height: 0,
+			active: 1,
+			grip: 8.5,
+			springs: 4.5,
+			damping: 0.3
+        },
+		{
+			xPos: -20, //front wheel
+			mass: 0.2,
+			size: 4.8,
+			height: 0,
+			active: 1,
+			grip: 8.5,
+			springs: 4.5,
+			damping: 0.3
+        },
+		{
+			xPos: -9, //front wheel
+			mass: 0.2,
+			size: 4.8,
+			height: 0,
+			active: 1,
+			grip: 8.5,
+			springs: 4.5,
+			damping: 0.3
+        }],
+}

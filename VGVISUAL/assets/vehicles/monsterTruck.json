@@ -1,0 +1,69 @@
+var monsterTruck = {
+	name: "Monster Truck",
+	carVertices: [50, 0, 55, -10, 55, -25, 20, -25, 15, -40, -55, -40, -55, -10, -50, 0],
+	carNumParts: 0,
+	carParts: [
+		{
+			vertices: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 1.75,
+	carMaxSpeed: 55, //rad per sec
+	airResist: 0,
+	downforce: 1.25,
+	carMass: 1,
+	carMassX: 2, //mass offset for vehicle
+	carMassY: 8,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 0.8, //tilt speed
+	rotateSpeed: 0,
+	gas: 120,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -30, //back wheel
+			mass: 0.05,
+			size: 19,
+			height: 10,
+			active: 1,
+			grip: 3,
+			springs: 6.5,
+			damping: 0.05,
+			bounce: 0.6
+        },
+		{
+			xPos: 34, //front wheel
+			mass: 0.05,
+			size: 19,
+			height: 10,
+			active: 1,
+			grip: 3,
+			springs: 6.5,
+			damping: 0.05,
+			bounce: 0.6
+        }],
+}

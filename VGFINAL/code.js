@@ -8,8 +8,8 @@ var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, carriage]; //Load all the cars
-//var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
-var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
+var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
+//var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
 var chunk;
 var vehicleVertices = [];
 //Car selection
@@ -42,7 +42,7 @@ var terCalc =
 	function terCalc() {
 
 	}
-var runMax = -75;
+var runMax = -80;
 var backLim;
 //upgrades
 var susUp;
@@ -105,7 +105,7 @@ function create() {
 function refresh() {
 	i = 0;
 	tempv = 0;
-	runMax = -75;
+	runMax = -80;
 	moreGroundOne = [];
 	moreGroundTwo = [];
 	yPlaceholder = 0;

@@ -4,7 +4,7 @@ var atv = {
 	carNumParts: 0,
 	carParts: [
 		{
-			verticies: [null, null],
+			vertices: [null, null],
 			partType: 0,
 			mass: 1,
 			grip: 0.25,

@@ -1,0 +1,67 @@
+var truck = {
+	name: "Truck",
+	carVertices: [50, 0, 55, -5, 55, -17.5, 25, -20, 15, -31, -5, -31, -5, -20, -60, -20, -60, 0, -45, 0],
+	carNumParts: 0,
+	carParts: [
+		{
+			vertices: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2.7,
+	carMaxSpeed: 60, //rad per sec
+	airResist: 0.01,
+	downforce: 0.5,
+	carMass: 0.8,
+	carMassX: 2, //mass offset for vehicle
+	carMassY: -11,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 2, //tilt speed
+	rotateSpeed: 2.5,
+	gas: 150,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -35, //back wheel
+			mass: 0.4,
+			size: 12,
+			height: 8,
+			active: 1,
+			grip: 4,
+			springs: 3.5,
+			damping: 0.4
+        },
+		{
+			xPos: 40, //front wheel
+			mass: 0.4,
+			size: 12,
+			height: 10,
+			active: 0,
+			grip: 4,
+			springs: 3.5,
+			damping: 0.4
+        }],
+}

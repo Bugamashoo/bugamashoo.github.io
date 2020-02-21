@@ -1,0 +1,69 @@
+var hyperBike = {
+	name: "Hyper Bike",
+	carVertices: [43, 0, 45, -10, 43, -17, 25, -20, 0, -15, -10, -15, -15, -20, -41, -22, -41, 0, -30, 0, -20, 5, -10, 0, 10, 0, 20, 5, 30, 0, 40, 5],
+	carNumParts: 0,
+	carParts: [
+		{
+			vertices: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 3.5,
+	carMaxSpeed: 100, //rad per sec
+	airResist: 800,
+	downforce: 0.5,
+	carMass: 0.7,
+	carMassX: 3, //mass offset for vehicle
+	carMassY: -8,
+	tilt: 0, //tilt resistance -- changing this value may cause issues
+	agility: 0.4, //tilt speed and strength
+	rotateSpeed: 0,
+	gas: 100,
+	playerX: 0,
+	playerY: -10,
+	gasType: 1, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -30, //back wheel
+			mass: 0.2,
+			size: 12,
+			height: 0,
+			active: 1,
+			grip: 5,
+			springs: 7,
+			damping: 1,
+			bounce: 0
+        },
+		{
+			xPos: 30, //front wheel
+			mass: 0.2,
+			size: 12,
+			height: 0,
+			active: 0,
+			grip: 5,
+			springs: 7,
+			damping: 1,
+			bounce: 0
+        }],
+}
