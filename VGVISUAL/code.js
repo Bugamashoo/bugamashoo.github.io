@@ -7,8 +7,8 @@ game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, carriage]; //Load all the cars
-//var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
-var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
+var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
+//var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
 
 var vehicleVertices = [];
 //Car selection
