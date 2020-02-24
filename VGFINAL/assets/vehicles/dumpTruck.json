@@ -27,13 +27,13 @@ var dumpTruck = {
 			grip: 0,
 		}
 	],
-	carPower: 6.7,
-	carMaxSpeed: 55, //rad per sec
+	carPower: 6.9,
+	carMaxSpeed: 56, //rad per sec
 	airResist: 0.01,
 	downforce: 1.2,
 	carMass: 5,
-	carMassX: 0, //mass offset for vehicle
-	carMassY: -8,
+	carMassX: 2, //mass offset for vehicle
+	carMassY: -6,
 	tilt: 0.5, //tilt resistance -- changing this value may cause issues
 	agility: 4.5, //tilt speed
 	rotateSpeed: 4,
