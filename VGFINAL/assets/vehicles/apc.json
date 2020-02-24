@@ -33,7 +33,7 @@ var apc = {
 	downforce: 1,
 	carMass: 2,
 	carMassX: 4, //mass offset for vehicle
-	carMassY: -12,
+	carMassY: -10,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 1.8, //tilt speed
 	rotateSpeed: 0.3,
@@ -50,7 +50,7 @@ var apc = {
 			size: 17,
 			height: 22,
 			active: 1,
-			grip: 2.5,
+			grip: 3.2,
 			springs: 4.6,
 			damping: 0.4,
 			bounce: 0.08
@@ -61,7 +61,7 @@ var apc = {
 			size: 17,
 			height: 22,
 			active: 1,
-			grip: 2.5,
+			grip: 3.2,
 			springs: 4.6,
 			damping: 0.4,
 			bounce: 0.08
@@ -72,7 +72,7 @@ var apc = {
 			size: 17,
 			height: 22,
 			active: 1,
-			grip: 2.5,
+			grip: 3.2,
 			springs: 4.6,
 			damping: 0.4,
 			bounce: 0.08
