@@ -88,11 +88,20 @@ function create() {
 		fill: '#00ffff',
 		font: '16pt Arial'
 	});
+	var specAbility;
+	var headerText;
+	var specAttribute;
 	caption.fixedToCamera = true;
 	score.fixedToCamera = true;
 	carName.fixedToCamera = true;
 	refresh();
 	continuousTerrainGen();
+	if (selection == 16) {
+		var thrustCount = game.add.text(600, 26, {
+			fill: '#ffffff',
+			font: '14pt Arial'
+		});
+	}
 	//var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	//var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	//moreGroundTwo.setChain([0, 0]);
@@ -177,6 +186,7 @@ function refresh() {
 		if (cCarWheel[i7].bounce != undefF) {
 			wheelBodies[i7].restitution = cCarWheel[i7].bounce;
 		}
+		wheelBodies[i7].setBodyContactCallback(groundBody, bodyCollide, this);
 		//wheelBodies[i].restitution = cCarWheel[i].bounce - 1;
 	}
 
@@ -227,6 +237,9 @@ function refresh() {
 
 
 
+function bodyCollide(cCarWheel, groundBody, fixture1, fixture2, begin, contact) {
+	var rPower = 1000;
+}
 
 
 
@@ -376,7 +389,6 @@ function continuousTerrainGen2() {
 
 
 
-
 function update() {
 	//if ((vehicleBody.x >= 17500) && (sSelection = 0)) {
 	//continuousTerrainGen();
@@ -428,10 +440,20 @@ function update() {
 
 	} // prioritize braking
 	else if (cursors.left.isDown && !cursors.right.isDown) {
-		motorSpeed *= -1;
-		turnSpeed *= -1;
-		vehicleBody.speed;
-	} else if (cursors.right.isDown && !cursors.left.isDown) {} else {
+		turnSpeed = Math.abs(turnSpeed);
+		if (vehicleBody.velocity.x <= 20) {
+			motorSpeed = -1 * Math.abs(motorSpeed);
+		} else {
+			motorSpeed = 0;
+		}
+	} else if (cursors.right.isDown && !cursors.left.isDown) {
+		turnSpeed = -1 * Math.abs(turnSpeed);
+		if (vehicleBody.velocity.x >= -20) {
+			motorSpeed = Math.abs(motorSpeed);
+		} else {
+			motorSpeed = 0;
+		}
+	} else {
 		motorEnabled = false;
 	} // roll if no keys pressed
 
@@ -439,7 +461,7 @@ function update() {
 		driveJoints[i3].EnableMotor(motorEnabled);
 		flipr2.EnableMotor(motorEnabled);
 		driveJoints[i3].SetMotorSpeed(motorSpeed * cCarWheel[i3].active);
-		flipr2.SetMotorSpeed(turnSpeed * -1)
+		flipr2.SetMotorSpeed(turnSpeed)
 	}
 }
 
