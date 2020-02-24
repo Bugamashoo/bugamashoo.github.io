@@ -34,9 +34,9 @@ var apc = {
 	carMass: 2,
 	carMassX: 4, //mass offset for vehicle
 	carMassY: -10,
-	tilt: 0.2, //tilt resistance -- changing this value may cause issues
+	tilt: 0.25, //tilt resistance -- changing this value may cause issues
 	agility: 1.8, //tilt speed
-	rotateSpeed: 0.3,
+	rotateSpeed: 0.2,
 	gas: 190,
 	playerX: 0,
 	playerY: -10,

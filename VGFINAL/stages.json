@@ -37,7 +37,7 @@ var groundVertices = [{
 	stageName: "Sandy Offroading",
 	length: 0,
 	s1: 0.6,
-	s2: 0.4,
+	s2: 0.5,
 	s3: 0.1,
 	ss1: 0.6,
 	ss2: 0.4,
@@ -47,5 +47,5 @@ var groundVertices = [{
 	sss3: 0.0003,
 	ssss1: 15,
 	sssss1: 15,
-	rs1: 7
+	rs1: 5
    }];
