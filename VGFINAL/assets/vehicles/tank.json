@@ -34,7 +34,7 @@ var tank = {
 	carMass: 4,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: -20,
-	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	tilt: 0, //tilt resistance -- changing this value may cause issues
 	agility: 0, //tilt speed
 	rotateSpeed: 0,
 	gas: 170,

@@ -47,7 +47,7 @@ var racecar = {
 		{
 			xPos: -32.5, //back wheel
 			mass: 0.8,
-			size: 8,
+			size: 9,
 			height: 1,
 			active: 1,
 			grip: 4,
@@ -58,7 +58,7 @@ var racecar = {
 		{
 			xPos: 37.5, //front wheel
 			mass: 0.8,
-			size: 8,
+			size: 9,
 			height: 1,
 			active: 0,
 			grip: 8,

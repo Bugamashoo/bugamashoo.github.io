@@ -33,7 +33,7 @@ var monsterTruck = {
 	downforce: 1.25,
 	carMass: 1,
 	carMassX: 2, //mass offset for vehicle
-	carMassY: 8,
+	carMassY: 15,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
 	agility: 0.8, //tilt speed
 	rotateSpeed: 0,

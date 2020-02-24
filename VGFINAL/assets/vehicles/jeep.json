@@ -32,8 +32,8 @@ var jeep = {
 	airResist: 0.01,
 	downforce: 1,
 	carMass: 1,
-	carMassX: 0, //mass offset for vehicle
-	carMassY: -5,
+	carMassX: 2, //mass offset for vehicle
+	carMassY: -3,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 1.5, //tilt speed
 	rotateSpeed: 0,
@@ -51,8 +51,8 @@ var jeep = {
 			height: 10,
 			active: 1,
 			grip: 2.5,
-			springs: 3.5,
-			damping: 0.35
+			springs: 3.55,
+			damping: 0.38
         },
 		{
 			xPos: 35, //front wheel
@@ -61,7 +61,7 @@ var jeep = {
 			height: 10,
 			active: 1,
 			grip: 2.5,
-			springs: 3.5,
-			damping: 0.35
+			springs: 3.55,
+			damping: 0.38
         }],
 }

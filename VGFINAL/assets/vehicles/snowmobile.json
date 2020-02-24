@@ -30,7 +30,7 @@ var snowmobile = {
 	carPower: 1.8,
 	carMaxSpeed: 100, //rad per sec
 	airResist: 0,
-	downforce: 1.1,
+	downforce: 1.3,
 	carMass: 1.5,
 	carMassX: 10, //mass offset for vehicle
 	carMassY: -10,

@@ -27,10 +27,10 @@ var truck = {
 			grip: 0,
 		}
 	],
-	carPower: 2.7,
+	carPower: 2.8,
 	carMaxSpeed: 60, //rad per sec
 	airResist: 0.01,
-	downforce: 0.5,
+	downforce: 0.7,
 	carMass: 0.8,
 	carMassX: 2, //mass offset for vehicle
 	carMassY: -11,
