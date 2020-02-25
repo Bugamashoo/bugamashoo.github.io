@@ -407,9 +407,9 @@ function update() {
 	}
 	if (selection == 17) {
 		if (vehicleBody.angle > -60 && vehicleBody.angle < 90) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 2));
+			thrustP = Math.abs((vehicleBody.velocity.x * 2.5));
 		} else if ((vehicleBody.velocity.x * 2) < 250) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 2));
+			thrustP = 250;
 		} else {
 			thrustP = 250;
 		}

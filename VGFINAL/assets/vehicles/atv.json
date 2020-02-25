@@ -31,7 +31,7 @@ var atv = {
 	carMaxSpeed: 58, //rad per sec
 	airResist: 0.01,
 	downforce: 1,
-	carMass: 2,
+	carMass: 2.2,
 	carMassX: -2, //mass offset for vehicle
 	carMassY: 5,
 	tilt: 0.02, //tilt resistance -- changing this value may cause issues
@@ -51,7 +51,7 @@ var atv = {
 			height: 13,
 			active: 1,
 			grip: 3.3,
-			springs: 7.5,
+			springs: 7.7,
 			damping: 0.35
         },
 		{
@@ -61,7 +61,7 @@ var atv = {
 			height: 13,
 			active: 1,
 			grip: 3.3,
-			springs: 7.5,
+			springs: 7.7,
 			damping: 0.35
         }],
 }
