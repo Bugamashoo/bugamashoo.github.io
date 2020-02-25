@@ -33,9 +33,9 @@ var monsterTruck = {
 	downforce: 1.25,
 	carMass: 1,
 	carMassX: 2, //mass offset for vehicle
-	carMassY: 15,
+	carMassY: 11,
 	tilt: 0.35, //tilt resistance -- changing this value may cause issues
-	agility: 0.85, //tilt speed
+	agility: 1.6, //tilt speed
 	rotateSpeed: 0,
 	gas: 120,
 	playerX: 0,
@@ -51,9 +51,9 @@ var monsterTruck = {
 			height: 10,
 			active: 1,
 			grip: 3,
-			springs: 6.5,
-			damping: 0.02,
-			bounce: 0.3
+			springs: 7,
+			damping: -0.1,
+			bounce: 0.1
         },
 		{
 			xPos: 34, //front wheel
@@ -62,8 +62,8 @@ var monsterTruck = {
 			height: 10,
 			active: 1,
 			grip: 3,
-			springs: 6.5,
-			damping: 0.02,
-			bounce: 0.3
+			springs: 7,
+			damping: -0.1,
+			bounce: 0.1
         }],
 }

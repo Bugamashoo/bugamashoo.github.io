@@ -1,5 +1,5 @@
 var jeep = {
-	name: "jeep",
+	name: "Jeep",
 	carVertices: [45, 0, 50, 0, 50, -20, -5, -20, -5, -35, -10, -35, -10, -31, -30, -20, -50, -20, -50, -7, -43, 0, -20, 0],
 	carNumParts: 0,
 	carParts: [

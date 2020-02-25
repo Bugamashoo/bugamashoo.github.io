@@ -35,7 +35,7 @@ var foodCart = {
 	carMassX: 5, //mass offset for vehicle
 	carMassY: -5,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
-	agility: 3, //tilt speed
+	agility: 3.2, //tilt speed
 	rotateSpeed: 3,
 	gas: 180,
 	playerX: 0,

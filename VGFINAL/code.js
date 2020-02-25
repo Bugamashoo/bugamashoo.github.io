@@ -1,4 +1,4 @@
-var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser-example', {
+var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser', {
 	create: create,
 	update: update,
 	render: render
@@ -7,9 +7,9 @@ game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, carriage]; //Load all the cars
-//var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
-var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar]; //Load all the cars
+var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
+//var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
 var chunk;
 var vehicleVertices = [];
 //Car selection
@@ -28,7 +28,6 @@ var score2 = 0;
 var carName;
 var randomNum = (0.5 - Math.random());
 var yPlaceholder = 0;
-var sStage = groundVertices[sSelection];
 
 var sSelection = 1; //Stage selection
 var groundVertices;
@@ -51,9 +50,9 @@ var tirUp;
 var chunkNum = 0;
 var cCar = car[selection]; //get body collision data for selected car
 var cCarWheel = car[selection].carWheel; //get wheel data for selected car 
+var cCarPart = car[selection].carParts; //get extra part data for selected car
 var cCarX;
 var cCarY;
-var cCarPart = car[selection].carParts; //get extra part data for selected car
 var driveJoints = [];
 var partJoints = [];
 var partJoints2 = [];
@@ -112,6 +111,11 @@ function create() {
 
 // Make the ground body
 function refresh() {
+	gStats = groundVertices[sSelection];
+	startPoint = groundVertices[sSelection].length;
+	cCar = car[selection]; //get body collision data for selected car
+	cCarWheel = car[selection].carWheel; //get wheel data for selected car 
+	cCarPart = car[selection].carParts; //get extra part data for selected car
 	i = 0;
 	tempv = 0;
 	runMax = -80;
@@ -123,7 +127,7 @@ function refresh() {
 	gStats.s2 = gStats.ss2;
 	gStats.s3 = gStats.ss3;
 	gStats.ssss1 = gStats.sssss1;
-	var groundGen = [0, 0];
+	groundGen = [0, 0];
 	sectOne = true;
 	sectTwo = false;
 	carName.text = cCar.name;
@@ -133,14 +137,15 @@ function refresh() {
 
 	// Enable Box2D physics
 	game.physics.startSystem(Phaser.Physics.BOX2D);
-	game.physics.box2d.gravity.y = 300 + (cCar.airResist / 34);
-	game.physics.box2d.friction = 0.26;
+	game.physics.box2d.gravity.y = (300 * gStats.grav) + (cCar.airResist / 30);
+	game.physics.box2d.friction = (0.26 * gStats.grip);
 	game.physics.box2d.restitution = 0;
 
 	cursors = game.input.keyboard.createCursorKeys();
 	var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	groundBody.setChain(groundVertices[sSelection].data);
 	groundBody.autoCull = true;
+	groundBody.restitution = (0 + gStats.boing);
 
 
 	var jointAnchor = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0); //car limit physics
@@ -291,12 +296,6 @@ function continuousTerrainGen() {
 	}
 }
 
-function hyperChunk2() {
-	return ((((Math.floor((com.x) / 500)) / 4) + 0.25) % 2);
-}
-
-var tempv; //= (((Math.floor((game.camera.x) / 500)) / 4) + 0.25);
-
 function continuousTerrainGen2() {
 
 	if (((((Math.floor((com.x) / 500)) / 4) + 0.9) % 2) < 1 && ((((Math.floor((com.x) / 500)) / 4) + 0.9) % 2) >= 0.75 && (tempv < (((Math.floor((com.x) / 500)) / 4) + 0.9))) {
@@ -332,6 +331,7 @@ function continuousTerrainGen2() {
 			moreGroundOne.y = -17; //yPlaceholder;
 			moreGroundOne.setChain(groundGen);
 			moreGroundOne.autoCull = true;
+			moreGroundOne.restitution = (0 + gStats.boing);
 			sectOne = false;
 			sectTwo = true;
 			chunkNum = chunkNum + 1;
@@ -373,6 +373,7 @@ function continuousTerrainGen2() {
 			moreGroundTwo.y = -17; //yPlaceholder;
 			moreGroundTwo.setChain(groundGen);
 			moreGroundTwo.autoCull = true;
+			moreGroundTwo.restitution = (0 + gStats.boing);
 			sectOne = true;
 			sectTwo = false;
 			chunkNum = chunkNum + 1;
@@ -406,10 +407,8 @@ function update() {
 		continuousTerrainGen2();
 	}
 	if (selection == 17) {
-		if (vehicleBody.angle > -60 && vehicleBody.angle < 90) {
-			thrustP = Math.abs((vehicleBody.velocity.x * 2.5));
-		} else if ((vehicleBody.velocity.x * 2) < 250) {
-			thrustP = 250;
+		if (vehicleBody.angle > -60 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
+			thrustP = Math.abs((vehicleBody.velocity.x * 2));
 		} else {
 			thrustP = 250;
 		}

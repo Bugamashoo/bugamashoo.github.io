@@ -36,7 +36,7 @@ var golfCart = {
 	carMassY: 5,
 	tilt: 0.08, //tilt resistance -- changing this value may cause issues
 	agility: 0.5, //tilt speed
-	rotateSpeed: 1,
+	rotateSpeed: 2,
 	gas: 170,
 	playerX: 0,
 	playerY: -10,

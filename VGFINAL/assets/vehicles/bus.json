@@ -35,7 +35,7 @@ var bus = {
 	carMassX: 20, //mass offset for vehicle
 	carMassY: -35,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	agility: 1.2, //tilt speed
 	rotateSpeed: 0.3,
 	gas: 250,
 	playerX: 0,

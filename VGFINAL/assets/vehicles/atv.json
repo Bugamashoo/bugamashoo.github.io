@@ -35,7 +35,7 @@ var atv = {
 	carMassX: -2, //mass offset for vehicle
 	carMassY: 5,
 	tilt: 0.02, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	agility: 1.1, //tilt speed
 	rotateSpeed: 1,
 	gas: 150,
 	playerX: 0,

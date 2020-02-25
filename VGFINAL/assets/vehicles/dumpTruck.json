@@ -30,7 +30,7 @@ var dumpTruck = {
 	carPower: 6.8,
 	carMaxSpeed: 56, //rad per sec
 	airResist: 0.01,
-	downforce: 1.3,
+	downforce: 1.5,
 	carMass: 5,
 	carMassX: 2, //mass offset for vehicle
 	carMassY: -6,

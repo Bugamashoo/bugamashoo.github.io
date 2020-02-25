@@ -30,5 +30,26 @@
 </head>
 
 <body>
-	<h4>Development build [V2.25-A] (pre-alpha) -- Reload the page for a random vehicle!</h4>
-</body></html>
+	<h3>Development build [V2.25-B] (pre-alpha)</h3>
+	<a class=minihead>Vehicles: </a>
+	<a id=carButtonList>
+		<script>
+			for (var i12 = 0; i12 < car.length; i12++) {
+				var btn = document.createElement("BUTTON"); // Create a <button> element
+				btn.innerHTML = car[i12].name; // Insert text
+				btn.addClass = "vehiclebtn";
+				btn.id = ("select" + i12);
+				btn.onclick = function() {
+					var btnid = this.id
+					selection = btnid.replace('select', '');
+					refresh();
+				};
+				document.getElementById('carButtonList').appendChild(btn);
+			}
+
+		</script>
+
+	</a>
+</body>
+
+</html>

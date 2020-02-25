@@ -33,7 +33,7 @@ var apc = {
 	downforce: 1.2,
 	carMass: 2,
 	carMassX: 4, //mass offset for vehicle
-	carMassY: -10,
+	carMassY: -6,
 	tilt: 0.25, //tilt resistance -- changing this value may cause issues
 	agility: 1.8, //tilt speed
 	rotateSpeed: 0.2,

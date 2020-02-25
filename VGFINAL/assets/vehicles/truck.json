@@ -35,7 +35,7 @@ var truck = {
 	carMassX: 2, //mass offset for vehicle
 	carMassY: -11,
 	tilt: 0.1, //tilt resistance -- changing this value may cause issues
-	agility: 2, //tilt speed
+	agility: 1.9, //tilt speed
 	rotateSpeed: 2.5,
 	gas: 150,
 	playerX: 0,

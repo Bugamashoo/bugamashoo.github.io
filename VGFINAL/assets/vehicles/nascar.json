@@ -27,8 +27,8 @@ var nascar = {
 			grip: 0,
 		}
 	],
-	carPower: 3.5,
-	carMaxSpeed: 65, //rad per sec
+	carPower: 3.9,
+	carMaxSpeed: 70, //rad per sec
 	airResist: 100,
 	downforce: 0.3,
 	carMass: 1,
