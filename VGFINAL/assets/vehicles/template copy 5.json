@@ -1,0 +1,69 @@
+var template = {
+	name: "name",
+	carVertices: [],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 1,
+	carMaxSpeed: 50, //rad per sec
+	airResist: 0.01,
+	downforce: 1,
+	carMass: 1,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 0,
+	tilt: 0.01, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
+	rotateSpeed: 0,
+	gas: 150,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -1, //back wheel
+			mass: 1,
+			size: 5,
+			height: 1,
+			active: 1,
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5,
+			bounce: 0
+        },
+		{
+			xPos: 1, //front wheel
+			mass: 1,
+			size: 5,
+			height: 1,
+			active: 1,
+			grip: 1,
+			springs: 2.5,
+			damping: 0.5,
+			bounce: 0
+        }],
+}

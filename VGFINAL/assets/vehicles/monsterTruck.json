@@ -37,7 +37,7 @@ var monsterTruck = {
 	tilt: 0.35, //tilt resistance -- changing this value may cause issues
 	agility: 1.6, //tilt speed
 	rotateSpeed: 0,
-	gas: 120,
+	gas: 170,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
@@ -51,8 +51,8 @@ var monsterTruck = {
 			height: 10,
 			active: 1,
 			grip: 3,
-			springs: 7,
-			damping: -0.1,
+			springs: 5.8,
+			damping: -0.05,
 			bounce: 0.1
         },
 		{
@@ -62,8 +62,8 @@ var monsterTruck = {
 			height: 10,
 			active: 1,
 			grip: 3,
-			springs: 7,
-			damping: -0.1,
+			springs: 5.8,
+			damping: -0.05,
 			bounce: 0.1
         }],
 }

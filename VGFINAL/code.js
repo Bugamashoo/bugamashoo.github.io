@@ -7,10 +7,11 @@ game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar]; //Load all the cars
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, dirtBike]; //Load all the cars
 var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
 //var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
 var chunk;
+var turnSpeed;
 var vehicleVertices = [];
 //Car selection
 var Phaser;
@@ -57,6 +58,7 @@ var driveJoints = [];
 var partJoints = [];
 var partJoints2 = [];
 var undefF;
+var roSpeed;
 
 var moreGroundOne = [];
 var moreGroundTwo = [];
@@ -201,6 +203,7 @@ function refresh() {
 	// bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled	
 	for (var i4 = 0; i4 < cCar.carNumWheels; i4++) {
 		driveJoints[i4] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i4], cCarWheel[i4].xPos, cCarWheel[i4].height, 0, 0, cCarWheel[i4].susAngle + 0, 1, cCarWheel[i4].springs, cCarWheel[i4].damping, 0, motorTorque * cCarWheel[i4].active, true);
+		driveJoints[i4].motorTorque = (cCar.rotateSpeed);
 	}
 
 	var partBodies = [];
@@ -237,6 +240,7 @@ function refresh() {
 	//var chunk = (((Math.floor((game.camera.x) / 5000)) / 4) + 0.75);
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+	roSpeed = cCar.rotateSpeed;
 }
 
 
@@ -378,7 +382,6 @@ function continuousTerrainGen2() {
 			sectTwo = false;
 			chunkNum = chunkNum + 1;
 			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]);
-
 		}
 	}
 }
@@ -418,6 +421,7 @@ function update() {
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
 	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
+	var motorEnabled2 = true;
 	if (cursors.up.isDown) {
 		if (vehicleBody.x > score2) {
 			score2 = vehicleBody.x;
@@ -435,18 +439,23 @@ function update() {
 			com.reverse(-600);
 		}
 		motorEnabled = false;
+		motorEnabled2 = false;
 		//console.log(com);
 
 	} // prioritize braking
 	else if (cursors.left.isDown && !cursors.right.isDown) {
+		motorEnabled2 = true;
 		turnSpeed = Math.abs(turnSpeed);
+		roSpeed = Math.abs(roSpeed);
 		if (vehicleBody.velocity.x <= 20) {
 			motorSpeed = -1 * Math.abs(motorSpeed);
 		} else {
 			motorSpeed = 0;
 		}
 	} else if (cursors.right.isDown && !cursors.left.isDown) {
+		motorEnabled2 = true;
 		turnSpeed = -1 * Math.abs(turnSpeed);
+		roSpeed = -1 * Math.abs(roSpeed);
 		if (vehicleBody.velocity.x >= -20) {
 			motorSpeed = Math.abs(motorSpeed);
 		} else {
@@ -454,13 +463,13 @@ function update() {
 		}
 	} else {
 		motorEnabled = false;
+		motorEnabled2 = false;
 	} // roll if no keys pressed
-
+	flipr2.SetMotorSpeed(roSpeed);
+	flipr2.EnableMotor(motorEnabled2);
 	for (var i3 = 0; i3 < cCar.carNumWheels; i3++) {
 		driveJoints[i3].EnableMotor(motorEnabled);
-		flipr2.EnableMotor(motorEnabled);
 		driveJoints[i3].SetMotorSpeed(motorSpeed * cCarWheel[i3].active);
-		flipr2.SetMotorSpeed(turnSpeed)
 	}
 }
 

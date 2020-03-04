@@ -27,7 +27,7 @@ var nascar = {
 			grip: 0,
 		}
 	],
-	carPower: 3.9,
+	carPower: 4.4,
 	carMaxSpeed: 70, //rad per sec
 	airResist: 100,
 	downforce: 0.3,
@@ -48,7 +48,7 @@ var nascar = {
 			xPos: -40, //back wheel
 			mass: 0.8,
 			size: 16,
-			height: 13,
+			height: 12,
 			active: 1,
 			grip: 6.5,
 			springs: 5,
