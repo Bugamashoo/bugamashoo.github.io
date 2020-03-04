@@ -1,0 +1,71 @@
+var chopper = {
+	name: "Chopper",
+	carVertices: [5, 0, 10, -15, 25, 0, 29, -2, 10, -20, 0, -20, 5, -15, -25, -11, -29, -26, -33, -27, -30, -11, -34, -10, -29, -3],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2.3,
+	carMaxSpeed: 90, //rad per sec
+	airResist: 50,
+	downforce: 0.8,
+	carMass: 2.2,
+	carMassX: -18, //mass offset for vehicle
+	carMassY: -6,
+	tilt: 0.2, //tilt resistance -- changing this value may cause issues
+	agility: 1.8, //tilt speed
+	rotateSpeed: 1.5,
+	gas: 190,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis size multiplier
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -31, //back wheel
+			mass: 0.55,
+			size: 7.6,
+			height: -2,
+			active: 1,
+			grip: 12,
+			springs: 5,
+			damping: 0.2,
+			bounce: 0,
+			susAngle: -0.15
+        },
+		{
+			xPos: 29, //front wheel
+			mass: 0.15,
+			size: 8.5,
+			height: 5,
+			active: 0,
+			grip: 12,
+			springs: 4.5,
+			damping: 0.5,
+			bounce: 0,
+			susAngle: 0.5
+        }],
+}

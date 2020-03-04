@@ -35,8 +35,8 @@ var rover = {
 	carMassX: 0, //mass offset for vehicle
 	carMassY: -10,
 	tilt: 0.7, //tilt resistance -- changing this value may cause issues
-	agility: 2.5, //tilt speed
-	rotateSpeed: 1,
+	agility: 2, //tilt speed
+	rotateSpeed: 2,
 	gas: 165,
 	playerX: 0,
 	playerY: -10,

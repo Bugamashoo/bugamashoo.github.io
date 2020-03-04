@@ -1,4 +1,5 @@
 var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser', {
+	preload: preload,
 	create: create,
 	update: update,
 	render: render
@@ -7,9 +8,10 @@ game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, dirtBike]; //Load all the cars
-var selection = 0; //CURRENTLY SELECTED CAR (PRESET)
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, dirtBike, groceryCart, chopper]; //Load all the cars
+var selection = 2; //CURRENTLY SELECTED CAR (PRESET)
 //var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
+var graphics;
 var chunk;
 var turnSpeed;
 var vehicleVertices = [];
@@ -73,6 +75,10 @@ var wavelength = 50;
 var groundGen = [];
 var startPoint = groundVertices[sSelection].length;
 var tempv;
+
+function preload() {
+	game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
+}
 
 function create() {
 
@@ -435,8 +441,8 @@ function update() {
 	if (cursors.right.isDown && cursors.left.isDown) {
 		//motorEnabled;
 		if (selection == 16) {
-			vehicleBody.reverse(100);
-			com.reverse(-600);
+			vehicleBody.reverse(100 * gStats.grav);
+			com.reverse(-580 * gStats.grav);
 		}
 		motorEnabled = false;
 		motorEnabled2 = false;
@@ -476,5 +482,6 @@ function update() {
 function render() {
 	if (screen == "game") {
 		game.debug.box2dWorld();
+		graphics = game.add.graphics(0, 0);
 	}
 }

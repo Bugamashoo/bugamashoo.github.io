@@ -1,6 +1,6 @@
-var template = {
-	name: "name",
-	carVertices: [],
+var groceryCart = {
+	name: "Shopping Cart",
+	carVertices: [15, 0, 15, -5, -5, -5, -10, -10, 15, -10, 20, -25, -20, -25, -15, -5, -20, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -28,42 +28,42 @@ var template = {
 		}
 	],
 	carPower: 1,
-	carMaxSpeed: 50, //rad per sec
-	airResist: 0.01,
-	downforce: 1,
+	carMaxSpeed: 60, //rad per sec
+	airResist: 100,
+	downforce: 0.8,
 	carMass: 1,
-	carMassX: 0, //mass offset for vehicle
-	carMassY: 0,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
-	rotateSpeed: 0,
-	gas: 150,
+	carMassX: 1, //mass offset for vehicle
+	carMassY: -3,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 1.2, //tilt speed
+	rotateSpeed: 2,
+	gas: 200,
 	playerX: 0,
 	playerY: -10,
-	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	gasType: 2, //0 = diesel  1 = electric  2 = manpower
 	carPTM: 1, //chassis size multiplier
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -1, //back wheel
-			mass: 1,
+			xPos: -18, //back wheel
+			mass: 0.2,
 			size: 5,
 			height: 1,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
-			damping: 0.5,
+			grip: 10,
+			springs: 10,
+			damping: 0.2,
 			bounce: 0
         },
 		{
-			xPos: 1, //front wheel
-			mass: 1,
+			xPos: 13, //front wheel
+			mass: 0.2,
 			size: 5,
 			height: 1,
 			active: 1,
-			grip: 1,
-			springs: 2.5,
-			damping: 0.5,
+			grip: 10,
+			springs: 10,
+			damping: 0.2,
 			bounce: 0
         }],
 }

@@ -35,8 +35,8 @@ var apc = {
 	carMassX: 4, //mass offset for vehicle
 	carMassY: -6,
 	tilt: 0.25, //tilt resistance -- changing this value may cause issues
-	agility: 1.8, //tilt speed
-	rotateSpeed: 0.2,
+	agility: 3, //tilt speed
+	rotateSpeed: 1,
 	gas: 190,
 	playerX: 0,
 	playerY: -10,
@@ -46,35 +46,35 @@ var apc = {
 	carWheel: [
 		{
 			xPos: -42, //back wheel
-			mass: 0.1,
+			mass: 0.3,
 			size: 17,
-			height: 22,
+			height: 20,
 			active: 1,
-			grip: 3.2,
-			springs: 4.6,
-			damping: 0.4,
-			bounce: 0.08
+			grip: 3.5,
+			springs: 4,
+			damping: 0.3,
+			bounce: 0
         },
 		{
 			xPos: 0, //middle wheel
-			mass: 0.14,
+			mass: 0.3,
 			size: 17,
-			height: 22,
+			height: 20,
 			active: 1,
-			grip: 3.2,
-			springs: 4.6,
-			damping: 0.4,
-			bounce: 0.08
+			grip: 3.5,
+			springs: 4,
+			damping: 0.3,
+			bounce: 0
         },
 		{
 			xPos: 42, //front wheel
-			mass: 0.18,
+			mass: 0.3,
 			size: 17,
-			height: 22,
+			height: 20,
 			active: 1,
-			grip: 3.2,
-			springs: 4.6,
-			damping: 0.4,
-			bounce: 0.08
+			grip: 3.5,
+			springs: 4,
+			damping: 0.3,
+			bounce: 0
         }]
 }
