@@ -77,7 +77,7 @@ var startPoint = groundVertices[sSelection].length;
 var tempv;
 
 function preload() {
-	game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
+	//game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
 }
 
 function create() {
