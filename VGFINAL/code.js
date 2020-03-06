@@ -1,5 +1,5 @@
 var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser', {
-	preload: preload,
+	//preload: preload,
 	create: create,
 	update: update,
 	render: render
@@ -9,8 +9,8 @@ var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, dirtBike, groceryCart, chopper]; //Load all the cars
-var selection = 2; //CURRENTLY SELECTED CAR (PRESET)
-//var selection = Math.floor(Math.random() * 18); //CURRENTLY SELECTED CAR (RANDOM)
+//var selection = 20; //CURRENTLY SELECTED CAR (PRESET)
+var selection = Math.floor(Math.random() * (car.length - 1)); //CURRENTLY SELECTED CAR (RANDOM)
 var graphics;
 var chunk;
 var turnSpeed;
@@ -61,7 +61,7 @@ var partJoints = [];
 var partJoints2 = [];
 var undefF;
 var roSpeed;
-
+var document;
 var moreGroundOne = [];
 var moreGroundTwo = [];
 var sect;
@@ -76,9 +76,10 @@ var groundGen = [];
 var startPoint = groundVertices[sSelection].length;
 var tempv;
 
-function preload() {
-	//game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
-}
+
+//function preload() {
+//game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
+//}
 
 function create() {
 
@@ -102,7 +103,7 @@ function create() {
 	score.fixedToCamera = true;
 	carName.fixedToCamera = true;
 	refresh();
-	continuousTerrainGen();
+	continuousTerrainGen2();
 	if (selection == 16) {
 		var thrustCount = game.add.text(600, 26, {
 			fill: '#ffffff',
@@ -260,7 +261,7 @@ function bodyCollide(cCarWheel, groundBody, fixture1, fixture2, begin, contact) 
 
 
 
-function continuousTerrainGen() {
+/** function continuousTerrainGen() {
 
 	if (((((Math.floor((com.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((com.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
 		if (sectOne == true && sectTwo == false) {
@@ -304,7 +305,7 @@ function continuousTerrainGen() {
 			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
 		}
 	}
-}
+} **/
 
 function continuousTerrainGen2() {
 
@@ -442,7 +443,7 @@ function update() {
 		//motorEnabled;
 		if (selection == 16) {
 			vehicleBody.reverse(100 * gStats.grav);
-			com.reverse(-580 * gStats.grav);
+			com.reverse(-565 * gStats.grav);
 		}
 		motorEnabled = false;
 		motorEnabled2 = false;

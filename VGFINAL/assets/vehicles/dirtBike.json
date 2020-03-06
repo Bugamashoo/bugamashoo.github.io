@@ -31,7 +31,7 @@ var dirtBike = {
 	carPower: 0.48,
 	carMaxSpeed: 96, //rad per sec
 	airResist: 1,
-	downforce: 1.14,
+	downforce: 1.2,
 	carMass: 0.4,
 	carMassX: 1.5, //mass offset for vehicle
 	carMassY: 2,
@@ -42,7 +42,9 @@ var dirtBike = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{

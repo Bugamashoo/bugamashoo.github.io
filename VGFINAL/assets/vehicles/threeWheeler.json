@@ -35,13 +35,15 @@ var threeWheeler = {
 	carMassX: -7, //mass offset for vehicle
 	carMassY: -5.5,
 	tilt: 0.05, //tilt resistance -- changing this value may cause issues
-	agility: 1.2, //tilt speed
-	rotateSpeed: 0,
+	agility: 1, //tilt speed
+	rotateSpeed: 1.2,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{

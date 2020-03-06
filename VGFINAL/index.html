@@ -3,6 +3,7 @@
 <html>
 
 <head>
+	<link rel="stylesheet" href="style.css">
 	<script src="phaser-arcade-physics.js" type="text/javascript"></script>
 	<script src="box2d.js" type="text/javascript"></script>
 	<script src="./assets/vehicles/truck.json" type="text/javascript"></script>
@@ -33,26 +34,25 @@
 </head>
 
 <body>
-	<h3>Development build [V3.4-B] (pre-alpha)</h3>
-	<a class=minihead>Vehicles: </a>
-	<a id=carButtonList>
-		<script>
-			for (var i12 = 0; i12 < car.length; i12++) {
-				var btn = document.createElement("BUTTON"); // Create a <button> element
-				btn.innerHTML = car[i12].name; // Insert text
-				btn.addClass = "vehiclebtn";
-				btn.id = ("select" + i12);
-				btn.onclick = function() {
-					var btnid = this.id
-					selection = btnid.replace('select', '');
-					refresh();
-				};
-				document.getElementById('carButtonList').appendChild(btn);
-			}
 
-		</script>
+	<h3>Development build [V3.5-U] (pre-alpha)</h3>
+	<select id="vehicleListing" onchange="GetSelectedTextValue(this)">
+		<option value=0>Select Vehicle</option>
+	</select>
+	<script>
+		function GetSelectedTextValue(vehicleListing) {
+			selection = vehicleListing.value;
+			refresh();
+		}
+		for (var i20 = 0; i20 < car.length; i20++) {
+			var opt = document.createElement("option");
+			opt.text = car[i20].name;
+			opt.value = i20;
+			document.getElementById("vehicleListing").add(opt);
+		}
 
-	</a>
+	</script>
+	<!--<label for="vehicleList">Select Vehicle</label>-->
 </body>
 
 </html>

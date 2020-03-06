@@ -27,21 +27,23 @@ var hotrod = {
 			grip: 0,
 		}
 	],
-	carPower: 2.2,
-	carMaxSpeed: 150, //rad per sec
-	airResist: 0.01,
-	downforce: 1.2,
+	carPower: 2.3,
+	carMaxSpeed: 165, //rad per sec
+	airResist: 1,
+	downforce: 1.25,
 	carMass: 1.5,
 	carMassX: -2, //mass offset for vehicle
 	carMassY: -4,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
-	rotateSpeed: 0,
-	gas: 110,
+	rotateSpeed: 1,
+	gas: 100,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
@@ -52,18 +54,18 @@ var hotrod = {
 			active: 1,
 			grip: 3.5,
 			springs: 5.6,
-			damping: 0.6,
-			bounce: 0.2
+			damping: 0.55,
+			bounce: 0.1
         },
 		{
 			xPos: 30, //front wheel
 			mass: 0.7,
 			size: 10,
 			height: 0,
-			active: 0.6,
+			active: 0.5,
 			grip: 3.5,
 			springs: 4.8,
-			damping: 0.6,
-			bounce: 0.2
+			damping: 0.55,
+			bounce: 0.1
         }],
 }

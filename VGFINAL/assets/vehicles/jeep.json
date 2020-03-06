@@ -36,32 +36,34 @@ var jeep = {
 	carMassY: -3,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 1.5, //tilt speed
-	rotateSpeed: 0,
+	rotateSpeed: 1.8,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
 			xPos: -30, //back wheel
-			mass: 0.4,
+			mass: 0.25,
 			size: 10,
 			height: 10,
 			active: 1,
 			grip: 2.5,
 			springs: 3.55,
-			damping: 0.38
+			damping: 0.45
         },
 		{
 			xPos: 35, //front wheel
-			mass: 0.4,
+			mass: 0.25,
 			size: 10,
 			height: 10,
 			active: 1,
 			grip: 2.5,
 			springs: 3.55,
-			damping: 0.38
+			damping: 0.45
         }],
 }

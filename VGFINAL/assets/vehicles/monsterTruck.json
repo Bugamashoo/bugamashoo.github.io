@@ -30,40 +30,44 @@ var monsterTruck = {
 	carPower: 1.75,
 	carMaxSpeed: 55, //rad per sec
 	airResist: 0,
-	downforce: 1.25,
-	carMass: 1,
+	downforce: 1.2,
+	carMass: 0.88,
 	carMassX: 2, //mass offset for vehicle
 	carMassY: 11,
-	tilt: 0.35, //tilt resistance -- changing this value may cause issues
+	tilt: 0.32, //tilt resistance -- changing this value may cause issues
 	agility: 1.6, //tilt speed
-	rotateSpeed: 0,
+	rotateSpeed: 1.6,
 	gas: 170,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -30, //back wheel
-			mass: 0.05,
+			xPos: -32, //back wheel
+			mass: 0.025,
 			size: 19,
 			height: 10,
 			active: 1,
 			grip: 3,
-			springs: 5.8,
-			damping: -0.05,
-			bounce: 0.1
+			springs: 7.5,
+			damping: 0.01,
+			bounce: 0,
+			susAngle: -0.1
         },
 		{
 			xPos: 34, //front wheel
-			mass: 0.05,
+			mass: 0.025,
 			size: 19,
 			height: 10,
 			active: 1,
 			grip: 3,
-			springs: 5.8,
-			damping: -0.05,
-			bounce: 0.1
+			springs: 7.5,
+			damping: 0.01,
+			bounce: 0,
+			susAngle: -0.1
         }],
 }

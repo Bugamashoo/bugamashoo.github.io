@@ -27,43 +27,45 @@ var racecar = {
 			grip: 0,
 		}
 	],
-	carPower: 5,
-	carMaxSpeed: 130, //rad per sec
+	carPower: 4,
+	carMaxSpeed: 120, //rad per sec
 	airResist: 150,
-	downforce: 1.5,
-	carMass: 1.5,
+	downforce: 1.1,
+	carMass: 1.8,
 	carMassX: 3, //mass offset for vehicle
 	carMassY: -7,
 	tilt: 0.4, //tilt resistance -- changing this value may cause issues
-	agility: 1.4, //tilt speed
-	rotateSpeed: 0.5,
+	agility: 1.8, //tilt speed
+	rotateSpeed: 1.4,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
 			xPos: -32.5, //back wheel
-			mass: 0.5,
+			mass: 0.2,
 			size: 9,
 			height: 0,
 			active: 1,
-			grip: 5,
-			springs: 7.5,
-			damping: 0.8,
+			grip: 4,
+			springs: 9,
+			damping: 1.2,
 			bounce: 0.13
         },
 		{
 			xPos: 37.5, //front wheel
-			mass: 0.5,
+			mass: 0.2,
 			size: 9,
 			height: 0,
 			active: 0,
-			grip: 8,
-			springs: 7.5,
-			damping: 0.8,
+			grip: 4,
+			springs: 9,
+			damping: 1.2,
 			bounce: 0.13
         }],
 }

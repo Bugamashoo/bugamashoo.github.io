@@ -27,7 +27,7 @@ var bus = {
 			grip: 0,
 		}
 	],
-	carPower: 2.2,
+	carPower: 2.3,
 	carMaxSpeed: 130, //rad per sec
 	airResist: 0,
 	downforce: 0.8,
@@ -35,13 +35,15 @@ var bus = {
 	carMassX: 20, //mass offset for vehicle
 	carMassY: -35,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
-	agility: 1.2, //tilt speed
-	rotateSpeed: 0.3,
+	agility: 3, //tilt speed
+	rotateSpeed: 1.5,
 	gas: 250,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{

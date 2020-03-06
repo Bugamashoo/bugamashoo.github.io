@@ -27,41 +27,45 @@ var atv = {
 			grip: 0,
 		}
 	],
-	carPower: 1.8,
-	carMaxSpeed: 58, //rad per sec
+	carPower: 2,
+	carMaxSpeed: 64, //rad per sec
 	airResist: 0.01,
-	downforce: 1,
-	carMass: 2.2,
+	downforce: 0.9,
+	carMass: 2,
 	carMassX: -2, //mass offset for vehicle
-	carMassY: 5,
-	tilt: 0.02, //tilt resistance -- changing this value may cause issues
-	agility: 1.1, //tilt speed
-	rotateSpeed: 1,
+	carMassY: 7.5,
+	tilt: 0.05, //tilt resistance -- changing this value may cause issues
+	agility: 0.9, //tilt speed
+	rotateSpeed: 2.1,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -23, //back wheel
-			mass: 0.1,
-			size: 9,
+			xPos: -22, //back wheel
+			mass: 0.12,
+			size: 9.3,
 			height: 13,
 			active: 1,
 			grip: 3.3,
 			springs: 7.7,
-			damping: 0.35
+			damping: 0.5,
+			susAngle: -0.05
         },
 		{
-			xPos: 18, //front wheel
-			mass: 0.1,
-			size: 9,
+			xPos: 17.4, //front wheel
+			mass: 0.12,
+			size: 9.3,
 			height: 13,
 			active: 1,
 			grip: 3.3,
 			springs: 7.7,
-			damping: 0.35
+			damping: 0.5,
+			susAngle: 0.05
         }],
 }

@@ -29,41 +29,45 @@ var rover = {
 	],
 	carPower: 2.8,
 	carMaxSpeed: 45, //rad per sec
-	airResist: 0,
+	airResist: 300,
 	downforce: -0.5,
-	carMass: 1.5,
+	carMass: 1.55,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: -10,
-	tilt: 0.7, //tilt resistance -- changing this value may cause issues
-	agility: 2, //tilt speed
-	rotateSpeed: 2,
-	gas: 165,
+	tilt: 0.75, //tilt resistance -- changing this value may cause issues
+	agility: 2.3, //tilt speed
+	rotateSpeed: 2.5,
+	gas: 175,
 	playerX: 0,
 	playerY: -10,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
 			xPos: -30, //back wheel
-			mass: 0.2,
+			mass: 0.12,
 			size: 10,
-			height: 1,
+			height: 3,
 			active: 1,
-			grip: 4,
-			springs: 6.6,
-			damping: 0.08,
-			bounce: 0.12
+			grip: 2.2,
+			springs: 6,
+			damping: 0.2,
+			bounce: 0,
+			susAngle: -0.25
         },
 		{
 			xPos: 40, //front wheel
-			mass: 0.2,
+			mass: 0.12,
 			size: 10,
-			height: 1,
+			height: 3,
 			active: 1,
-			grip: 4,
-			springs: 6.6,
-			damping: 0.08,
-			bounce: 0.12
+			grip: 2.2,
+			springs: 6,
+			damping: 0.2,
+			bounce: 0,
+			susAngle: 0.25
         }],
 }

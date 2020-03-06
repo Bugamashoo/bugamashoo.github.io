@@ -28,7 +28,7 @@ var groceryCart = {
 		}
 	],
 	carPower: 1,
-	carMaxSpeed: 60, //rad per sec
+	carMaxSpeed: 70, //rad per sec
 	airResist: 100,
 	downforce: 0.8,
 	carMass: 1,
@@ -41,7 +41,9 @@ var groceryCart = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 2, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{

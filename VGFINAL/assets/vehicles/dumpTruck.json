@@ -28,20 +28,22 @@ var dumpTruck = {
 		}
 	],
 	carPower: 6.8,
-	carMaxSpeed: 56, //rad per sec
+	carMaxSpeed: 58, //rad per sec
 	airResist: 0.01,
 	downforce: 1.5,
 	carMass: 5,
 	carMassX: 2, //mass offset for vehicle
 	carMassY: -6,
 	tilt: 0.5, //tilt resistance -- changing this value may cause issues
-	agility: 4.5, //tilt speed
-	rotateSpeed: 4,
+	agility: 5, //tilt speed
+	rotateSpeed: 2,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 3,
 	carWheel: [
 		{

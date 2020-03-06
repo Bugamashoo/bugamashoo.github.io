@@ -41,7 +41,7 @@ var carriage = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	carPTM: 1, //chassis size multiplier
+	placeholder: null, extraProps: 0, extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
