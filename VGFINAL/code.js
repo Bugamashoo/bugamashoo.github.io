@@ -4,6 +4,7 @@ var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser', {
 	update: update,
 	render: render
 });
+
 game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
@@ -15,6 +16,7 @@ var graphics;
 var chunk;
 var turnSpeed;
 var vehicleVertices = [];
+var graphicsLvl = 2;
 //Car selection
 var Phaser;
 var cursors;
@@ -141,7 +143,7 @@ function refresh() {
 	sectTwo = false;
 	carName.text = cCar.name;
 	game.world.setBounds(-10000, -50000, Infinity, Infinity);
-
+	game.desiredFps = 30;
 	game.stage.backgroundColor = '#203050';
 
 	// Enable Box2D physics

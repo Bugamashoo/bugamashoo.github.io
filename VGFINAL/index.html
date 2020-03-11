@@ -37,12 +37,22 @@
 
 	<h3>Development build [V3.5-U] (pre-alpha)</h3>
 	<select id="vehicleListing" onchange="GetSelectedTextValue(this)">
+		<option value=0>Graphics Level</option>
+		<option value=1>Graphics Level</option>
+		<option value=2>Graphics Level</option>
+		<option value=3>Graphics Level</option>
+	</select>
+	<select id="vfxLvl" onchange="setVfx(this)">
 		<option value=0>Select Vehicle</option>
 	</select>
 	<script>
 		function GetSelectedTextValue(vehicleListing) {
 			selection = vehicleListing.value;
 			refresh();
+		}
+
+		function setVfx(vfxLvl) {
+
 		}
 		for (var i20 = 0; i20 < car.length; i20++) {
 			var opt = document.createElement("option");
