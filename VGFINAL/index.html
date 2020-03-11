@@ -36,13 +36,13 @@
 <body>
 
 	<h3>Development build [V3.5-U] (pre-alpha)</h3>
-	<select id="vehicleListing" onchange="GetSelectedTextValue(this)">
-		<option value=0>Graphics Level</option>
-		<option value=1>Graphics Level</option>
-		<option value=2>Graphics Level</option>
-		<option value=3>Graphics Level</option>
+	<select id="vfxLvl" onchange="GetSelectedTextValue(this)">
+		<option value=0>Low Graphics Level</option>
+		<option value=1>Medium Graphics Level</option>
+		<option value=2>High Graphics Level</option>
+		<option value=3>Ultra High Graphics Level</option>
 	</select>
-	<select id="vfxLvl" onchange="setVfx(this)">
+	<select id="vehicleListing" onchange="setVfx(this)">
 		<option value=0>Select Vehicle</option>
 	</select>
 	<script>
@@ -60,9 +60,6 @@
 			opt.value = i20;
 			document.getElementById("vehicleListing").add(opt);
 		}
-
 	</script>
 	<!--<label for="vehicleList">Select Vehicle</label>-->
-</body>
-
-</html>
+</body></html>
