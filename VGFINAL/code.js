@@ -4,7 +4,7 @@ var game = new Phaser.Game(900, 500, Phaser.CANVAS, 'phaser', {
 	update: update,
 	render: render
 });
-
+game.scaleMode = Phaser.ScaleManager.EXACT_FIT;
 game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
@@ -16,7 +16,7 @@ var graphics;
 var chunk;
 var turnSpeed;
 var vehicleVertices = [];
-var graphicsLvl = 2;
+var graphicsLvl = 0;
 //Car selection
 var Phaser;
 var cursors;
@@ -122,6 +122,16 @@ function create() {
 
 // Make the ground body
 function refresh() {
+	if (graphicsLvl == 1) {
+		game.antialias = false;
+
+	} else if (graphicsLvl == 2) {
+
+	} else if (graphicsLvl == 3) {
+
+	} else {
+
+	}
 	gStats = groundVertices[sSelection];
 	startPoint = groundVertices[sSelection].length;
 	cCar = car[selection]; //get body collision data for selected car

@@ -32,7 +32,7 @@ var chopper = {
 	airResist: 50,
 	downforce: 0.8,
 	carMass: 2.2,
-	carMassX: -18, //mass offset for vehicle
+	carMassX: -16.5, //mass offset for vehicle
 	carMassY: -6,
 	tilt: 0.2, //tilt resistance -- changing this value may cause issues
 	agility: 1.8, //tilt speed

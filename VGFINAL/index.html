@@ -52,7 +52,8 @@
 		}
 
 		function setVfx(vfxLvl) {
-
+			graphicsLvl = vfxLvl.value;
+			refresh();
 		}
 		for (var i20 = 0; i20 < car.length; i20++) {
 			var opt = document.createElement("option");
