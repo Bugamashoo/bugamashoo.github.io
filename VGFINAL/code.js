@@ -78,13 +78,23 @@ var groundGen = [];
 var startPoint = groundVertices[sSelection].length;
 var tempv;
 
-
+var leftInput;
+var rightInput;
+var mouse;
 //function preload() {
 //game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
 //}
+function leftInput() {
+	return (((cursors.left.isDown) || (mouse.isDown && ((mouse.position.x >= 0) && (mouse.position.x <= 400)))));
+}
+
+function rightInput() {
+	return (((cursors.right.isDown) || (mouse.isDown && ((mouse.position.x >= 500) && (mouse.position.x <= 900)))));
+}
 
 function create() {
-
+	game.input.gamepad.start();
+	game.input.gamepad.enable = true;
 	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score! Left+Right for rover thrusters!', {
 		fill: '#ffffff',
 		font: '14pt Arial'
@@ -251,6 +261,7 @@ function refresh() {
 	}
 	var groundGen;
 	game.camera.follow(vehicleBody);
+	mouse = game.input.mousePointer;
 	//game.camera.width = 800;
 	//game.camera.height = 500;
 	//console.log(comCam);
@@ -260,6 +271,8 @@ function refresh() {
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	roSpeed = cCar.rotateSpeed;
+
+
 }
 
 
@@ -451,7 +464,7 @@ function update() {
 
 	vehicleBody.reverse(thrustP * 0.5);
 	com.reverse(thrustP * 0.5);
-	if (cursors.right.isDown && cursors.left.isDown) {
+	if ((rightInput() && leftInput())) {
 		//motorEnabled;
 		if (selection == 16) {
 			vehicleBody.reverse(100 * gStats.grav);
@@ -462,7 +475,7 @@ function update() {
 		//console.log(com);
 
 	} // prioritize braking
-	else if (cursors.left.isDown && !cursors.right.isDown) {
+	else if ((leftInput() && !(rightInput()))) {
 		motorEnabled2 = true;
 		turnSpeed = Math.abs(turnSpeed);
 		roSpeed = Math.abs(roSpeed);
@@ -471,7 +484,7 @@ function update() {
 		} else {
 			motorSpeed = 0;
 		}
-	} else if (cursors.right.isDown && !cursors.left.isDown) {
+	} else if ((rightInput() && !(leftInput()))) {
 		motorEnabled2 = true;
 		turnSpeed = -1 * Math.abs(turnSpeed);
 		roSpeed = -1 * Math.abs(roSpeed);
