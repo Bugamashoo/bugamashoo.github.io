@@ -77,24 +77,20 @@ var wavelength = 50;
 var groundGen = [];
 var startPoint = groundVertices[sSelection].length;
 var tempv;
-
-var leftInput;
-var rightInput;
 var mouse;
 //function preload() {
 //game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
 //}
 function leftInput() {
-	return (((cursors.left.isDown) || (mouse.isDown && ((mouse.position.x >= 0) && (mouse.position.x <= 400)))));
+	return ((cursors.left.isDown) || ((mouse.pointer1.isDown && ((mouse.pointer1.position.x >= 0) && (mouse.pointer1.position.x <= 400))) || (mouse.pointer2.isDown && ((mouse.pointer2.position.x >= 0) && (mouse.pointer2.position.x <= 400)))));
 }
 
 function rightInput() {
-	return (((cursors.right.isDown) || (mouse.isDown && ((mouse.position.x >= 500) && (mouse.position.x <= 900)))));
+	return ((cursors.right.isDown) || ((mouse.pointer1.isDown && ((mouse.pointer1.position.x >= 500) && (mouse.pointer1.position.x <= 900))) || (mouse.pointer2.isDown && ((mouse.pointer2.position.x >= 500) && (mouse.pointer2.position.x <= 900)))));
 }
 
 function create() {
-	game.input.gamepad.start();
-	game.input.gamepad.enable = true;
+	mouse = game.input;
 	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score! Left+Right for rover thrusters!', {
 		fill: '#ffffff',
 		font: '14pt Arial'
@@ -261,7 +257,7 @@ function refresh() {
 	}
 	var groundGen;
 	game.camera.follow(vehicleBody);
-	mouse = game.input.mousePointer;
+	//mouse = game.input.pointer.isDown;
 	//game.camera.width = 800;
 	//game.camera.height = 500;
 	//console.log(comCam);
