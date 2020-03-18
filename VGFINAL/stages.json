@@ -33,7 +33,7 @@ var groundVertices = [{
 	s2: 0.3,
 	s3: 0.2
 }, {
-	data: [-150, 100, 300, 100, 618, -17],
+	data: [-150, 100, 300, 100, 618, -18],
 	stageName: "Sandy Offroading",
 	length: 0,
 	boing: 0.2,
