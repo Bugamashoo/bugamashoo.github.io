@@ -266,8 +266,6 @@ function refresh() {
 	//var chunk = (((Math.floor((game.camera.x) / 5000)) / 4) + 0.75);
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-	moreGroundOne.destroy();
-	moreGroundTwo.destroy();
 	roSpeed = cCar.rotateSpeed;
 
 
