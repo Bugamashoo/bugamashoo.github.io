@@ -1,73 +1,73 @@
 var hyperBike = {
-	name: "Hyper Bike",
-	carVertices: [43, 0, 45, -10, 43, -17, 25, -20, 0, -15, -10, -15, -15, -20, -42, -22, -41, 0, -20, 5, -10, 0, 10, 0, 20, 5],
-	carNumParts: 0,
-	carParts: [
-		{
-			verticies: [null, null],
-			partType: 0,
-			mass: 1,
-			grip: 0.25,
-			active: false,
-			torque: 1,
-			CorrectionAngle: 0,
-			limCounterclockwise: -90,
-			limClockwise: 90,
-			xPos: -10,
-			yPos: 10,
-			xOff: 0,
-			yOff: 0,
-			spring: null
+    name: "Hyper Bike",
+    carVertices: [43, 0, 45, -10, 43, -17, 25, -20, 0, -15, -10, -15, -15, -20, -42, -22, -41, 0, -20, 5, -10, 0, 10, 0, 20, 5],
+    carNumParts: 0,
+    carParts: [
+        {
+            verticies: [null, null],
+            partType: 0,
+            mass: 1,
+            grip: 0.25,
+            active: false,
+            torque: 1,
+            CorrectionAngle: 0,
+            limCounterclockwise: -90,
+            limClockwise: 90,
+            xPos: -10,
+            yPos: 10,
+            xOff: 0,
+            yOff: 0,
+            spring: null
 		}
 	],
-	carNumUpgrades: 0,
-	carUpgrades: [
-		{
-			engine: 0,
-			grip: 0,
+    carNumUpgrades: 0,
+    carUpgrades: [
+        {
+            engine: 0,
+            grip: 0,
 		}
 	],
-	carPower: 3.5,
-	carMaxSpeed: 100, //rad per sec
-	airResist: 1500,
-	downforce: 0.4,
-	carMass: 0.7,
-	carMassX: -7, //mass offset for vehicle
-	carMassY: -12,
-	tilt: 0, //tilt resistance -- changing this value may cause issues
-	agility: 0.8, //tilt speed and strength
-	rotateSpeed: 1.8,
-	gas: 100,
-	playerX: 0,
-	playerY: -10,
-	gasType: 1, //0 = diesel  1 = electric  2 = manpower
-	placeholder: null,
-	extraProps: 0,
-	extraUpdates: 0,
-	carNumWheels: 2,
-	carWheel: [
-		{
-			xPos: -30.3, //back wheel
-			mass: 0.1,
-			size: 12,
-			height: 1,
-			active: 1,
-			grip: 5,
-			springs: 8,
-			damping: 0.3,
-			bounce: 0.3,
-			susAngle: -0.27
+    carPower: 3.5,
+    carMaxSpeed: 100, //rad per sec
+    airResist: 900,
+    downforce: 0.4,
+    carMass: 0.7,
+    carMassX: -7, //mass offset for vehicle
+    carMassY: -12,
+    tilt: 0, //tilt resistance -- changing this value may cause issues
+    agility: 0.8, //tilt speed and strength
+    rotateSpeed: 1.8,
+    gas: 100,
+    playerX: 0,
+    playerY: -10,
+    gasType: 1, //0 = diesel  1 = electric  2 = manpower
+    placeholder: null,
+    extraProps: 0,
+    extraUpdates: 0,
+    carNumWheels: 2,
+    carWheel: [
+        {
+            xPos: -30.3, //back wheel
+            mass: 0.1,
+            size: 12,
+            height: 1,
+            active: 1,
+            grip: 5,
+            springs: 8,
+            damping: 0.3,
+            bounce: 0.3,
+            susAngle: -0.27
         },
-		{
-			xPos: 31, //front wheel
-			mass: 0.1,
-			size: 12,
-			height: 1,
-			active: 0,
-			grip: 5,
-			springs: 8,
-			damping: 0.3,
-			bounce: 0.3,
-			susAngle: 0.27
+        {
+            xPos: 31, //front wheel
+            mass: 0.1,
+            size: 12,
+            height: 1,
+            active: 0,
+            grip: 5,
+            springs: 8,
+            damping: 0.3,
+            bounce: 0.3,
+            susAngle: 0.27
         }],
 }
