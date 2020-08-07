@@ -34,13 +34,14 @@ var golfCart = {
 	carMass: 0.385,
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 9,
-	tilt: 0.1, //tilt resistance -- changing this value may cause issues
-	agility: 0.5, //tilt speed
+	tilt: 0.14, //tilt resistance -- changing this value may cause issues
+	agility: 0.4, //tilt speed
 	rotateSpeed: 3.5,
 	gas: 170,
 	playerX: 0,
 	playerY: -10,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
 	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,

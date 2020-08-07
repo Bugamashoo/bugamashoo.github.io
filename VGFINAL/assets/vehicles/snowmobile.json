@@ -35,13 +35,13 @@ var snowmobile = {
 	carMassX: 3, //mass offset for vehicle
 	carMassY: -10,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
-	agility: 0.7, //tilt speed
+	agility: 0.8, //tilt speed
 	rotateSpeed: 1.6,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	placeholder: null,
+	extraAction: null, placeholder: null, 	
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 3,

@@ -35,12 +35,13 @@ var tank = {
 	carMassX: -10, //mass offset for vehicle
 	carMassY: -40,
 	tilt: 0, //tilt resistance -- changing this value may cause issues
-	agility: 0, //tilt speed
-	rotateSpeed: 0,
+	agility: 1, //tilt speed
+	rotateSpeed: 1,
 	gas: 170,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
 	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,

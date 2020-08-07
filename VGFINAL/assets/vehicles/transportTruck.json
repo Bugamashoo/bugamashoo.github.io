@@ -34,13 +34,14 @@ var transportTruck = {
 	carMass: 3,
 	carMassX: 25, //mass offset for vehicle
 	carMassY: -5,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 0.8, //tilt speed
-	rotateSpeed: 1.7,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 0.7, //tilt speed
+	rotateSpeed: 1.5,
 	gas: 165,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
 	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
@@ -78,7 +79,7 @@ var transportTruck = {
         },
 		{
 			xPos: 38, //front wheel
-			mass: 2.5,
+			mass: 2,
 			size: 12,
 			height: -2,
 			active: 5,

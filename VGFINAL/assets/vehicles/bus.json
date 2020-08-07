@@ -1,6 +1,6 @@
 var bus = {
 	name: "School Bus",
-	carVertices: [90, 0, 100, -5, 100, -30, 75, -35, 70, -55, 75, -55, 70, -60, -95, -60, -100, -55, -100, -10, -65, 0],
+	carVertices: [90, 0, 100, -5, 100, -30, 75, -35, 70, -55, 75, -55, 70, -60, -95, -60, -100, -55, -100, -15, -65, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -41,6 +41,7 @@ var bus = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
 	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,

@@ -41,7 +41,7 @@ var threeWheeler = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	placeholder: null,
+	extraAction: null, placeholder: null, 	
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,

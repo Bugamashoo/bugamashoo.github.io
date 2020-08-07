@@ -41,6 +41,7 @@ var atv = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
 	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
@@ -53,8 +54,8 @@ var atv = {
 			height: 13,
 			active: 1,
 			grip: 3.3,
-			springs: 7.7,
-			damping: 0.5,
+			springs: 7.8,
+			damping: 0.55,
 			susAngle: -0.05
         },
 		{
@@ -64,8 +65,8 @@ var atv = {
 			height: 13,
 			active: 1,
 			grip: 3.3,
-			springs: 7.7,
-			damping: 0.5,
+			springs: 7.8,
+			damping: 0.55,
 			susAngle: 0.05
         }],
 }

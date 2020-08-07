@@ -35,22 +35,23 @@ var nascar = {
 	carMassX: -15, //mass offset for vehicle
 	carMassY: 10,
 	tilt: 0.25, //tilt resistance -- changing this value may cause issues
-	agility: 2.4, //tilt speed
-	rotateSpeed: 1,
+	agility: 1.5, //tilt speed
+	rotateSpeed: 1.1,
 	gas: 140,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
 	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -40, //back wheel
+			xPos: -43, //back wheel
 			mass: 0.8,
 			size: 16,
-			height: 12,
+			height: 15,
 			active: 1,
 			grip: 6.5,
 			springs: 5,
