@@ -1,0 +1,178 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Trailmakers Info</title>
+    <link href="./style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class=site>
+        <h2 class="title" class="site2">Trailmakers Docs</h2>
+        <h4>Use Ctrl + Mousewheel to zoom in or out</h4>
+        <div class="tab">
+            <table style="width:100%">
+                <tr>
+                    <th>Function</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>os.LoadFile(name:String)</td>
+                    <td>String --- Get the content of a file in the mods directory</td>
+                </tr>
+                <tr>
+                    <td>os.Log(message:String) : Void</td>
+                    <td>Void --- Emit a log message</td>
+                </tr>
+                <tr>
+                    <td>physics.SetTimeScale(speed:Single)</td>
+                    <td>Void --- Set the physics timescale</td>
+                </tr>
+                <tr>
+                    <td>physics.GetTimeScale()</td>
+                    <td>Single --- Get the physics timescale</td>
+                </tr>
+                <tr>
+                    <td>physics.SetGravity(strength:Single)</td>
+                    <td>Void --- Set the physics gravity in the down direction</td>
+                </tr>
+                <tr>
+                    <td>physics.SetGravity(gravity:ModVector3)</td>
+                    <td>Void --- Set the physics gravity as per the provided vector</td>
+                </tr>
+                <tr>
+                    <td>physics.GetGravity()</td>
+                    <td>ModVector3 --- Get the physics gravity</td>
+                </tr>
+                <tr>
+                    <td>physics.SpawnObject(position:ModVector3, name:String)</td>
+                    <td>ModSpawnedObject --- Spawn a spawnable at the position, e.g. PFB_Barrel</td>
+                </tr>
+                <tr>
+                    <td>physics.ClearAllSpawns()</td>
+                    <td>Void --- Despawn all spawned objects from this mod</td>
+                </tr>
+                <tr>
+                    <td>physics.SpawnableNames()</td>
+                    <td>List`1 --- Get a list of all possible spawnable names</td>
+                </tr>
+                <tr>
+                    <td>physics.Dispose()</td>
+                    <td>Void</td>
+                </tr>
+                <tr>
+                    <td>physics.AddMesh(filename:String, resourceName:String)</td>
+                    <td>Void --- Add a mesh to all clients, note this will have to be sent to the client when they join</td>
+                </tr>
+                <tr>
+                    <td>physics.AddTexture(filename:String, resourceName:String)</td>
+                    <td>Void --- Add a texture to all clients, note this will have to be sent to the client when they join</td>
+                </tr>
+                <tr>
+                    <td>physics.SpawnCustomObject(position:ModVector3, meshName:String, textureName:String, isKinematic:Boolean, mass:Single)</td>
+                    <td>ModSpawnedObject --- Spawn a custom physics object where mesh and texture have to be set by AddMesh and AddTexture</td>
+                </tr>
+                <tr>
+                    <td>physics.SetBuildComplexity(value:Int32)</td>
+                    <td>Void --- Sets the build complexity value</td>
+                </tr>
+                <tr>
+                    <td>players.OnPlayerJoined</td>
+                    <td>Action`1 --- Event triggered when a player joins the server</td>
+                </tr>
+                <tr>
+                    <td>players.OnPlayerLeft</td>
+                    <td>Action`1 --- Event triggered when a player leaves the server</td>
+                </tr>
+                <tr>
+                    <td>players.CurrentPlayers()</td>
+                    <td>List`1 --- Get all players currently connected to the server</td>
+                </tr>
+                <tr>
+                    <td>players.Kick(playerId:UInt32)</td>
+                    <td>Void --- Forcefully disconnect a given player</td>
+                </tr>
+                <tr>
+                    <td>players.GetPlayerPosition(playerId:UInt32)</td>
+                    <td>ModVector3 --- Get the current world position of a current player</td>
+                </tr>
+                <tr>
+                    <td>players.GetPlayerStructures(playerId:UInt32)</td>
+                    <td>List`1 --- Get all structure(s) owned by that player</td>
+                </tr>
+                <tr>
+                    <td>players.GetPlayerSelectBlockInBuild(playerId:UInt32)</td>
+                    <td>ModBlock --- Get the last select block in the builder for that player</td>
+                </tr>
+                <tr>
+                    <td>players.GetPlayerName(playerId:UInt32)</td>
+                    <td>String --- Get the players name</td>
+                </tr>
+                <tr>
+                    <td>playerUI.AddUIButton(playerId:UInt32, id:String, defaultValue:String, callback:DynValue, data:DynValue)</td>
+                    <td>Void --- Add a button to the clients mod UI</td>
+                </tr>
+                <tr>
+                    <td>playerUI.AddUIText(playerId:UInt32, id:String, defaultValue:String, callback:DynValue, data:DynValue)</td>
+                    <td>Void --- Add a text field to the clients mod UI</td>
+                </tr>
+                <tr>
+                    <td>playerUI.SetUIValue(playerId:UInt32, id:String, value:String)</td>
+                    <td>Void --- Set the value of a clients ui element</td>
+                </tr>
+                <tr>
+                    <td>playerUI.ClearUI(playerId:UInt32)</td>
+                    <td>Void --- Remove all UI elements for that player</td>
+                </tr>
+                <tr>
+                    <td>vector3.Target</td>
+                    <td>Vector3</td>
+                </tr>
+                <tr>
+                    <td>vector3.x</td>
+                    <td>Single</td>
+                </tr>
+                <tr>
+                    <td>vector3.y</td>
+                    <td>Single</td>
+                </tr>
+                <tr>
+                    <td>vector3.z</td>
+                    <td>Single</td>
+                </tr>
+                <tr>
+                    <td>vector3.Create(x:Single, y:Single, z:Single)</td>
+                    <td>ModVector3</td>
+                </tr>
+                <tr>
+                    <td>UICallbackData.playerId</td>
+                    <td>UInt32</td>
+                </tr>
+                <tr>
+                    <td>UICallbackData.id</td>
+                    <td>String</td>
+                </tr>
+                <tr>
+                    <td>UICallbackData.type</td>
+                    <td>String</td>
+                </tr>
+                <tr>
+                    <td>UICallbackData.value</td>
+                    <td>String</td>
+                </tr>
+                <tr>
+                    <td>UICallbackData.data</td>
+                    <td>DynValue</td>
+                </tr>
+                <tr>
+                    <td>GetDocs()</td>
+                    <td>String</td>
+                </tr>
+                <tr>
+                    <td>Dispose()</td>
+                    <td>Void</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body></html>

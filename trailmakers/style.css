@@ -1,0 +1,19 @@
+table,
+th,
+td {
+    border: 1px solid black;
+    border-collapse: collapse;
+
+}
+
+body {
+    font-family: Verdana, sans-serif;
+    font-size-adjust: auto;
+}
+
+.tab,
+h2,
+h4 {
+    padding-left: 7%;
+    padding-right: 7%;
+}
