@@ -41,7 +41,15 @@ var racecar = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	/**function () {
+	if (vehicleBody.angle > -60 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
+		thrustP = Math.abs((vehicleBody.velocity.x * 2));
+	} else {
+		thrustP = 250;
+	}**/
+
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,
@@ -67,5 +75,5 @@ var racecar = {
 			springs: 9,
 			damping: 1.2,
 			bounce: 0.13
-        }],
+        }]
 }

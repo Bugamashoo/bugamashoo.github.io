@@ -50,5 +50,5 @@ var groundVertices = [{
 	sss3: 0.0003,
 	ssss1: 15,
 	sssss1: 15,
-	rs1: 5
+	rs1: 2
    }];
