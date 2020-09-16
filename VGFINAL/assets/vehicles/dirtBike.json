@@ -28,16 +28,16 @@ var dirtBike = {
 			grip: 0,
 		}
 	],
-	carPower: 0.37,
-	carMaxSpeed: 96, //rad per sec
+	carPower: 0.3,
+	carMaxSpeed: 105, //rad per sec
 	airResist: 1,
 	downforce: 1.2,
 	carMass: 0.4,
 	carMassX: 1, //mass offset for vehicle
-	carMassY: 1,
-	tilt: 0.01, //tilt resistance -- changing this value may cause issues
-	agility: 0.2, //tilt speed
-	rotateSpeed: 2.3,
+	carMassY: 0,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 0.22, //tilt speed
+	rotateSpeed: 2.2,
 	gas: 160,
 	playerX: 0,
 	playerY: -10,
@@ -51,22 +51,22 @@ var dirtBike = {
 		{
 			xPos: -17, //back wheel
 			mass: 0.02,
-			size: 8,
-			height: 7,
+			size: 7,
+			height: 7.5,
 			active: 1,
-			grip: 8,
-			springs: 5,
+			grip: 10,
+			springs: 5.5,
 			damping: 2,
 			bounce: 0,
-			susAngle: -0.05
+			susAngle: -0.1
         },
 		{
 			xPos: 17, //front wheel
-			mass: 0.05,
-			size: 8,
-			height: 5,
+			mass: 0.04,
+			size: 7,
+			height: 6.4,
 			active: 0,
-			grip: 3,
+			grip: 5,
 			springs: 7,
 			damping: 0.4,
 			bounce: 0,
