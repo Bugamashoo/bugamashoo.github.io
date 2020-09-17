@@ -32,16 +32,17 @@ var chopper = {
 	airResist: 50,
 	downforce: 0.8,
 	carMass: 2.2,
-	carMassX: -16.5, //mass offset for vehicle
-	carMassY: -6,
-	tilt: 0.2, //tilt resistance -- changing this value may cause issues
-	agility: 1.8, //tilt speed
+	carMassX: -12, //mass offset for vehicle
+	carMassY: -7.5,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 1.3, //tilt speed
 	rotateSpeed: 1.5,
 	gas: 190,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,
@@ -53,8 +54,8 @@ var chopper = {
 			height: -2,
 			active: 1,
 			grip: 12,
-			springs: 5,
-			damping: 0.2,
+			springs: 5.5,
+			damping: 0.3,
 			bounce: 0,
 			susAngle: -0.15
         },
