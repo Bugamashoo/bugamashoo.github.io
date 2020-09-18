@@ -28,35 +28,36 @@ var hyperBike = {
 		}
 	],
 	carPower: 3.5,
-	carMaxSpeed: 100, //rad per sec
-	airResist: 900,
-	downforce: 0.4,
+	carMaxSpeed: 80, //rad per sec
+	airResist: 250,
+	downforce: 0.5,
 	carMass: 0.7,
-	carMassX: -5, //mass offset for vehicle
+	carMassX: -2, //mass offset for vehicle
 	carMassY: -10,
-	tilt: 0, //tilt resistance -- changing this value may cause issues
-	agility: 0.6, //tilt speed and strength
-	rotateSpeed: 3,
+	tilt: 0.5, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed and strength
+	rotateSpeed: 5,
 	gas: 100,
 	playerX: 0,
 	playerY: -10,
 	gasType: 1, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
 			xPos: -30.3, //back wheel
-			mass: 0.1,
+			mass: 0.05,
 			size: 12,
 			height: 1,
 			active: 1,
 			grip: 4,
-			springs: 8,
-			damping: 0.3,
-			bounce: 0.3,
-			susAngle: -0.27
+			springs: 8.5,
+			damping: 0.2,
+			bounce: 0.45,
+			susAngle: -0.24
         },
 		{
 			xPos: 31, //front wheel
@@ -66,8 +67,8 @@ var hyperBike = {
 			active: 0,
 			grip: 4,
 			springs: 8,
-			damping: 0.3,
-			bounce: 0.3,
-			susAngle: 0.27
+			damping: 0.2,
+			bounce: 0.45,
+			susAngle: 0.24
         }],
 }
