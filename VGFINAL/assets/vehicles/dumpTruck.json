@@ -27,21 +27,22 @@ var dumpTruck = {
 			grip: 0,
 		}
 	],
-	carPower: 6.8,
-	carMaxSpeed: 58, //rad per sec
+	carPower: 6.4,
+	carMaxSpeed: 60, //rad per sec
 	airResist: 0.01,
 	downforce: 1.5,
 	carMass: 5,
 	carMassX: 2, //mass offset for vehicle
 	carMassY: -6,
-	tilt: 0.5, //tilt resistance -- changing this value may cause issues
-	agility: 5, //tilt speed
-	rotateSpeed: 2,
+	tilt: 0.55, //tilt resistance -- changing this value may cause issues
+	agility: 7, //tilt speed
+	rotateSpeed: 2.5,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 3,
@@ -53,8 +54,8 @@ var dumpTruck = {
 			height: 1,
 			active: 1,
 			grip: 4,
-			springs: 4,
-			damping: 0.5
+			springs: 3.3,
+			damping: 1.0
         }, {
 			xPos: -44, //back wheel
 			mass: 1.5,
@@ -62,16 +63,16 @@ var dumpTruck = {
 			height: 1,
 			active: 1,
 			grip: 4,
-			springs: 4,
-			damping: 0.5
+			springs: 3.3,
+			damping: 1.0
         }, {
 			xPos: 52, //front wheel
 			mass: 1.5,
 			size: 11,
 			height: 1,
-			active: 1,
+			active: 0.8,
 			grip: 4,
-			springs: 4,
-			damping: 0.5
+			springs: 3.3,
+			damping: 1.0
         }],
 }

@@ -32,11 +32,11 @@ var atv = {
 	airResist: 0.01,
 	downforce: 0.9,
 	carMass: 2,
-	carMassX: -2, //mass offset for vehicle
-	carMassY: 7.5,
-	tilt: 0.05, //tilt resistance -- changing this value may cause issues
-	agility: 0.9, //tilt speed
-	rotateSpeed: 2.1,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 10,
+	tilt: 0.11, //tilt resistance -- changing this value may cause issues
+	agility: 0.8, //tilt speed
+	rotateSpeed: 4.5,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -49,24 +49,24 @@ var atv = {
 	carWheel: [
 		{
 			xPos: -22, //back wheel
-			mass: 0.12,
+			mass: 0.1,
 			size: 9.3,
-			height: 13,
+			height: 14,
 			active: 1,
 			grip: 3.3,
 			springs: 7.8,
-			damping: 0.55,
+			damping: 0.9,
 			susAngle: -0.05
         },
 		{
 			xPos: 17.4, //front wheel
-			mass: 0.12,
+			mass: 0.1,
 			size: 9.3,
-			height: 13,
+			height: 14,
 			active: 1,
 			grip: 3.3,
 			springs: 7.8,
-			damping: 0.55,
+			damping: 0.9,
 			susAngle: 0.05
         }],
 }

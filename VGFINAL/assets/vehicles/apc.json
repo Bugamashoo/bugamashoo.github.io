@@ -27,7 +27,7 @@ var apc = {
 			grip: 0,
 		}
 	],
-	carPower: 2.3,
+	carPower: 2.8,
 	carMaxSpeed: 32, //rad per sec
 	airResist: 0.01,
 	downforce: 1.2,

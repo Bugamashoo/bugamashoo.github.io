@@ -10,7 +10,7 @@ var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
 var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, dirtBike, groceryCart, chopper]; //Load all the cars
-var selection = 11; //CURRENTLY SELECTED CAR (PRESET)
+var selection = 10; //CURRENTLY SELECTED CAR (PRESET)
 //var selection = Math.floor(Math.random() * car.length); //CURRENTLY SELECTED CAR (RANDOM)
 var graphics;
 var chunk;
