@@ -1,0 +1,90 @@
+var transportTruck = {
+	name: "Military Transport",
+	carVertices: [50, 0, 55, -5, 55, -30, 50, -35, 20, -35, 20, -40, 10, -45, -45, -45, -55, -40, -55, -5, -50, 0],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2,
+	carMaxSpeed: 52, //rad per sec
+	airResist: 500,
+	downforce: 1.3,
+	carMass: 3,
+	carMassX: 25, //mass offset for vehicle
+	carMassY: -5,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 0.7, //tilt speed
+	rotateSpeed: 1.5,
+	gas: 165,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
+	carNumWheels: 4,
+	carWheel: [
+		{
+			xPos: -46, //back wheel
+			mass: 0.2,
+			size: 5,
+			height: 3,
+			active: 0.7,
+			grip: 2.35,
+			springs: 6.5,
+			damping: 0.1
+        },
+		{
+			xPos: -34, //back wheel
+			mass: 0.2,
+			size: 5,
+			height: 3,
+			active: 0.7,
+			grip: 2.35,
+			springs: 6.5,
+			damping: 0.1
+        },
+		{
+			xPos: -22, //back wheel
+			mass: 0.2,
+			size: 5,
+			height: 3,
+			active: 0.7,
+			grip: 2.35,
+			springs: 6.5,
+			damping: 0.1
+        },
+		{
+			xPos: 38, //front wheel
+			mass: 2,
+			size: 12,
+			height: -2,
+			active: 5,
+			grip: 7,
+			springs: 6.5,
+			damping: 0.6
+        }],
+}
