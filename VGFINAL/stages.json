@@ -33,22 +33,22 @@ var groundVertices = [{
 	s2: 0.3,
 	s3: 0.2
 }, {
-	data: [-150, 100, 300, 100, 618, -17],
+	data: [-150, 100, 300, 100, 618, -17], //initial static terrain
 	stageName: "Sandy Offroading",
-	length: 0,
-	boing: 0.2,
-	grip: 1,
-	grav: 0.93,
+	length: 0, //idfk what this does lol
+	boing: 0.2, //terrain bounciness -- default is 0.2
+	grip: 1, //friction of the terrain -- default is 1
+	grav: 1, //level gravity -- default is 1
 	s1: 0.4,
 	s2: 0.2,
 	s3: 0.1,
-	ss1: 0.7,
-	ss2: 0.5,
-	ss3: 0.1,
+	ss1: 0.7, //s1 og value
+	ss2: 0.5, //s2 og value
+	ss3: 0.1, //s3 og value
 	sss1: 0.0006,
 	sss2: 0.0007,
 	sss3: 0.0003,
 	ssss1: 15,
-	sssss1: 15,
-	rs1: 2
+	sssss1: 15, //original value for ssss1
+	rs1: 2 //amount of randomness -- remove later
    }];

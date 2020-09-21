@@ -130,9 +130,10 @@ function create() {
 function refresh() {
 	if (graphicsLvl == 1) {
 		game.antialias = false;
-
+		canvas.CanvasRenderingContext2D = false;
 	} else if (graphicsLvl == 2) {
-
+		canvas.CanvasRenderingContext2D = true;
+		game.antialias = true;
 	} else if (graphicsLvl == 3) {
 
 	} else {
@@ -164,12 +165,14 @@ function refresh() {
 
 	// Enable Box2D physics
 	game.physics.startSystem(Phaser.Physics.BOX2D);
-	game.physics.box2d.gravity.y = (300 * gStats.grav) + (cCar.airResist / 30);
+	game.physics.box2d.gravity.y = (279 * gStats.grav);
 	game.physics.box2d.friction = (0.26 * gStats.grip);
 	game.physics.box2d.restitution = 0;
 
+	//enable touch input
 	cursors = game.input.keyboard.createCursorKeys();
 	var groundBody = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
+	//maybe helps performance?
 	groundBody.setChain(groundVertices[sSelection].data);
 	groundBody.autoCull = true;
 	groundBody.restitution = (0 + gStats.boing);
@@ -184,6 +187,7 @@ function refresh() {
 	vehicleBody = new Phaser.Physics.Box2D.Body(this.game, null);
 	vehicleBody.setPolygon(vehicleVertices);
 	vehicleBody.mass = (cCar.carMass * 0.45);
+	vehicleBody.autoCull = false;
 	//Massdata = vehicleBody.getMass(); //get the mass data from you body
 	/** Set the position of the shape's centroid relative to the shape's origin. **/
 	cCarX = vehicleBody.x;
@@ -215,6 +219,7 @@ function refresh() {
 		wheelBodies[i7].setCircle(cCarWheel[i7].size);
 		wheelBodies[i7].friction = cCarWheel[i7].grip;
 		wheelBodies[i7].mass = cCarWheel[i7].mass;
+		wheelBodies[i7].autoCull = false;
 		if (cCarWheel[i7].bounce != undefF) {
 			wheelBodies[i7].restitution = cCarWheel[i7].bounce;
 		}
@@ -239,6 +244,7 @@ function refresh() {
 		partBodies[i2].setPolygon(cCarPart[i2].vertices);
 		partBodies[i2].mass = cCarPart[i2].mass;
 		partBodies[i2].friction = cCarPart[i2].grip;
+		partBodies[i2].autoCull = false;
 	}
 	for (var i5 = 0; i5 < cCar.carNumParts; i5++) {
 		// bodyA, bodyB, ax, ay, bx, by, motorSpeed, motorTorque, motorEnabled, lowerLimit, upperLimit, limitEnabled
@@ -429,43 +435,42 @@ function update() {
 	//if ((vehicleBody.x >= 17500) && (sSelection = 0)) {
 	//continuousTerrainGen();
 	//} else 
+
+
 	if (com.x - 700 > runMax) {
 		runMax = com.x - 700;
-	}
-	if (com.x <= runMax && com.velocity.x < 0) {
+	} else if (com.x <= runMax && com.velocity.x < 0) {
 		com.velocity.x = 20;
 		vehicleBody.velocity.x = 20;
-		com.x = com.x + 1;
+		com.x++;
 		vehicleBody.x = vehicleBody.x + 1;
 	}
+
+
 	if (sSelection != 0) {
 		continuousTerrainGen2();
 	}
-	if (selection == 17) {
+	if (selection != 17) {
+		thrustP = 110 * cCar.downforce; //regular downforce code
+	} else {
+		//racecar downforce code
 		if (vehicleBody.angle > -60 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
 			thrustP = Math.abs((vehicleBody.velocity.x * 2));
 		} else {
 			thrustP = 250;
 		}
-	} else {
-		thrustP = 110 * cCar.downforce;
 	}
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
 	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
 	var motorEnabled2 = true;
-	if (cursors.up.isDown) {
-		if (vehicleBody.x > score2) {
-			score2 = vehicleBody.x;
-			score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 10) * 20));
-		}
-		refresh();
-	}
+
 
 	vehicleBody.reverse(thrustP * 0.5);
 	com.reverse(thrustP * 0.5);
 	if ((rightInput() && leftInput())) {
-		//motorEnabled;
+
+		//moon rover downforce code
 		if (selection == 16) {
 			vehicleBody.reverse(100 * gStats.grav);
 			com.reverse(-565 * gStats.grav);
@@ -474,9 +479,8 @@ function update() {
 		motorEnabled2 = false;
 		//console.log(com);
 
-	} // prioritize braking
-	else if ((leftInput() && !(rightInput()))) {
-		motorEnabled2 = true;
+	} else if ((leftInput() && !(rightInput()))) {
+		//motorEnabled2 = true;
 		turnSpeed = Math.abs(turnSpeed);
 		roSpeed = Math.abs(roSpeed);
 		if (vehicleBody.velocity.x <= 20) {
@@ -485,7 +489,7 @@ function update() {
 			motorSpeed = 0;
 		}
 	} else if ((rightInput() && !(leftInput()))) {
-		motorEnabled2 = true;
+		//motorEnabled2 = true;
 		turnSpeed = -1 * Math.abs(turnSpeed);
 		roSpeed = -1 * Math.abs(roSpeed);
 		if (vehicleBody.velocity.x >= -20) {
@@ -496,6 +500,13 @@ function update() {
 	} else {
 		motorEnabled = false;
 		motorEnabled2 = false;
+		if (cursors.up.justDown) {
+			if (vehicleBody.x > score2) {
+				score2 = vehicleBody.x;
+				score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 10) * 20));
+			}
+			refresh();
+		}
 	} // roll if no keys pressed
 	flipr2.SetMotorSpeed(roSpeed);
 	flipr2.EnableMotor(motorEnabled2);
@@ -506,8 +517,8 @@ function update() {
 }
 
 function render() {
-	if (screen == "game") {
-		game.debug.box2dWorld();
-		graphics = game.add.graphics(0, 0);
-	}
+	//if (screen == "game") {
+	game.debug.box2dWorld();
+	//	graphics = game.add.graphics(0, 0);
+	//}
 }
