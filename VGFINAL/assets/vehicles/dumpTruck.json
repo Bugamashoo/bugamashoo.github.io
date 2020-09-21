@@ -11,7 +11,7 @@ var dumpTruck = {
 			active: false,
 			torque: 0,
 			CorrectionAngle: 0,
-			limCounterclockwise: -30,
+			limCounterclockwise: -55,
 			limClockwise: 0,
 			xPos: -2,
 			yPos: -0.5,
