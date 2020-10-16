@@ -1,0 +1,80 @@
+var apc = {
+	name: "APC",
+	carVertices: [5, -20, 60, -15, 70, -5, 60, 17, 55, 20, -55, 20, -60, 17, -70, -10, -60, -20, -30, -20, -25, -30, 0, -30],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2.8,
+	carMaxSpeed: 32, //rad per sec
+	airResist: 0.01,
+	downforce: 1.2,
+	carMass: 2,
+	carMassX: 4, //mass offset for vehicle
+	carMassY: -6,
+	tilt: 0.25, //tilt resistance -- changing this value may cause issues
+	agility: 3, //tilt speed
+	rotateSpeed: 1,
+	gas: 190,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	carPTM: 1, //chassis weight multiplier
+	carNumWheels: 3,
+	carWheel: [
+		{
+			xPos: -42, //back wheel
+			mass: 0.3,
+			size: 17,
+			height: 20,
+			active: 1,
+			grip: 3.5,
+			springs: 4,
+			damping: 0.3,
+			bounce: 0
+        },
+		{
+			xPos: 0, //middle wheel
+			mass: 0.3,
+			size: 17,
+			height: 20,
+			active: 1,
+			grip: 3.5,
+			springs: 4,
+			damping: 0.3,
+			bounce: 0
+        },
+		{
+			xPos: 42, //front wheel
+			mass: 0.3,
+			size: 17,
+			height: 20,
+			active: 1,
+			grip: 3.5,
+			springs: 4,
+			damping: 0.3,
+			bounce: 0
+        }]
+}
