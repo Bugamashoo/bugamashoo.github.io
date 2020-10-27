@@ -78,6 +78,9 @@ var groundGen = [];
 var startPoint = groundVertices[sSelection].length;
 var tempv;
 var mouse;
+var scorei = 0;
+
+var thrustpresent;
 //function preload() {
 //game.load.image('thrustfire', 'assets/sprites/particles/thrustfire.png');
 //}
@@ -91,7 +94,7 @@ function rightInput() {
 
 function create() {
 	mouse = game.input;
-	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset and generate a score! Left+Right for rover thrusters!', {
+	var caption = game.add.text(5, 5, 'Left/right arrow keys to move, up arrow to reset!', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
@@ -104,6 +107,10 @@ function create() {
 		fill: '#00ffff',
 		font: '16pt Arial'
 	});
+	thrustpresent = game.add.text(-100, 105, 'Left+Right to use thrusters on this vehicle!', {
+		fill: '#afafaf',
+		font: '14pt Arial'
+	});
 	var specAbility;
 	var headerText;
 	var specAttribute;
@@ -112,12 +119,6 @@ function create() {
 	carName.fixedToCamera = true;
 	refresh();
 	continuousTerrainGen2();
-	if (selection == 16) {
-		var thrustCount = game.add.text(600, 26, {
-			fill: '#ffffff',
-			font: '14pt Arial'
-		});
-	}
 	//var moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	//var moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	//moreGroundTwo.setChain([0, 0]);
@@ -273,10 +274,11 @@ function refresh() {
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	roSpeed = cCar.rotateSpeed;
-
-
-
-
+	if (selection == 16) {
+		thrustpresent.text = 'Left+Right to use thrusters on this vehicle!';
+	} else {
+		thrustpresent.text = ' ';
+	}
 }
 
 
@@ -343,29 +345,15 @@ function continuousTerrainGen2() {
 			moreGroundOne.destroy();
 			groundGen = [];
 			i--;
-			groundGen.push(((i + 1) * 20));
-			groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))));
-			gStats.s3 = gStats.s3 + gStats.sss3;
-			gStats.s2 = gStats.s2 + gStats.sss2;
-			gStats.s1 = gStats.s1 + (gStats.sss1 * gStats.ssss1);
-			gStats.ssss1 = gStats.ssss1 / 1.01;
-			i++;
-			for (var i2 = 0; i2 < 99; i2++) {
+			for (var i2 = 0; i2 < 101; i2++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))) + (Math.random() * 5 * gStats.s1));
+				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))));
 				gStats.s3 = gStats.s3 + gStats.sss3;
 				gStats.s2 = gStats.s2 + gStats.sss2;
 				gStats.s1 = gStats.s1 + (gStats.sss1 * gStats.ssss1);
 				gStats.ssss1 = gStats.ssss1 / 1.01;
 				i++;
 			}
-			groundGen.push(((i + 1) * 20));
-			groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))));
-			gStats.s3 = gStats.s3 + gStats.sss3;
-			gStats.s2 = gStats.s2 + gStats.sss2;
-			gStats.s1 = gStats.s1 + (gStats.sss1 * gStats.ssss1);
-			gStats.ssss1 = gStats.ssss1 / 1.01;
-			i++;
 			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundOne.x = 619.5; //groundGen[groundGen.length - 1] + 700;
 			moreGroundOne.y = -17; //yPlaceholder;
@@ -385,29 +373,15 @@ function continuousTerrainGen2() {
 			//moreGroundTwo.setChain([0, 100, 5, 100]);
 			groundGen = [];
 			i--;
-			groundGen.push(((i + 1) * 20));
-			groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * gStats.s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * gStats.s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * gStats.s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))));
-			gStats.s3 = gStats.s3 + gStats.sss3;
-			gStats.s2 = gStats.s2 + gStats.sss2;
-			gStats.s1 = gStats.s1 + (gStats.sss1 * gStats.ssss1);
-			gStats.ssss1 = gStats.ssss1 / 1.01;
-			i++;
-			for (var i2 = 0; i2 < 99; i2++) {
+			for (var i2 = 0; i2 < 101; i2++) {
 				groundGen.push(((i + 1) * 20));
-				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * gStats.s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * gStats.s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * gStats.s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))) + (Math.random() * gStats.rs1 * gStats.s1));
+				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * gStats.s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * gStats.s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * gStats.s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))));
 				gStats.s3 = gStats.s3 + gStats.sss3;
 				gStats.s2 = gStats.s2 + gStats.sss2;
 				gStats.s1 = gStats.s1 + (gStats.sss1 * gStats.ssss1);
 				gStats.ssss1 = gStats.ssss1 / 1.01;
 				i++;
 			}
-			groundGen.push(((i + 1) * 20));
-			groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * gStats.s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * gStats.s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * gStats.s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1))));
-			gStats.s3 = gStats.s3 + gStats.sss3;
-			gStats.s2 = gStats.s2 + gStats.sss2;
-			gStats.s1 = gStats.s1 + (gStats.sss1 * gStats.ssss1);
-			gStats.ssss1 = gStats.ssss1 / 1.01;
-			i++;
 			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 			moreGroundTwo.x = 619.5; //groundGen[groundGen.length - 2] + 700;
 			moreGroundTwo.y = -17; //yPlaceholder;
@@ -472,8 +446,8 @@ function update() {
 
 		//moon rover downforce code
 		if (selection == 16) {
-			vehicleBody.reverse(100 * gStats.grav);
-			com.reverse(-565 * gStats.grav);
+			vehicleBody.reverse(100 * gStats.grav * 0.95);
+			com.reverse(-565 * gStats.grav * 0.95);
 		}
 		motorEnabled = false;
 		motorEnabled2 = false;
@@ -497,17 +471,24 @@ function update() {
 		} else {
 			motorSpeed = 0;
 		}
+
 	} else {
 		motorEnabled = false;
 		motorEnabled2 = false;
 		if (cursors.up.justDown) {
-			if (vehicleBody.x > score2) {
-				score2 = vehicleBody.x;
-				score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 10) * 20));
-			}
 			refresh();
 		}
+
 	} // roll if no keys pressed
+	if (scorei > 39) {
+		if (vehicleBody.x > score2) {
+			score2 = vehicleBody.x;
+			score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
+			scorei = 0;
+		}
+	} else {
+		scorei++;
+	}
 	flipr2.SetMotorSpeed(roSpeed);
 	flipr2.EnableMotor(motorEnabled2);
 	for (var i3 = 0; i3 < cCar.carNumWheels; i3++) {
