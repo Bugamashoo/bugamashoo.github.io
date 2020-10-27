@@ -27163,7 +27163,7 @@ box2d.b2World.prototype.DrawShape = function (fixture, color)
 			{
 				/* type {box2d.b2Vec2} */ var v2 = vertices[i];
 				this.m_debugDraw.DrawSegment(v1, v2, color);
-				this.m_debugDraw.DrawCircle(v2, 0.05, color);
+				//this.m_debugDraw.DrawCircle(v2, 0.05, color);
 				v1 = v2;
 			}
 		}
