@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<link rel="stylesheet" href="style.css">
+	<script src="phaser-arcade-physics.js" type="text/javascript"></script>
+	<script src="box2d.js" type="text/javascript"></script>
+	<script src="stages.json" type="text/javascript"></script>
+	<script src="terrain.js" type="text/javascript"></script>
+	<script src="code.js" type="text/javascript"></script>
+	<script src="tGen.js" type="text/javascript"></script>
+</head>
+
+<body>
+
+	<h3>Development build [V20.10.27-C] (pre-alpha)</h3>
+	<select id="vfxLvl" onchange="setVfx(this)">
+		<option value=0>Low Graphics Level</option>
+		<option value=1>Medium Graphics Level</option>
+		<option value=2>High Graphics Level</option>
+		<option value=3>Ultra High Graphics Level</option>
+	</select>
+	<select id="vehicleListing" onchange="GetSelectedTextValue(this)">
+		<option value=0>Select Vehicle</option>
+	</select>
+	<script>
+		function GetSelectedTextValue(vehicleListing) {
+			selection = vehicleListing.value;
+			refresh();
+		}
+
+		function setVfx(vfxLvl) {
+			graphicsLvl = vfxLvl.value;
+			refresh();
+		}
+		for (var i20 = 0; i20 < car.length; i20++) {
+			var opt = document.createElement("option");
+			opt.text = car[i20].name;
+			opt.value = i20;
+			document.getElementById("vehicleListing").add(opt);
+		}
+
+	</script>
+	<!--<label for="vehicleList">Select Vehicle</label>-->
+</body>
+
+</html>

@@ -1,6 +1,6 @@
 var hotrod = {
 	name: "Hotrod",
-	carVertices: [40, 0, 45, -5, 45, -20, 15, -20, 15, -25, 20, -25, 15, -30, -45, -30, -50, -25, -45, -25, -45, -20, -50, -5, -45, 0, -40, 0],
+	carVertices: [40, 0, 45, -7, 45, -20, 15, -20, 15, -25, 20, -25, 15, -30, -45, -30, -50, -25, -45, -25, -45, -20, -50, -7, -40, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -54,8 +54,8 @@ var hotrod = {
 			height: 0,
 			active: 1,
 			grip: 3.5,
-			springs: 5.6,
-			damping: 0.7,
+			springs: 5,
+			damping: 0.9,
 			bounce: 0.1
         },
 		{
@@ -65,8 +65,8 @@ var hotrod = {
 			height: 0,
 			active: 0.5,
 			grip: 3.5,
-			springs: 4.8,
-			damping: 0.7,
+			springs: 4,
+			damping: 0.9,
 			bounce: 0.1
         }],
 }

@@ -1,0 +1,79 @@
+var racecar = {
+	name: "Formula Racecar",
+	carVertices: [56, 0, 53.5, -5, 47, -10, 35, -15, 15, -15, 10, -10, -10, -10, -10, -20, -30, -15, -40, -15, -50, -20, -50, -10, -45, 0],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 4,
+	carMaxSpeed: 120, //rad per sec
+	airResist: 150,
+	downforce: 1.1,
+	carMass: 1.8,
+	carMassX: 3, //mass offset for vehicle
+	carMassY: -7,
+	tilt: 0.4, //tilt resistance -- changing this value may cause issues
+	agility: 1.8, //tilt speed
+	rotateSpeed: 1.4,
+	gas: 150,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
+	/**function () {
+	if (vehicleBody.angle > -60 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
+		thrustP = Math.abs((vehicleBody.velocity.x * 2));
+	} else {
+		thrustP = 250;
+	}**/
+
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -32.5, //back wheel
+			mass: 0.2,
+			size: 9,
+			height: 0,
+			active: 1,
+			grip: 4,
+			springs: 9,
+			damping: 1.2,
+			bounce: 0.13
+        },
+		{
+			xPos: 37.5, //front wheel
+			mass: 0.2,
+			size: 9,
+			height: 0,
+			active: 0,
+			grip: 4,
+			springs: 9,
+			damping: 1.2,
+			bounce: 0.13
+        }]
+}

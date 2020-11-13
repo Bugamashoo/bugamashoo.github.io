@@ -30,7 +30,7 @@ var bus = {
 	carPower: 2.3,
 	carMaxSpeed: 130, //rad per sec
 	airResist: 0,
-	downforce: 0.8,
+	downforce: 1,
 	carMass: 7,
 	carMassX: 20, //mass offset for vehicle
 	carMassY: -35,

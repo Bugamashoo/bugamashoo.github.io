@@ -1,0 +1,133 @@
+var tank = {
+	name: "Tank",
+	carVertices: [86, -16, 80, -22, 20, -30, 10, -30, 0, -50, -30, -50, -40, -40, -71, -40, -86, -30, -82, 0, -64, 10, 70, 10, 83, 0],
+	carNumParts: 1,
+	carParts: [
+		{
+			vertices: [2, -3, 5, 4, 80, 0, 81, -5],
+			partType: 0,
+			mass: 0.8,
+			grip: 0.1,
+			active: true,
+			torque: 1.25,
+			correctionAngle: 10,
+			limCounterclockwise: -13,
+			limClockwise: 13,
+			xPos: 0,
+			yPos: -40,
+			xOff: 0,
+			yOff: 0,
+			spring: 8
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 7,
+	carMaxSpeed: 38, //rad per sec
+	airResist: 1500,
+	downforce: -0.2,
+	carMass: 4,
+	carMassX: -10, //mass offset for vehicle
+	carMassY: -40,
+	tilt: 0, //tilt resistance -- changing this value may cause issues
+	agility: 1, //tilt speed
+	rotateSpeed: 1,
+	gas: 170,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
+	carNumWheels: 9,
+	carWheel: [
+		{
+			xPos: -79, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 10,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: -60, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: -40, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: -20, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: 0, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: 20, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: 40, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }, {
+			xPos: 60, //back wheel
+			mass: 0.1,
+			size: 9,
+			height: 15,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        },
+		{
+			xPos: 79, //front wheel
+			mass: 0.1,
+			size: 9,
+			height: 10,
+			active: 1,
+			grip: 15,
+			springs: 2.8,
+			damping: 0.42
+        }],
+}

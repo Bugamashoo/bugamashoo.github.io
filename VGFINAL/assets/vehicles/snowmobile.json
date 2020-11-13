@@ -27,7 +27,7 @@ var snowmobile = {
 			grip: 0,
 		}
 	],
-	carPower: 1.8,
+	carPower: 1.7,
 	carMaxSpeed: 100, //rad per sec
 	airResist: 0,
 	downforce: 1.3,
@@ -41,7 +41,8 @@ var snowmobile = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 3,
@@ -52,28 +53,28 @@ var snowmobile = {
 			size: 4,
 			height: 0,
 			active: 1,
-			grip: 9.5,
+			grip: 9,
 			springs: 6,
 			damping: 0.25,
 			susAngle: -0.2
         },
 		{
-			xPos: -20.5, //front wheel
+			xPos: -20.5, //back wheel
 			mass: 0.05,
 			size: 3.7,
 			height: 0,
 			active: 1,
-			grip: 9.5,
+			grip: 9,
 			springs: 6,
 			damping: 0.25
         },
 		{
-			xPos: -11, //front wheel
+			xPos: -11, //back wheel
 			mass: 0.05,
 			size: 3,
 			height: -5.5,
 			active: 1,
-			grip: 9.5,
+			grip: 9,
 			springs: 5.5,
 			damping: 0.2
         }],

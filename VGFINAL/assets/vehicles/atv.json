@@ -30,7 +30,7 @@ var atv = {
 	carPower: 2,
 	carMaxSpeed: 64, //rad per sec
 	airResist: 0.01,
-	downforce: 0.9,
+	downforce: 1.1,
 	carMass: 2,
 	carMassX: 0, //mass offset for vehicle
 	carMassY: 10,
@@ -49,24 +49,24 @@ var atv = {
 	carWheel: [
 		{
 			xPos: -22, //back wheel
-			mass: 0.1,
+			mass: 0.05,
 			size: 9.3,
 			height: 14,
 			active: 1,
 			grip: 3.3,
-			springs: 7.8,
-			damping: 0.9,
+			springs: 8.5,
+			damping: 1.2,
 			susAngle: -0.05
         },
 		{
 			xPos: 17.4, //front wheel
-			mass: 0.1,
+			mass: 0.05,
 			size: 9.3,
 			height: 14,
 			active: 1,
 			grip: 3.3,
-			springs: 7.8,
-			damping: 0.9,
+			springs: 8.5,
+			damping: 1.2,
 			susAngle: 0.05
         }],
 }

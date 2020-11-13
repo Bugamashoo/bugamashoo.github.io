@@ -49,24 +49,26 @@ var nascar = {
 	carWheel: [
 		{
 			xPos: -43, //back wheel
-			mass: 0.8,
+			mass: 0.9,
 			size: 16,
-			height: 15,
+			height: 18.5,
 			active: 1,
 			grip: 6.5,
-			springs: 5,
-			damping: 0.5,
-			bounch: 0.05
+			springs: 4.5,
+			damping: 0.4,
+			bounce: 0.05,
+			susAngle: -0.1
         },
 		{
-			xPos: 58, //front wheel
+			xPos: 55, //front wheel
 			mass: 0.1,
 			size: 8,
-			height: 15,
+			height: 17,
 			active: 0.5,
 			grip: 0.5,
 			springs: 8,
 			damping: 1,
-			bounce: 0.5
+			bounce: 0.5,
+			susAngle: 0
         }],
 }

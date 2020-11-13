@@ -30,7 +30,7 @@ var foodCart = {
 	carPower: 2.7,
 	carMaxSpeed: 50, //rad per sec
 	airResist: 100,
-	downforce: 1.55,
+	downforce: 1.6,
 	carMass: 2,
 	carMassX: 7, //mass offset for vehicle
 	carMassY: -4,

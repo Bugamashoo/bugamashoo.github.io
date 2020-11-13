@@ -9,7 +9,7 @@ game.antialias = false;
 var screen = "game";
 var groundBody = [0, 0];
 var thrustP;
-var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, transportTruck, bus, hotrod, rover, racecar, dirtBike, groceryCart, chopper]; //Load all the cars
+var car = [golfCart, truck, apc, foodCart, atv, tank, nascar, hyperBike, monsterTruck, threeWheeler, dumpTruck, jeep, snowmobile, bus, hotrod, rover, racecar, dirtBike, groceryCart, chopper]; //Load all the cars
 //var selection = 10; //CURRENTLY SELECTED CAR (PRESET)
 var selection = Math.floor(Math.random() * car.length); //CURRENTLY SELECTED CAR (RANDOM)
 var graphics;
@@ -30,6 +30,7 @@ var bodySprite = car[selection];
 var cameraScale = 2;
 var score;
 var score2 = 0;
+var cscore;
 var carName;
 var randomNum = (0.5 - Math.random());
 var yPlaceholder = 0;
@@ -103,6 +104,10 @@ function create() {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
+	cscore = game.add.text(200, 26, 'Current score: N/A', {
+		fill: '#ffffff',
+		font: '14pt Arial'
+	});
 	carName = game.add.text(5, 46, '', {
 		fill: '#00ffff',
 		font: '16pt Arial'
@@ -116,6 +121,7 @@ function create() {
 	var specAttribute;
 	caption.fixedToCamera = true;
 	score.fixedToCamera = true;
+	cscore.fixedToCamera = true;
 	carName.fixedToCamera = true;
 	refresh();
 	continuousTerrainGen2();
@@ -224,7 +230,7 @@ function refresh() {
 		if (cCarWheel[i7].bounce != undefF) {
 			wheelBodies[i7].restitution = cCarWheel[i7].bounce;
 		}
-		wheelBodies[i7].setBodyContactCallback(groundBody, bodyCollide, this);
+		//wheelBodies[i7].setBodyContactCallback(groundBody, bodyCollide, this);
 		//wheelBodies[i].restitution = cCarWheel[i].bounce - 1;
 	}
 
@@ -274,7 +280,7 @@ function refresh() {
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	roSpeed = cCar.rotateSpeed;
-	if (selection == 16) {
+	if (selection == 15) {
 		thrustpresent.text = 'Left+Right to use thrusters on this vehicle!';
 	} else {
 		thrustpresent.text = ' ';
@@ -359,11 +365,11 @@ function update() {
 	if (sSelection != 0) {
 		continuousTerrainGen2();
 	}
-	if (selection != 17) {
+	if (selection != 16) {
 		thrustP = 110 * cCar.downforce; //regular downforce code
 	} else {
 		//racecar downforce code
-		if (vehicleBody.angle > -60 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
+		if (vehicleBody.angle > -65 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
 			thrustP = Math.abs((vehicleBody.velocity.x * 2));
 		} else {
 			thrustP = 250;
@@ -377,17 +383,21 @@ function update() {
 
 	vehicleBody.reverse(thrustP * 0.5);
 	com.reverse(thrustP * 0.5);
-	if ((rightInput() && leftInput())) {
+	if ((rightInput() && leftInput()) && selection == 15) {
 
 		//moon rover downforce code
-		if (selection == 16) {
-			vehicleBody.reverse(100 * gStats.grav * 0.95);
-			com.reverse(-565 * gStats.grav * 0.95);
-		}
+		vehicleBody.reverse(100 * gStats.grav * 0.95);
+		com.reverse(-565 * gStats.grav * 0.95);
+
+		motorEnabled = false;
+		motorEnabled2 = false;
+
+	} else if ((rightInput() && leftInput()) && selection != 15) {
+
+		//moon rover downforce code
 		motorEnabled = false;
 		motorEnabled2 = false;
 		//console.log(com);
-
 	} else if ((leftInput() && !(rightInput()))) {
 		//motorEnabled2 = true;
 		turnSpeed = Math.abs(turnSpeed);
@@ -421,6 +431,7 @@ function update() {
 			score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
 			scorei = 0;
 		}
+		cscore.text = ('Score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
 	} else {
 		scorei++;
 	}

@@ -30,10 +30,10 @@ var monsterTruck = {
 	carPower: 1.75,
 	carMaxSpeed: 55, //rad per sec
 	airResist: 0,
-	downforce: 1.2,
+	downforce: 1.3,
 	carMass: 0.88,
 	carMassX: 2, //mass offset for vehicle
-	carMassY: 11,
+	carMassY: 13,
 	tilt: 0.32, //tilt resistance -- changing this value may cause issues
 	agility: 1.6, //tilt speed
 	rotateSpeed: 1.6,
@@ -41,7 +41,8 @@ var monsterTruck = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,
@@ -56,7 +57,7 @@ var monsterTruck = {
 			springs: 7.5,
 			damping: 0.01,
 			bounce: 0,
-			susAngle: -0.1
+			susAngle: 0
         },
 		{
 			xPos: 34, //front wheel
@@ -68,6 +69,6 @@ var monsterTruck = {
 			springs: 7.5,
 			damping: 0.01,
 			bounce: 0,
-			susAngle: -0.1
+			susAngle: 0
         }],
 }

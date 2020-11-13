@@ -30,13 +30,13 @@ var apc = {
 	carPower: 2.8,
 	carMaxSpeed: 32, //rad per sec
 	airResist: 0.01,
-	downforce: 1.2,
+	downforce: 1.4,
 	carMass: 2,
 	carMassX: 4, //mass offset for vehicle
 	carMassY: -6,
-	tilt: 0.25, //tilt resistance -- changing this value may cause issues
-	agility: 3, //tilt speed
-	rotateSpeed: 1,
+	tilt: 0.3, //tilt resistance -- changing this value may cause issues
+	agility: 2.5, //tilt speed
+	rotateSpeed: 0.9,
 	gas: 190,
 	playerX: 0,
 	playerY: -10,
@@ -45,35 +45,35 @@ var apc = {
 	carNumWheels: 3,
 	carWheel: [
 		{
-			xPos: -42, //back wheel
+			xPos: -44, //back wheel
 			mass: 0.3,
-			size: 17,
+			size: 18,
 			height: 20,
 			active: 1,
 			grip: 3.5,
-			springs: 4,
+			springs: 3.5,
 			damping: 0.3,
 			bounce: 0
         },
 		{
 			xPos: 0, //middle wheel
 			mass: 0.3,
-			size: 17,
+			size: 18,
 			height: 20,
 			active: 1,
 			grip: 3.5,
-			springs: 4,
+			springs: 3.5,
 			damping: 0.3,
 			bounce: 0
         },
 		{
-			xPos: 42, //front wheel
+			xPos: 44, //front wheel
 			mass: 0.3,
-			size: 17,
+			size: 18,
 			height: 20,
 			active: 1,
 			grip: 3.5,
-			springs: 4,
+			springs: 3.5,
 			damping: 0.3,
 			bounce: 0
         }]

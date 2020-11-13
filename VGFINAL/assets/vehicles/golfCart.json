@@ -30,7 +30,7 @@ var golfCart = {
 	carPower: 0.75,
 	carMaxSpeed: 67, //rad per sec
 	airResist: 2,
-	downforce: 1.2,
+	downforce: 1.4,
 	carMass: 0.385,
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 9,
@@ -50,7 +50,7 @@ var golfCart = {
 		{
 			xPos: -21, //back wheel
 			mass: 0.07,
-			size: 7,
+			size: 7.5,
 			height: 13,
 			active: 1,
 			grip: 5.5,
@@ -61,7 +61,7 @@ var golfCart = {
 		{
 			xPos: 22, //front wheel
 			mass: 0.07,
-			size: 6.5,
+			size: 7.5,
 			height: 13,
 			active: 1,
 			grip: 5.5,

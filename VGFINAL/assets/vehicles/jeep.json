@@ -49,22 +49,22 @@ var jeep = {
 	carWheel: [
 		{
 			xPos: -30, //back wheel
-			mass: 0.15,
+			mass: 0.14,
 			size: 10,
 			height: 10,
 			active: 1,
 			grip: 2.5,
 			springs: 3.7,
-			damping: 0.5
+			damping: 0.6
         },
 		{
 			xPos: 35, //front wheel
-			mass: 0.15,
+			mass: 0.14,
 			size: 10,
 			height: 10,
 			active: 1,
 			grip: 2.5,
 			springs: 3.7,
-			damping: 0.5
+			damping: 0.6
         }],
 }

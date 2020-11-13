@@ -30,7 +30,7 @@ var hyperBike = {
 	carPower: 3.5,
 	carMaxSpeed: 80, //rad per sec
 	airResist: 180,
-	downforce: 0.5,
+	downforce: 0.75,
 	carMass: 0.7,
 	carMassX: -2, //mass offset for vehicle
 	carMassY: -10,

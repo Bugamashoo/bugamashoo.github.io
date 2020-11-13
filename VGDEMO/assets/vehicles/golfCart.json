@@ -30,7 +30,7 @@ var golfCart = {
 	carPower: 0.75,
 	carMaxSpeed: 67, //rad per sec
 	airResist: 2,
-	downforce: 1.2,
+	downforce: 1.5,
 	carMass: 0.385,
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 9,

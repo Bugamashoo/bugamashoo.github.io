@@ -27,7 +27,7 @@ var truck = {
 			grip: 0,
 		}
 	],
-	carPower: 2.8,
+	carPower: 3,
 	carMaxSpeed: 60, //rad per sec
 	airResist: 0.01,
 	downforce: 0.7,
@@ -41,7 +41,10 @@ var truck = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	 extraProps: 0, extraUpdates: 0,
+	extraAction: null,
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
 	carNumWheels: 2,
 	carWheel: [
 		{
@@ -50,7 +53,7 @@ var truck = {
 			size: 12,
 			height: 8,
 			active: 1,
-			grip: 4,
+			grip: 5,
 			springs: 3.5,
 			damping: 0.4
         },
@@ -60,7 +63,7 @@ var truck = {
 			size: 12,
 			height: 10,
 			active: 0,
-			grip: 4,
+			grip: 5,
 			springs: 3.5,
 			damping: 0.4
         }],

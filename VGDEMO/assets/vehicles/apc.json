@@ -30,7 +30,7 @@ var apc = {
 	carPower: 2.8,
 	carMaxSpeed: 32, //rad per sec
 	airResist: 0.01,
-	downforce: 1.2,
+	downforce: 1.5,
 	carMass: 2,
 	carMassX: 4, //mass offset for vehicle
 	carMassY: -6,

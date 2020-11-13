@@ -1,0 +1,72 @@
+var atv = {
+	name: "ATV",
+	carVertices: [25, 0, 15, -5, 5, -5, 0, 0, -5, 0, -15, -5, -30, -5, -30, 0, -15, 0, -10, 10, 5, 10, 10, 0],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 2,
+	carMaxSpeed: 64, //rad per sec
+	airResist: 0.01,
+	downforce: 0.9,
+	carMass: 2,
+	carMassX: 0, //mass offset for vehicle
+	carMassY: 10,
+	tilt: 0.11, //tilt resistance -- changing this value may cause issues
+	agility: 0.8, //tilt speed
+	rotateSpeed: 4.5,
+	gas: 150,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -22, //back wheel
+			mass: 0.1,
+			size: 9.3,
+			height: 14,
+			active: 1,
+			grip: 3.3,
+			springs: 7.8,
+			damping: 0.9,
+			susAngle: -0.05
+        },
+		{
+			xPos: 17.4, //front wheel
+			mass: 0.1,
+			size: 9.3,
+			height: 14,
+			active: 1,
+			grip: 3.3,
+			springs: 7.8,
+			damping: 0.9,
+			susAngle: 0.05
+        }],
+}

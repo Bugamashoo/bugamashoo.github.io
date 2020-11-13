@@ -1,6 +1,6 @@
 var hotrod = {
 	name: "Hotrod",
-	carVertices: [40, 0, 45, -5, 45, -20, 15, -20, 15, -25, 20, -25, 15, -30, -45, -30, -50, -25, -45, -25, -45, -20, -50, -5, -45, 0, -40, 0],
+	carVertices: [37, 0, 45, -5, 45, -20, 15, -20, 15, -25, 20, -25, 15, -30, -45, -30, -50, -25, -45, -25, -45, -20, -50, -5, -45, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -30,7 +30,7 @@ var hotrod = {
 	carPower: 2.3,
 	carMaxSpeed: 165, //rad per sec
 	airResist: 1,
-	downforce: 1.25,
+	downforce: 1.3,
 	carMass: 1.5,
 	carMassX: -2, //mass offset for vehicle
 	carMassY: -4,

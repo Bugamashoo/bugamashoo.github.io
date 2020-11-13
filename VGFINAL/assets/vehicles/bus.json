@@ -1,6 +1,6 @@
 var bus = {
 	name: "School Bus",
-	carVertices: [90, 0, 100, -5, 100, -30, 75, -35, 70, -55, 75, -55, 70, -60, -95, -60, -100, -55, -100, -15, -65, 0],
+	carVertices: [90, 0, 98, -6, 98, -30, 73, -35, 70, -55, 75, -55, 70, -60, -95, -60, -100, -55, -100, -17, -65, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -32,10 +32,10 @@ var bus = {
 	airResist: 0,
 	downforce: 0.8,
 	carMass: 7,
-	carMassX: 20, //mass offset for vehicle
+	carMassX: 6, //mass offset for vehicle
 	carMassY: -35,
 	tilt: 0.3, //tilt resistance -- changing this value may cause issues
-	agility: 3, //tilt speed
+	agility: 3.5, //tilt speed
 	rotateSpeed: 1.5,
 	gas: 250,
 	playerX: 0,
@@ -50,7 +50,7 @@ var bus = {
 		{
 			xPos: -55, //back wheel
 			mass: 1.5,
-			size: 14,
+			size: 15,
 			height: 7,
 			active: 5,
 			grip: 10,
@@ -60,7 +60,7 @@ var bus = {
 		{
 			xPos: 80, //front wheel
 			mass: 1.5,
-			size: 14,
+			size: 15,
 			height: 7,
 			active: 1,
 			grip: 10,

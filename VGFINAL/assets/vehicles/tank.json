@@ -33,9 +33,9 @@ var tank = {
 	downforce: -0.2,
 	carMass: 4,
 	carMassX: -10, //mass offset for vehicle
-	carMassY: -40,
-	tilt: 0, //tilt resistance -- changing this value may cause issues
-	agility: 1, //tilt speed
+	carMassY: -35,
+	tilt: 0.02, //tilt resistance -- changing this value may cause issues
+	agility: 1.2, //tilt speed
 	rotateSpeed: 1,
 	gas: 170,
 	playerX: 0,

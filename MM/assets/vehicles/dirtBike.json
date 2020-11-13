@@ -1,0 +1,75 @@
+var dirtBike = {
+	name: "Dirt Bike",
+	carVertices: [10, 0, 15, -5, 5, -15, 5, -10, -5, -10, -15, -15, -20, -10, -10, -5, -10, 0
+],
+	carNumParts: 0,
+	carParts: [
+		{
+			verticies: [null, null],
+			partType: 0,
+			mass: 1,
+			grip: 0.25,
+			active: false,
+			torque: 1,
+			CorrectionAngle: 0,
+			limCounterclockwise: -90,
+			limClockwise: 90,
+			xPos: -10,
+			yPos: 10,
+			xOff: 0,
+			yOff: 0,
+			spring: null
+		}
+	],
+	carNumUpgrades: 0,
+	carUpgrades: [
+		{
+			engine: 0,
+			grip: 0,
+		}
+	],
+	carPower: 0.3,
+	carMaxSpeed: 105, //rad per sec
+	airResist: 1,
+	downforce: 1.2,
+	carMass: 0.4,
+	carMassX: 1, //mass offset for vehicle
+	carMassY: 0,
+	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	agility: 0.22, //tilt speed
+	rotateSpeed: 2.2,
+	gas: 160,
+	playerX: 0,
+	playerY: -10,
+	gasType: 0, //0 = diesel  1 = electric  2 = manpower
+	extraAction: null,
+	placeholder: null,
+	extraProps: 0,
+	extraUpdates: 0,
+	carNumWheels: 2,
+	carWheel: [
+		{
+			xPos: -17, //back wheel
+			mass: 0.02,
+			size: 7,
+			height: 7.5,
+			active: 1,
+			grip: 10,
+			springs: 5.5,
+			damping: 2,
+			bounce: 0,
+			susAngle: -0.1
+        },
+		{
+			xPos: 17, //front wheel
+			mass: 0.04,
+			size: 7,
+			height: 6.4,
+			active: 0,
+			grip: 5,
+			springs: 7,
+			damping: 0.4,
+			bounce: 0,
+			susAngle: 0.4
+        }],
+}

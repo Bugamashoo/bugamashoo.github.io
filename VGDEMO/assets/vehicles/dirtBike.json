@@ -31,7 +31,7 @@ var dirtBike = {
 	carPower: 0.3,
 	carMaxSpeed: 105, //rad per sec
 	airResist: 1,
-	downforce: 1.2,
+	downforce: 1.4,
 	carMass: 0.4,
 	carMassX: 1, //mass offset for vehicle
 	carMassY: 0,
