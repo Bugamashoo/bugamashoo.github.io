@@ -56,3 +56,7 @@ function continuousTerrainGen2() {
 		}
 	}
 }
+
+function vp2(check) {
+	return (check * ((vCC.carPower * vCC.carMaxSpeed) - (vCC.airResist + vCC.downforce + vCM) + (vCC.agility + vCC.rotateSpeed + (vCC.gas * vCC.carNumWheels))));
+}

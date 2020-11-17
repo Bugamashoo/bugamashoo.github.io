@@ -52,11 +52,14 @@ var backLim;
 //upgrades
 var susUp;
 var tirUp;
+var sID;
 
 var chunkNum = 0;
 var cCar = car[selection]; //get body collision data for selected car
 var cCarWheel = car[selection].carWheel; //get wheel data for selected car 
 var cCarPart = car[selection].carParts; //get extra part data for selected car
+var vCC = cCar;
+var vCM = vCC.carMass + vCC.carMassX + vCC.carMassY;
 var cCarX;
 var cCarY;
 var driveJoints = [];
@@ -74,12 +77,16 @@ var sectTwo = false;
 var i = 0;
 var amplitude = 50;
 var wavelength = 50;
-
+var vWC = cCarWheel;
+var temp;
+var temp2;
 var groundGen = [];
 var startPoint = groundVertices[sSelection].length;
+var vMax;
 var tempv;
 var mouse;
 var scorei = 0;
+var vPF;
 
 var thrustpresent;
 //function preload() {
@@ -116,6 +123,12 @@ function create() {
 		fill: '#afafaf',
 		font: '14pt Arial'
 	});
+	sID = game.add.text(5, -1, '', {
+		fill: '#989898',
+		font: '7pt Arial'
+	});
+	sID.fixedToCamera = true;
+
 	var specAbility;
 	var headerText;
 	var specAttribute;
@@ -132,7 +145,12 @@ function create() {
 	//var chunk = ((Math.floor(vehicleBody.x / 5000)) / 4) + 0.75;
 }
 
+function vp1() {
 
+	temp = 0;
+	for (var iV = 0; iV < vCC.carNumWheels; iV++) temp += ((vWC[iV].xPos + vWC[iV].height) * (vWC[iV].size + vWC[iV].grip + vWC[iV].active));
+	return temp;
+}
 // Make the ground body
 function refresh() {
 	if (graphicsLvl == 1) {
@@ -280,6 +298,7 @@ function refresh() {
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	roSpeed = cCar.rotateSpeed;
+	sID.text = ('vID: ' + vPF);
 	if (selection == 15) {
 		thrustpresent.text = 'Left+Right to use thrusters on this vehicle!';
 	} else {
@@ -421,6 +440,7 @@ function update() {
 		motorEnabled = false;
 		motorEnabled2 = false;
 		if (cursors.up.justDown) {
+			vPFf(vp2(vp1()));
 			refresh();
 		}
 
@@ -428,7 +448,8 @@ function update() {
 	if (scorei > 39) {
 		if (vehicleBody.x > score2) {
 			score2 = vehicleBody.x;
-			score.text = ('High score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
+			vMax = (Math.floor((vehicleBody.x) / 5) * 5);
+			score.text = ('High score: ' + vMax);
 			scorei = 0;
 		}
 		cscore.text = ('Score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
