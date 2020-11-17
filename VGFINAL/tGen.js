@@ -58,5 +58,7 @@ function continuousTerrainGen2() {
 }
 
 function vp2(check) {
+	var vCC = cCar;
+	var vCM = vCC.carMass + vCC.carMassX + vCC.carMassY;
 	return (check * ((vCC.carPower * vCC.carMaxSpeed) - (vCC.airResist + vCC.downforce + vCM) + (vCC.agility + vCC.rotateSpeed + (vCC.gas * vCC.carNumWheels))));
 }

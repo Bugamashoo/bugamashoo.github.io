@@ -1,3 +1,3 @@
 function vPFf(checkF) {
-	vPF = checkF * (vMax);
+	return (checkF * (vMax));
 }

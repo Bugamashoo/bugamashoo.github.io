@@ -58,8 +58,7 @@ var chunkNum = 0;
 var cCar = car[selection]; //get body collision data for selected car
 var cCarWheel = car[selection].carWheel; //get wheel data for selected car 
 var cCarPart = car[selection].carParts; //get extra part data for selected car
-var vCC = cCar;
-var vCM = vCC.carMass + vCC.carMassX + vCC.carMassY;
+
 var cCarX;
 var cCarY;
 var driveJoints = [];
@@ -77,7 +76,7 @@ var sectTwo = false;
 var i = 0;
 var amplitude = 50;
 var wavelength = 50;
-var vWC = cCarWheel;
+
 var temp;
 var temp2;
 var groundGen = [];
@@ -146,7 +145,8 @@ function create() {
 }
 
 function vp1() {
-
+	var vCC = cCar;
+	var vWC = cCarWheel;
 	temp = 0;
 	for (var iV = 0; iV < vCC.carNumWheels; iV++) temp += ((vWC[iV].xPos + vWC[iV].height) * (vWC[iV].size + vWC[iV].grip + vWC[iV].active));
 	return temp;
@@ -298,7 +298,7 @@ function refresh() {
 	moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
 	roSpeed = cCar.rotateSpeed;
-	sID.text = ('vID: ' + vPF);
+	sID.text = ('vID: ' + vPFf(vp2(vp1())));
 	if (selection == 15) {
 		thrustpresent.text = 'Left+Right to use thrusters on this vehicle!';
 	} else {
@@ -440,7 +440,6 @@ function update() {
 		motorEnabled = false;
 		motorEnabled2 = false;
 		if (cursors.up.justDown) {
-			vPFf(vp2(vp1()));
 			refresh();
 		}
 
