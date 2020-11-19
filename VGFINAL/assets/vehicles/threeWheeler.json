@@ -36,12 +36,13 @@ var threeWheeler = {
 	carMassY: -5.5,
 	tilt: 0.05, //tilt resistance -- changing this value may cause issues
 	agility: 1, //tilt speed
-	rotateSpeed: 1.2,
+	rotateSpeed: 2,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
 	gasType: 0, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,
@@ -53,8 +54,8 @@ var threeWheeler = {
 			height: -1,
 			active: 1,
 			grip: 5,
-			springs: 6,
-			damping: 0.5,
+			springs: 5,
+			damping: 0.8,
 			susAngle: -0.5
         },
 		{

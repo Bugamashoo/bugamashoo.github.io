@@ -1,6 +1,6 @@
 var nascar = {
 	name: "Drag Racer",
-	carVertices: [70, 5, -5, -5, -20, -15, -15, -5, -45, -5, -46, -22, -78, -21, -70, -5, -62, 15, 66, 15, 70, 11],
+	carVertices: [65, 5, 2, -3, -20, -13, -18, -5, -45, -5, -46, -10, -86, -17, -82, -7, -70, -5, -62, 15, 61, 15, 65, 11],
 	carNumParts: 1,
 	carParts: [
 		{
@@ -30,7 +30,7 @@ var nascar = {
 	carPower: 4.4,
 	carMaxSpeed: 70, //rad per sec
 	airResist: 100,
-	downforce: 0.3,
+	downforce: 0.4,
 	carMass: 1,
 	carMassX: -15, //mass offset for vehicle
 	carMassY: 10,
@@ -50,14 +50,14 @@ var nascar = {
 		{
 			xPos: -43, //back wheel
 			mass: 0.9,
-			size: 16,
-			height: 18.5,
+			size: 15,
+			height: 18,
 			active: 1,
 			grip: 6.5,
-			springs: 4.5,
-			damping: 0.4,
+			springs: 4,
+			damping: 0.6,
 			bounce: 0.05,
-			susAngle: -0.1
+			susAngle: -0.3
         },
 		{
 			xPos: 55, //front wheel

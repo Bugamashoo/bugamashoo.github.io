@@ -27,12 +27,12 @@ var groceryCart = {
 			grip: 0,
 		}
 	],
-	carPower: 1,
-	carMaxSpeed: 70, //rad per sec
+	carPower: 1.05,
+	carMaxSpeed: 60, //rad per sec
 	airResist: 100,
 	downforce: 0.8,
 	carMass: 1,
-	carMassX: 1, //mass offset for vehicle
+	carMassX: 3, //mass offset for vehicle
 	carMassY: -3,
 	tilt: 0.1, //tilt resistance -- changing this value may cause issues
 	agility: 1.2, //tilt speed
@@ -41,7 +41,8 @@ var groceryCart = {
 	playerX: 0,
 	playerY: -10,
 	gasType: 2, //0 = diesel  1 = electric  2 = manpower
-	extraAction: null, placeholder: null, 	
+	extraAction: null,
+	placeholder: null,
 	extraProps: 0,
 	extraUpdates: 0,
 	carNumWheels: 2,

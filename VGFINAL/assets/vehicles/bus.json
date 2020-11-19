@@ -27,7 +27,7 @@ var bus = {
 			grip: 0,
 		}
 	],
-	carPower: 2.3,
+	carPower: 2.1,
 	carMaxSpeed: 130, //rad per sec
 	airResist: 0,
 	downforce: 0.8,
@@ -54,8 +54,8 @@ var bus = {
 			height: 7,
 			active: 5,
 			grip: 10,
-			springs: 4,
-			damping: 0.8
+			springs: 3,
+			damping: 1.3
         },
 		{
 			xPos: 80, //front wheel
@@ -64,7 +64,7 @@ var bus = {
 			height: 7,
 			active: 1,
 			grip: 10,
-			springs: 4,
-			damping: 0.8
+			springs: 3,
+			damping: 1.3
         }],
 }

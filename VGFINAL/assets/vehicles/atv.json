@@ -27,16 +27,16 @@ var atv = {
 			grip: 0,
 		}
 	],
-	carPower: 2,
+	carPower: 2.2,
 	carMaxSpeed: 64, //rad per sec
 	airResist: 0.01,
 	downforce: 1.1,
 	carMass: 2,
-	carMassX: 0, //mass offset for vehicle
+	carMassX: 2, //mass offset for vehicle
 	carMassY: 10,
 	tilt: 0.11, //tilt resistance -- changing this value may cause issues
-	agility: 0.8, //tilt speed
-	rotateSpeed: 4.5,
+	agility: 0.9, //tilt speed
+	rotateSpeed: 4,
 	gas: 150,
 	playerX: 0,
 	playerY: -10,
@@ -54,8 +54,8 @@ var atv = {
 			height: 14,
 			active: 1,
 			grip: 3.3,
-			springs: 8.5,
-			damping: 1.2,
+			springs: 8.7,
+			damping: 1.4,
 			susAngle: -0.05
         },
 		{
@@ -65,8 +65,8 @@ var atv = {
 			height: 14,
 			active: 1,
 			grip: 3.3,
-			springs: 8.5,
-			damping: 1.2,
+			springs: 8.7,
+			damping: 1.4,
 			susAngle: 0.05
         }],
 }

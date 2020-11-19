@@ -51,10 +51,10 @@ var tank = {
 			xPos: -79, //back wheel
 			mass: 0.1,
 			size: 9,
-			height: 10,
+			height: 9,
 			active: 1,
 			grip: 15,
-			springs: 2.8,
+			springs: 4,
 			damping: 0.42
         }, {
 			xPos: -60, //back wheel
@@ -63,7 +63,7 @@ var tank = {
 			height: 15,
 			active: 1,
 			grip: 15,
-			springs: 2.8,
+			springs: 3,
 			damping: 0.42
         }, {
 			xPos: -40, //back wheel
@@ -117,17 +117,17 @@ var tank = {
 			height: 15,
 			active: 1,
 			grip: 15,
-			springs: 2.8,
+			springs: 3,
 			damping: 0.42
         },
 		{
 			xPos: 79, //front wheel
 			mass: 0.1,
 			size: 9,
-			height: 10,
+			height: 9,
 			active: 1,
 			grip: 15,
-			springs: 2.8,
+			springs: 4,
 			damping: 0.42
         }],
 }

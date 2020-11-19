@@ -35,8 +35,8 @@ var golfCart = {
 	carMassX: 5, //mass offset for vehicle
 	carMassY: 9,
 	tilt: 0.14, //tilt resistance -- changing this value may cause issues
-	agility: 0.4, //tilt speed
-	rotateSpeed: 3.5,
+	agility: 0.6, //tilt speed
+	rotateSpeed: 3.2,
 	gas: 170,
 	playerX: 0,
 	playerY: -10,
@@ -49,7 +49,7 @@ var golfCart = {
 	carWheel: [
 		{
 			xPos: -21, //back wheel
-			mass: 0.07,
+			mass: 0.2,
 			size: 7.5,
 			height: 13,
 			active: 1,
@@ -60,7 +60,7 @@ var golfCart = {
         },
 		{
 			xPos: 22, //front wheel
-			mass: 0.07,
+			mass: 0.2,
 			size: 7.5,
 			height: 13,
 			active: 1,

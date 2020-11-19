@@ -1,6 +1,6 @@
 var racecar = {
 	name: "Formula Racecar",
-	carVertices: [47, 0, 54, -5, 48, -10, 35, -15, 15, -15, 10, -10, -10, -10, -10, -20, -30, -15, -40, -15, -50, -20, -50, -10, -45, 0],
+	carVertices: [50, 0, 53, -8, 35, -12.5, 15, -15, 10, -10, -10, -10, -8.5, -18, -30, -15, -40, -15, -53.5, -18, -53, -13, -48, -10, -43, 0],
 	carNumParts: 0,
 	carParts: [
 		{
@@ -30,7 +30,7 @@ var racecar = {
 	carPower: 4,
 	carMaxSpeed: 120, //rad per sec
 	airResist: 150,
-	downforce: 1.1,
+	downforce: 0.8,
 	carMass: 1.8,
 	carMassX: 3, //mass offset for vehicle
 	carMassY: -7,
@@ -58,11 +58,11 @@ var racecar = {
 			xPos: -32.5, //back wheel
 			mass: 0.3,
 			size: 9,
-			height: 0,
+			height: 1,
 			active: 1,
 			grip: 4,
-			springs: 9,
-			damping: 1.2,
+			springs: 8.3,
+			damping: 1.5,
 			bounce: 0.13,
 			susAngle: 0.1
         },
@@ -70,11 +70,11 @@ var racecar = {
 			xPos: 37.5, //front wheel
 			mass: 0.3,
 			size: 9,
-			height: 0,
+			height: 1,
 			active: 0,
 			grip: 4,
-			springs: 9,
-			damping: 1.2,
+			springs: 8.3,
+			damping: 1.5,
 			bounce: 0.13,
 			susAngle: 0.1
         }]

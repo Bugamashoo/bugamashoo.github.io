@@ -30,10 +30,10 @@ var rover = {
 	carPower: 2.8,
 	carMaxSpeed: 45, //rad per sec
 	airResist: 300,
-	downforce: -0.5,
+	downforce: 0,
 	carMass: 1.55,
 	carMassX: 0, //mass offset for vehicle
-	carMassY: -10,
+	carMassY: -5,
 	tilt: 0.68, //tilt resistance -- changing this value may cause issues
 	agility: 2.3, //tilt speed
 	rotateSpeed: 2.5,
@@ -50,24 +50,24 @@ var rover = {
 		{
 			xPos: -30, //back wheel
 			mass: 0.12,
-			size: 10,
+			size: 11,
 			height: 3,
 			active: 1,
 			grip: 2.3,
 			springs: 5.5,
-			damping: 0.3,
+			damping: 0.5,
 			bounce: 0,
 			susAngle: -0.25
         },
 		{
 			xPos: 40, //front wheel
 			mass: 0.12,
-			size: 10,
+			size: 11,
 			height: 3,
 			active: 1,
 			grip: 2.3,
 			springs: 5.5,
-			damping: 0.3,
+			damping: 0.5,
 			bounce: 0,
 			susAngle: 0.25
         }],

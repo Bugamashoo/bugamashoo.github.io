@@ -27,7 +27,7 @@ var chopper = {
 			grip: 0,
 		}
 	],
-	carPower: 2.4,
+	carPower: 2.6,
 	carMaxSpeed: 95, //rad per sec
 	airResist: 50,
 	downforce: 1.1,
@@ -50,7 +50,7 @@ var chopper = {
 		{
 			xPos: -31, //back wheel
 			mass: 0.55,
-			size: 7.6,
+			size: 7.9,
 			height: -2,
 			active: 1,
 			grip: 12,

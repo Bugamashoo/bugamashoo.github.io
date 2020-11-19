@@ -27,7 +27,7 @@ var hotrod = {
 			grip: 0,
 		}
 	],
-	carPower: 2.3,
+	carPower: 2.4,
 	carMaxSpeed: 165, //rad per sec
 	airResist: 1,
 	downforce: 1.25,
@@ -50,7 +50,7 @@ var hotrod = {
 		{
 			xPos: -30, //back wheel
 			mass: 0.7,
-			size: 10,
+			size: 11,
 			height: 0,
 			active: 1,
 			grip: 3.5,
@@ -61,7 +61,7 @@ var hotrod = {
 		{
 			xPos: 30, //front wheel
 			mass: 0.7,
-			size: 10,
+			size: 11,
 			height: 0,
 			active: 0.5,
 			grip: 3.5,

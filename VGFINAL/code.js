@@ -106,11 +106,11 @@ function create() {
 		font: '14pt Arial'
 	});
 
-	score = game.add.text(5, 26, 'Previous high score: N/A', {
+	score = game.add.text(5, 26, 'High score: N/A', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
-	cscore = game.add.text(200, 26, 'Current score: N/A', {
+	cscore = game.add.text(200, 26, 'Score: 0', {
 		fill: '#ffffff',
 		font: '14pt Arial'
 	});
@@ -251,19 +251,15 @@ function refresh() {
 		//wheelBodies[i7].setBodyContactCallback(groundBody, bodyCollide, this);
 		//wheelBodies[i].restitution = cCarWheel[i].bounce - 1;
 	}
-
 	var motorTorque = cCar.carPower;
-
 	// Make wheel joints
 	// bodyA, bodyB, ax, ay, bx, by, axisX, axisY, frequency, damping, motorSpeed, motorTorque, motorEnabled	
 	for (var i4 = 0; i4 < cCar.carNumWheels; i4++) {
 		driveJoints[i4] = game.physics.box2d.wheelJoint(vehicleBody, wheelBodies[i4], cCarWheel[i4].xPos, cCarWheel[i4].height, 0, 0, cCarWheel[i4].susAngle + 0, 1, cCarWheel[i4].springs, cCarWheel[i4].damping, 0, motorTorque * cCarWheel[i4].active, true);
 		driveJoints[i4].motorTorque = (cCar.rotateSpeed);
 	}
-
 	var partBodies = [];
 	// create extra parts
-
 	for (var i2 = 0; i2 < cCar.carNumParts; i2++) {
 		partBodies[i2] = new Phaser.Physics.Box2D.Body(this.game, null, cCarPart[i2].xPos, cCarPart[i2].yPos);
 		partBodies[i2].setPolygon(cCarPart[i2].vertices);
@@ -306,73 +302,15 @@ function refresh() {
 	}
 }
 
-
-
-
 function bodyCollide(cCarWheel, groundBody, fixture1, fixture2, begin, contact) {
 	var rPower = 1000;
 }
 
-
-
-
-
-/** function continuousTerrainGen() {
-
-	if (((((Math.floor((com.x) / 5000)) / 4) - 0.75) % 2) < 1 && ((((Math.floor((com.x) / 5000)) / 4) - 0.75) % 2) >= 0) {
-		if (sectOne == true && sectTwo == false) {
-			groundGen = [];
-			for (var i = 0; i < 1000; i++) {
-				groundGen.push(((i + 1) * 20));
-				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2));
-				gStats.s3 = gStats.s3 + 0.0003;
-				gStats.s2 = gStats.s2 + 0.0003;
-				gStats.s1 = gStats.s1 + 0.0003;
-			}
-			moreGroundOne = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-			moreGroundOne.x = (chunkNum * 19970) + 19970;
-			moreGroundOne.y = yPlaceholder;
-			moreGroundOne.setChain(groundGen);
-			moreGroundOne.autoCull = true;
-			sectOne = false;
-			sectTwo = true;
-			chunkNum = chunkNum + 1;
-			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
-		}
-	} else if (((((Math.floor((com.x) / 5000)) / 4) - 0.75) % 2) < 2 && ((((Math.floor((com.x) / 5000)) / 4) - 0.75) % 2) >= 1) {
-		if (sectOne == false && sectTwo == true) {
-			//moreGroundTwo.setChain([0, 100, 5, 100]);
-			groundGen = [];
-			for (var i = 0; i < 1000; i++) {
-				groundGen.push(((i + 1) * 20));
-				groundGen.push((-1 * Math.abs((((i + 1) * 20) / ((7 * ((i + 1) * 20)) + (((i + 1) * 20) ^ 3))) + (((i + 1) * 20) / 7) + ((52.35 * groundVertices[sSelection].s1) + (0.001 * ((i + 1) * 20))) * Math.sin(((1.417 / 291) * ((i + 1) * 20)) + (0.0206868 * Math.sin(((i + 1) * 20) / 3))) + ((21 * groundVertices[sSelection].s2) * Math.sin((((i + 1) * 20) / 47.74) + (1 / 6.3))) + ((4.57 * groundVertices[sSelection].s3) * Math.sin(((i + 1) * 20) / (9.4 - (9.4 * 2)))) * (-1)) + (randomNum) * 2));
-				gStats.s3 = gStats.s3 + 0.0003;
-				gStats.s2 = gStats.s2 + 0.0003;
-				gStats.s1 = gStats.s1 + 0.0003;
-			}
-			moreGroundTwo = new Phaser.Physics.Box2D.Body(this.game, null, 0, 0, 0);
-			moreGroundTwo.x = (chunkNum * 19970) + 19970;
-			moreGroundTwo.y = yPlaceholder;
-			moreGroundTwo.setChain(groundGen);
-			moreGroundTwo.autoCull = true;
-			sectOne = true;
-			sectTwo = false;
-			chunkNum = chunkNum + 1;
-			yPlaceholder = yPlaceholder + (groundGen[groundGen.length - 1]) + 30;
-		}
-	}
-} **/
-
-
-
 function update() {
-	//if ((vehicleBody.x >= 17500) && (sSelection = 0)) {
-	//continuousTerrainGen();
-	//} else 
-
 
 	if (com.x - 700 > runMax) {
 		runMax = com.x - 700;
+
 	} else if (com.x <= runMax && com.velocity.x < 0) {
 		com.velocity.x = 20;
 		vehicleBody.velocity.x = 20;
@@ -384,41 +322,38 @@ function update() {
 	if (sSelection != 0) {
 		continuousTerrainGen2();
 	}
+
 	if (selection != 16) {
 		thrustP = 110 * cCar.downforce; //regular downforce code
+
 	} else {
 		//racecar downforce code
 		if (vehicleBody.angle > -65 && vehicleBody.angle < 90 && vehicleBody.velocity.x >= 250) {
 			thrustP = Math.abs((vehicleBody.velocity.x * 2));
 		} else {
-			thrustP = 250;
+			thrustP = 150;
 		}
 	}
+
 	var motorSpeed = cCar.carMaxSpeed; // rad/s
 	var turnSpeed = 1 + cCar.agility;
 	var motorEnabled = true;
 	var motorEnabled2 = true;
-
-
 	vehicleBody.reverse(thrustP * 0.5);
 	com.reverse(thrustP * 0.5);
+
 	if ((rightInput() && leftInput()) && selection == 15) {
-
 		//moon rover downforce code
-		vehicleBody.reverse(100 * gStats.grav * 0.95);
-		com.reverse(-565 * gStats.grav * 0.95);
-
+		vehicleBody.reverse(100 * gStats.grav * 1.5);
+		com.reverse(-565 * gStats.grav * 1.5);
 		motorEnabled = false;
 		motorEnabled2 = false;
 
 	} else if ((rightInput() && leftInput()) && selection != 15) {
-
-		//moon rover downforce code
 		motorEnabled = false;
 		motorEnabled2 = false;
-		//console.log(com);
+
 	} else if ((leftInput() && !(rightInput()))) {
-		//motorEnabled2 = true;
 		turnSpeed = Math.abs(turnSpeed);
 		roSpeed = Math.abs(roSpeed);
 		if (vehicleBody.velocity.x <= 20) {
@@ -426,6 +361,7 @@ function update() {
 		} else {
 			motorSpeed = 0;
 		}
+
 	} else if ((rightInput() && !(leftInput()))) {
 		//motorEnabled2 = true;
 		turnSpeed = -1 * Math.abs(turnSpeed);
@@ -442,21 +378,29 @@ function update() {
 		if (cursors.up.justDown) {
 			refresh();
 		}
+	}
 
-	} // roll if no keys pressed
 	if (scorei > 39) {
-		if (vehicleBody.x > score2) {
+		if ((vehicleBody.x > score2) && (selection != 15)) {
 			score2 = vehicleBody.x;
 			vMax = (Math.floor((vehicleBody.x) / 5) * 5);
-			score.text = ('High score: ' + vMax);
+			if (selection != 15) {
+				score.text = ('High score: ' + vMax);
+			}
+
 			scorei = 0;
 		}
-		cscore.text = ('Score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
+		if (selection != 15) {
+			cscore.text = ('Score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
+		} else {
+			cscore.text = ('Score: N/A');
+		}
 	} else {
 		scorei++;
 	}
 	flipr2.SetMotorSpeed(roSpeed);
 	flipr2.EnableMotor(motorEnabled2);
+
 	for (var i3 = 0; i3 < cCar.carNumWheels; i3++) {
 		driveJoints[i3].EnableMotor(motorEnabled);
 		driveJoints[i3].SetMotorSpeed(motorSpeed * cCarWheel[i3].active);
@@ -464,8 +408,5 @@ function update() {
 }
 
 function render() {
-	//if (screen == "game") {
 	game.debug.box2dWorld();
-	//	graphics = game.add.graphics(0, 0);
-	//}
 }

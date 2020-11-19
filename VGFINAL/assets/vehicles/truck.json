@@ -35,8 +35,8 @@ var truck = {
 	carMassX: 2, //mass offset for vehicle
 	carMassY: -11,
 	tilt: 0.1, //tilt resistance -- changing this value may cause issues
-	agility: 1.8, //tilt speed
-	rotateSpeed: 2.2,
+	agility: 1.6, //tilt speed
+	rotateSpeed: 1.8,
 	gas: 160,
 	playerX: 0,
 	playerY: -10,
@@ -51,11 +51,11 @@ var truck = {
 			xPos: -35, //back wheel
 			mass: 0.4,
 			size: 12,
-			height: 8,
+			height: 10,
 			active: 1,
 			grip: 5,
-			springs: 3.5,
-			damping: 0.4
+			springs: 2.8,
+			damping: 1
         },
 		{
 			xPos: 40, //front wheel
@@ -64,7 +64,7 @@ var truck = {
 			height: 10,
 			active: 0,
 			grip: 5,
-			springs: 3.5,
-			damping: 0.4
+			springs: 2.8,
+			damping: 1
         }],
 }

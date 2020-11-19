@@ -55,9 +55,9 @@ var monsterTruck = {
 			active: 1,
 			grip: 3,
 			springs: 7.5,
-			damping: 0.01,
+			damping: 0.2,
 			bounce: 0,
-			susAngle: 0
+			susAngle: -0.08
         },
 		{
 			xPos: 34, //front wheel
@@ -67,8 +67,8 @@ var monsterTruck = {
 			active: 1,
 			grip: 3,
 			springs: 7.5,
-			damping: 0.01,
+			damping: 0.2,
 			bounce: 0,
-			susAngle: 0
+			susAngle: -0.08
         }],
 }

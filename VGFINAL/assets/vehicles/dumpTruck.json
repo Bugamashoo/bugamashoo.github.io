@@ -1,6 +1,6 @@
 var dumpTruck = {
 	name: "Dump Truck",
-	carVertices: [60, 0, 65, -5, 65, -20, 50, -25, 50, -40, 55, -45, 25, -45, 20, -15, -65, -15, -65, -5, -60, 0],
+	carVertices: [58, 0, 65, -7, 65, -20, 50, -25, 50, -40, 55, -45, 25, -45, 20, -15, -65, -15, -65, -9, -51, 0],
 	carNumParts: 1,
 	carParts: [
 		{
@@ -11,7 +11,7 @@ var dumpTruck = {
 			active: false,
 			torque: 0,
 			CorrectionAngle: 0,
-			limCounterclockwise: -55,
+			limCounterclockwise: -72,
 			limClockwise: 0,
 			xPos: -2,
 			yPos: -0.5,
@@ -27,7 +27,7 @@ var dumpTruck = {
 			grip: 0,
 		}
 	],
-	carPower: 6.4,
+	carPower: 6.7,
 	carMaxSpeed: 60, //rad per sec
 	airResist: 0.01,
 	downforce: 1.5,

@@ -51,8 +51,8 @@ var apc = {
 			height: 20,
 			active: 1,
 			grip: 3.5,
-			springs: 3.5,
-			damping: 0.3,
+			springs: 3.2,
+			damping: 0.8,
 			bounce: 0
         },
 		{
@@ -62,8 +62,8 @@ var apc = {
 			height: 20,
 			active: 1,
 			grip: 3.5,
-			springs: 3.5,
-			damping: 0.3,
+			springs: 3.2,
+			damping: 0.8,
 			bounce: 0
         },
 		{
@@ -73,8 +73,8 @@ var apc = {
 			height: 20,
 			active: 1,
 			grip: 3.5,
-			springs: 3.5,
-			damping: 0.3,
+			springs: 3.2,
+			damping: 0.8,
 			bounce: 0
         }]
 }

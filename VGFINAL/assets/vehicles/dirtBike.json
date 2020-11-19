@@ -35,7 +35,7 @@ var dirtBike = {
 	carMass: 0.4,
 	carMassX: 1, //mass offset for vehicle
 	carMassY: 0,
-	tilt: 0.1, //tilt resistance -- changing this value may cause issues
+	tilt: 0.05, //tilt resistance -- changing this value may cause issues
 	agility: 0.22, //tilt speed
 	rotateSpeed: 2.2,
 	gas: 160,
@@ -49,16 +49,16 @@ var dirtBike = {
 	carNumWheels: 2,
 	carWheel: [
 		{
-			xPos: -17, //back wheel
+			xPos: -18.4, //back wheel
 			mass: 0.02,
 			size: 7,
-			height: 7.5,
+			height: 8,
 			active: 1,
 			grip: 10,
-			springs: 5.5,
+			springs: 6.3,
 			damping: 2,
 			bounce: 0,
-			susAngle: -0.1
+			susAngle: -0.2
         },
 		{
 			xPos: 17, //front wheel
