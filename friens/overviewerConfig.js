@@ -23,11 +23,12 @@ var overviewerConfig = {
         "LOWERRIGHT": 2
     },
     "worlds": [
-        "world"
+        "friens - overworld",
+        "friens - DIM-1"
     ],
     "map": {
         "debug": false,
-        "cacheTag": "1606199344",
+        "cacheTag": "1606246812",
         "north_direction": "lower-left",
         "controls": {
             "pan": true,
@@ -41,15 +42,15 @@ var overviewerConfig = {
     },
     "tilesets": [
         {
-            "name": "Overviewer Render (normal)",
+            "name": "Overworld View",
             "zoomLevels": 12,
             "defaultZoom": 1,
             "maxZoom": 12,
-            "path": "world-normal",
+            "path": "friens",
             "base": "",
             "bgcolor": "#1a1a1a",
-            "world": "world",
-            "last_rendertime": 1606197987,
+            "world": "friens - overworld",
+            "last_rendertime": 1606198284,
             "imgextension": "png",
             "isOverlay": false,
             "poititle": "Markers",
@@ -68,15 +69,15 @@ var overviewerConfig = {
             "north_direction": 0
         },
         {
-            "name": "Overviewer Render (lighting)",
-            "zoomLevels": 12,
+            "name": "Nether View",
+            "zoomLevels": 9,
             "defaultZoom": 1,
-            "maxZoom": 12,
-            "path": "world-lighting",
+            "maxZoom": 9,
+            "path": "friensnether",
             "base": "",
             "bgcolor": "#1a1a1a",
-            "world": "world",
-            "last_rendertime": 1606197987,
+            "world": "friens - DIM-1",
+            "last_rendertime": 1606198124,
             "imgextension": "png",
             "isOverlay": false,
             "poititle": "Markers",
@@ -87,65 +88,7 @@ var overviewerConfig = {
                 -96
             ],
             "minZoom": 0,
-            "spawn": [
-                -144,
-                96,
-                -96
-            ],
-            "north_direction": 0
-        },
-        {
-            "name": "Overviewer Render (smooth_lighting)",
-            "zoomLevels": 12,
-            "defaultZoom": 1,
-            "maxZoom": 12,
-            "path": "world-smooth_lighting",
-            "base": "",
-            "bgcolor": "#1a1a1a",
-            "world": "world",
-            "last_rendertime": 1606197987,
-            "imgextension": "png",
-            "isOverlay": false,
-            "poititle": "Markers",
-            "showlocationmarker": true,
-            "center": [
-                -144,
-                96,
-                -96
-            ],
-            "minZoom": 0,
-            "spawn": [
-                -144,
-                96,
-                -96
-            ],
-            "north_direction": 0
-        },
-        {
-            "name": "Overviewer Render (cave)",
-            "zoomLevels": 12,
-            "defaultZoom": 1,
-            "maxZoom": 12,
-            "path": "world-cave",
-            "base": "",
-            "bgcolor": "#1a1a1a",
-            "world": "world",
-            "last_rendertime": 1606197987,
-            "imgextension": "png",
-            "isOverlay": false,
-            "poititle": "Markers",
-            "showlocationmarker": true,
-            "center": [
-                -144,
-                96,
-                -96
-            ],
-            "minZoom": 0,
-            "spawn": [
-                -144,
-                96,
-                -96
-            ],
+            "spawn": false,
             "north_direction": 0
         }
     ]
