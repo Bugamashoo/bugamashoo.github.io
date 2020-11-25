@@ -23,11 +23,12 @@ var overviewerConfig = {
         "LOWERRIGHT": 2
     },
     "worlds": [
+        "friens - overworld",
         "friens - DIM-1"
     ],
     "map": {
         "debug": false,
-        "cacheTag": "1606250662",
+        "cacheTag": "1606261911",
         "north_direction": "lower-left",
         "controls": {
             "pan": true,
@@ -40,6 +41,33 @@ var overviewerConfig = {
         }
     },
     "tilesets": [
+        {
+            "name": "Overworld View",
+            "zoomLevels": 12,
+            "defaultZoom": 1,
+            "maxZoom": 12,
+            "path": "friens",
+            "base": "",
+            "bgcolor": "#1a1a1a",
+            "world": "friens - overworld",
+            "last_rendertime": 1606198284,
+            "imgextension": "png",
+            "isOverlay": false,
+            "poititle": "Markers",
+            "showlocationmarker": true,
+            "center": [
+                -144,
+                96,
+                -96
+            ],
+            "minZoom": 0,
+            "spawn": [
+                -144,
+                96,
+                -96
+            ],
+            "north_direction": 0
+        },
         {
             "name": "Nether View",
             "zoomLevels": 9,
