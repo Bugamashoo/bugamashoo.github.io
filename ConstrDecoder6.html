@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buga's Encoder/Decoder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #dataTextarea {
+            width: 100%;
+            height: 600px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        #buttons {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>".ecar" Encoder/Decoder</h1>
+    <textarea id="dataTextarea" placeholder="Enter or paste your data here..."></textarea>
+    <div id="buttons">
+        <button id="decodeButton">Decode</button>
+        <button id="encodeButton">Encode</button>
+    </div>
+    <!-- Include the pako library from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    
+
+<script>
+    const dataTextarea = document.getElementById('dataTextarea');
+    const decodeButton = document.getElementById('decodeButton');
+    const encodeButton = document.getElementById('encodeButton');
+	
+    // Global variable to store the original sliced bytes
+    let originalPrefixBytes = null;
+
+    /**
+    * Removes all occurrences of the literal "\n" from the input string.
+    * @param {string} str - The original string.
+    * @returns {string} - The modified string without any "\n".
+    */
+    function removeLiteralNewlines(str) {
+        return str.replace(/\\n/g, '');
+    }
+
+    /**
+     * Inserts the literal "\n" every 76 characters in the input string.
+     * @param {string} str - The original string.
+     * @returns {string} - The modified string with "\n" inserted every 76 characters.
+     */
+    function insertLiteralNewlines(str) {
+        const interval = 76;
+        let result = '';
+
+        for (let i = 0; i < str.length; i += interval) {
+            result += str.slice(i, i + interval) + '\\n';
+        }
+
+        return result;
+    }
+
+    // Function to decode base64 string to Uint8Array
+    function base64ToUint8Array(base64) {
+        let binaryString = atob(base64);
+        let len = binaryString.length;
+        let bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
+    }
+
+    // Function to encode Uint8Array to base64 string
+    function uint8ArrayToBase64(uint8Array) {
+        let binaryString = "";
+        for (let i = 0; i < uint8Array.length; i++) {
+            binaryString += String.fromCharCode(uint8Array[i]);
+        }
+        return btoa(binaryString);
+    }
+
+    // Function to convert Uint8Array to UTF-8 string
+    function uint8ArrayToString(uint8Array) {
+        let decoder = new TextDecoder('utf-8');
+        return decoder.decode(uint8Array);
+    }
+
+    // Function to convert UTF-8 string to Uint8Array
+    function stringToUint8Array(string) {
+        let encoder = new TextEncoder();
+        return encoder.encode(string);
+    }
+
+    // Decode button click event
+    decodeButton.addEventListener('click', () => {
+        try {
+            // Get the base64-encoded, compressed string from the textarea
+            let base64Input = dataTextarea.value.trim();
+            base64Input = removeLiteralNewlines(base64Input);
+
+            // Step 1: Decode base64 string to Uint8Array
+            let compressedData = base64ToUint8Array(base64Input);
+
+            // Step 2: Uncompress the data using pako (ZLIB)
+            let uncompressedData = pako.inflate(compressedData);
+            console.log(uncompressedData);
+
+            // Step 3: Store the first two bytes and then slice them off
+            originalPrefixBytes = uncompressedData.slice(0, 2);
+            let dataWithoutFirstTwoBytes = uncompressedData.slice(2);
+
+            // Step 4: Convert the remaining bytes to a UTF-8 string
+            let resultString = uint8ArrayToString(dataWithoutFirstTwoBytes);
+
+            // Step 5: Update the textarea with the decoded string
+            dataTextarea.value = resultString;
+        } catch (error) {
+            console.error("An error occurred during decoding:", error);
+            alert("An error occurred during decoding. Please check the input data.");
+        }
+    });
+
+    // Encode button click event
+    encodeButton.addEventListener('click', () => {
+        try {
+            // Get the original string from the textarea
+            let originalString = dataTextarea.value;
+
+            // Step 1: Use the previously stored prefix bytes if available, otherwise use 'aa'
+            let prefixBytes = (originalPrefixBytes && originalPrefixBytes.length === 2)
+                              ? originalPrefixBytes
+                              : stringToUint8Array('aa');
+
+            // Step 2: Convert the original string to Uint8Array
+            let stringBytes = stringToUint8Array(originalString);
+
+            // Step 3: Concatenate prefix and string bytes
+            let dataToCompress = new Uint8Array(prefixBytes.length + stringBytes.length);
+            dataToCompress.set(prefixBytes);
+            dataToCompress.set(stringBytes, prefixBytes.length);
+
+            // Step 4: Compress the data using pako (ZLIB)
+            let compressedData = pako.deflate(dataToCompress);
+
+            // Step 5: Encode to base64
+            let base64String = uint8ArrayToBase64(compressedData);
+            // Adjusting the base64 string as in the original code
+            base64String = "eNq" + base64String.slice(3);
+
+            // Step 6: Update the textarea with the encoded string
+            dataTextarea.value = base64String;
+        } catch (error) {
+            console.error("An error occurred during encoding:", error);
+            alert("An error occurred during encoding. Please try again.");
+        }
+    });
+</script>
+</body>
+</html>
+
+    </script>
+</body>
+</html>
