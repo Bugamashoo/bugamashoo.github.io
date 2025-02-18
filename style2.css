@@ -15,7 +15,7 @@ form {
 .site {
     font-family: sans-serif;
     font-size: 2em;
-    margin: 0px;
+    margin: 0;
     border-width: medium;
     border-style: solid;
     padding-left: 0.5em;
@@ -23,8 +23,8 @@ form {
 }
 
 .site2 {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
 
 .title {
@@ -44,7 +44,7 @@ form {
 }
 
 p {
-    margin: 0px;
+    margin: 0;
 }
 
 html {
@@ -58,3 +58,16 @@ div {
     margin-bottom: 0.6em;
     padding-top: 0.6em;
 }
+.clickbuttons {
+    margin-bottom: 0;
+}
+.socials {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+a {
+    display: inline-block;
+}
+
