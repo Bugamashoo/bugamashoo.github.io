@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Edit Whitespace</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            #dataTextarea {
+                width: 100%;
+                height: 600px;
+                margin-bottom: 10px;
+                font-size: 12px;
+            }
+            button {
+                padding: 6px 6px;
+                font-size: 16px;
+                margin-right: 2px;
+                margin-bottom: 6px;
+            }
+            html {
+                background-color: rgb(235, 216, 255);
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Buga's Quick Formatter</h1>
+        <div id="buttons">
+            <button onclick="replaceMultipleSpaces()">Remove Duplicate Spaces</button>
+            <button onclick="replaceDuplicateNewLines()">Remove Duplicate Newlines</button>
+            <button onclick="removeNewlinesAndIndents()">Remove All Newlines and Tabs</button>
+            <button onclick="removeAllWhitespace()">Remove All Whitespace</button>
+            <button onclick="removeComments()">Remove Comments</button>
+            <button onclick="makeUppercase()">ALL CAPS</button>
+            <button onclick="makeLowercase()">no caps</button>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="ignoreQuotes" checked />
+                Ignore Text Enclosed With Quotes
+            </label>
+        </div>
+        <textarea id="dataTextarea" rows="10" cols="50" style="margin-top: 10px"></textarea>
+        <div>
+            <button id="undoButton" onclick="undo()">Undo (0)</button>
+        </div>
+        <script>
+            let undoStack = [];
+            function updateUndoButton() {
+                const undoButton = document.getElementById("undoButton");
+                undoButton.textContent = "Undo (" + undoStack.length + ")";
+            }
+            function pushUndo() {
+                const textarea = document.getElementById("dataTextarea");
+                undoStack.push(textarea.value);
+                updateUndoButton();
+            }
+            function undo() {
+                const textarea = document.getElementById("dataTextarea");
+                if (undoStack.length > 0) {
+                    textarea.value = undoStack.pop();
+                    updateUndoButton();
+                }
+            }
+            function processTextPreservingQuotes(text, transform) {
+                let result = "";
+                let segment = "";
+                let inQuote = false;
+                let currentQuote = "";
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (!inQuote && (char === '"' || char === "'")) {
+                        result += transform(segment);
+                        segment = "";
+                        result += char;
+                        inQuote = true;
+                        currentQuote = char;
+                    } else if (inQuote && char === currentQuote && text[i - 1] !== "\\") {
+                        inQuote = false;
+                        result += char;
+                    } else {
+                        if (inQuote) {
+                            result += char;
+                        } else {
+                            segment += char;
+                        }
+                    }
+                }
+                if (!inQuote && segment) {
+                    result += transform(segment);
+                } else if (inQuote) {
+                    result += segment;
+                }
+                return result;
+            }
+            function replaceMultipleSpaces() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, function (segment) {
+                        return segment.replace(/ {2,}/g, " ");
+                    });
+                } else {
+                    textarea.value = textarea.value.replace(/ {2,}/g, " ");
+                }
+            }
+            function replaceDuplicateNewLines() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, function (segment) {
+                        return segment.replace(/\n{2,}/g, "\n");
+                    });
+                } else {
+                    textarea.value = textarea.value.replace(/\n{2,}/g, "\n");
+                }
+            }
+            function removeNewlinesAndIndents() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, function (segment) {
+                        return segment
+                            .split("\n")
+                            .map((line) => line.trimStart())
+                            .join("");
+                    });
+                } else {
+                    textarea.value = textarea.value
+                        .split("\n")
+                        .map((line) => line.trimStart())
+                        .join("");
+                }
+            }
+            function removeAllWhitespace() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, function (segment) {
+                        return segment.replace(/\s+/g, "");
+                    });
+                } else {
+                    textarea.value = textarea.value.replace(/\s+/g, "");
+                }
+            }
+            function removeComments() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                const transformFunc = function (segment) {
+                    const lines = segment.split("\n");
+                    const newLines = [];
+                    for (let line of lines) {
+                        if (line.trimStart().startsWith("//")) {
+                            continue;
+                        }
+                        const index = line.indexOf("//");
+                        if (index !== -1) {
+                            line = line.slice(0, index);
+                        }
+                        newLines.push(line);
+                    }
+                    return newLines.join("\n");
+                };
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, transformFunc);
+                } else {
+                    textarea.value = transformFunc(textarea.value);
+                }
+            }
+            function makeUppercase() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, function (segment) {
+                        return segment.toUpperCase();
+                    });
+                } else {
+                    textarea.value = textarea.value.toUpperCase();
+                }
+            }
+            function makeLowercase() {
+                pushUndo();
+                const textarea = document.getElementById("dataTextarea");
+                if (document.getElementById("ignoreQuotes").checked) {
+                    textarea.value = processTextPreservingQuotes(textarea.value, function (segment) {
+                        return segment.toLowerCase();
+                    });
+                } else {
+                    textarea.value = textarea.value.toLowerCase();
+                }
+            }
+        </script>
+    </body>
+</html>
