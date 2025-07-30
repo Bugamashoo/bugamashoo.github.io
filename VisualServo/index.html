@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Servo Arm Visualizer</title>
+        <link href="./style.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Servo Speed Visualizer</h1>
+            <h3>By @Bugamashoo</h3>
+            <div class="config-panel">
+                <div class="config-row">
+                    <div class="config-group">
+                        <label for="speed">Speed (sec/60°):</label>
+                        <input type="number" id="speed" value="0.35" step="0.1" min="0.1" max="60" />
+                    </div>
+
+                    <div class="config-group">
+                        <label for="sweep">Sweep Angle (°):</label>
+                        <input type="number" id="sweep" value="60" step="1" min="1" max="360" />
+                    </div>
+
+                    <button class="update-btn" onclick="updateConfiguration()">Update Config</button>
+                </div>
+
+                <div class="config-row">
+                    <div class="config-group">
+                        <label>Actual Duration:</label>
+                        <span class="duration-display" id="durationDisplay">0.35 sec</span>
+                    </div>
+
+                    <div class="config-group">
+                        <label>Movement:</label>
+                        <span class="info-display" id="movementDisplay">0° ↔ 60° (continuous)</span>
+                    </div>
+                </div>
+
+                <div class="config-row">
+                    <div class="controls">
+                        <button class="btn-primary" id="startBtn" onclick="startAnimation()">Start Animation</button>
+                        <button class="btn-danger" id="stopBtn" onclick="stopAnimation()" disabled>Stop</button>
+                        <button class="btn-secondary" id="resetBtn" onclick="resetAnimation()">Reset</button>
+                    </div>
+                </div>
+
+                <div class="status" id="status">Ready</div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="servoCanvas" width="800" height="600"></canvas>
+            </div>
+        </div>
+
+        <script>
+            // Global variables
+            let canvas, ctx;
+            let isAnimating = false;
+            let currentAngle = 0;
+            let speedPer60Deg = 2.0;
+            let sweepAngle = 60;
+            let animationId = null;
+
+            // Animation timing
+            let animationStartTime = 0;
+            let cycleCount = 0;
+            let isGoingForward = true;
+
+            // Canvas setup
+            window.addEventListener("load", function () {
+                canvas = document.getElementById("servoCanvas");
+                ctx = canvas.getContext("2d");
+
+                // Set up high DPI canvas
+                setupCanvas();
+
+                // Add Enter key listeners
+                document.getElementById("speed").addEventListener("keypress", function (e) {
+                    if (e.key === "Enter") updateConfiguration();
+                });
+
+                document.getElementById("sweep").addEventListener("keypress", function (e) {
+                    if (e.key === "Enter") updateConfiguration();
+                });
+
+                // Initial setup
+                updateConfiguration();
+                drawServoArm(0);
+            });
+
+            function setupCanvas() {
+                if (!canvas) return; // Safety check
+
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+                canvas.style.width = rect.width + "px";
+                canvas.style.height = rect.height + "px";
+            }
+
+            function getCanvasDimensions() {
+                if (!canvas) return { width: 800, height: 600, centerX: 400, centerY: 300 };
+
+                const dpr = window.devicePixelRatio || 1;
+                return {
+                    width: canvas.width / dpr,
+                    height: canvas.height / dpr,
+                    centerX: canvas.width / (2 * dpr),
+                    centerY: canvas.height / (2 * dpr)
+                };
+            }
+
+            function getOptimalScale() {
+                const dims = getCanvasDimensions();
+                // Calculate scale based on canvas size, ensuring the visualization fits with margin
+                const margin = 60; // Leave margin for text and labels
+                const availableWidth = dims.width - 2 * margin;
+                const availableHeight = dims.height - 2 * margin;
+
+                // The servo arm extends 1.5 units, and we want some extra space for the arc
+                const maxExtent = 2.2; // Maximum extent of our drawing
+
+                const scaleX = availableWidth / (2 * maxExtent);
+                const scaleY = availableHeight / (2 * maxExtent);
+
+                // Use the smaller scale to ensure everything fits
+                return Math.min(scaleX, scaleY, 120); // Cap at 120 for very large canvases
+            }
+
+            function getActualDuration() {
+                return (sweepAngle / 60.0) * speedPer60Deg;
+            }
+
+            function updateConfiguration() {
+                const speedInput = document.getElementById("speed");
+                const sweepInput = document.getElementById("sweep");
+
+                // Validate inputs
+                const newSpeed = parseFloat(speedInput.value);
+                const newSweep = parseFloat(sweepInput.value);
+
+                if (isNaN(newSpeed) || newSpeed <= 0 || newSpeed > 60) {
+                    alert("Speed must be between 0.1 and 60 seconds per 60°");
+                    return;
+                }
+
+                if (isNaN(newSweep) || newSweep <= 0 || newSweep > 360) {
+                    alert("Sweep angle must be between 1° and 360°");
+                    return;
+                }
+
+                speedPer60Deg = newSpeed;
+                sweepAngle = newSweep;
+
+                // Update displays
+                const actualDuration = getActualDuration();
+                document.getElementById("durationDisplay").textContent = `${actualDuration.toFixed(2)} sec`;
+                document.getElementById("movementDisplay").textContent = `0° ↔ ${sweepAngle}° (continuous)`;
+
+                if (isAnimating) {
+                    document.getElementById("status").textContent =
+                        `Updated! Animating ${sweepAngle}° back and forth every ${actualDuration.toFixed(2)} seconds...`;
+                } else {
+                    document.getElementById("status").textContent =
+                        `Configuration updated: ${sweepAngle}° in ${actualDuration.toFixed(2)}s`;
+                }
+
+                // Redraw canvas
+                drawServoArm(currentAngle);
+            }
+
+            function servoEasing(t) {
+                if (t <= 0) return 0;
+                if (t >= 1) return 1;
+
+                // Use the configured speed per 60 degrees to determine easing characteristics
+                let sharpness;
+                if (speedPer60Deg < 0.5) {
+                    sharpness = 10; // Very fast speed setting
+                } else if (speedPer60Deg < 1.0) {
+                    sharpness = 8; // Fast speed setting
+                } else if (speedPer60Deg < 2.0) {
+                    sharpness = 8; // Medium speed setting (enhanced)
+                } else {
+                    sharpness = 5.5; // Slow speed setting (enhanced)
+                }
+
+                // Modified sigmoid with adjustable sharpness
+                const sigmoid = 1 / (1 + Math.exp(-sharpness * (t - 0.5)));
+                const normalizer = 1 / (1 + Math.exp(-sharpness / 2)) - 1 / (1 + Math.exp(sharpness / 2));
+                return (sigmoid - 1 / (1 + Math.exp(sharpness / 2))) / normalizer;
+            }
+
+            function drawServoArm(angle) {
+                if (!canvas || !ctx) return; // Safety check
+
+                const dims = getCanvasDimensions();
+                const scale = getOptimalScale();
+
+                // Clear canvas
+                ctx.clearRect(0, 0, dims.width, dims.height);
+
+                // Set up coordinate system (center of canvas)
+                ctx.save();
+                ctx.translate(dims.centerX, dims.centerY);
+                ctx.scale(scale, -scale); // Flip Y axis for mathematical coordinates
+
+                // Draw servo base (circle)
+                ctx.fillStyle = "#000000";
+                ctx.beginPath();
+                ctx.arc(0, 0, 0.1, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Draw movement range arc
+                const maxAngleRad = (Math.min(sweepAngle, 180) * Math.PI) / 180;
+                ctx.strokeStyle = "rgba(128, 128, 128, 0.5)";
+                ctx.lineWidth = 0.025;
+                ctx.beginPath();
+                ctx.arc(0, 0, 1.2, 0, maxAngleRad);
+                ctx.stroke();
+
+                // Draw angle markers
+                ctx.fillStyle = "#000000";
+                const fontSize = Math.max(0.22, (0.01 * scale) / 4); // Scale font size inversely with scale
+                ctx.font = `${fontSize}px Arial`;
+                ctx.textAlign = "center";
+                ctx.scale(1, -1); // Flip text back
+                ctx.fillText("0°", 1.05, fontSize * 0.4);
+
+                // End angle marker
+                const endAngleRad = (sweepAngle * Math.PI) / 180;
+                const endX = 1.1 * Math.cos(endAngleRad);
+                const endY = 1.1 * Math.sin(endAngleRad);
+
+                if (sweepAngle <= 90) {
+                    ctx.fillText(`${sweepAngle}°`, endX, -endY + fontSize * 0.8);
+                } else {
+                    ctx.textAlign = "right";
+                    ctx.fillText(`${sweepAngle}°`, endX - 0.05, -endY);
+                }
+
+                ctx.scale(1, -1); // Flip back for drawing
+
+                // Draw servo arm
+                const angleRad = (angle * Math.PI) / 180;
+                const armLength = 2;
+                const armEndX = armLength * Math.cos(angleRad);
+                const armEndY = armLength * Math.sin(angleRad);
+
+                ctx.strokeStyle = "#6728a5";
+                ctx.lineWidth = 0.05;
+                ctx.lineCap = "round";
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(armEndX, armEndY);
+                ctx.stroke();
+
+                // Draw arm end marker
+                ctx.fillStyle = "#6728a5";
+                ctx.beginPath();
+                ctx.arc(armEndX, armEndY, 0.08, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Draw legend
+                ctx.restore();
+
+                // Draw title
+                ctx.fillStyle = "#6728a5";
+                const titleFontSize = Math.max(12, 18 * Math.min(dims.width / 800, 1));
+                ctx.font = `bold ${titleFontSize}px Arial`;
+                ctx.textAlign = "center";
+                ctx.fillText(`Servo Arm Movement (0° ↔ ${sweepAngle}° Continuous)`, dims.centerX, 30);
+            }
+
+            function animateFrame(timestamp) {
+                if (!isAnimating) return;
+
+                if (animationStartTime === 0) {
+                    animationStartTime = timestamp;
+                }
+
+                const elapsed = (timestamp - animationStartTime) / 1000; // Convert to seconds
+                const actualDuration = getActualDuration();
+
+                if (elapsed >= actualDuration) {
+                    // One direction complete
+                    cycleCount++;
+                    isGoingForward = cycleCount % 2 === 0;
+                    animationStartTime = timestamp;
+
+                    // Small pause between direction changes
+                    setTimeout(
+                        () => {
+                            if (isAnimating) {
+                                animationId = requestAnimationFrame(animateFrame);
+                            }
+                        },
+                        Math.min(50, actualDuration * 100)
+                    ); // 5% of duration or 50ms max
+                    return;
+                }
+
+                // Calculate current angle
+                const progress = elapsed / actualDuration;
+                const easedProgress = servoEasing(progress);
+
+                const startAngle = isGoingForward ? 0 : sweepAngle;
+                const endAngle = isGoingForward ? sweepAngle : 0;
+                currentAngle = startAngle + (endAngle - startAngle) * easedProgress;
+
+                // Draw the servo arm
+                drawServoArm(currentAngle);
+
+                // Continue animation
+                animationId = requestAnimationFrame(animateFrame);
+            }
+
+            function startAnimation() {
+                updateConfiguration(); // Ensure config is current
+
+                if (isAnimating) {
+                    stopAnimation();
+                }
+
+                isAnimating = true;
+                animationStartTime = 0;
+                cycleCount = 0;
+                isGoingForward = true;
+
+                // Update UI
+                document.getElementById("startBtn").disabled = true;
+                document.getElementById("stopBtn").disabled = false;
+
+                const actualDuration = getActualDuration();
+                document.getElementById("status").textContent =
+                    `Animating ${sweepAngle}° back and forth every ${actualDuration.toFixed(2)} seconds...`;
+
+                // Start animation
+                animationId = requestAnimationFrame(animateFrame);
+            }
+
+            function stopAnimation() {
+                isAnimating = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+
+                // Update UI
+                document.getElementById("startBtn").disabled = false;
+                document.getElementById("stopBtn").disabled = true;
+                document.getElementById("status").textContent = "Animation stopped";
+            }
+
+            function resetAnimation() {
+                stopAnimation();
+                currentAngle = 0;
+                drawServoArm(0);
+                document.getElementById("status").textContent = "Reset to starting position";
+            }
+
+            // Handle window resize
+            window.addEventListener("resize", function () {
+                if (canvas && ctx) {
+                    setupCanvas();
+                    drawServoArm(currentAngle);
+                }
+            });
+        </script>
+    </body>
+</html>
