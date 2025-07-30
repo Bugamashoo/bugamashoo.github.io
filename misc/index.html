@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="60">
+  <title>Auto-Refreshing Page</title>
+</head>
+<body>
+  <h1>This page refreshes every 60 seconds</h1>
+  <p>Last refreshed: <span id="timestamp"></span></p>
+
+  <script>
+    document.getElementById("timestamp").textContent = new Date().toLocaleString();
+  </script>
+</body>
+</html>
