@@ -228,3 +228,26 @@ button:disabled {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(111, 66, 193, 0.4);
 }
+
+select {
+   padding: 8px 12px;
+   border: 2px solid #dee2e6;
+   border-radius: 8px;
+   font-size: 14px;
+   background: white;
+   color: #495057;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   min-width: 140px;
+}
+
+select:focus {
+   outline: none;
+   border-color: #9b59b6;
+   box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.15);
+}
+
+select:hover {
+   border-color: #9b59b6;
+}

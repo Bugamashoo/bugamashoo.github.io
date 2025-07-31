@@ -22,6 +22,15 @@
                         <input type="number" id="sweep" value="60" step="1" min="1" max="360" />
                     </div>
 
+                    <div class="config-group">
+                        <label for="easing">Easing:</label>
+                        <select id="easing">
+                            <option value="off">50% Load Estimate</option>
+                            <option value="linear" selected>Linear</option>
+                            <option value="cubic">Cubic</option>
+                        </select>
+                    </div>
+
                     <button class="update-btn" onclick="updateConfiguration()">Update Config</button>
                 </div>
 
@@ -60,6 +69,7 @@
             let currentAngle = 0;
             let speedPer60Deg = 2.0;
             let sweepAngle = 60;
+            let easingMode = "linear";
             let animationId = null;
 
             // Animation timing
@@ -137,6 +147,7 @@
             function updateConfiguration() {
                 const speedInput = document.getElementById("speed");
                 const sweepInput = document.getElementById("sweep");
+                const easingSelect = document.getElementById("easing");
 
                 // Validate inputs
                 const newSpeed = parseFloat(speedInput.value);
@@ -154,6 +165,7 @@
 
                 speedPer60Deg = newSpeed;
                 sweepAngle = newSweep;
+                easingMode = easingSelect.value;
 
                 // Update displays
                 const actualDuration = getActualDuration();
@@ -170,6 +182,25 @@
 
                 // Redraw canvas
                 drawServoArm(currentAngle);
+            }
+
+            function applyEasing(t) {
+                if (t <= 0) return 0;
+                if (t >= 1) return 1;
+
+                switch (easingMode) {
+                    case "linear":
+                        return t;
+
+                    case "cubic":
+                        // Cubic ease-in-out
+                        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+                    case "off":
+                    default:
+                        // 50% Load Estimate - Original servo easing
+                        return servoEasing(t);
+                }
             }
 
             function servoEasing(t) {
@@ -305,7 +336,7 @@
 
                 // Calculate current angle
                 const progress = elapsed / actualDuration;
-                const easedProgress = servoEasing(progress);
+                const easedProgress = applyEasing(progress);
 
                 const startAngle = isGoingForward ? 0 : sweepAngle;
                 const endAngle = isGoingForward ? sweepAngle : 0;
