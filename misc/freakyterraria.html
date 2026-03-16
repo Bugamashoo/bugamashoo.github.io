@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraria Clone</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            user-select: none;
+        }
+        
+        #gameCanvas { display: block; image-rendering: pixelated; }
+        
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+        
+        #hotbar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            pointer-events: auto;
+        }
+        
+        .hotbar-slot {
+            width: 50px;
+            height: 50px;
+            background: rgba(60, 60, 80, 0.9);
+            border: 3px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .hotbar-slot.selected {
+            border-color: #ffdd00;
+            box-shadow: 0 0 10px #ffdd00;
+        }
+        
+        .slot-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            color: #fff;
+            font-size: 10px;
+            text-shadow: 1px 1px #000;
+        }
+        
+        .slot-key {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            color: #aaa;
+            font-size: 8px;
+        }
+        
+        #healthBar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 2px;
+            flex-wrap: wrap;
+            max-width: 320px;
+            justify-content: flex-end;
+        }
+        
+        .heart {
+            width: 22px;
+            height: 20px;
+            background: #e31837;
+            clip-path: path('M11 4C11 4 9 0 5.5 0C2 0 0 3 0 5.5C0 11 11 18 11 18C11 18 22 11 22 5.5C22 3 20 0 16.5 0C13 0 11 4 11 4Z');
+        }
+        
+        .heart.empty { background: #444; }
+        
+        #manaBar {
+            position: absolute;
+            top: 48px;
+            right: 20px;
+            display: flex;
+            gap: 2px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            max-width: 320px;
+            justify-content: flex-end;
+        }
+        
+        .mana-star {
+            width: 18px;
+            height: 18px;
+            background: #4169e1;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        
+        .mana-star.empty { background: #223; }
+        
+        #dayNightIndicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 12px;
+            text-shadow: 2px 2px #000;
+        }
+        
+        #inventory {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(40, 40, 60, 0.95);
+            border: 3px solid #666;
+            padding: 12px;
+            display: none;
+            pointer-events: auto;
+            z-index: 100;
+            max-height: calc(100vh - 90px);
+            overflow-y: auto;
+        }
+        
+        #inventory.open { display: block; }
+        
+        #inventoryGrid {
+            display: grid;
+            grid-template-columns: repeat(10, 36px);
+            gap: 2px;
+            margin-bottom: 12px;
+        }
+        
+        .inv-slot {
+            width: 36px;
+            height: 36px;
+            background: rgba(80, 80, 100, 0.8);
+            border: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .inv-slot:hover { border-color: #888; }
+        .inv-slot.drag-over { border-color: #ffdd00; background: rgba(100, 100, 120, 0.9); }
+        
+        #craftingSection {
+            border-top: 2px solid #555;
+            padding-top: 10px;
+        }
+        
+        #craftingSection h3 {
+            color: #ffdd00;
+            font-size: 10px;
+            margin-bottom: 8px;
+        }
+        
+        #craftingGrid {
+            display: grid;
+            grid-template-columns: repeat(10, 36px);
+            gap: 2px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .craft-item {
+            width: 36px;
+            height: 36px;
+            background: rgba(60, 80, 60, 0.8);
+            border: 2px solid #484;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .craft-item:hover { border-color: #8f8; background: rgba(80, 120, 80, 0.8); }
+        .craft-item.unavailable { opacity: 0.4; cursor: not-allowed; }
+        
+        #tooltip {
+            position: absolute;
+            background: rgba(20, 20, 40, 0.95);
+            border: 2px solid #888;
+            padding: 8px;
+            color: #fff;
+            font-size: 9px;
+            max-width: 250px;
+            display: none;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        #tooltip .item-name { color: #ffdd00; margin-bottom: 5px; }
+        #tooltip .item-name.magic { color: #9966ff; }
+        #tooltip .item-name.rare { color: #00ff88; }
+        #tooltip .item-desc { color: #aaa; margin-bottom: 5px; }
+        
+        #deathScreen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(100, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            pointer-events: auto;
+            z-index: 200;
+        }
+        
+        #deathScreen.show { display: flex; }
+        
+        #deathScreen h1 {
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px #000;
+        }
+        
+        #deathScreen button {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            padding: 15px 30px;
+            background: #444;
+            color: #fff;
+            border: 3px solid #666;
+            cursor: pointer;
+        }
+        
+        #deathScreen button:hover { background: #555; border-color: #888; }
+        
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #aaa;
+            font-size: 8px;
+            line-height: 1.8;
+        }
+        
+        #inventoryHint {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffdd00;
+            font-size: 14px;
+            text-shadow: 2px 2px #000;
+            pointer-events: none;
+            animation: hintPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes hintPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        #minimap {
+            position: absolute;
+            top: 75px;
+            right: 20px;
+            width: 300px;
+            height: 200px;
+            border: 2px solid #555;
+            background: rgba(0,0,0,0.5);
+            image-rendering: pixelated;
+        }
+        
+        #loadingScreen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 2000;
+        }
+        
+        #loadingScreen h1 {
+            color: #ffdd00;
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px #000;
+        }
+        
+        #loadingBar {
+            width: 400px;
+            height: 30px;
+            background: #333;
+            border: 3px solid #555;
+            overflow: hidden;
+        }
+        
+        #loadingProgress {
+            height: 100%;
+            background: linear-gradient(90deg, #4a7c59, #8fbc8f);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        #loadingText {
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+        
+        #chestUI {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(50, 40, 30, 0.95);
+            border: 3px solid #8B4513;
+            padding: 12px;
+            display: none;
+            pointer-events: auto;
+            z-index: 150;
+        }
+        
+        #chestUI.open { display: block; }
+        #chestUI h3 { color: #DAA520; font-size: 11px; margin-bottom: 10px; text-align: center; }
+        
+        #chestGrid {
+            display: grid;
+            grid-template-columns: repeat(10, 36px);
+            gap: 2px;
+        }
+        
+        .chest-slot {
+            width: 36px;
+            height: 36px;
+            background: rgba(100, 80, 60, 0.8);
+            border: 2px solid #654321;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .chest-slot:hover { border-color: #DAA520; }
+        .chest-slot.drag-over { border-color: #ffdd00; }
+        
+        #draggedItem {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="loadingScreen">
+        <h1>TERRARIA</h1>
+        <div id="loadingBar"><div id="loadingProgress"></div></div>
+        <div id="loadingText">Generating world...</div>
+    </div>
+    
+    <div id="ui">
+        <div id="hotbar"></div>
+        <div id="healthBar"></div>
+        <div id="manaBar"></div>
+        <div id="dayNightIndicator">Day 1 - 6:00 AM</div>
+        <canvas id="minimap"></canvas>
+        
+        <div id="inventory">
+            <div id="inventoryGrid"></div>
+            <div id="craftingSection">
+                <h3>CRAFTING</h3>
+                <div id="craftingGrid"></div>
+            </div>
+        </div>
+        
+        <div id="chestUI">
+            <h3>CHEST</h3>
+            <div id="chestGrid"></div>
+        </div>
+        
+        <div id="tooltip"></div>
+        
+        <div id="deathScreen">
+            <h1>YOU DIED</h1>
+            <button onclick="game.respawn()">Respawn</button>
+        </div>
+        
+        <div id="controls">
+            [WASD] Move &amp; Jump | [Left Click] Attack/Mine | [Right Click] Place/Interact<br>
+            [1-9] Hotbar | [E] Inventory | [Q] Drop | [H] Use Item | [Shift+Click] Quick Move
+        </div>
+        
+        <div id="inventoryHint">Press [E] to open Inventory &amp; Crafting</div>
+    </div>
+    
+    <div id="draggedItem"></div>
+
+<script>
+// Simplex Noise
+class SimplexNoise {
+    constructor(seed = Math.random()) {
+        this.p = new Uint8Array(256);
+        this.perm = new Uint8Array(512);
+        this.permMod12 = new Uint8Array(512);
+        for (let i = 0; i < 256; i++) this.p[i] = i;
+        let n, q;
+        for (let i = 255; i > 0; i--) {
+            seed = (seed * 16807) % 2147483647;
+            n = seed % (i + 1);
+            q = this.p[i]; this.p[i] = this.p[n]; this.p[n] = q;
+        }
+        for (let i = 0; i < 512; i++) {
+            this.perm[i] = this.p[i & 255];
+            this.permMod12[i] = this.perm[i] % 12;
+        }
+        this.grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];
+        this.F2 = 0.5 * (Math.sqrt(3) - 1);
+        this.G2 = (3 - Math.sqrt(3)) / 6;
+    }
+    
+    noise2D(x, y) {
+        const { perm, permMod12, grad3, F2, G2 } = this;
+        let s = (x + y) * F2;
+        let i = Math.floor(x + s), j = Math.floor(y + s);
+        let t = (i + j) * G2;
+        let x0 = x - (i - t), y0 = y - (j - t);
+        let i1 = x0 > y0 ? 1 : 0, j1 = x0 > y0 ? 0 : 1;
+        let x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+        let x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
+        let ii = i & 255, jj = j & 255;
+        let gi0 = permMod12[ii + perm[jj]];
+        let gi1 = permMod12[ii + i1 + perm[jj + j1]];
+        let gi2 = permMod12[ii + 1 + perm[jj + 1]];
+        let n0, n1, n2;
+        let t0 = 0.5 - x0*x0 - y0*y0;
+        n0 = t0 < 0 ? 0 : (t0 *= t0, t0 * t0 * (grad3[gi0][0] * x0 + grad3[gi0][1] * y0));
+        let t1 = 0.5 - x1*x1 - y1*y1;
+        n1 = t1 < 0 ? 0 : (t1 *= t1, t1 * t1 * (grad3[gi1][0] * x1 + grad3[gi1][1] * y1));
+        let t2 = 0.5 - x2*x2 - y2*y2;
+        n2 = t2 < 0 ? 0 : (t2 *= t2, t2 * t2 * (grad3[gi2][0] * x2 + grad3[gi2][1] * y2));
+        return 70 * (n0 + n1 + n2);
+    }
+    
+    octave2D(x, y, octaves, persistence) {
+        let total = 0, frequency = 1, amplitude = 1, maxValue = 0;
+        for (let i = 0; i < octaves; i++) {
+            total += this.noise2D(x * frequency, y * frequency) * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= 2;
+        }
+        return total / maxValue;
+    }
+}
+
+// Block Types
+const BLOCKS = {
+    AIR: 0, DIRT: 1, GRASS: 2, STONE: 3, COPPER_ORE: 4, IRON_ORE: 5, GOLD_ORE: 6, DIAMOND: 7,
+    WOOD: 8, LEAVES: 9, SAND: 10, WATER: 11, TORCH: 12, WORKBENCH: 13, FURNACE: 14, CHEST: 15,
+    WOOD_PLATFORM: 16, COBBLESTONE: 17, BRICK: 18, GLASS: 19, HELLSTONE: 20, OBSIDIAN: 21,
+    MUSHROOM: 22, FLOWER_RED: 23, FLOWER_YELLOW: 24, TALL_GRASS: 25, CLAY: 26, MUD: 27,
+    SNOW: 29, ICE: 30, LAVA: 31, CORRUPT_GRASS: 32, EBONSTONE: 33, DEMONITE_ORE: 34,
+    CRIMSON_GRASS: 35, CRIMSTONE: 36, CRIMTANE_ORE: 37, VILE_MUSHROOM: 38
+};
+
+const BLOCK_DATA = {
+    [BLOCKS.AIR]: { name: 'Air', solid: false, transparent: true, hardness: 0 },
+    [BLOCKS.DIRT]: { name: 'Dirt', solid: true, transparent: false, hardness: 1, color: '#8B4513', drops: BLOCKS.DIRT },
+    [BLOCKS.GRASS]: { name: 'Grass', solid: true, transparent: false, hardness: 1, color: '#5D4037', topColor: '#4CAF50', drops: BLOCKS.DIRT },
+    [BLOCKS.STONE]: { name: 'Stone', solid: true, transparent: false, hardness: 3, color: '#808080', drops: BLOCKS.COBBLESTONE },
+    [BLOCKS.COPPER_ORE]: { name: 'Copper Ore', solid: true, transparent: false, hardness: 4, color: '#CD7F32', drops: BLOCKS.COPPER_ORE },
+    [BLOCKS.IRON_ORE]: { name: 'Iron Ore', solid: true, transparent: false, hardness: 5, color: '#8B7355', drops: BLOCKS.IRON_ORE },
+    [BLOCKS.GOLD_ORE]: { name: 'Gold Ore', solid: true, transparent: false, hardness: 6, color: '#FFD700', drops: BLOCKS.GOLD_ORE },
+    [BLOCKS.DIAMOND]: { name: 'Diamond', solid: true, transparent: false, hardness: 8, color: '#00CED1', drops: BLOCKS.DIAMOND },
+    [BLOCKS.WOOD]: { name: 'Wood', solid: true, transparent: false, hardness: 2, color: '#8B4513', drops: BLOCKS.WOOD },
+    [BLOCKS.LEAVES]: { name: 'Leaves', solid: false, transparent: true, hardness: 0.5, color: '#228B22', drops: null },
+    [BLOCKS.SAND]: { name: 'Sand', solid: true, transparent: false, hardness: 1, color: '#F4A460', drops: BLOCKS.SAND },
+    [BLOCKS.WATER]: { name: 'Water', solid: false, transparent: true, hardness: 0, color: 'rgba(30,144,255,0.6)', liquid: true },
+    [BLOCKS.TORCH]: { name: 'Torch', solid: false, transparent: true, hardness: 0.1, light: 12, drops: BLOCKS.TORCH },
+    [BLOCKS.WORKBENCH]: { name: 'Workbench', solid: true, transparent: false, hardness: 2, color: '#DEB887', drops: BLOCKS.WORKBENCH, station: true },
+    [BLOCKS.FURNACE]: { name: 'Furnace', solid: true, transparent: false, hardness: 3, color: '#696969', drops: BLOCKS.FURNACE, station: true },
+    [BLOCKS.CHEST]: { name: 'Chest', solid: true, transparent: false, hardness: 2, color: '#DAA520', drops: BLOCKS.CHEST },
+    [BLOCKS.WOOD_PLATFORM]: { name: 'Platform', solid: false, transparent: true, hardness: 1, color: '#A0522D', platform: true, drops: BLOCKS.WOOD_PLATFORM },
+    [BLOCKS.COBBLESTONE]: { name: 'Cobblestone', solid: true, transparent: false, hardness: 3, color: '#606060', drops: BLOCKS.COBBLESTONE },
+    [BLOCKS.BRICK]: { name: 'Brick', solid: true, transparent: false, hardness: 4, color: '#B22222', drops: BLOCKS.BRICK },
+    [BLOCKS.GLASS]: { name: 'Glass', solid: true, transparent: true, hardness: 1, color: '#ADD8E6', drops: BLOCKS.GLASS },
+    [BLOCKS.HELLSTONE]: { name: 'Hellstone', solid: true, transparent: false, hardness: 10, color: '#FF4500', drops: BLOCKS.HELLSTONE },
+    [BLOCKS.OBSIDIAN]: { name: 'Obsidian', solid: true, transparent: false, hardness: 15, color: '#1a0a2e', drops: BLOCKS.OBSIDIAN },
+    [BLOCKS.MUSHROOM]: { name: 'Mushroom', solid: false, transparent: true, hardness: 0.1, color: '#FF6B6B', drops: BLOCKS.MUSHROOM },
+    [BLOCKS.FLOWER_RED]: { name: 'Red Flower', solid: false, transparent: true, hardness: 0.1, color: '#FF0000', drops: BLOCKS.FLOWER_RED },
+    [BLOCKS.FLOWER_YELLOW]: { name: 'Yellow Flower', solid: false, transparent: true, hardness: 0.1, color: '#FFFF00', drops: BLOCKS.FLOWER_YELLOW },
+    [BLOCKS.TALL_GRASS]: { name: 'Tall Grass', solid: false, transparent: true, hardness: 0.1, color: '#90EE90', drops: null },
+    [BLOCKS.CLAY]: { name: 'Clay', solid: true, transparent: false, hardness: 2, color: '#B8860B', drops: BLOCKS.CLAY },
+    [BLOCKS.MUD]: { name: 'Mud', solid: true, transparent: false, hardness: 1, color: '#5C4033', drops: BLOCKS.MUD },
+    [BLOCKS.SNOW]: { name: 'Snow', solid: true, transparent: false, hardness: 1, color: '#FFFAFA', drops: BLOCKS.SNOW },
+    [BLOCKS.ICE]: { name: 'Ice', solid: true, transparent: true, hardness: 2, color: '#87CEEB', drops: BLOCKS.ICE },
+    [BLOCKS.LAVA]: { name: 'Lava', solid: false, transparent: true, hardness: 0, color: 'rgba(255,69,0,0.8)', liquid: true, damage: 50, light: 10 },
+    [BLOCKS.CORRUPT_GRASS]: { name: 'Corrupt Grass', solid: true, transparent: false, hardness: 1, color: '#3d2d4d', topColor: '#6b4d8a', drops: BLOCKS.DIRT },
+    [BLOCKS.EBONSTONE]: { name: 'Ebonstone', solid: true, transparent: false, hardness: 6, color: '#2a1a3a', drops: BLOCKS.EBONSTONE },
+    [BLOCKS.DEMONITE_ORE]: { name: 'Demonite Ore', solid: true, transparent: false, hardness: 7, color: '#6633aa', drops: BLOCKS.DEMONITE_ORE },
+    [BLOCKS.CRIMSON_GRASS]: { name: 'Crimson Grass', solid: true, transparent: false, hardness: 1, color: '#4d1a1a', topColor: '#8b0000', drops: BLOCKS.DIRT },
+    [BLOCKS.CRIMSTONE]: { name: 'Crimstone', solid: true, transparent: false, hardness: 6, color: '#5a1a1a', drops: BLOCKS.CRIMSTONE },
+    [BLOCKS.CRIMTANE_ORE]: { name: 'Crimtane Ore', solid: true, transparent: false, hardness: 7, color: '#aa1133', drops: BLOCKS.CRIMTANE_ORE },
+    [BLOCKS.VILE_MUSHROOM]: { name: 'Vile Mushroom', solid: false, transparent: true, hardness: 0.1, color: '#6633aa', drops: BLOCKS.VILE_MUSHROOM }
+};
+
+// Items
+const ITEMS = {
+    // Pickaxes (100-119)
+    WOOD_PICKAXE: 100, STONE_PICKAXE: 101, COPPER_PICKAXE: 102, IRON_PICKAXE: 103,
+    GOLD_PICKAXE: 104, DIAMOND_PICKAXE: 105, NIGHTMARE_PICKAXE: 106, DEATHBRINGER_PICKAXE: 107,
+    MOLTEN_PICKAXE: 108,
+    // Axes (120-129)
+    WOOD_AXE: 120, STONE_AXE: 121, COPPER_AXE: 122, IRON_AXE: 123, GOLD_AXE: 124,
+    // Hammers (130-139)
+    WOOD_HAMMER: 130, COPPER_HAMMER: 131, IRON_HAMMER: 132, GOLD_HAMMER: 133,
+    // Swords (140-169)
+    WOOD_SWORD: 140, CACTUS_SWORD: 141, COPPER_SHORTSWORD: 142, COPPER_BROADSWORD: 143,
+    IRON_SHORTSWORD: 144, IRON_BROADSWORD: 145, GOLD_SHORTSWORD: 146, GOLD_BROADSWORD: 147,
+    DIAMOND_SWORD: 148, LIGHTS_BANE: 149, BLOOD_BUTCHERER: 150, BLADE_OF_GRASS: 151,
+    FIERY_GREATSWORD: 152, NIGHTS_EDGE: 153, MURAMASA: 154, STARFURY: 155,
+    ENCHANTED_SWORD: 156, ARKHALIS: 157, ICE_BLADE: 158,
+    // Spears (170-179)
+    WOOD_SPEAR: 170, COPPER_SPEAR: 171, IRON_SPEAR: 172, GOLD_SPEAR: 173, 
+    DARK_LANCE: 174, TRIDENT: 175, SWORDFISH: 176,
+    // Bows (180-189)
+    WOOD_BOW: 180, COPPER_BOW: 181, IRON_BOW: 182, GOLD_BOW: 183, 
+    DEMON_BOW: 184, MOLTEN_FURY: 185, TENDON_BOW: 186,
+    // Arrows (190-199)
+    WOOD_ARROW: 190, FLAMING_ARROW: 191, JESTER_ARROW: 192, UNHOLY_ARROW: 193, 
+    HELLFIRE_ARROW: 194, FROSTBURN_ARROW: 195,
+    // Magic (200-229)
+    WAND_OF_SPARKING: 200, WATER_BOLT: 201, VILETHORN: 202, MAGIC_MISSILE: 203,
+    FLAMELASH: 204, DEMON_SCYTHE: 205, SPACE_GUN: 206, AQUA_SCEPTER: 207,
+    FLOWER_OF_FIRE: 208, CRIMSON_ROD: 209, THUNDER_ZAPPER: 210, GRAY_ZAPINATOR: 211,
+    // Boomerangs (230-239)
+    WOOD_BOOMERANG: 230, ENCHANTED_BOOMERANG: 231, FLAMARANG: 232, THORN_CHAKRAM: 233, ICE_BOOMERANG: 234,
+    // Yoyos (240-249)
+    WOOD_YOYO: 240, RALLY: 241, MALAISE: 242, ARTERY: 243, AMAZON: 244, CASCADE: 245,
+    // Flails (250-259)
+    CHAIN_KNIFE: 250, BALL_O_HURT: 251, BLUE_MOON: 252, SUNFURY: 253,
+    // Bars & Materials (300-349)
+    COPPER_BAR: 300, IRON_BAR: 301, GOLD_BAR: 302, DEMONITE_BAR: 303, CRIMTANE_BAR: 304,
+    HELLSTONE_BAR: 305, METEORITE_BAR: 306,
+    WOOD_PLANK: 310, STICK: 311, GEL: 312, LENS: 313, FALLEN_STAR: 314,
+    COBWEB: 315, STINGER: 316, VINE: 317, JUNGLE_SPORES: 318, SHADOW_SCALE: 319,
+    TISSUE_SAMPLE: 320, BONE: 321, ROTTEN_CHUNK: 322, VERTEBRAE: 323, FEATHER: 324,
+    SHARK_FIN: 325, HOOK: 326, CHAIN: 327, OBSIDIAN_SKULL: 328, ANTLION_MANDIBLE: 329,
+    // Consumables (400-449)
+    HEALING_POTION: 400, GREATER_HEALING_POTION: 401, MANA_POTION: 402, GREATER_MANA_POTION: 403,
+    HEART_CRYSTAL: 404, MANA_CRYSTAL: 405,
+    IRONSKIN_POTION: 410, SWIFTNESS_POTION: 411, REGENERATION_POTION: 412, SHINE_POTION: 413,
+    NIGHT_OWL_POTION: 414, SPELUNKER_POTION: 415, ARCHERY_POTION: 416, HUNTER_POTION: 417,
+    // Tools & Accessories (450-499)
+    MAGIC_MIRROR: 450, GRAPPLING_HOOK: 451, IVY_WHIP: 452, DUAL_HOOK: 453,
+    HERMES_BOOTS: 460, ROCKET_BOOTS: 461, SPECTRE_BOOTS: 462, LIGHTNING_BOOTS: 463,
+    CLOUD_IN_BOTTLE: 464, SHINY_RED_BALLOON: 465, LUCKY_HORSESHOE: 466, FART_IN_JAR: 467,
+    BAND_OF_REGENERATION: 468, BAND_OF_STARPOWER: 469, MANA_FLOWER: 470,
+    AGLET: 471, ANKLET_OF_WIND: 472, FERAL_CLAWS: 473, TITAN_GLOVE: 474,
+    COBALT_SHIELD: 475, OBSIDIAN_SHIELD: 476, CROSS_NECKLACE: 477, STAR_CLOAK: 478
+};
+
+const ITEM_DATA = {
+    // Pickaxes
+    [ITEMS.WOOD_PICKAXE]: { name: 'Wood Pickaxe', type: 'pickaxe', power: 35, damage: 3, speed: 20, size: 0.7 },
+    [ITEMS.STONE_PICKAXE]: { name: 'Stone Pickaxe', type: 'pickaxe', power: 50, damage: 5, speed: 18, size: 0.75 },
+    [ITEMS.COPPER_PICKAXE]: { name: 'Copper Pickaxe', type: 'pickaxe', power: 55, damage: 6, speed: 16, size: 0.8 },
+    [ITEMS.IRON_PICKAXE]: { name: 'Iron Pickaxe', type: 'pickaxe', power: 65, damage: 7, speed: 14, size: 0.85 },
+    [ITEMS.GOLD_PICKAXE]: { name: 'Gold Pickaxe', type: 'pickaxe', power: 75, damage: 8, speed: 12, size: 0.9 },
+    [ITEMS.DIAMOND_PICKAXE]: { name: 'Diamond Pickaxe', type: 'pickaxe', power: 100, damage: 12, speed: 10, size: 0.95, rarity: 'rare' },
+    [ITEMS.NIGHTMARE_PICKAXE]: { name: 'Nightmare Pickaxe', type: 'pickaxe', power: 120, damage: 15, speed: 9, size: 1.0, rarity: 'rare' },
+    [ITEMS.DEATHBRINGER_PICKAXE]: { name: 'Deathbringer Pickaxe', type: 'pickaxe', power: 125, damage: 16, speed: 9, size: 1.0, rarity: 'rare' },
+    [ITEMS.MOLTEN_PICKAXE]: { name: 'Molten Pickaxe', type: 'pickaxe', power: 150, damage: 18, speed: 8, size: 1.05, rarity: 'rare' },
+    // Axes
+    [ITEMS.WOOD_AXE]: { name: 'Wood Axe', type: 'axe', power: 30, damage: 4, speed: 24, size: 0.7 },
+    [ITEMS.STONE_AXE]: { name: 'Stone Axe', type: 'axe', power: 45, damage: 6, speed: 22, size: 0.75 },
+    [ITEMS.COPPER_AXE]: { name: 'Copper Axe', type: 'axe', power: 55, damage: 7, speed: 20, size: 0.8 },
+    [ITEMS.IRON_AXE]: { name: 'Iron Axe', type: 'axe', power: 65, damage: 9, speed: 18, size: 0.85 },
+    [ITEMS.GOLD_AXE]: { name: 'Gold Axe', type: 'axe', power: 75, damage: 11, speed: 16, size: 0.9 },
+    // Hammers
+    [ITEMS.WOOD_HAMMER]: { name: 'Wood Hammer', type: 'hammer', power: 25, damage: 3, speed: 30, size: 0.8 },
+    [ITEMS.COPPER_HAMMER]: { name: 'Copper Hammer', type: 'hammer', power: 45, damage: 6, speed: 26, size: 0.85 },
+    [ITEMS.IRON_HAMMER]: { name: 'Iron Hammer', type: 'hammer', power: 60, damage: 9, speed: 22, size: 0.9 },
+    [ITEMS.GOLD_HAMMER]: { name: 'Gold Hammer', type: 'hammer', power: 75, damage: 12, speed: 18, size: 0.95 },
+    // Swords
+    [ITEMS.WOOD_SWORD]: { name: 'Wood Sword', type: 'sword', damage: 8, speed: 20, knockback: 4, size: 0.8 },
+    [ITEMS.CACTUS_SWORD]: { name: 'Cactus Sword', type: 'sword', damage: 12, speed: 18, knockback: 4, size: 0.85 },
+    [ITEMS.COPPER_SHORTSWORD]: { name: 'Copper Shortsword', type: 'sword', damage: 9, speed: 12, knockback: 3, size: 0.6 },
+    [ITEMS.COPPER_BROADSWORD]: { name: 'Copper Broadsword', type: 'sword', damage: 14, speed: 18, knockback: 5, size: 0.9 },
+    [ITEMS.IRON_SHORTSWORD]: { name: 'Iron Shortsword', type: 'sword', damage: 12, speed: 11, knockback: 3, size: 0.65 },
+    [ITEMS.IRON_BROADSWORD]: { name: 'Iron Broadsword', type: 'sword', damage: 20, speed: 16, knockback: 5, size: 0.95 },
+    [ITEMS.GOLD_SHORTSWORD]: { name: 'Gold Shortsword', type: 'sword', damage: 15, speed: 10, knockback: 3, size: 0.7 },
+    [ITEMS.GOLD_BROADSWORD]: { name: 'Gold Broadsword', type: 'sword', damage: 26, speed: 14, knockback: 6, size: 1.0 },
+    [ITEMS.DIAMOND_SWORD]: { name: 'Diamond Blade', type: 'sword', damage: 38, speed: 10, knockback: 6, size: 1.1, rarity: 'rare' },
+    [ITEMS.LIGHTS_BANE]: { name: "Light's Bane", type: 'sword', damage: 32, speed: 12, knockback: 5, size: 1.0, rarity: 'rare' },
+    [ITEMS.BLOOD_BUTCHERER]: { name: 'Blood Butcherer', type: 'sword', damage: 35, speed: 11, knockback: 5, size: 1.05, rarity: 'rare' },
+    [ITEMS.BLADE_OF_GRASS]: { name: 'Blade of Grass', type: 'sword', damage: 40, speed: 14, knockback: 4, size: 1.15, rarity: 'rare' },
+    [ITEMS.FIERY_GREATSWORD]: { name: 'Fiery Greatsword', type: 'sword', damage: 52, speed: 16, knockback: 7, size: 1.3, rarity: 'rare' },
+    [ITEMS.NIGHTS_EDGE]: { name: "Night's Edge", type: 'sword', damage: 65, speed: 14, knockback: 7, size: 1.4, rarity: 'legendary' },
+    [ITEMS.MURAMASA]: { name: 'Muramasa', type: 'sword', damage: 30, speed: 8, knockback: 3, size: 1.0, rarity: 'rare' },
+    [ITEMS.STARFURY]: { name: 'Starfury', type: 'sword', damage: 28, speed: 12, knockback: 5, size: 1.0, rarity: 'rare', special: 'starfall' },
+    [ITEMS.ENCHANTED_SWORD]: { name: 'Enchanted Sword', type: 'sword', damage: 24, speed: 14, knockback: 4, size: 1.0, rarity: 'rare', special: 'beam' },
+    [ITEMS.ARKHALIS]: { name: 'Arkhalis', type: 'sword', damage: 20, speed: 4, knockback: 2, size: 0.9, rarity: 'legendary' },
+    [ITEMS.ICE_BLADE]: { name: 'Ice Blade', type: 'sword', damage: 22, speed: 14, knockback: 4, size: 1.0, rarity: 'rare', special: 'frostbolt' },
+    // Spears
+    [ITEMS.WOOD_SPEAR]: { name: 'Wood Spear', type: 'spear', damage: 10, speed: 24, knockback: 5, size: 1.2, range: 60 },
+    [ITEMS.COPPER_SPEAR]: { name: 'Copper Spear', type: 'spear', damage: 14, speed: 22, knockback: 5, size: 1.25, range: 65 },
+    [ITEMS.IRON_SPEAR]: { name: 'Iron Spear', type: 'spear', damage: 19, speed: 20, knockback: 6, size: 1.3, range: 70 },
+    [ITEMS.GOLD_SPEAR]: { name: 'Gold Spear', type: 'spear', damage: 24, speed: 18, knockback: 6, size: 1.35, range: 75 },
+    [ITEMS.DARK_LANCE]: { name: 'Dark Lance', type: 'spear', damage: 38, speed: 14, knockback: 7, size: 1.5, range: 90, rarity: 'rare' },
+    [ITEMS.TRIDENT]: { name: 'Trident', type: 'spear', damage: 32, speed: 16, knockback: 6, size: 1.4, range: 80, rarity: 'rare' },
+    [ITEMS.SWORDFISH]: { name: 'Swordfish', type: 'spear', damage: 26, speed: 18, knockback: 5, size: 1.3, range: 75, rarity: 'rare' },
+    // Bows
+    [ITEMS.WOOD_BOW]: { name: 'Wood Bow', type: 'bow', damage: 6, speed: 22, knockback: 1, size: 0.9 },
+    [ITEMS.COPPER_BOW]: { name: 'Copper Bow', type: 'bow', damage: 9, speed: 20, knockback: 1, size: 0.95 },
+    [ITEMS.IRON_BOW]: { name: 'Iron Bow', type: 'bow', damage: 12, speed: 18, knockback: 2, size: 1.0 },
+    [ITEMS.GOLD_BOW]: { name: 'Gold Bow', type: 'bow', damage: 16, speed: 16, knockback: 2, size: 1.05 },
+    [ITEMS.DEMON_BOW]: { name: 'Demon Bow', type: 'bow', damage: 22, speed: 14, knockback: 2, size: 1.1, rarity: 'rare' },
+    [ITEMS.TENDON_BOW]: { name: 'Tendon Bow', type: 'bow', damage: 24, speed: 14, knockback: 2, size: 1.1, rarity: 'rare' },
+    [ITEMS.MOLTEN_FURY]: { name: 'Molten Fury', type: 'bow', damage: 35, speed: 12, knockback: 3, size: 1.2, rarity: 'rare' },
+    // Arrows
+    [ITEMS.WOOD_ARROW]: { name: 'Wood Arrow', type: 'ammo', damage: 4, stackable: true },
+    [ITEMS.FLAMING_ARROW]: { name: 'Flaming Arrow', type: 'ammo', damage: 7, stackable: true },
+    [ITEMS.JESTER_ARROW]: { name: "Jester's Arrow", type: 'ammo', damage: 10, stackable: true, rarity: 'magic' },
+    [ITEMS.UNHOLY_ARROW]: { name: 'Unholy Arrow', type: 'ammo', damage: 12, stackable: true, rarity: 'rare' },
+    [ITEMS.HELLFIRE_ARROW]: { name: 'Hellfire Arrow', type: 'ammo', damage: 16, stackable: true, rarity: 'rare' },
+    [ITEMS.FROSTBURN_ARROW]: { name: 'Frostburn Arrow', type: 'ammo', damage: 9, stackable: true, rarity: 'rare' },
+    // Magic weapons
+    [ITEMS.WAND_OF_SPARKING]: { name: 'Wand of Sparking', type: 'magic', damage: 9, speed: 14, mana: 2, projectile: 'spark', rarity: 'magic' },
+    [ITEMS.WATER_BOLT]: { name: 'Water Bolt', type: 'magic', damage: 22, speed: 12, mana: 8, projectile: 'water_bolt', rarity: 'magic' },
+    [ITEMS.VILETHORN]: { name: 'Vilethorn', type: 'magic', damage: 14, speed: 18, mana: 10, projectile: 'vilethorn', rarity: 'magic' },
+    [ITEMS.MAGIC_MISSILE]: { name: 'Magic Missile', type: 'magic', damage: 28, speed: 10, mana: 12, projectile: 'magic_missile', rarity: 'magic' },
+    [ITEMS.FLAMELASH]: { name: 'Flamelash', type: 'magic', damage: 35, speed: 8, mana: 16, projectile: 'flamelash', rarity: 'rare' },
+    [ITEMS.DEMON_SCYTHE]: { name: 'Demon Scythe', type: 'magic', damage: 42, speed: 14, mana: 18, projectile: 'demon_scythe', rarity: 'rare' },
+    [ITEMS.SPACE_GUN]: { name: 'Space Gun', type: 'magic', damage: 20, speed: 6, mana: 6, projectile: 'laser', rarity: 'rare' },
+    [ITEMS.AQUA_SCEPTER]: { name: 'Aqua Scepter', type: 'magic', damage: 18, speed: 8, mana: 5, projectile: 'water_stream', rarity: 'magic' },
+    [ITEMS.FLOWER_OF_FIRE]: { name: 'Flower of Fire', type: 'magic', damage: 48, speed: 12, mana: 14, projectile: 'fireball', rarity: 'rare' },
+    [ITEMS.CRIMSON_ROD]: { name: 'Crimson Rod', type: 'magic', damage: 16, speed: 20, mana: 6, projectile: 'blood_rain', rarity: 'magic' },
+    [ITEMS.THUNDER_ZAPPER]: { name: 'Thunder Zapper', type: 'magic', damage: 12, speed: 10, mana: 4, projectile: 'thunder', rarity: 'magic' },
+    [ITEMS.GRAY_ZAPINATOR]: { name: 'Gray Zapinator', type: 'magic', damage: 25, speed: 8, mana: 8, projectile: 'zapinator', rarity: 'rare' },
+    // Boomerangs
+    [ITEMS.WOOD_BOOMERANG]: { name: 'Wood Boomerang', type: 'boomerang', damage: 12, speed: 16, knockback: 6, size: 0.8 },
+    [ITEMS.ENCHANTED_BOOMERANG]: { name: 'Enchanted Boomerang', type: 'boomerang', damage: 22, speed: 12, knockback: 8, size: 0.9, rarity: 'magic' },
+    [ITEMS.FLAMARANG]: { name: 'Flamarang', type: 'boomerang', damage: 38, speed: 10, knockback: 9, size: 1.0, rarity: 'rare' },
+    [ITEMS.THORN_CHAKRAM]: { name: 'Thorn Chakram', type: 'boomerang', damage: 32, speed: 11, knockback: 8, size: 0.95, rarity: 'rare' },
+    [ITEMS.ICE_BOOMERANG]: { name: 'Ice Boomerang', type: 'boomerang', damage: 24, speed: 12, knockback: 7, size: 0.9, rarity: 'rare' },
+    // Yoyos
+    [ITEMS.WOOD_YOYO]: { name: 'Wood Yoyo', type: 'yoyo', damage: 11, speed: 18, knockback: 2, size: 0.6, range: 80 },
+    [ITEMS.RALLY]: { name: 'Rally', type: 'yoyo', damage: 15, speed: 16, knockback: 2, size: 0.65, range: 100, rarity: 'magic' },
+    [ITEMS.MALAISE]: { name: 'Malaise', type: 'yoyo', damage: 22, speed: 14, knockback: 3, size: 0.7, range: 120, rarity: 'rare' },
+    [ITEMS.ARTERY]: { name: 'Artery', type: 'yoyo', damage: 24, speed: 14, knockback: 3, size: 0.7, range: 120, rarity: 'rare' },
+    [ITEMS.AMAZON]: { name: 'Amazon', type: 'yoyo', damage: 28, speed: 12, knockback: 3, size: 0.75, range: 140, rarity: 'rare' },
+    [ITEMS.CASCADE]: { name: 'Cascade', type: 'yoyo', damage: 35, speed: 10, knockback: 4, size: 0.8, range: 160, rarity: 'rare' },
+    // Flails
+    [ITEMS.CHAIN_KNIFE]: { name: 'Chain Knife', type: 'flail', damage: 14, speed: 18, knockback: 4, size: 0.7, range: 60 },
+    [ITEMS.BALL_O_HURT]: { name: "Ball O' Hurt", type: 'flail', damage: 22, speed: 20, knockback: 6, size: 0.9, range: 80, rarity: 'rare' },
+    [ITEMS.BLUE_MOON]: { name: 'Blue Moon', type: 'flail', damage: 28, speed: 18, knockback: 7, size: 1.0, range: 100, rarity: 'rare' },
+    [ITEMS.SUNFURY]: { name: 'Sunfury', type: 'flail', damage: 40, speed: 14, knockback: 8, size: 1.1, range: 120, rarity: 'rare' },
+    // Bars
+    [ITEMS.COPPER_BAR]: { name: 'Copper Bar', type: 'material', stackable: true },
+    [ITEMS.IRON_BAR]: { name: 'Iron Bar', type: 'material', stackable: true },
+    [ITEMS.GOLD_BAR]: { name: 'Gold Bar', type: 'material', stackable: true },
+    [ITEMS.DEMONITE_BAR]: { name: 'Demonite Bar', type: 'material', stackable: true, rarity: 'rare' },
+    [ITEMS.CRIMTANE_BAR]: { name: 'Crimtane Bar', type: 'material', stackable: true, rarity: 'rare' },
+    [ITEMS.HELLSTONE_BAR]: { name: 'Hellstone Bar', type: 'material', stackable: true, rarity: 'rare' },
+    [ITEMS.METEORITE_BAR]: { name: 'Meteorite Bar', type: 'material', stackable: true, rarity: 'rare' },
+    // Materials
+    [ITEMS.WOOD_PLANK]: { name: 'Wood Plank', type: 'material', stackable: true },
+    [ITEMS.STICK]: { name: 'Stick', type: 'material', stackable: true },
+    [ITEMS.GEL]: { name: 'Gel', type: 'material', stackable: true },
+    [ITEMS.LENS]: { name: 'Lens', type: 'material', stackable: true },
+    [ITEMS.FALLEN_STAR]: { name: 'Fallen Star', type: 'material', stackable: true, rarity: 'magic' },
+    [ITEMS.COBWEB]: { name: 'Cobweb', type: 'material', stackable: true },
+    [ITEMS.STINGER]: { name: 'Stinger', type: 'material', stackable: true },
+    [ITEMS.VINE]: { name: 'Vine', type: 'material', stackable: true },
+    [ITEMS.JUNGLE_SPORES]: { name: 'Jungle Spores', type: 'material', stackable: true },
+    [ITEMS.SHADOW_SCALE]: { name: 'Shadow Scale', type: 'material', stackable: true, rarity: 'rare' },
+    [ITEMS.TISSUE_SAMPLE]: { name: 'Tissue Sample', type: 'material', stackable: true, rarity: 'rare' },
+    [ITEMS.BONE]: { name: 'Bone', type: 'material', stackable: true },
+    [ITEMS.ROTTEN_CHUNK]: { name: 'Rotten Chunk', type: 'material', stackable: true },
+    [ITEMS.VERTEBRAE]: { name: 'Vertebrae', type: 'material', stackable: true },
+    [ITEMS.FEATHER]: { name: 'Feather', type: 'material', stackable: true },
+    [ITEMS.SHARK_FIN]: { name: 'Shark Fin', type: 'material', stackable: true },
+    [ITEMS.HOOK]: { name: 'Hook', type: 'material', stackable: true },
+    [ITEMS.CHAIN]: { name: 'Chain', type: 'material', stackable: true },
+    [ITEMS.OBSIDIAN_SKULL]: { name: 'Obsidian Skull', type: 'material', stackable: true },
+    [ITEMS.ANTLION_MANDIBLE]: { name: 'Antlion Mandible', type: 'material', stackable: true },
+    // Consumables
+    [ITEMS.HEALING_POTION]: { name: 'Healing Potion', type: 'consumable', heal: 100, stackable: true },
+    [ITEMS.GREATER_HEALING_POTION]: { name: 'Greater Healing Potion', type: 'consumable', heal: 200, stackable: true, rarity: 'rare' },
+    [ITEMS.MANA_POTION]: { name: 'Mana Potion', type: 'consumable', manaRestore: 100, stackable: true, rarity: 'magic' },
+    [ITEMS.GREATER_MANA_POTION]: { name: 'Greater Mana Potion', type: 'consumable', manaRestore: 200, stackable: true, rarity: 'magic' },
+    [ITEMS.HEART_CRYSTAL]: { name: 'Heart Crystal', type: 'consumable', maxHealth: 20, stackable: true, rarity: 'rare' },
+    [ITEMS.MANA_CRYSTAL]: { name: 'Mana Crystal', type: 'consumable', maxMana: 20, stackable: true, rarity: 'magic' },
+    [ITEMS.IRONSKIN_POTION]: { name: 'Ironskin Potion', type: 'consumable', buff: 'defense', stackable: true },
+    [ITEMS.SWIFTNESS_POTION]: { name: 'Swiftness Potion', type: 'consumable', buff: 'speed', stackable: true },
+    [ITEMS.REGENERATION_POTION]: { name: 'Regeneration Potion', type: 'consumable', buff: 'regen', stackable: true },
+    [ITEMS.SHINE_POTION]: { name: 'Shine Potion', type: 'consumable', buff: 'light', stackable: true },
+    [ITEMS.NIGHT_OWL_POTION]: { name: 'Night Owl Potion', type: 'consumable', buff: 'nightvision', stackable: true },
+    [ITEMS.SPELUNKER_POTION]: { name: 'Spelunker Potion', type: 'consumable', buff: 'spelunker', stackable: true },
+    [ITEMS.ARCHERY_POTION]: { name: 'Archery Potion', type: 'consumable', buff: 'archery', stackable: true },
+    [ITEMS.HUNTER_POTION]: { name: 'Hunter Potion', type: 'consumable', buff: 'hunter', stackable: true },
+    // Tools & Accessories
+    [ITEMS.MAGIC_MIRROR]: { name: 'Magic Mirror', type: 'tool', effect: 'teleport', stackable: false, rarity: 'magic' },
+    [ITEMS.GRAPPLING_HOOK]: { name: 'Grappling Hook', type: 'tool', effect: 'grapple', stackable: false },
+    [ITEMS.IVY_WHIP]: { name: 'Ivy Whip', type: 'tool', effect: 'grapple', stackable: false, rarity: 'rare' },
+    [ITEMS.DUAL_HOOK]: { name: 'Dual Hook', type: 'tool', effect: 'grapple', stackable: false, rarity: 'rare' },
+    [ITEMS.HERMES_BOOTS]: { name: 'Hermes Boots', type: 'accessory', effect: 'speed', stackable: false, rarity: 'rare' },
+    [ITEMS.ROCKET_BOOTS]: { name: 'Rocket Boots', type: 'accessory', effect: 'flight', stackable: false, rarity: 'rare' },
+    [ITEMS.SPECTRE_BOOTS]: { name: 'Spectre Boots', type: 'accessory', effect: 'speedflight', stackable: false, rarity: 'rare' },
+    [ITEMS.LIGHTNING_BOOTS]: { name: 'Lightning Boots', type: 'accessory', effect: 'fastspeedflight', stackable: false, rarity: 'legendary' },
+    [ITEMS.CLOUD_IN_BOTTLE]: { name: 'Cloud in a Bottle', type: 'accessory', effect: 'doublejump', stackable: false, rarity: 'rare' },
+    [ITEMS.SHINY_RED_BALLOON]: { name: 'Shiny Red Balloon', type: 'accessory', effect: 'jumpboost', stackable: false, rarity: 'rare' },
+    [ITEMS.LUCKY_HORSESHOE]: { name: 'Lucky Horseshoe', type: 'accessory', effect: 'nofall', stackable: false, rarity: 'rare' },
+    [ITEMS.FART_IN_JAR]: { name: 'Fart in a Jar', type: 'accessory', effect: 'doublejump', stackable: false, rarity: 'rare' },
+    [ITEMS.BAND_OF_REGENERATION]: { name: 'Band of Regeneration', type: 'accessory', effect: 'regen', stackable: false, rarity: 'rare' },
+    [ITEMS.BAND_OF_STARPOWER]: { name: 'Band of Starpower', type: 'accessory', effect: 'mana', stackable: false, rarity: 'magic' },
+    [ITEMS.MANA_FLOWER]: { name: 'Mana Flower', type: 'accessory', effect: 'automana', stackable: false, rarity: 'rare' },
+    [ITEMS.AGLET]: { name: 'Aglet', type: 'accessory', effect: 'movespeed', stackable: false },
+    [ITEMS.ANKLET_OF_WIND]: { name: 'Anklet of the Wind', type: 'accessory', effect: 'movespeed', stackable: false, rarity: 'rare' },
+    [ITEMS.FERAL_CLAWS]: { name: 'Feral Claws', type: 'accessory', effect: 'attackspeed', stackable: false, rarity: 'rare' },
+    [ITEMS.TITAN_GLOVE]: { name: 'Titan Glove', type: 'accessory', effect: 'knockback', stackable: false, rarity: 'rare' },
+    [ITEMS.COBALT_SHIELD]: { name: 'Cobalt Shield', type: 'accessory', effect: 'noknockback', stackable: false, rarity: 'rare' },
+    [ITEMS.OBSIDIAN_SHIELD]: { name: 'Obsidian Shield', type: 'accessory', effect: 'noknockbackfire', stackable: false, rarity: 'rare' },
+    [ITEMS.CROSS_NECKLACE]: { name: 'Cross Necklace', type: 'accessory', effect: 'invincibility', stackable: false, rarity: 'rare' },
+    [ITEMS.STAR_CLOAK]: { name: 'Star Cloak', type: 'accessory', effect: 'staronhit', stackable: false, rarity: 'rare' }
+};
+
+// Add blocks to items
+for (const [key, val] of Object.entries(BLOCKS)) {
+    if (val !== 0 && !ITEM_DATA[val]) {
+        ITEM_DATA[val] = { name: BLOCK_DATA[val]?.name || key, type: 'block', blockId: val, stackable: true };
+    }
+}
+
+// Recipes
+const RECIPES = [
+    // Basic materials
+    { result: ITEMS.WOOD_PLANK, count: 4, ingredients: [{ id: BLOCKS.WOOD, count: 1 }], station: null },
+    { result: ITEMS.STICK, count: 4, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 2 }], station: null },
+    { result: BLOCKS.TORCH, count: 3, ingredients: [{ id: ITEMS.STICK, count: 1 }, { id: ITEMS.GEL, count: 1 }], station: null },
+    { result: BLOCKS.WOOD_PLATFORM, count: 2, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 1 }], station: null },
+    { result: ITEMS.MANA_CRYSTAL, count: 1, ingredients: [{ id: ITEMS.FALLEN_STAR, count: 5 }], station: null },
+    { result: ITEMS.CHAIN, count: 10, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }], station: null },
+    { result: ITEMS.WOOD_ARROW, count: 5, ingredients: [{ id: ITEMS.STICK, count: 1 }, { id: BLOCKS.STONE, count: 1 }], station: null },
+    
+    // Stations
+    { result: BLOCKS.WORKBENCH, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 10 }], station: null },
+    { result: BLOCKS.FURNACE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 20 }, { id: BLOCKS.TORCH, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: BLOCKS.CHEST, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.IRON_BAR, count: 2 }], station: BLOCKS.WORKBENCH },
+    
+    // Wood tools & weapons
+    { result: ITEMS.WOOD_PICKAXE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_AXE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_SWORD, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 7 }, { id: ITEMS.STICK, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_HAMMER, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_SPEAR, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_BOW, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 5 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_BOOMERANG, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_YOYO, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 5 }, { id: ITEMS.COBWEB, count: 5 }], station: BLOCKS.WORKBENCH },
+    
+    // Stone tools
+    { result: ITEMS.STONE_PICKAXE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.STONE_AXE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    
+    // Smelting - Bars
+    { result: ITEMS.COPPER_BAR, count: 1, ingredients: [{ id: BLOCKS.COPPER_ORE, count: 3 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.IRON_BAR, count: 1, ingredients: [{ id: BLOCKS.IRON_ORE, count: 3 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.GOLD_BAR, count: 1, ingredients: [{ id: BLOCKS.GOLD_ORE, count: 4 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.DEMONITE_BAR, count: 1, ingredients: [{ id: BLOCKS.DEMONITE_ORE, count: 3 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.CRIMTANE_BAR, count: 1, ingredients: [{ id: BLOCKS.CRIMTANE_ORE, count: 3 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.HELLSTONE_BAR, count: 1, ingredients: [{ id: BLOCKS.HELLSTONE, count: 3 }, { id: BLOCKS.OBSIDIAN, count: 1 }], station: BLOCKS.FURNACE },
+    { result: BLOCKS.GLASS, count: 1, ingredients: [{ id: BLOCKS.SAND, count: 2 }], station: BLOCKS.FURNACE },
+    { result: BLOCKS.BRICK, count: 1, ingredients: [{ id: BLOCKS.CLAY, count: 2 }], station: BLOCKS.FURNACE },
+    
+    // Copper equipment
+    { result: ITEMS.COPPER_PICKAXE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_AXE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_HAMMER, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 6 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_SPEAR, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 8 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_BOW, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 7 }], station: BLOCKS.WORKBENCH },
+    
+    // Iron equipment
+    { result: ITEMS.IRON_PICKAXE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_AXE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_HAMMER, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 7 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_SPEAR, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 9 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_BOW, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    
+    // Gold equipment
+    { result: ITEMS.GOLD_PICKAXE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 15 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_AXE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_HAMMER, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_SPEAR, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_BOW, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 9 }], station: BLOCKS.WORKBENCH },
+    
+    // Diamond equipment
+    { result: ITEMS.DIAMOND_PICKAXE, count: 1, ingredients: [{ id: BLOCKS.DIAMOND, count: 15 }, { id: ITEMS.GOLD_BAR, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DIAMOND_SWORD, count: 1, ingredients: [{ id: BLOCKS.DIAMOND, count: 12 }, { id: ITEMS.GOLD_BAR, count: 3 }], station: BLOCKS.WORKBENCH },
+    
+    // Evil biome weapons
+    { result: ITEMS.LIGHTS_BANE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.BLOOD_BUTCHERER, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DEMON_BOW, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.TENDON_BOW, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.NIGHTMARE_PICKAXE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 12 }, { id: ITEMS.SHADOW_SCALE, count: 6 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DEATHBRINGER_PICKAXE, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 12 }, { id: ITEMS.TISSUE_SAMPLE, count: 6 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MALAISE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.ARTERY, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.BALL_O_HURT, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 10 }, { id: ITEMS.SHADOW_SCALE, count: 4 }], station: BLOCKS.WORKBENCH },
+    
+    // Hellstone equipment
+    { result: ITEMS.MOLTEN_PICKAXE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.FIERY_GREATSWORD, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_FURY, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.FLAMARANG, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }, { id: ITEMS.ENCHANTED_BOOMERANG, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SUNFURY, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }, { id: ITEMS.CHAIN, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CASCADE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    
+    // Special weapons
+    { result: ITEMS.NIGHTS_EDGE, count: 1, ingredients: [{ id: ITEMS.LIGHTS_BANE, count: 1 }, { id: ITEMS.MURAMASA, count: 1 }, { id: ITEMS.BLADE_OF_GRASS, count: 1 }, { id: ITEMS.FIERY_GREATSWORD, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.BLADE_OF_GRASS, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 12 }, { id: ITEMS.STINGER, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.THORN_CHAKRAM, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 6 }, { id: ITEMS.STINGER, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.AMAZON, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 8 }, { id: ITEMS.STINGER, count: 6 }, { id: ITEMS.VINE, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IVY_WHIP, count: 1, ingredients: [{ id: ITEMS.VINE, count: 3 }, { id: ITEMS.JUNGLE_SPORES, count: 12 }], station: BLOCKS.WORKBENCH },
+    
+    // Arrows
+    { result: ITEMS.FLAMING_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: BLOCKS.TORCH, count: 1 }], station: null },
+    { result: ITEMS.FROSTBURN_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: BLOCKS.ICE, count: 1 }], station: null },
+    { result: ITEMS.UNHOLY_ARROW, count: 5, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 5 }, { id: ITEMS.ROTTEN_CHUNK, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.JESTER_ARROW, count: 20, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 20 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.HELLFIRE_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: ITEMS.HELLSTONE_BAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    
+    // Magic weapons
+    { result: ITEMS.WAND_OF_SPARKING, count: 1, ingredients: [{ id: ITEMS.STICK, count: 5 }, { id: ITEMS.FALLEN_STAR, count: 3 }, { id: ITEMS.GEL, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.THUNDER_ZAPPER, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 8 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.VILETHORN, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CRIMSON_ROD, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.FLAMELASH, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }, { id: ITEMS.FALLEN_STAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.FLOWER_OF_FIRE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }, { id: ITEMS.FALLEN_STAR, count: 12 }], station: BLOCKS.WORKBENCH },
+    
+    // Tools
+    { result: ITEMS.GRAPPLING_HOOK, count: 1, ingredients: [{ id: ITEMS.HOOK, count: 1 }, { id: ITEMS.CHAIN, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CHAIN_KNIFE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 6 }, { id: ITEMS.CHAIN, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DUAL_HOOK, count: 1, ingredients: [{ id: ITEMS.HOOK, count: 2 }, { id: ITEMS.CHAIN, count: 6 }], station: BLOCKS.WORKBENCH },
+    
+    // Accessories
+    { result: ITEMS.SPECTRE_BOOTS, count: 1, ingredients: [{ id: ITEMS.HERMES_BOOTS, count: 1 }, { id: ITEMS.ROCKET_BOOTS, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.OBSIDIAN_SKULL, count: 1, ingredients: [{ id: BLOCKS.OBSIDIAN, count: 20 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.OBSIDIAN_SHIELD, count: 1, ingredients: [{ id: ITEMS.OBSIDIAN_SKULL, count: 1 }, { id: ITEMS.COBALT_SHIELD, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MANA_FLOWER, count: 1, ingredients: [{ id: ITEMS.MANA_POTION, count: 5 }, { id: ITEMS.BAND_OF_STARPOWER, count: 1 }], station: BLOCKS.WORKBENCH },
+    
+    // Potions
+    { result: ITEMS.HEALING_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.GEL, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GREATER_HEALING_POTION, count: 1, ingredients: [{ id: ITEMS.HEALING_POTION, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MANA_POTION, count: 1, ingredients: [{ id: BLOCKS.VILE_MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GREATER_MANA_POTION, count: 1, ingredients: [{ id: ITEMS.MANA_POTION, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRONSKIN_POTION, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SWIFTNESS_POTION, count: 1, ingredients: [{ id: ITEMS.GEL, count: 3 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.REGENERATION_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.ARCHERY_POTION, count: 1, ingredients: [{ id: ITEMS.LENS, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    
+    // Building blocks
+    { result: BLOCKS.DIRT, count: 1, ingredients: [{ id: BLOCKS.MUD, count: 1 }], station: null },
+    { result: BLOCKS.COBBLESTONE, count: 4, ingredients: [{ id: BLOCKS.STONE, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: BLOCKS.STONE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 4 }], station: BLOCKS.FURNACE }
+];
+
+// Chest loot tables
+const CHEST_LOOT = {
+    surface: [
+        { id: ITEMS.HEALING_POTION, min: 2, max: 5, chance: 0.8 },
+        { id: BLOCKS.TORCH, min: 10, max: 20, chance: 0.7 },
+        { id: ITEMS.MAGIC_MIRROR, min: 1, max: 1, chance: 0.12 },
+        { id: ITEMS.WAND_OF_SPARKING, min: 1, max: 1, chance: 0.2 },
+        { id: ITEMS.CLOUD_IN_BOTTLE, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.HERMES_BOOTS, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.AGLET, min: 1, max: 1, chance: 0.15 },
+        { id: ITEMS.WOOD_BOOMERANG, min: 1, max: 1, chance: 0.2 },
+        { id: ITEMS.FLAMING_ARROW, min: 20, max: 50, chance: 0.3 },
+        { id: ITEMS.RALLY, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.ENCHANTED_SWORD, min: 1, max: 1, chance: 0.03 }
+    ],
+    underground: [
+        { id: ITEMS.HEALING_POTION, min: 3, max: 6, chance: 0.8 },
+        { id: ITEMS.IRON_BAR, min: 5, max: 12, chance: 0.5 },
+        { id: ITEMS.WATER_BOLT, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.MAGIC_MISSILE, min: 1, max: 1, chance: 0.06 },
+        { id: ITEMS.BAND_OF_REGENERATION, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.BAND_OF_STARPOWER, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.ENCHANTED_BOOMERANG, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.MURAMASA, min: 1, max: 1, chance: 0.06 },
+        { id: ITEMS.COBALT_SHIELD, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.FERAL_CLAWS, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.ICE_BLADE, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.ICE_BOOMERANG, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.BLUE_MOON, min: 1, max: 1, chance: 0.06 }
+    ],
+    evil: [
+        { id: ITEMS.VILETHORN, min: 1, max: 1, chance: 0.15 },
+        { id: ITEMS.CRIMSON_ROD, min: 1, max: 1, chance: 0.15 },
+        { id: ITEMS.DEMONITE_BAR, min: 3, max: 8, chance: 0.4 },
+        { id: ITEMS.CRIMTANE_BAR, min: 3, max: 8, chance: 0.4 },
+        { id: ITEMS.SHADOW_SCALE, min: 3, max: 8, chance: 0.3 },
+        { id: ITEMS.TISSUE_SAMPLE, min: 3, max: 8, chance: 0.3 },
+        { id: ITEMS.BALL_O_HURT, min: 1, max: 1, chance: 0.1 }
+    ],
+    hell: [
+        { id: ITEMS.HELLSTONE_BAR, min: 5, max: 15, chance: 0.6 },
+        { id: ITEMS.GREATER_HEALING_POTION, min: 2, max: 5, chance: 0.5 },
+        { id: ITEMS.FLAMELASH, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.FLOWER_OF_FIRE, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.DARK_LANCE, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.SUNFURY, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.HELLFIRE_ARROW, min: 30, max: 75, chance: 0.4 }
+    ],
+    sky: [
+        { id: ITEMS.LUCKY_HORSESHOE, min: 1, max: 1, chance: 0.25 },
+        { id: ITEMS.SHINY_RED_BALLOON, min: 1, max: 1, chance: 0.25 },
+        { id: ITEMS.STARFURY, min: 1, max: 1, chance: 0.12 },
+        { id: ITEMS.FEATHER, min: 5, max: 15, chance: 0.5 },
+        { id: ITEMS.FART_IN_JAR, min: 1, max: 1, chance: 0.1 }
+    ]
+};
+
+// Enemies
+const ENEMIES = {
+    // Surface - Day
+    SLIME: { name: 'Green Slime', width: 32, height: 24, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    BLUE_SLIME: { name: 'Blue Slime', width: 36, height: 28, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PURPLE_SLIME: { name: 'Purple Slime', width: 40, height: 32, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PINKY: { name: 'Pinky', width: 18, height: 14, health: 150, damage: 8, defense: 5, color: '#FFB6C1', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 10, max: 20, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    YELLOW_SLIME: { name: 'Yellow Slime', width: 38, height: 30, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    // Surface - Night
+    ZOMBIE: { name: 'Zombie', width: 28, height: 48, health: 60, damage: 15, defense: 5, color: '#556B2F', ai: 'walker', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 0, max: 2, chance: 0.3 }], spawnDay: false, spawnNight: true, biome: 'any' },
+    BLOOD_ZOMBIE: { name: 'Blood Zombie', width: 30, height: 50, health: 90, damage: 22, defense: 8, color: '#8B0000', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.4 }], spawnDay: false, spawnNight: true, biome: 'any' },
+    BALD_ZOMBIE: { name: 'Bald Zombie', width: 28, height: 48, health: 70, damage: 18, defense: 6, color: '#6B8E23', ai: 'walker', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 1, max: 2, chance: 0.35 }], spawnDay: false, spawnNight: true, biome: 'any' },
+    DEMON_EYE: { name: 'Demon Eye', width: 30, height: 30, health: 80, damage: 20, defense: 3, color: '#FF0000', ai: 'flying', drops: [{ id: ITEMS.LENS, min: 1, max: 1, chance: 0.33 }], spawnDay: false, spawnNight: true, biome: 'any' },
+    WANDERING_EYE: { name: 'Wandering Eye', width: 36, height: 36, health: 120, damage: 28, defense: 6, color: '#DC143C', ai: 'flying', drops: [{ id: ITEMS.LENS, min: 1, max: 2, chance: 0.5 }], spawnDay: false, spawnNight: true, biome: 'any' },
+    CATARACT_EYE: { name: 'Cataract Eye', width: 28, height: 28, health: 60, damage: 16, defense: 2, color: '#E6E6FA', ai: 'flying', drops: [{ id: ITEMS.LENS, min: 1, max: 1, chance: 0.25 }], spawnDay: false, spawnNight: true, biome: 'any' },
+    // Underground
+    SKELETON: { name: 'Skeleton', width: 28, height: 48, health: 70, damage: 20, defense: 8, color: '#F5F5DC', ai: 'walker', drops: [{ id: ITEMS.BONE, min: 1, max: 3, chance: 0.5 }, { id: ITEMS.HOOK, min: 1, max: 1, chance: 0.02 }], spawnDay: true, spawnNight: true, biome: 'underground' },
+    UNDEAD_MINER: { name: 'Undead Miner', width: 28, height: 48, health: 85, damage: 25, defense: 10, color: '#8B8B83', ai: 'walker', drops: [{ id: ITEMS.BONE, min: 2, max: 4, chance: 0.6 }], spawnDay: true, spawnNight: true, biome: 'underground' },
+    TIM: { name: 'Tim', width: 28, height: 48, health: 100, damage: 30, defense: 6, color: '#9370DB', ai: 'caster', drops: [{ id: ITEMS.MAGIC_MISSILE, min: 1, max: 1, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'underground' },
+    GIANT_WORM: { name: 'Giant Worm', width: 24, height: 24, health: 40, damage: 12, defense: 2, color: '#8B4513', ai: 'worm', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
+    CAVE_BAT: { name: 'Cave Bat', width: 24, height: 20, health: 25, damage: 16, defense: 2, color: '#4A4A4A', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
+    GIANT_BAT: { name: 'Giant Bat', width: 36, height: 28, health: 60, damage: 28, defense: 6, color: '#363636', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
+    MOTHER_SLIME: { name: 'Mother Slime', width: 50, height: 40, health: 120, damage: 22, defense: 6, color: '#00AA00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 5, max: 10, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'underground' },
+    CRAWDAD: { name: 'Crawdad', width: 32, height: 20, health: 50, damage: 18, defense: 8, color: '#CD5555', ai: 'walker', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
+    // Corruption
+    EATER: { name: 'Eater of Souls', width: 36, height: 36, health: 65, damage: 25, defense: 6, color: '#6633AA', ai: 'flying', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 1, max: 2, chance: 0.5 }, { id: ITEMS.SHADOW_SCALE, min: 1, max: 1, chance: 0.05 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
+    DEVOURER: { name: 'Devourer', width: 28, height: 28, health: 50, damage: 30, defense: 4, color: '#4B0082', ai: 'worm', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 2, max: 3, chance: 0.6 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
+    CORRUPTOR: { name: 'Corruptor', width: 44, height: 44, health: 150, damage: 40, defense: 10, color: '#551A8B', ai: 'flying', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 2, max: 4, chance: 0.7 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
+    SLIMER: { name: 'Slimer', width: 28, height: 28, health: 75, damage: 32, defense: 5, color: '#7B68EE', ai: 'flying', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 0.8 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
+    // Crimson
+    CRIMERA: { name: 'Crimera', width: 32, height: 32, health: 70, damage: 28, defense: 5, color: '#AA1133', ai: 'flying', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.5 }, { id: ITEMS.TISSUE_SAMPLE, min: 1, max: 1, chance: 0.05 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
+    FACE_MONSTER: { name: 'Face Monster', width: 36, height: 44, health: 100, damage: 35, defense: 8, color: '#CD5C5C', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 2, max: 3, chance: 0.6 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
+    BLOOD_CRAWLER: { name: 'Blood Crawler', width: 40, height: 24, health: 80, damage: 30, defense: 6, color: '#B22222', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
+    BLOOD_FEEDER: { name: 'Blood Feeder', width: 24, height: 24, health: 55, damage: 22, defense: 3, color: '#DC143C', ai: 'flying', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 1, chance: 0.4 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
+    // Hell
+    DEMON: { name: 'Demon', width: 40, height: 48, health: 150, damage: 40, defense: 12, color: '#800000', ai: 'flying', drops: [{ id: ITEMS.DEMON_SCYTHE, min: 1, max: 1, chance: 0.03 }], spawnDay: true, spawnNight: true, biome: 'hell' },
+    FIRE_IMP: { name: 'Fire Imp', width: 32, height: 44, health: 90, damage: 35, defense: 8, color: '#FF4500', ai: 'caster', drops: [], spawnDay: true, spawnNight: true, biome: 'hell' },
+    BONE_SERPENT: { name: 'Bone Serpent', width: 32, height: 32, health: 120, damage: 45, defense: 10, color: '#FFFAF0', ai: 'worm', drops: [{ id: ITEMS.BONE, min: 3, max: 6, chance: 0.8 }], spawnDay: true, spawnNight: true, biome: 'hell' },
+    HELLBAT: { name: 'Hellbat', width: 32, height: 28, health: 70, damage: 40, defense: 8, color: '#FF6347', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'hell' },
+    LAVA_SLIME: { name: 'Lava Slime', width: 36, height: 28, health: 80, damage: 30, defense: 10, color: '#FF8C00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'hell' },
+    // Sky
+    HARPY: { name: 'Harpy', width: 44, height: 36, health: 100, damage: 30, defense: 6, color: '#87CEEB', ai: 'flying', drops: [{ id: ITEMS.FEATHER, min: 1, max: 3, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'sky' },
+    // Desert
+    ANTLION: { name: 'Antlion', width: 36, height: 24, health: 50, damage: 18, defense: 4, color: '#C2B280', ai: 'burrower', drops: [{ id: ITEMS.ANTLION_MANDIBLE, min: 1, max: 1, chance: 0.3 }], spawnDay: true, spawnNight: true, biome: 'desert' },
+    VULTURE: { name: 'Vulture', width: 38, height: 32, health: 55, damage: 22, defense: 4, color: '#696969', ai: 'flying', drops: [], spawnDay: true, spawnNight: false, biome: 'desert' },
+    TOMB_CRAWLER: { name: 'Tomb Crawler', width: 28, height: 28, health: 60, damage: 24, defense: 6, color: '#D2B48C', ai: 'worm', drops: [], spawnDay: true, spawnNight: true, biome: 'desert' },
+    // Snow
+    ICE_SLIME: { name: 'Ice Slime', width: 34, height: 26, health: 35, damage: 12, defense: 3, color: '#ADD8E6', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'snow' },
+    UNDEAD_VIKING: { name: 'Undead Viking', width: 30, height: 50, health: 80, damage: 25, defense: 10, color: '#708090', ai: 'walker', drops: [{ id: ITEMS.BONE, min: 2, max: 4, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'snow' },
+    ICE_BAT: { name: 'Ice Bat', width: 28, height: 24, health: 45, damage: 20, defense: 4, color: '#E0FFFF', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'snow' },
+    SNOW_FLINX: { name: 'Snow Flinx', width: 26, height: 22, health: 55, damage: 18, defense: 5, color: '#FFFAFA', ai: 'walker', drops: [], spawnDay: true, spawnNight: true, biome: 'snow' }
+};
+
+// Main Game Class
+class Game {
+    constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.minimapCanvas = document.getElementById('minimap');
+        this.minimapCtx = this.minimapCanvas.getContext('2d');
+        
+        this.worldWidth = 4800;
+        this.worldHeight = 1600;
+        this.tileSize = 16;
+        this.tilesX = Math.floor(this.worldWidth / this.tileSize);
+        this.tilesY = Math.floor(this.worldHeight / this.tileSize);
+        
+        this.camera = { x: 0, y: 0, zoom: 2 };
+        this.tiles = [];
+        this.backgroundTiles = [];
+        this.lightMap = [];
+        this.biomeMap = [];
+        this.chestData = {};
+        
+        this.gameTime = 6 * 60;
+        this.dayLength = 24 * 60;
+        this.day = 1;
+        
+        this.player = {
+            x: 0, y: 0, vx: 0, vy: 0, width: 24, height: 42,
+            speed: 4, jumpForce: 12, onGround: false, direction: 1,
+            health: 100, maxHealth: 100, mana: 20, maxMana: 20,
+            dead: false, invulnerable: 0, swingAngle: 0, isSwinging: false,
+            swingTimer: 0, swingDuration: 15, swingThrust: 0, hasHitThisSwing: new Set()
+        };
+        
+        this.inventory = new Array(50).fill(null);
+        this.selectedSlot = 0;
+        this.inventoryOpen = false;
+        this.chestOpen = false;
+        this.currentChest = null;
+        this.draggedItem = null;
+        this.dragSource = null;
+        
+        this.enemies = [];
+        this.particles = [];
+        this.droppedItems = [];
+        this.projectiles = [];
+        
+        this.keys = {};
+        this.mouse = { x: 0, y: 0, left: false, right: false, worldX: 0, worldY: 0 };
+        this.shiftHeld = false;
+        
+        this.miningProgress = 0;
+        this.miningTarget = null;
+        this.spawnTimer = 0;
+        this.attackCooldown = 0;
+        this.magicCooldown = 0;
+        this.spawnPoint = { x: 0, y: 0 };
+        
+        this.noise = new SimplexNoise(Date.now());
+        
+        this.init();
+    }
+    
+    async init() {
+        try {
+            this.resizeCanvas();
+            window.addEventListener('resize', () => this.resizeCanvas());
+            this.setupInput();
+            
+            await this.generateWorld();
+            
+            document.getElementById('loadingScreen').style.display = 'none';
+            
+            this.addItem(ITEMS.WOOD_PICKAXE, 1);
+            this.addItem(ITEMS.WOOD_AXE, 1);
+            this.addItem(ITEMS.WOOD_SWORD, 1);
+            this.addItem(BLOCKS.TORCH, 50);
+            this.addItem(ITEMS.WOOD_BOW, 1);
+            this.addItem(ITEMS.WOOD_ARROW, 100);
+            
+            this.updateUI();
+            this.gameLoop();
+        } catch (e) {
+            console.error('Game init error:', e);
+            document.getElementById('loadingText').textContent = 'Error: ' + e.message;
+        }
+    }
+    
+    resizeCanvas() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.minimapCanvas.width = 300;
+        this.minimapCanvas.height = 200;
+    }
+    
+    setupInput() {
+        window.addEventListener('keydown', (e) => {
+            this.keys[e.key.toLowerCase()] = true;
+            if (e.shiftKey) this.shiftHeld = true;
+            
+            if (e.key >= '1' && e.key <= '9') { this.selectedSlot = parseInt(e.key) - 1; this.updateHotbar(); }
+            if (e.key === '0') { this.selectedSlot = 9; this.updateHotbar(); }
+            if (e.key.toLowerCase() === 'e') {
+                const hint = document.getElementById('inventoryHint');
+                if (hint) hint.style.display = 'none';
+                if (this.chestOpen) { this.closeChest(); }
+                else { this.inventoryOpen = !this.inventoryOpen; document.getElementById('inventory').classList.toggle('open', this.inventoryOpen); if (this.inventoryOpen) this.updateInventoryUI(); }
+            }
+            if (e.key === 'Escape') { if (this.chestOpen) this.closeChest(); if (this.inventoryOpen) { this.inventoryOpen = false; document.getElementById('inventory').classList.remove('open'); } }
+            if (e.key.toLowerCase() === 'q') this.dropSelectedItem();
+            if (e.key.toLowerCase() === 'h') this.useSelectedItem();
+        });
+        
+        window.addEventListener('keyup', (e) => { this.keys[e.key.toLowerCase()] = false; if (!e.shiftKey) this.shiftHeld = false; });
+        
+        this.canvas.addEventListener('mousemove', (e) => {
+            this.mouse.x = e.clientX; this.mouse.y = e.clientY;
+            this.updateWorldMouse();
+            if (this.draggedItem) {
+                const dragDiv = document.getElementById('draggedItem');
+                dragDiv.style.left = (e.clientX - 20) + 'px';
+                dragDiv.style.top = (e.clientY - 20) + 'px';
+            }
+        });
+        
+        this.canvas.addEventListener('mousedown', (e) => { if (e.button === 0) this.mouse.left = true; if (e.button === 2) this.mouse.right = true; });
+        this.canvas.addEventListener('mouseup', (e) => { if (e.button === 0) { this.mouse.left = false; this.miningProgress = 0; this.miningTarget = null; } if (e.button === 2) this.mouse.right = false; });
+        this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        this.canvas.addEventListener('wheel', (e) => { this.camera.zoom = Math.max(1, Math.min(4, this.camera.zoom + (e.deltaY > 0 ? -0.1 : 0.1))); });
+        
+        document.addEventListener('mouseup', () => {
+            if (this.draggedItem) {
+                this.spawnDroppedItem(this.player.x + this.player.width / 2, this.player.y, this.draggedItem.id, this.draggedItem.count);
+                this.clearDrag();
+            }
+        });
+    }
+    
+    updateWorldMouse() {
+        this.mouse.worldX = (this.mouse.x - this.canvas.width / 2) / this.camera.zoom + this.camera.x;
+        this.mouse.worldY = (this.mouse.y - this.canvas.height / 2) / this.camera.zoom + this.camera.y;
+    }
+    
+    async generateWorld() {
+        const loadingProgress = document.getElementById('loadingProgress');
+        const loadingText = document.getElementById('loadingText');
+        
+        for (let x = 0; x < this.tilesX; x++) {
+            this.tiles[x] = new Array(this.tilesY).fill(BLOCKS.AIR);
+            this.backgroundTiles[x] = new Array(this.tilesY).fill(BLOCKS.AIR);
+            this.lightMap[x] = new Array(this.tilesY).fill(0);
+            this.biomeMap[x] = new Array(this.tilesY).fill('forest');
+        }
+        
+        const surfaceY = Math.floor(this.tilesY * 0.3);
+        const undergroundY = Math.floor(this.tilesY * 0.45);
+        const cavernY = Math.floor(this.tilesY * 0.65);
+        const hellY = Math.floor(this.tilesY * 0.88);
+        
+        const evilType = Math.random() < 0.5 ? 'corruption' : 'crimson';
+        const evilCenter = Math.floor(this.tilesX * (0.25 + Math.random() * 0.5));
+        const evilWidth = Math.floor(this.tilesX * 0.08);
+        
+        loadingText.textContent = 'Generating terrain...';
+        
+        for (let x = 0; x < this.tilesX; x++) {
+            const surfaceNoise = this.noise.octave2D(x * 0.015, 0, 4, 0.5);
+            const surfaceHeight = Math.floor(surfaceY + surfaceNoise * 20);
+            
+            const biomeNoise = this.noise.octave2D(x * 0.004, 100, 2, 0.5);
+            let biome = 'forest';
+            if (biomeNoise < -0.35) biome = 'desert';
+            else if (biomeNoise > 0.35) biome = 'snow';
+            if (Math.abs(x - evilCenter) < evilWidth) biome = evilType;
+            
+            for (let y = 0; y < this.tilesY; y++) {
+                this.biomeMap[x][y] = y >= hellY ? 'hell' : (y >= undergroundY ? 'underground' : biome);
+                
+                if (y < surfaceHeight - 5) {
+                    this.tiles[x][y] = BLOCKS.AIR;
+                } else if (y === surfaceHeight) {
+                    if (biome === 'desert') this.tiles[x][y] = BLOCKS.SAND;
+                    else if (biome === 'snow') this.tiles[x][y] = BLOCKS.SNOW;
+                    else if (biome === 'corruption') this.tiles[x][y] = BLOCKS.CORRUPT_GRASS;
+                    else if (biome === 'crimson') this.tiles[x][y] = BLOCKS.CRIMSON_GRASS;
+                    else this.tiles[x][y] = BLOCKS.GRASS;
+                } else if (y < surfaceHeight + 6) {
+                    if (biome === 'desert') this.tiles[x][y] = BLOCKS.SAND;
+                    else if (biome === 'snow') this.tiles[x][y] = BLOCKS.SNOW;
+                    else if (biome === 'corruption') this.tiles[x][y] = BLOCKS.EBONSTONE;
+                    else if (biome === 'crimson') this.tiles[x][y] = BLOCKS.CRIMSTONE;
+                    else this.tiles[x][y] = BLOCKS.DIRT;
+                } else if (y < undergroundY) {
+                    this.tiles[x][y] = BLOCKS.DIRT;
+                    this.backgroundTiles[x][y] = BLOCKS.DIRT;
+                } else if (y < hellY) {
+                    if (biome === 'corruption') this.tiles[x][y] = BLOCKS.EBONSTONE;
+                    else if (biome === 'crimson') this.tiles[x][y] = BLOCKS.CRIMSTONE;
+                    else this.tiles[x][y] = BLOCKS.STONE;
+                    this.backgroundTiles[x][y] = BLOCKS.STONE;
+                } else {
+                    this.tiles[x][y] = y === this.tilesY - 1 ? BLOCKS.OBSIDIAN : BLOCKS.HELLSTONE;
+                    this.backgroundTiles[x][y] = BLOCKS.HELLSTONE;
+                }
+            }
+            
+            if (x % 20 === 0) { loadingProgress.style.width = (x / this.tilesX * 30) + '%'; await new Promise(r => setTimeout(r, 0)); }
+        }
+        
+        loadingText.textContent = 'Carving caves...';
+        
+        for (let x = 0; x < this.tilesX; x++) {
+            for (let y = surfaceY; y < this.tilesY - 5; y++) {
+                const caveNoise = this.noise.octave2D(x * 0.04, y * 0.04, 4, 0.5);
+                if (caveNoise > 0.3 + (y - surfaceY) / (this.tilesY - surfaceY) * 0.1) {
+                    this.tiles[x][y] = BLOCKS.AIR;
+                }
+            }
+        }
+        
+        loadingText.textContent = 'Placing ores...';
+        loadingProgress.style.width = '50%';
+        
+        const ores = [
+            { block: BLOCKS.COPPER_ORE, minY: surfaceY, maxY: undergroundY + 20, freq: 0.07, thresh: 0.72 },
+            { block: BLOCKS.IRON_ORE, minY: undergroundY, maxY: cavernY + 10, freq: 0.055, thresh: 0.76 },
+            { block: BLOCKS.GOLD_ORE, minY: cavernY, maxY: hellY, freq: 0.04, thresh: 0.8 },
+            { block: BLOCKS.DIAMOND, minY: hellY - 20, maxY: this.tilesY - 5, freq: 0.02, thresh: 0.86 }
+        ];
+        
+        for (const ore of ores) {
+            for (let x = 0; x < this.tilesX; x++) {
+                for (let y = ore.minY; y < ore.maxY; y++) {
+                    if (this.tiles[x][y] === BLOCKS.STONE || this.tiles[x][y] === BLOCKS.DIRT) {
+                        if (this.noise.octave2D(x * ore.freq + ore.block * 100, y * ore.freq, 2, 0.5) > ore.thresh) {
+                            this.tiles[x][y] = ore.block;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Evil ores
+        for (let x = evilCenter - evilWidth; x < evilCenter + evilWidth; x++) {
+            if (x < 0 || x >= this.tilesX) continue;
+            for (let y = undergroundY; y < hellY; y++) {
+                const ore = evilType === 'corruption' ? BLOCKS.DEMONITE_ORE : BLOCKS.CRIMTANE_ORE;
+                if (this.tiles[x][y] === BLOCKS.EBONSTONE || this.tiles[x][y] === BLOCKS.CRIMSTONE) {
+                    if (this.noise.octave2D(x * 0.08 + 500, y * 0.08, 2, 0.5) > 0.78) {
+                        this.tiles[x][y] = ore;
+                    }
+                }
+            }
+        }
+        
+        loadingText.textContent = 'Growing trees...';
+        loadingProgress.style.width = '60%';
+        
+        for (let x = 5; x < this.tilesX - 5; x++) {
+            const surfaceNoise = this.noise.octave2D(x * 0.015, 0, 4, 0.5);
+            const surfaceHeight = Math.floor(surfaceY + surfaceNoise * 20);
+            if (this.tiles[x][surfaceHeight] === BLOCKS.GRASS && Math.random() < 0.08) {
+                this.generateTree(x, surfaceHeight - 1);
+                x += 4;
+            }
+        }
+        
+        loadingText.textContent = 'Adding details...';
+        loadingProgress.style.width = '70%';
+        
+        for (let x = 0; x < this.tilesX; x++) {
+            const surfaceNoise = this.noise.octave2D(x * 0.015, 0, 4, 0.5);
+            const surfaceHeight = Math.floor(surfaceY + surfaceNoise * 20);
+            if (this.tiles[x][surfaceHeight - 1] === BLOCKS.AIR && this.tiles[x][surfaceHeight] === BLOCKS.GRASS) {
+                const r = Math.random();
+                if (r < 0.03) this.tiles[x][surfaceHeight - 1] = BLOCKS.FLOWER_RED;
+                else if (r < 0.06) this.tiles[x][surfaceHeight - 1] = BLOCKS.FLOWER_YELLOW;
+                else if (r < 0.2) this.tiles[x][surfaceHeight - 1] = BLOCKS.TALL_GRASS;
+            }
+            if (this.tiles[x][surfaceHeight - 1] === BLOCKS.AIR && (this.tiles[x][surfaceHeight] === BLOCKS.CORRUPT_GRASS || this.tiles[x][surfaceHeight] === BLOCKS.CRIMSON_GRASS)) {
+                if (Math.random() < 0.1) this.tiles[x][surfaceHeight - 1] = BLOCKS.VILE_MUSHROOM;
+            }
+        }
+        
+        for (let x = 0; x < this.tilesX; x++) {
+            for (let y = undergroundY; y < cavernY; y++) {
+                if (this.tiles[x][y] === BLOCKS.AIR && y + 1 < this.tilesY && BLOCK_DATA[this.tiles[x][y + 1]]?.solid) {
+                    if (Math.random() < 0.01) this.tiles[x][y] = BLOCKS.MUSHROOM;
+                }
+            }
+        }
+        
+        loadingText.textContent = 'Placing chests...';
+        loadingProgress.style.width = '75%';
+        
+        for (let i = 0; i < 20; i++) {
+            const x = Math.floor(Math.random() * this.tilesX);
+            const yRange = i < 7 ? [surfaceY - 10, surfaceY + 30] : [undergroundY, cavernY];
+            const y = yRange[0] + Math.floor(Math.random() * (yRange[1] - yRange[0]));
+            if (this.canPlaceChest(x, y)) this.placeChest(x, y, i < 7 ? 'surface' : 'underground');
+        }
+        
+        for (let i = 0; i < 5; i++) {
+            const x = evilCenter - evilWidth + Math.floor(Math.random() * evilWidth * 2);
+            const y = undergroundY + Math.floor(Math.random() * (cavernY - undergroundY));
+            if (x >= 0 && x < this.tilesX && this.canPlaceChest(x, y)) this.placeChest(x, y, 'evil');
+        }
+        
+        loadingText.textContent = 'Filling liquids...';
+        loadingProgress.style.width = '85%';
+        
+        for (let i = 0; i < 30; i++) {
+            const wx = Math.floor(Math.random() * (this.tilesX - 20)) + 10;
+            const wy = Math.floor(Math.random() * (cavernY - undergroundY)) + undergroundY;
+            if (this.tiles[wx][wy] === BLOCKS.AIR) this.fillLiquid(wx, wy, BLOCKS.WATER, 100);
+        }
+        
+        for (let i = 0; i < 20; i++) {
+            const lx = Math.floor(Math.random() * (this.tilesX - 10)) + 5;
+            const ly = Math.floor(Math.random() * (this.tilesY - hellY - 5)) + hellY;
+            if (this.tiles[lx][ly] === BLOCKS.AIR) this.fillLiquid(lx, ly, BLOCKS.LAVA, 60);
+        }
+        
+        loadingText.textContent = 'Spawning player...';
+        loadingProgress.style.width = '95%';
+        
+        let spawnX = Math.floor(this.tilesX / 2);
+        while (this.biomeMap[spawnX][surfaceY] === 'corruption' || this.biomeMap[spawnX][surfaceY] === 'crimson') {
+            spawnX += 10;
+            if (spawnX >= this.tilesX - 50) spawnX = 50;
+        }
+        
+        let spawnY = 0;
+        for (let y = 0; y < this.tilesY; y++) {
+            if (this.tiles[spawnX][y] !== BLOCKS.AIR && BLOCK_DATA[this.tiles[spawnX][y]]?.solid) { spawnY = y - 3; break; }
+        }
+        
+        this.player.x = spawnX * this.tileSize;
+        this.player.y = spawnY * this.tileSize;
+        this.spawnPoint = { x: this.player.x, y: this.player.y };
+        
+        this.calculateLighting();
+        this.updateMinimap();
+        
+        loadingProgress.style.width = '100%';
+        loadingText.textContent = 'Done!';
+    }
+    
+    generateTree(x, y) {
+        const height = 6 + Math.floor(Math.random() * 6);
+        for (let i = 0; i < height; i++) { if (y - i >= 0) this.tiles[x][y - i] = BLOCKS.WOOD; }
+        const leafStart = y - height;
+        const leafRadius = 2 + Math.floor(Math.random() * 2);
+        for (let lx = -leafRadius; lx <= leafRadius; lx++) {
+            for (let ly = -leafRadius; ly <= 1; ly++) {
+                const tx = x + lx, ty = leafStart + ly;
+                if (tx >= 0 && tx < this.tilesX && ty >= 0 && ty < this.tilesY && this.tiles[tx][ty] === BLOCKS.AIR) {
+                    if (Math.sqrt(lx * lx + ly * ly) <= leafRadius + 0.5) this.tiles[tx][ty] = BLOCKS.LEAVES;
+                }
+            }
+        }
+    }
+    
+    canPlaceChest(x, y) {
+        return x >= 0 && x < this.tilesX - 1 && y >= 0 && y < this.tilesY - 1 &&
+               this.tiles[x][y] === BLOCKS.AIR && BLOCK_DATA[this.tiles[x][y + 1]]?.solid;
+    }
+    
+    placeChest(x, y, lootType) {
+        this.tiles[x][y] = BLOCKS.CHEST;
+        const key = `${x},${y}`;
+        this.chestData[key] = new Array(20).fill(null);
+        const lootTable = CHEST_LOOT[lootType] || CHEST_LOOT.surface;
+        let slot = 0;
+        for (const loot of lootTable) {
+            if (Math.random() < loot.chance && slot < 20) {
+                this.chestData[key][slot++] = { id: loot.id, count: loot.min + Math.floor(Math.random() * (loot.max - loot.min + 1)) };
+            }
+        }
+    }
+    
+    fillLiquid(startX, startY, liquidType, maxBlocks) {
+        const queue = [[startX, startY]];
+        const visited = new Set();
+        let count = 0;
+        while (queue.length > 0 && count < maxBlocks) {
+            const [x, y] = queue.shift();
+            const key = `${x},${y}`;
+            if (visited.has(key) || x < 0 || x >= this.tilesX || y < 0 || y >= this.tilesY || this.tiles[x][y] !== BLOCKS.AIR) continue;
+            visited.add(key);
+            this.tiles[x][y] = liquidType;
+            count++;
+            queue.push([x - 1, y], [x + 1, y], [x, y + 1]);
+        }
+    }
+    
+    calculateLighting() {
+        for (let x = 0; x < this.tilesX; x++) {
+            for (let y = 0; y < this.tilesY; y++) this.lightMap[x][y] = 0;
+        }
+        for (let x = 0; x < this.tilesX; x++) {
+            let light = 15;
+            for (let y = 0; y < this.tilesY; y++) {
+                if (this.tiles[x][y] !== BLOCKS.AIR && !BLOCK_DATA[this.tiles[x][y]]?.transparent) light = Math.max(0, light - 2);
+                this.lightMap[x][y] = Math.max(this.lightMap[x][y], light);
+            }
+        }
+        for (let x = 0; x < this.tilesX; x++) {
+            for (let y = 0; y < this.tilesY; y++) {
+                const block = this.tiles[x][y];
+                if (BLOCK_DATA[block]?.light) this.propagateLight(x, y, BLOCK_DATA[block].light);
+            }
+        }
+    }
+    
+    propagateLight(sx, sy, intensity) {
+        for (let dx = -intensity; dx <= intensity; dx++) {
+            for (let dy = -intensity; dy <= intensity; dy++) {
+                const x = sx + dx, y = sy + dy;
+                if (x >= 0 && x < this.tilesX && y >= 0 && y < this.tilesY) {
+                    this.lightMap[x][y] = Math.max(this.lightMap[x][y], Math.max(0, intensity - Math.sqrt(dx * dx + dy * dy)));
+                }
+            }
+        }
+    }
+    
+    updateMinimap() {
+        const ctx = this.minimapCtx;
+        const scaleX = this.minimapCanvas.width / this.tilesX;
+        const scaleY = this.minimapCanvas.height / this.tilesY;
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
+        for (let x = 0; x < this.tilesX; x += 4) {
+            for (let y = 0; y < this.tilesY; y += 4) {
+                const block = this.tiles[x][y];
+                if (block !== BLOCKS.AIR) {
+                    ctx.fillStyle = BLOCK_DATA[block]?.color || '#808080';
+                    ctx.fillRect(x * scaleX, y * scaleY, scaleX * 4, scaleY * 4);
+                }
+            }
+        }
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect((this.player.x / this.tileSize) * scaleX - 3, (this.player.y / this.tileSize) * scaleY - 3, 6, 6);
+    }
+    
+    gameLoop() {
+        this.update();
+        this.render();
+        requestAnimationFrame(() => this.gameLoop());
+    }
+    
+    update() {
+        if (this.player.dead) return;
+        
+        this.gameTime += 1 / 60;
+        if (this.gameTime >= this.dayLength) { this.gameTime = 0; this.day++; }
+        
+        const hour = this.gameTime / 60;
+        if ((hour >= 19 || hour < 5) && Math.random() < 0.001) {
+            this.spawnDroppedItem(this.player.x + (Math.random() - 0.5) * 600, this.player.y - 300, ITEMS.FALLEN_STAR, 1);
+        }
+        
+        this.updatePlayer();
+        this.updateEnemies();
+        this.updateParticles();
+        this.updateDroppedItems();
+        this.updateProjectiles();
+        this.spawnEnemies();
+        
+        if (this.attackCooldown > 0) this.attackCooldown--;
+        if (this.magicCooldown > 0) this.magicCooldown--;
+        
+        if (this.mouse.left && !this.inventoryOpen && !this.chestOpen) this.handleLeftClick();
+        if (this.mouse.right && !this.inventoryOpen && !this.chestOpen) this.handleRightClick();
+        
+        this.camera.x = this.player.x + this.player.width / 2;
+        this.camera.y = this.player.y + this.player.height / 2;
+        const vw = this.canvas.width / this.camera.zoom, vh = this.canvas.height / this.camera.zoom;
+        this.camera.x = Math.max(vw / 2, Math.min(this.worldWidth - vw / 2, this.camera.x));
+        this.camera.y = Math.max(vh / 2, Math.min(this.worldHeight - vh / 2, this.camera.y));
+        this.updateWorldMouse();
+        
+        const hours = Math.floor(this.gameTime / 60);
+        const minutes = Math.floor(this.gameTime % 60);
+        document.getElementById('dayNightIndicator').textContent = `Day ${this.day} - ${hours % 12 || 12}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
+        
+        if (Math.random() < 0.02) this.updateMinimap();
+    }
+    
+    updatePlayer() {
+        const p = this.player;
+        if (p.invulnerable > 0) p.invulnerable--;
+        
+        // Horizontal input
+        if (this.keys['a'] || this.keys['arrowleft']) { p.vx = -p.speed; p.direction = -1; }
+        else if (this.keys['d'] || this.keys['arrowright']) { p.vx = p.speed; p.direction = 1; }
+        else p.vx *= 0.8;
+        
+        // Jump
+        if ((this.keys['w'] || this.keys['arrowup'] || this.keys[' ']) && p.onGround) { 
+            p.vy = -p.jumpForce; 
+            p.onGround = false; 
+        }
+        
+        // Apply gravity
+        p.vy += 0.5;
+        if (p.vy > 15) p.vy = 15;
+        
+        // Reset ground state before collision checks
+        p.onGround = false;
+        
+        // Move and resolve X collision first
+        if (Math.abs(p.vx) > 0.01) {
+            p.x += p.vx;
+            this.resolveCollision(p, 'x');
+        }
+        
+        // Then move and resolve Y collision
+        if (Math.abs(p.vy) > 0.01) {
+            p.y += p.vy;
+            this.resolveCollision(p, 'y');
+        }
+        
+        // Clamp to world bounds
+        p.x = Math.max(0, Math.min(this.worldWidth - p.width, p.x));
+        p.y = Math.max(0, Math.min(this.worldHeight - p.height, p.y));
+        
+        // Lava damage
+        const cx = Math.floor((p.x + p.width / 2) / this.tileSize);
+        const cy = Math.floor((p.y + p.height / 2) / this.tileSize);
+        if (cx >= 0 && cx < this.tilesX && cy >= 0 && cy < this.tilesY && this.tiles[cx][cy] === BLOCKS.LAVA && p.invulnerable === 0) {
+            this.damagePlayer(50);
+        }
+        
+        // Weapon swing
+        if (p.isSwinging) {
+            p.swingTimer++;
+            p.swingAngle = Math.sin(p.swingTimer / p.swingDuration * Math.PI) * Math.PI * 0.8;
+            p.swingThrust = Math.sin(p.swingTimer / p.swingDuration * Math.PI) * 14;
+            this.checkSwingHits();
+            if (p.swingTimer >= p.swingDuration) { p.isSwinging = false; p.swingTimer = 0; p.swingAngle = 0; p.swingThrust = 0; p.hasHitThisSwing.clear(); }
+        }
+        
+        // Regeneration
+        if (Math.random() < 0.001) { p.health = Math.min(p.maxHealth, p.health + 1); this.updateHealthBar(); }
+        if (Math.random() < 0.01) { p.mana = Math.min(p.maxMana, p.mana + 1); this.updateManaBar(); }
+    }
+    
+    checkSwingHits() {
+        const p = this.player;
+        const item = this.inventory[this.selectedSlot];
+        if (!item) return;
+        const itemData = ITEM_DATA[item.id];
+        if (!itemData || !['sword', 'pickaxe', 'axe'].includes(itemData.type)) return;
+        
+        const damage = itemData.damage || 5;
+        const knockback = (itemData.knockback || 4) * 2;
+        const size = (itemData.size || 1) * 40;
+        const thrust = p.swingThrust || 0;
+        const pcx = p.x + p.width / 2 + p.direction * thrust, pcy = p.y + p.height / 2;
+        const baseAngle = p.direction > 0 ? -Math.PI / 4 : Math.PI + Math.PI / 4;
+        const currentAngle = baseAngle + p.swingAngle * p.direction;
+        const tipX = pcx + Math.cos(currentAngle) * size;
+        const tipY = pcy + Math.sin(currentAngle) * size;
+        
+        for (const enemy of this.enemies) {
+            if (p.hasHitThisSwing.has(enemy)) continue;
+            const ecx = enemy.x + enemy.width / 2, ecy = enemy.y + enemy.height / 2;
+            if (this.pointToLineDist(ecx, ecy, pcx, pcy, tipX, tipY) < enemy.width / 2 + 10) {
+                p.hasHitThisSwing.add(enemy);
+                enemy.health -= damage;
+                enemy.invulnerable = 10;
+                const angle = Math.atan2(ecy - pcy, ecx - pcx);
+                enemy.vx += Math.cos(angle) * knockback;
+                enemy.vy += Math.sin(angle) * knockback - 3;
+                this.particles.push({ x: ecx, y: ecy - 20, vx: 0, vy: -2, life: 40, text: damage.toString(), color: '#FF4444' });
+                if (enemy.health <= 0) {
+                    for (const drop of enemy.type.drops) {
+                        if (Math.random() < drop.chance) {
+                            this.spawnDroppedItem(ecx, ecy, drop.id, drop.min + Math.floor(Math.random() * (drop.max - drop.min + 1)));
+                        }
+                    }
+                }
+            }
+        }
+        this.enemies = this.enemies.filter(e => e.health > 0);
+    }
+    
+    pointToLineDist(px, py, x1, y1, x2, y2) {
+        const A = px - x1, B = py - y1, C = x2 - x1, D = y2 - y1;
+        const dot = A * C + B * D, lenSq = C * C + D * D;
+        let param = lenSq !== 0 ? dot / lenSq : -1;
+        let xx, yy;
+        if (param < 0) { xx = x1; yy = y1; } else if (param > 1) { xx = x2; yy = y2; } else { xx = x1 + param * C; yy = y1 + param * D; }
+        return Math.sqrt((px - xx) ** 2 + (py - yy) ** 2);
+    }
+    
+    resolveCollision(entity, axis) {
+        const ts = this.tileSize;
+        
+        for (let iter = 0; iter < 3; iter++) {
+            const left = Math.floor(entity.x / ts);
+            const right = Math.floor((entity.x + entity.width - 0.01) / ts);
+            const top = Math.floor(entity.y / ts);
+            const bottom = Math.floor((entity.y + entity.height - 0.01) / ts);
+            
+            let collision = false;
+            
+            for (let y = top; y <= bottom; y++) {
+                for (let x = left; x <= right; x++) {
+                    if (x < 0 || x >= this.tilesX || y < 0 || y >= this.tilesY) continue;
+                    const block = this.tiles[x][y];
+                    const bd = BLOCK_DATA[block];
+                    if (!bd) continue;
+                    
+                    const isSolid = bd.solid;
+                    const isPlatform = bd.platform && entity.vy >= 0 && axis === 'y';
+                    
+                    if (!isSolid && !isPlatform) continue;
+                    
+                    if (isPlatform) {
+                        const entityBottom = entity.y + entity.height;
+                        const platformTop = y * ts;
+                        const prevBottom = entityBottom - entity.vy;
+                        if (prevBottom > platformTop + 2) continue;
+                    }
+                    
+                    const tileLeft = x * ts;
+                    const tileRight = tileLeft + ts;
+                    const tileTop = y * ts;
+                    const tileBottom = tileTop + ts;
+                    
+                    const overlapLeft = entity.x + entity.width - tileLeft;
+                    const overlapRight = tileRight - entity.x;
+                    const overlapTop = entity.y + entity.height - tileTop;
+                    const overlapBottom = tileBottom - entity.y;
+                    
+                    if (overlapLeft > 0 && overlapRight > 0 && overlapTop > 0 && overlapBottom > 0) {
+                        collision = true;
+                        
+                        if (axis === 'x') {
+                            if (entity.vx > 0) {
+                                entity.x = tileLeft - entity.width;
+                            } else if (entity.vx < 0) {
+                                entity.x = tileRight;
+                            }
+                            entity.vx = 0;
+                        } else {
+                            if (entity.vy > 0) {
+                                entity.y = tileTop - entity.height;
+                                entity.onGround = true;
+                            } else if (entity.vy < 0) {
+                                entity.y = tileBottom;
+                            }
+                            entity.vy = 0;
+                        }
+                    }
+                }
+            }
+            
+            if (!collision) break;
+        }
+    }
+    
+    handleLeftClick() {
+        const item = this.inventory[this.selectedSlot];
+        const itemData = item ? ITEM_DATA[item.id] : null;
+        
+        if (itemData?.type === 'magic') { this.useMagicWeapon(item.id, itemData); return; }
+        
+        if (itemData && ['sword', 'pickaxe', 'axe'].includes(itemData.type)) {
+            if (!this.player.isSwinging && this.attackCooldown === 0) {
+                this.player.isSwinging = true;
+                this.player.swingTimer = 0;
+                this.player.hasHitThisSwing.clear();
+                this.player.swingDuration = itemData.speed || 15;
+                this.attackCooldown = Math.floor(this.player.swingDuration * 1.2);
+            }
+        }
+        
+        this.handleMining();
+    }
+    
+    useMagicWeapon(id, itemData) {
+        if (this.magicCooldown > 0 || this.player.mana < itemData.mana) return;
+        this.player.mana -= itemData.mana;
+        this.updateManaBar();
+        this.magicCooldown = itemData.speed || 10;
+        
+        const pcx = this.player.x + this.player.width / 2, pcy = this.player.y + this.player.height / 2;
+        const angle = Math.atan2(this.mouse.worldY - pcy, this.mouse.worldX - pcx);
+        
+        const projTypes = {
+            'spark': { color: '#FFA500', speed: 8, size: 6, gravity: 0.05 },
+            'water_bolt': { color: '#00BFFF', speed: 6, size: 12, bounces: 5 },
+            'vilethorn': { color: '#9966FF', speed: 0, size: 8, segments: 8 },
+            'magic_missile': { color: '#FF69B4', speed: 7, size: 10, homing: true }
+        };
+        const pt = projTypes[itemData.projectile] || projTypes.spark;
+        
+        if (itemData.projectile === 'vilethorn') {
+            for (let i = 0; i < pt.segments; i++) {
+                this.projectiles.push({ x: pcx + Math.cos(angle) * i * 15, y: pcy + Math.sin(angle) * i * 15, vx: 0, vy: 0, damage: itemData.damage, life: 20, color: pt.color, size: pt.size, pierce: true, hitEnemies: new Set() });
+            }
+        } else {
+            this.projectiles.push({ x: pcx, y: pcy, vx: Math.cos(angle) * pt.speed, vy: Math.sin(angle) * pt.speed, damage: itemData.damage, life: 180, color: pt.color, size: pt.size, gravity: pt.gravity || 0, bounces: pt.bounces || 0, homing: pt.homing || false, hitEnemies: new Set() });
+        }
+    }
+    
+    handleMining() {
+        const tx = Math.floor(this.mouse.worldX / this.tileSize);
+        const ty = Math.floor(this.mouse.worldY / this.tileSize);
+        if (tx < 0 || tx >= this.tilesX || ty < 0 || ty >= this.tilesY) return;
+        
+        const pcx = this.player.x + this.player.width / 2, pcy = this.player.y + this.player.height / 2;
+        const tcx = tx * this.tileSize + this.tileSize / 2, tcy = ty * this.tileSize + this.tileSize / 2;
+        if (Math.sqrt((pcx - tcx) ** 2 + (pcy - tcy) ** 2) > 140) return;
+        
+        const block = this.tiles[tx][ty];
+        if (block === BLOCKS.AIR) return;
+        
+        const bd = BLOCK_DATA[block];
+        const item = this.inventory[this.selectedSlot];
+        let power = 15;
+        if (item && ITEM_DATA[item.id]?.type === 'pickaxe') power = ITEM_DATA[item.id].power;
+        
+        if (this.miningTarget !== `${tx},${ty}`) { this.miningTarget = `${tx},${ty}`; this.miningProgress = 0; }
+        
+        this.miningProgress += power / 60;
+        if (Math.random() < 0.3) this.particles.push({ x: tcx, y: tcy, vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 3, life: 30, color: bd.color });
+        
+        if (this.miningProgress >= bd.hardness * 10) {
+            this.tiles[tx][ty] = BLOCKS.AIR;
+            this.miningProgress = 0;
+            this.miningTarget = null;
+            if (bd.drops != null) this.spawnDroppedItem(tcx, tcy, bd.drops, 1);
+            this.calculateLighting();
+        }
+    }
+    
+    handleRightClick() {
+        const tx = Math.floor(this.mouse.worldX / this.tileSize);
+        const ty = Math.floor(this.mouse.worldY / this.tileSize);
+        if (tx < 0 || tx >= this.tilesX || ty < 0 || ty >= this.tilesY) return;
+        
+        if (this.tiles[tx][ty] === BLOCKS.CHEST) { this.openChest(tx, ty); return; }
+        
+        const pcx = this.player.x + this.player.width / 2, pcy = this.player.y + this.player.height / 2;
+        if (Math.sqrt((pcx - (tx * this.tileSize + 8)) ** 2 + (pcy - (ty * this.tileSize + 8)) ** 2) > 140) return;
+        if (this.tiles[tx][ty] !== BLOCKS.AIR && this.tiles[tx][ty] !== BLOCKS.WATER) return;
+        
+        const item = this.inventory[this.selectedSlot];
+        if (!item || ITEM_DATA[item.id]?.type !== 'block') return;
+        
+        const pl = Math.floor(this.player.x / this.tileSize), pr = Math.floor((this.player.x + this.player.width) / this.tileSize);
+        const pt = Math.floor(this.player.y / this.tileSize), pb = Math.floor((this.player.y + this.player.height) / this.tileSize);
+        if (tx >= pl && tx <= pr && ty >= pt && ty <= pb) return;
+        
+        this.tiles[tx][ty] = ITEM_DATA[item.id].blockId;
+        if (ITEM_DATA[item.id].blockId === BLOCKS.CHEST) this.chestData[`${tx},${ty}`] = new Array(20).fill(null);
+        
+        item.count--;
+        if (item.count <= 0) this.inventory[this.selectedSlot] = null;
+        this.updateHotbar();
+        this.calculateLighting();
+    }
+    
+    openChest(x, y) {
+        const key = `${x},${y}`;
+        if (!this.chestData[key]) this.chestData[key] = new Array(20).fill(null);
+        this.currentChest = key;
+        this.chestOpen = true;
+        this.inventoryOpen = true;
+        document.getElementById('chestUI').classList.add('open');
+        document.getElementById('inventory').classList.add('open');
+        this.updateChestUI();
+        this.updateInventoryUI();
+    }
+    
+    closeChest() {
+        this.chestOpen = false;
+        this.currentChest = null;
+        document.getElementById('chestUI').classList.remove('open');
+    }
+    
+    updateEnemies() {
+        for (const e of this.enemies) {
+            if (e.invulnerable > 0) e.invulnerable--;
+            
+            const dx = this.player.x - e.x, dy = this.player.y - e.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (e.type.ai === 'slime') {
+                if (e.onGround && Math.random() < 0.02) { e.vx = Math.sign(dx) * (2 + Math.random() * 2); e.vy = -(5 + Math.random() * 3); e.onGround = false; }
+            } else if (e.type.ai === 'walker') {
+                if (dist < 600) e.vx = Math.sign(dx) * 1.5;
+                if (e.onGround && Math.abs(e.vx) < 0.1 && dist < 600) { e.vy = -8; e.onGround = false; }
+            } else if (e.type.ai === 'flying') {
+                if (dist < 600) { e.vx += (dx / dist) * 0.3; e.vy += (dy / dist) * 0.3; }
+                const speed = Math.sqrt(e.vx ** 2 + e.vy ** 2);
+                if (speed > 4) { e.vx = (e.vx / speed) * 4; e.vy = (e.vy / speed) * 4; }
+            }
+            
+            if (e.type.ai !== 'flying') { e.vy += 0.5; e.vy = Math.min(e.vy, 15); }
+            
+            e.x += e.vx; this.resolveEnemyCollision(e, 'x');
+            e.y += e.vy; this.resolveEnemyCollision(e, 'y');
+            e.vx *= 0.9;
+            
+            if (this.player.invulnerable === 0 && this.checkCollision(this.player, e)) {
+                this.damagePlayer(e.type.damage);
+                const angle = Math.atan2(this.player.y - e.y, this.player.x - e.x);
+                this.player.vx += Math.cos(angle) * 8;
+                this.player.vy = -6;
+            }
+            
+            if (dist > 2500) e.health = 0;
+        }
+        this.enemies = this.enemies.filter(e => e.health > 0);
+    }
+    
+    resolveEnemyCollision(e, axis) {
+        const isFlying = e.type.ai === 'flying';
+        const ts = this.tileSize;
+        
+        for (let iter = 0; iter < 3; iter++) {
+            const left = Math.floor(e.x / ts);
+            const right = Math.floor((e.x + e.width - 0.01) / ts);
+            const top = Math.floor(e.y / ts);
+            const bottom = Math.floor((e.y + e.height - 0.01) / ts);
+            
+            let collision = false;
+            
+            for (let x = left; x <= right; x++) {
+                for (let y = top; y <= bottom; y++) {
+                    if (x < 0 || x >= this.tilesX || y < 0 || y >= this.tilesY) continue;
+                    if (!BLOCK_DATA[this.tiles[x][y]]?.solid) continue;
+                    
+                    const tileLeft = x * ts, tileTop = y * ts;
+                    const overlapLeft = e.x + e.width - tileLeft;
+                    const overlapRight = tileLeft + ts - e.x;
+                    const overlapTop = e.y + e.height - tileTop;
+                    const overlapBottom = tileTop + ts - e.y;
+                    
+                    if (overlapLeft > 0 && overlapRight > 0 && overlapTop > 0 && overlapBottom > 0) {
+                        collision = true;
+                        if (axis === 'x') {
+                            if (e.vx > 0) e.x = tileLeft - e.width;
+                            else if (e.vx < 0) e.x = tileLeft + ts;
+                            if (isFlying) e.vx *= -0.8;
+                            else e.vx = 0;
+                        } else {
+                            if (e.vy > 0) { e.y = tileTop - e.height; e.onGround = true; }
+                            else if (e.vy < 0) e.y = tileTop + ts;
+                            if (isFlying) e.vy *= -0.8;
+                            else e.vy = 0;
+                        }
+                    }
+                }
+            }
+            if (!collision) break;
+        }
+    }
+    
+    checkCollision(a, b) { return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y; }
+    
+    damagePlayer(amount) {
+        if (this.player.invulnerable > 0) return;
+        this.player.health -= amount;
+        this.player.invulnerable = 60;
+        this.particles.push({ x: this.player.x + this.player.width / 2, y: this.player.y, vx: 0, vy: -2, life: 40, text: amount.toString(), color: '#FF0000' });
+        this.updateHealthBar();
+        if (this.player.health <= 0) { this.player.dead = true; document.getElementById('deathScreen').classList.add('show'); }
+    }
+    
+    spawnEnemies() {
+        this.spawnTimer++;
+        if (this.spawnTimer < 90 || this.enemies.length >= 20) return;
+        this.spawnTimer = 0;
+        
+        const isNight = this.gameTime >= 19 * 60 || this.gameTime < 5 * 60;
+        const ptx = Math.floor(this.player.x / this.tileSize), pty = Math.floor(this.player.y / this.tileSize);
+        const playerBiome = (ptx >= 0 && ptx < this.tilesX && pty >= 0 && pty < this.tilesY) ? this.biomeMap[ptx][pty] : 'forest';
+        
+        const possible = Object.values(ENEMIES).filter(e => ((isNight && e.spawnNight) || (!isNight && e.spawnDay)) && (e.biome === 'any' || e.biome === playerBiome));
+        if (possible.length === 0) return;
+        
+        const type = possible[Math.floor(Math.random() * possible.length)];
+        const angle = Math.random() * Math.PI * 2, dist = 450 + Math.random() * 200;
+        const sx = this.player.x + Math.cos(angle) * dist, sy = this.player.y + Math.sin(angle) * dist;
+        const tx = Math.floor(sx / this.tileSize), ty = Math.floor(sy / this.tileSize);
+        if (tx < 0 || tx >= this.tilesX || ty < 0 || ty >= this.tilesY) return;
+        if (type.ai !== 'flying' && this.tiles[tx][ty] !== BLOCKS.AIR) return;
+        
+        this.enemies.push({ x: sx, y: sy, vx: 0, vy: 0, width: type.width, height: type.height, health: type.health, type: type, onGround: false, invulnerable: 0 });
+    }
+    
+    updateParticles() {
+        for (const p of this.particles) { p.x += p.vx; p.y += p.vy; if (!p.text) p.vy += 0.2; p.life--; }
+        this.particles = this.particles.filter(p => p.life > 0);
+    }
+    
+    updateDroppedItems() {
+        for (const item of this.droppedItems) {
+            item.vy += 0.3; item.y += item.vy; item.x += item.vx; item.vx *= 0.95;
+            const tx = Math.floor(item.x / this.tileSize), ty = Math.floor((item.y + 8) / this.tileSize);
+            if (tx >= 0 && tx < this.tilesX && ty >= 0 && ty < this.tilesY && BLOCK_DATA[this.tiles[tx][ty]]?.solid) { item.y = ty * this.tileSize - 8; item.vy = 0; }
+            if (item.pickupDelay > 0) { item.pickupDelay--; continue; }
+            const dist = Math.sqrt((item.x - (this.player.x + this.player.width / 2)) ** 2 + (item.y - (this.player.y + this.player.height / 2)) ** 2);
+            if (dist < 60 && this.addItem(item.id, item.count)) item.collected = true;
+            item.life--;
+        }
+        this.droppedItems = this.droppedItems.filter(i => !i.collected && i.life > 0);
+    }
+    
+    updateProjectiles() {
+        for (const proj of this.projectiles) {
+            proj.x += proj.vx; proj.y += proj.vy;
+            if (proj.gravity) proj.vy += proj.gravity;
+            
+            if (proj.homing) {
+                let closest = null, closestDist = 200;
+                for (const e of this.enemies) {
+                    const d = Math.sqrt((e.x - proj.x) ** 2 + (e.y - proj.y) ** 2);
+                    if (d < closestDist) { closest = e; closestDist = d; }
+                }
+                if (closest) {
+                    const angle = Math.atan2(closest.y - proj.y, closest.x - proj.x);
+                    proj.vx += Math.cos(angle) * 0.3; proj.vy += Math.sin(angle) * 0.3;
+                    const speed = Math.sqrt(proj.vx ** 2 + proj.vy ** 2);
+                    if (speed > 7) { proj.vx = (proj.vx / speed) * 7; proj.vy = (proj.vy / speed) * 7; }
+                }
+            }
+            
+            const tx = Math.floor(proj.x / this.tileSize), ty = Math.floor(proj.y / this.tileSize);
+            if (tx >= 0 && tx < this.tilesX && ty >= 0 && ty < this.tilesY && BLOCK_DATA[this.tiles[tx][ty]]?.solid) {
+                if (proj.bounces > 0) { proj.vx *= -1; proj.bounces--; } else if (!proj.pierce) proj.life = 0;
+            }
+            
+            for (const e of this.enemies) {
+                if (proj.hitEnemies.has(e)) continue;
+                if (Math.sqrt((proj.x - (e.x + e.width / 2)) ** 2 + (proj.y - (e.y + e.height / 2)) ** 2) < e.width / 2 + proj.size / 2) {
+                    e.health -= proj.damage; e.invulnerable = 10;
+                    this.particles.push({ x: e.x + e.width / 2, y: e.y, vx: 0, vy: -2, life: 40, text: proj.damage.toString(), color: '#9966FF' });
+                    if (proj.pierce) proj.hitEnemies.add(e); else proj.life = 0;
+                    if (e.health <= 0) { for (const drop of e.type.drops) { if (Math.random() < drop.chance) this.spawnDroppedItem(e.x, e.y, drop.id, drop.min + Math.floor(Math.random() * (drop.max - drop.min + 1))); } }
+                }
+            }
+            proj.life--;
+        }
+        this.enemies = this.enemies.filter(e => e.health > 0);
+        this.projectiles = this.projectiles.filter(p => p.life > 0);
+    }
+    
+    spawnDroppedItem(x, y, id, count) { this.droppedItems.push({ x, y, vx: (Math.random() - 0.5) * 4, vy: -3, id, count, life: 600, pickupDelay: 30 }); }
+    
+    addItem(id, count) {
+        const itemData = ITEM_DATA[id];
+        if (!itemData) return false;
+        if (itemData.stackable) {
+            for (let i = 0; i < this.inventory.length; i++) {
+                if (this.inventory[i]?.id === id) { this.inventory[i].count += count; this.updateHotbar(); return true; }
+            }
+        }
+        for (let i = 0; i < this.inventory.length; i++) {
+            if (!this.inventory[i]) { this.inventory[i] = { id, count }; this.updateHotbar(); return true; }
+        }
+        return false;
+    }
+    
+    removeItem(id, count) {
+        let remaining = count;
+        for (let i = 0; i < this.inventory.length && remaining > 0; i++) {
+            if (this.inventory[i]?.id === id) {
+                const take = Math.min(this.inventory[i].count, remaining);
+                this.inventory[i].count -= take; remaining -= take;
+                if (this.inventory[i].count <= 0) this.inventory[i] = null;
+            }
+        }
+        this.updateHotbar();
+        return remaining === 0;
+    }
+    
+    countItem(id) { return this.inventory.reduce((sum, slot) => sum + (slot?.id === id ? slot.count : 0), 0); }
+    
+    dropSelectedItem() {
+        const item = this.inventory[this.selectedSlot];
+        if (!item) return;
+        this.spawnDroppedItem(this.player.x + this.player.width / 2, this.player.y, item.id, 1);
+        item.count--;
+        if (item.count <= 0) this.inventory[this.selectedSlot] = null;
+        this.updateHotbar();
+    }
+    
+    useSelectedItem() {
+        const item = this.inventory[this.selectedSlot];
+        if (!item) return;
+        const d = ITEM_DATA[item.id];
+        if (!d) return;
+        
+        if (d.heal && this.player.health < this.player.maxHealth) { this.player.health = Math.min(this.player.maxHealth, this.player.health + d.heal); this.updateHealthBar(); item.count--; }
+        if (d.manaRestore && this.player.mana < this.player.maxMana) { this.player.mana = Math.min(this.player.maxMana, this.player.mana + d.manaRestore); this.updateManaBar(); item.count--; }
+        if (d.maxHealth) { this.player.maxHealth += d.maxHealth; this.player.health = this.player.maxHealth; this.updateHealthBar(); item.count--; }
+        if (d.maxMana) { this.player.maxMana += d.maxMana; this.player.mana = this.player.maxMana; this.updateManaBar(); item.count--; }
+        if (d.effect === 'teleport') {
+            this.player.x = this.spawnPoint.x; this.player.y = this.spawnPoint.y; this.player.vx = 0; this.player.vy = 0;
+            for (let i = 0; i < 20; i++) this.particles.push({ x: this.player.x + this.player.width / 2, y: this.player.y + this.player.height / 2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 30, color: '#9966FF' });
+        }
+        
+        if (item.count <= 0) this.inventory[this.selectedSlot] = null;
+        this.updateHotbar();
+    }
+    
+    respawn() {
+        this.player.x = this.spawnPoint.x; this.player.y = this.spawnPoint.y;
+        this.player.vx = 0; this.player.vy = 0;
+        this.player.health = this.player.maxHealth; this.player.mana = this.player.maxMana;
+        this.player.dead = false; this.player.invulnerable = 120;
+        document.getElementById('deathScreen').classList.remove('show');
+        this.updateHealthBar(); this.updateManaBar();
+    }
+    
+    // Rendering
+    render() {
+        const ctx = this.ctx;
+        const { width, height } = this.canvas;
+        
+        // Safety check - don't render if world hasn't been generated yet
+        if (!this.tiles.length || !this.tiles[0]) {
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, width, height);
+            return;
+        }
+        
+        ctx.fillStyle = this.getSkyColor();
+        ctx.fillRect(0, 0, width, height);
+        
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        ctx.scale(this.camera.zoom, this.camera.zoom);
+        ctx.translate(-this.camera.x, -this.camera.y);
+        
+        const vw = width / this.camera.zoom, vh = height / this.camera.zoom;
+        const startX = Math.max(0, Math.floor((this.camera.x - vw / 2) / this.tileSize) - 1);
+        const endX = Math.min(this.tilesX - 1, Math.ceil((this.camera.x + vw / 2) / this.tileSize) + 1);
+        const startY = Math.max(0, Math.floor((this.camera.y - vh / 2) / this.tileSize) - 1);
+        const endY = Math.min(this.tilesY - 1, Math.ceil((this.camera.y + vh / 2) / this.tileSize) + 1);
+        
+        // Background
+        for (let x = startX; x <= endX; x++) {
+            for (let y = startY; y <= endY; y++) {
+                if (!this.backgroundTiles[x]) continue;
+                const bg = this.backgroundTiles[x][y];
+                if (bg !== BLOCKS.AIR) {
+                    ctx.fillStyle = this.darkenColor(BLOCK_DATA[bg]?.color || '#808080', 0.5);
+                    ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                }
+            }
+        }
+        
+        // Tiles
+        for (let x = startX; x <= endX; x++) {
+            for (let y = startY; y <= endY; y++) {
+                if (!this.tiles[x]) continue;
+                const block = this.tiles[x][y];
+                if (block !== BLOCKS.AIR) this.drawBlock(ctx, x, y, block);
+            }
+        }
+        
+        // Lighting
+        const hour = this.gameTime / 60;
+        const isNight = hour >= 19 || hour < 5;
+        const ambient = isNight ? 3 : 15;
+        for (let x = startX; x <= endX; x++) {
+            for (let y = startY; y <= endY; y++) {
+                if (!this.lightMap[x]) continue;
+                const light = Math.max(this.lightMap[x][y] || 0, ambient);
+                const darkness = 1 - light / 15;
+                if (darkness > 0.05) {
+                    ctx.fillStyle = `rgba(0,0,0,${darkness * 0.85})`;
+                    ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                }
+            }
+        }
+        
+        // Dropped items
+        for (const item of this.droppedItems) this.drawItem(ctx, item.x - 8, item.y - 8, item.id, 16);
+        
+        // Projectiles
+        for (const p of this.projectiles) {
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+        }
+        
+        // Enemies
+        for (const e of this.enemies) this.drawEnemy(ctx, e);
+        
+        // Player
+        this.drawPlayer(ctx);
+        
+        // Particles
+        for (const p of this.particles) {
+            if (p.text) { ctx.fillStyle = p.color; ctx.font = '12px "Press Start 2P"'; ctx.fillText(p.text, p.x, p.y); }
+            else { ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30; ctx.fillRect(p.x - 2, p.y - 2, 4, 4); ctx.globalAlpha = 1; }
+        }
+        
+        // Mining indicator
+        if (this.miningTarget) {
+            const [tx, ty] = this.miningTarget.split(',').map(Number);
+            const block = this.tiles[tx][ty];
+            if (block !== BLOCKS.AIR) {
+                const progress = Math.min(1, this.miningProgress / (BLOCK_DATA[block].hardness * 10));
+                ctx.strokeStyle = '#FFF'; ctx.lineWidth = 2;
+                ctx.strokeRect(tx * this.tileSize, ty * this.tileSize, this.tileSize, this.tileSize);
+                ctx.globalAlpha = progress; ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(tx * this.tileSize, ty * this.tileSize, this.tileSize, this.tileSize);
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        ctx.restore();
+    }
+    
+    getSkyColor() {
+        const hour = this.gameTime / 60;
+        const ptx = Math.floor(this.player.x / this.tileSize), pty = Math.floor(this.player.y / this.tileSize);
+        const biome = (ptx >= 0 && ptx < this.tilesX && pty >= 0 && pty < this.tilesY) ? this.biomeMap[ptx][pty] : 'forest';
+        
+        let day = '#87CEEB', night = '#1a1a2e';
+        if (biome === 'corruption') { day = '#6b5a7a'; night = '#1a0a2a'; }
+        else if (biome === 'crimson') { day = '#8a5a5a'; night = '#2a0a0a'; }
+        else if (biome === 'hell') return '#1a0505';
+        
+        if (hour >= 5 && hour < 7) return this.lerpColor(night, day, (hour - 5) / 2);
+        if (hour >= 7 && hour < 17) return day;
+        if (hour >= 17 && hour < 19) return this.lerpColor(day, night, (hour - 17) / 2);
+        return night;
+    }
+    
+    lerpColor(c1, c2, t) {
+        const r1 = parseInt(c1.slice(1, 3), 16), g1 = parseInt(c1.slice(3, 5), 16), b1 = parseInt(c1.slice(5, 7), 16);
+        const r2 = parseInt(c2.slice(1, 3), 16), g2 = parseInt(c2.slice(3, 5), 16), b2 = parseInt(c2.slice(5, 7), 16);
+        return `rgb(${Math.round(r1 + (r2 - r1) * t)},${Math.round(g1 + (g2 - g1) * t)},${Math.round(b1 + (b2 - b1) * t)})`;
+    }
+    
+    darkenColor(color, factor) {
+        if (!color || color.startsWith('rgba')) return color || '#808080';
+        const r = parseInt(color.slice(1, 3), 16), g = parseInt(color.slice(3, 5), 16), b = parseInt(color.slice(5, 7), 16);
+        return `rgb(${Math.floor(r * factor)},${Math.floor(g * factor)},${Math.floor(b * factor)})`;
+    }
+    
+    drawBlock(ctx, x, y, block) {
+        const d = BLOCK_DATA[block];
+        if (!d) return;
+        const px = x * this.tileSize, py = y * this.tileSize;
+        
+        if (block === BLOCKS.WATER || block === BLOCKS.LAVA) {
+            ctx.fillStyle = d.color;
+            ctx.fillRect(px, py + 2, this.tileSize, this.tileSize - 2);
+            return;
+        }
+        
+        if (block === BLOCKS.TORCH) {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(px + 6, py + 4, 4, 10);
+            ctx.fillStyle = '#FFA500'; ctx.beginPath(); ctx.ellipse(px + 8, py + 4, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#FFFF00'; ctx.beginPath(); ctx.ellipse(px + 8, py + 4, 2, 3, 0, 0, Math.PI * 2); ctx.fill();
+            return;
+        }
+        
+        if ([BLOCKS.GRASS, BLOCKS.CORRUPT_GRASS, BLOCKS.CRIMSON_GRASS].includes(block)) {
+            const hasAirAbove = y > 0 && this.tiles[x][y - 1] === BLOCKS.AIR;
+            ctx.fillStyle = d.color;
+            ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            if (hasAirAbove) {
+                ctx.fillStyle = d.topColor;
+                ctx.fillRect(px, py, this.tileSize, 4);
+                for (let i = 0; i < 4; i++) {
+                    const bx = px + 2 + i * 4, bh = 2 + Math.random() * 3;
+                    ctx.fillRect(bx, py - bh, 2, bh);
+                }
+            }
+            return;
+        }
+        
+        if (block === BLOCKS.TALL_GRASS) {
+            ctx.fillStyle = d.color;
+            ctx.fillRect(px + 2, py + 4, 2, 12);
+            ctx.fillRect(px + 6, py + 2, 2, 14);
+            ctx.fillRect(px + 10, py + 6, 2, 10);
+            return;
+        }
+        
+        if (block === BLOCKS.FLOWER_RED || block === BLOCKS.FLOWER_YELLOW) {
+            ctx.fillStyle = '#228B22'; ctx.fillRect(px + 7, py + 6, 2, 10);
+            ctx.fillStyle = d.color; ctx.beginPath(); ctx.arc(px + 8, py + 5, 4, 0, Math.PI * 2); ctx.fill();
+            return;
+        }
+        
+        if (block === BLOCKS.MUSHROOM || block === BLOCKS.VILE_MUSHROOM) {
+            ctx.fillStyle = '#F5F5DC'; ctx.fillRect(px + 6, py + 8, 4, 8);
+            ctx.fillStyle = d.color; ctx.beginPath(); ctx.ellipse(px + 8, py + 8, 6, 5, 0, 0, Math.PI * 2); ctx.fill();
+            return;
+        }
+        
+        if (block === BLOCKS.WORKBENCH) {
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(px + 2, py + 2, 12, 3);
+            ctx.fillRect(px + 2, py + 8, 5, 5);
+            ctx.fillRect(px + 9, py + 8, 5, 5);
+            return;
+        }
+        
+        if (block === BLOCKS.FURNACE) {
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            ctx.fillStyle = '#333'; ctx.fillRect(px + 4, py + 6, 8, 8);
+            ctx.fillStyle = '#FF4500'; ctx.fillRect(px + 5, py + 9, 6, 4);
+            return;
+        }
+        
+        if (block === BLOCKS.CHEST) {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(px + 1, py + 4, 14, 10);
+            ctx.fillStyle = d.color; ctx.fillRect(px + 2, py + 5, 12, 8);
+            ctx.fillStyle = '#FFD700'; ctx.fillRect(px + 6, py + 7, 4, 3);
+            return;
+        }
+        
+        // Default block
+        ctx.fillStyle = d.color || '#808080';
+        ctx.fillRect(px, py, this.tileSize, this.tileSize);
+        
+        // Stone texture
+        if ([BLOCKS.STONE, BLOCKS.COBBLESTONE, BLOCKS.EBONSTONE, BLOCKS.CRIMSTONE].includes(block)) {
+            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+            for (let i = 0; i < 3; i++) ctx.fillRect(px + (x * 7 + i * 13) % 12, py + (y * 11 + i * 7) % 12, 4, 4);
+        }
+        
+        // Ore spots
+        if ([BLOCKS.COPPER_ORE, BLOCKS.IRON_ORE, BLOCKS.GOLD_ORE, BLOCKS.DIAMOND, BLOCKS.DEMONITE_ORE, BLOCKS.CRIMTANE_ORE].includes(block)) {
+            ctx.fillStyle = '#808080'; ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            ctx.fillStyle = d.color;
+            ctx.fillRect(px + 2, py + 4, 5, 4);
+            ctx.fillRect(px + 9, py + 2, 4, 5);
+            ctx.fillRect(px + 5, py + 10, 6, 4);
+        }
+    }
+    
+    drawPlayer(ctx) {
+        const p = this.player;
+        if (p.invulnerable > 0 && Math.floor(p.invulnerable / 5) % 2 === 0) ctx.globalAlpha = 0.5;
+        
+        ctx.save();
+        ctx.translate(p.x + p.width / 2, p.y + p.height / 2);
+        
+        // Draw weapon
+        if (p.isSwinging && this.inventory[this.selectedSlot]) {
+            const item = this.inventory[this.selectedSlot];
+            const itemData = ITEM_DATA[item.id];
+            if (itemData && ['sword', 'pickaxe', 'axe'].includes(itemData.type)) {
+                ctx.save();
+                const size = (itemData.size || 1) * 40;
+                const thrust = p.swingThrust || 0;
+                const baseAngle = p.direction > 0 ? -Math.PI / 4 : Math.PI + Math.PI / 4;
+                ctx.translate(p.direction * thrust, 0);
+                ctx.rotate(baseAngle + p.swingAngle * p.direction + Math.PI / 2);
+                this.drawWeapon(ctx, item.id, size);
+                ctx.restore();
+            }
+        }
+        
+        ctx.translate(-p.width / 2, -p.height / 2);
+        
+        // Body
+        ctx.fillStyle = '#4169E1'; ctx.fillRect(4, 14, 16, 20);
+        // Head
+        ctx.fillStyle = '#FFD39B'; ctx.fillRect(6, 0, 12, 14);
+        // Hair
+        ctx.fillStyle = '#8B4513'; ctx.fillRect(6, 0, 12, 5);
+        // Eye
+        ctx.fillStyle = '#000'; ctx.fillRect(p.direction > 0 ? 14 : 8, 6, 2, 3);
+        // Legs
+        ctx.fillStyle = '#1E90FF'; ctx.fillRect(6, 34, 5, 8); ctx.fillRect(13, 34, 5, 8);
+        
+        ctx.restore();
+        ctx.globalAlpha = 1;
+    }
+    
+    drawWeapon(ctx, itemId, size) {
+        const color = this.getToolColor(itemId);
+        const itemData = ITEM_DATA[itemId];
+        
+        if (itemData.type === 'sword') {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.moveTo(-3, 0); ctx.lineTo(0, -size); ctx.lineTo(3, 0); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.beginPath(); ctx.moveTo(-1, 0); ctx.lineTo(0, -size + 5); ctx.lineTo(1, 0); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-8, 0, 16, 4); ctx.fillRect(-2, 4, 4, 12);
+        } else if (itemData.type === 'pickaxe') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, 0, 4, size * 0.8);
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.moveTo(-size * 0.3, -size * 0.1); ctx.lineTo(0, -size * 0.4); ctx.lineTo(size * 0.3, -size * 0.1); ctx.lineTo(size * 0.2, 0); ctx.lineTo(-size * 0.2, 0); ctx.closePath(); ctx.fill();
+        } else if (itemData.type === 'axe') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, 0, 4, size * 0.8);
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.moveTo(-2, -size * 0.3); ctx.lineTo(-size * 0.35, -size * 0.15); ctx.lineTo(-size * 0.35, size * 0.1); ctx.lineTo(-2, size * 0.05); ctx.closePath(); ctx.fill();
+        }
+    }
+    
+    getToolColor(id) {
+        const name = (ITEM_DATA[id]?.name || '').toLowerCase();
+        if (name.includes('wood')) return '#8B4513';
+        if (name.includes('stone')) return '#808080';
+        if (name.includes('copper')) return '#CD7F32';
+        if (name.includes('iron')) return '#C0C0C0';
+        if (name.includes('gold')) return '#FFD700';
+        if (name.includes('diamond')) return '#00CED1';
+        if (name.includes('demonite') || name.includes("light's")) return '#6633AA';
+        if (name.includes('crimtane') || name.includes('blood')) return '#AA1133';
+        return '#808080';
+    }
+    
+    drawEnemy(ctx, e) {
+        if (e.invulnerable > 0 && Math.floor(e.invulnerable / 3) % 2 === 0) ctx.globalAlpha = 0.5;
+        ctx.fillStyle = e.type.color;
+        
+        if (e.type.ai === 'slime') {
+            ctx.beginPath(); ctx.ellipse(e.x + e.width / 2, e.y + e.height / 2, e.width / 2, e.height / 2, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.fillRect(e.x + e.width * 0.3, e.y + e.height * 0.3, 4, 4);
+            ctx.fillRect(e.x + e.width * 0.6, e.y + e.height * 0.3, 4, 4);
+        } else if (e.type.ai === 'walker') {
+            ctx.fillRect(e.x + 2, e.y + 10, e.width - 4, e.height - 18);
+            ctx.fillRect(e.x + 4, e.y, e.width - 8, 14);
+            ctx.fillRect(e.x - 4, e.y + 12, 8, 20);
+            ctx.fillRect(e.x + e.width - 4, e.y + 12, 8, 20);
+            ctx.fillStyle = e.type.name === 'Skeleton' ? '#000' : '#FF0000';
+            ctx.fillRect(e.x + 8, e.y + 4, 4, 4);
+            ctx.fillRect(e.x + e.width - 12, e.y + 4, 4, 4);
+        } else if (e.type.ai === 'flying') {
+            ctx.beginPath(); ctx.arc(e.x + e.width / 2, e.y + e.height / 2, e.width / 2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000';
+            const angle = Math.atan2(this.player.y - e.y, this.player.x - e.x);
+            ctx.beginPath(); ctx.arc(e.x + e.width / 2 + Math.cos(angle) * 5, e.y + e.height / 2 + Math.sin(angle) * 5, e.width / 5, 0, Math.PI * 2); ctx.fill();
+        }
+        
+        ctx.globalAlpha = 1;
+        const hp = e.health / e.type.health;
+        if (hp < 1) {
+            ctx.fillStyle = '#333'; ctx.fillRect(e.x, e.y - 8, e.width, 4);
+            ctx.fillStyle = '#F00'; ctx.fillRect(e.x, e.y - 8, e.width * hp, 4);
+        }
+    }
+    
+    drawItem(ctx, x, y, id, size) {
+        const d = ITEM_DATA[id];
+        if (!d) return;
+        
+        if (d.type === 'block') {
+            ctx.fillStyle = BLOCK_DATA[id]?.color || '#808080';
+            ctx.fillRect(x, y, size, size);
+            return;
+        }
+        
+        ctx.save();
+        ctx.translate(x + size / 2, y + size / 2);
+        const color = this.getToolColor(id);
+        
+        if (d.type === 'sword') {
+            const s = (d.size || 1) * size * 0.8;
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.moveTo(-2, size / 3); ctx.lineTo(0, -s / 2); ctx.lineTo(2, size / 3); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-4, size / 3, 8, 3); ctx.fillRect(-2, size / 3 + 3, 4, 6);
+        } else if (d.type === 'pickaxe') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 2 + 4, 4, size - 4);
+            ctx.fillStyle = color; ctx.fillRect(-size / 2 + 2, -size / 2 + 2, size - 4, 4); ctx.fillRect(-size / 2 + 2, -size / 2 + 2, 4, 8);
+        } else if (d.type === 'axe') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 2 + 4, 4, size - 4);
+            ctx.fillStyle = color; ctx.fillRect(-size / 2 + 2, -size / 2 + 2, size / 2, size / 2);
+        } else if (d.type === 'magic') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 3, 4, size * 0.7);
+            ctx.fillStyle = '#9966FF'; ctx.beginPath(); ctx.arc(0, -size / 3, size / 4, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 0.4; ctx.beginPath(); ctx.arc(0, -size / 3, size / 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+        } else if (d.type === 'material') {
+            const colors = { [ITEMS.COPPER_BAR]: '#CD7F32', [ITEMS.IRON_BAR]: '#C0C0C0', [ITEMS.GOLD_BAR]: '#FFD700', [ITEMS.DEMONITE_BAR]: '#6633AA', [ITEMS.CRIMTANE_BAR]: '#AA1133', [ITEMS.WOOD_PLANK]: '#DEB887', [ITEMS.STICK]: '#8B4513', [ITEMS.GEL]: '#00FF00', [ITEMS.LENS]: '#FF6B6B', [ITEMS.FALLEN_STAR]: '#FFFF00' };
+            ctx.fillStyle = colors[id] || '#808080'; ctx.fillRect(-size / 3, -size / 3, size * 2 / 3, size * 2 / 3);
+        } else if (d.type === 'consumable' || d.type === 'tool') {
+            ctx.fillStyle = d.heal ? '#FF6B6B' : d.manaRestore ? '#6B6BFF' : d.maxHealth ? '#FF1493' : '#9966FF';
+            ctx.beginPath(); ctx.ellipse(0, 2, size / 3, size / 3, 0, 0, Math.PI * 2); ctx.fill();
+            if (d.heal || d.manaRestore) { ctx.fillStyle = '#ddd'; ctx.fillRect(-3, -size / 3, 6, size / 3); }
+        }
+        
+        ctx.restore();
+    }
+    
+    // UI Methods
+    updateUI() { this.updateHotbar(); this.updateHealthBar(); this.updateManaBar(); }
+    
+    updateHotbar() {
+        const hotbar = document.getElementById('hotbar');
+        hotbar.innerHTML = '';
+        for (let i = 0; i < 10; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'hotbar-slot' + (i === this.selectedSlot ? ' selected' : '');
+            const key = document.createElement('span'); key.className = 'slot-key'; key.textContent = (i + 1) % 10; slot.appendChild(key);
+            const item = this.inventory[i];
+            if (item) {
+                const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+                this.drawItem(canvas.getContext('2d'), 0, 0, item.id, 32);
+                slot.appendChild(canvas);
+                if (item.count > 1) { const cnt = document.createElement('span'); cnt.className = 'slot-count'; cnt.textContent = item.count; slot.appendChild(cnt); }
+            }
+            slot.addEventListener('click', () => { this.selectedSlot = i; this.updateHotbar(); });
+            hotbar.appendChild(slot);
+        }
+    }
+    
+    updateHealthBar() {
+        const bar = document.getElementById('healthBar'); bar.innerHTML = '';
+        const hearts = Math.ceil(this.player.maxHealth / 20), full = Math.floor(this.player.health / 20);
+        for (let i = 0; i < hearts; i++) { const h = document.createElement('div'); h.className = 'heart' + (i >= full ? ' empty' : ''); bar.appendChild(h); }
+    }
+    
+    updateManaBar() {
+        const bar = document.getElementById('manaBar'); bar.innerHTML = '';
+        const stars = Math.ceil(this.player.maxMana / 20), full = Math.floor(this.player.mana / 20);
+        for (let i = 0; i < stars; i++) { const s = document.createElement('div'); s.className = 'mana-star' + (i >= full ? ' empty' : ''); bar.appendChild(s); }
+    }
+    
+    updateInventoryUI() {
+        const grid = document.getElementById('inventoryGrid'); grid.innerHTML = '';
+        for (let i = 0; i < 50; i++) {
+            const slot = document.createElement('div'); slot.className = 'inv-slot';
+            const item = this.inventory[i];
+            if (item) {
+                const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+                this.drawItem(canvas.getContext('2d'), 0, 0, item.id, 32);
+                slot.appendChild(canvas);
+                if (item.count > 1) { const cnt = document.createElement('span'); cnt.className = 'slot-count'; cnt.textContent = item.count; slot.appendChild(cnt); }
+            }
+            slot.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    if (this.shiftHeld && item && this.chestOpen) this.quickMove({ type: 'inventory', index: i });
+                    else if (this.draggedItem) this.handleDrop({ type: 'inventory', index: i });
+                    else if (item) this.startDrag(item, { type: 'inventory', index: i });
+                }
+            });
+            slot.addEventListener('mouseover', (e) => { if (item) this.showTooltip(e, item.id); if (this.draggedItem) slot.classList.add('drag-over'); });
+            slot.addEventListener('mouseout', () => { this.hideTooltip(); slot.classList.remove('drag-over'); });
+            slot.addEventListener('mouseup', () => { if (this.draggedItem) this.handleDrop({ type: 'inventory', index: i }); });
+            grid.appendChild(slot);
+        }
+        this.updateCraftingUI();
+    }
+    
+    updateCraftingUI() {
+        const grid = document.getElementById('craftingGrid'); grid.innerHTML = '';
+        const ptx = Math.floor((this.player.x + this.player.width / 2) / this.tileSize);
+        const pty = Math.floor((this.player.y + this.player.height / 2) / this.tileSize);
+        const stations = new Set();
+        for (let dx = -4; dx <= 4; dx++) {
+            for (let dy = -4; dy <= 4; dy++) {
+                const x = ptx + dx, y = pty + dy;
+                if (x >= 0 && x < this.tilesX && y >= 0 && y < this.tilesY && BLOCK_DATA[this.tiles[x][y]]?.station) stations.add(this.tiles[x][y]);
+            }
+        }
+        for (const recipe of RECIPES) {
+            const canCraft = (!recipe.station || stations.has(recipe.station)) && recipe.ingredients.every(ing => this.countItem(ing.id) >= ing.count);
+            const slot = document.createElement('div'); slot.className = 'craft-item' + (canCraft ? '' : ' unavailable');
+            const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+            this.drawItem(canvas.getContext('2d'), 0, 0, recipe.result, 32);
+            slot.appendChild(canvas);
+            if (recipe.count > 1) { const cnt = document.createElement('span'); cnt.className = 'slot-count'; cnt.textContent = recipe.count; slot.appendChild(cnt); }
+            slot.addEventListener('click', () => { if (canCraft) { recipe.ingredients.forEach(ing => this.removeItem(ing.id, ing.count)); this.addItem(recipe.result, recipe.count); this.updateInventoryUI(); } });
+            slot.addEventListener('mouseover', (e) => this.showRecipeTooltip(e, recipe));
+            slot.addEventListener('mouseout', () => this.hideTooltip());
+            grid.appendChild(slot);
+        }
+    }
+    
+    updateChestUI() {
+        const grid = document.getElementById('chestGrid'); grid.innerHTML = '';
+        if (!this.currentChest || !this.chestData[this.currentChest]) return;
+        for (let i = 0; i < 20; i++) {
+            const slot = document.createElement('div'); slot.className = 'chest-slot';
+            const item = this.chestData[this.currentChest][i];
+            if (item) {
+                const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+                this.drawItem(canvas.getContext('2d'), 0, 0, item.id, 32);
+                slot.appendChild(canvas);
+                if (item.count > 1) { const cnt = document.createElement('span'); cnt.className = 'slot-count'; cnt.textContent = item.count; slot.appendChild(cnt); }
+            }
+            slot.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    if (this.shiftHeld && item) this.quickMove({ type: 'chest', index: i });
+                    else if (this.draggedItem) this.handleDrop({ type: 'chest', index: i });
+                    else if (item) this.startDrag(item, { type: 'chest', index: i });
+                }
+            });
+            slot.addEventListener('mouseover', (e) => { if (item) this.showTooltip(e, item.id); if (this.draggedItem) slot.classList.add('drag-over'); });
+            slot.addEventListener('mouseout', () => { this.hideTooltip(); slot.classList.remove('drag-over'); });
+            slot.addEventListener('mouseup', () => { if (this.draggedItem) this.handleDrop({ type: 'chest', index: i }); });
+            grid.appendChild(slot);
+        }
+    }
+    
+    startDrag(item, source) {
+        this.draggedItem = { ...item }; this.dragSource = source;
+        const dragDiv = document.getElementById('draggedItem'); dragDiv.style.display = 'block';
+        const canvas = document.createElement('canvas'); canvas.width = 40; canvas.height = 40;
+        this.drawItem(canvas.getContext('2d'), 0, 0, item.id, 40);
+        dragDiv.innerHTML = ''; dragDiv.appendChild(canvas);
+        if (source.type === 'inventory') this.inventory[source.index] = null;
+        else if (source.type === 'chest') this.chestData[this.currentChest][source.index] = null;
+        this.updateInventoryUI(); if (this.chestOpen) this.updateChestUI();
+    }
+    
+    handleDrop(target) {
+        if (!this.draggedItem) return;
+        let targetSlot = target.type === 'inventory' ? this.inventory[target.index] : this.chestData[this.currentChest][target.index];
+        
+        if (targetSlot && targetSlot.id === this.draggedItem.id && ITEM_DATA[targetSlot.id]?.stackable) {
+            targetSlot.count += this.draggedItem.count;
+        } else if (targetSlot) {
+            if (this.dragSource.type === 'inventory') this.inventory[this.dragSource.index] = targetSlot;
+            else if (this.dragSource.type === 'chest') this.chestData[this.currentChest][this.dragSource.index] = targetSlot;
+            if (target.type === 'inventory') this.inventory[target.index] = this.draggedItem;
+            else this.chestData[this.currentChest][target.index] = this.draggedItem;
+        } else {
+            if (target.type === 'inventory') this.inventory[target.index] = this.draggedItem;
+            else this.chestData[this.currentChest][target.index] = this.draggedItem;
+        }
+        
+        this.clearDrag(); this.updateHotbar(); this.updateInventoryUI(); if (this.chestOpen) this.updateChestUI();
+    }
+    
+    quickMove(source) {
+        let item = source.type === 'inventory' ? this.inventory[source.index] : this.chestData[this.currentChest][source.index];
+        if (!item) return;
+        
+        if (source.type === 'inventory' && this.chestOpen) {
+            for (let i = 0; i < 20; i++) {
+                if (!this.chestData[this.currentChest][i]) { this.chestData[this.currentChest][i] = item; this.inventory[source.index] = null; break; }
+                else if (this.chestData[this.currentChest][i].id === item.id && ITEM_DATA[item.id]?.stackable) { this.chestData[this.currentChest][i].count += item.count; this.inventory[source.index] = null; break; }
+            }
+        } else if (source.type === 'chest') {
+            if (this.addItem(item.id, item.count)) this.chestData[this.currentChest][source.index] = null;
+        }
+        
+        this.updateHotbar(); this.updateInventoryUI(); if (this.chestOpen) this.updateChestUI();
+    }
+    
+    clearDrag() { this.draggedItem = null; this.dragSource = null; document.getElementById('draggedItem').style.display = 'none'; }
+    
+    showTooltip(e, id) {
+        const d = ITEM_DATA[id]; if (!d) return;
+        const tooltip = document.getElementById('tooltip');
+        let html = `<div class="item-name ${d.rarity || ''}">${d.name}</div>`;
+        if (d.damage) html += `<div class="item-desc">Damage: ${d.damage}</div>`;
+        if (d.power) html += `<div class="item-desc">Power: ${d.power}%</div>`;
+        if (d.mana) html += `<div class="item-desc">Mana: ${d.mana}</div>`;
+        if (d.heal) html += `<div class="item-desc">Heals: ${d.heal}</div>`;
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block'; tooltip.style.left = (e.clientX + 15) + 'px'; tooltip.style.top = (e.clientY + 15) + 'px';
+    }
+    
+    showRecipeTooltip(e, recipe) {
+        const d = ITEM_DATA[recipe.result];
+        const tooltip = document.getElementById('tooltip');
+        let html = `<div class="item-name ${d?.rarity || ''}">${d?.name || 'Unknown'} x${recipe.count}</div><div class="item-desc">Requires:<br>`;
+        for (const ing of recipe.ingredients) {
+            const have = this.countItem(ing.id);
+            html += `<span style="color:${have >= ing.count ? '#8f8' : '#f88'}">${ITEM_DATA[ing.id]?.name || 'Unknown'} x${ing.count} (${have})</span><br>`;
+        }
+        if (recipe.station) html += `<br>Station: ${BLOCK_DATA[recipe.station]?.name}`;
+        html += '</div>';
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block'; tooltip.style.left = (e.clientX + 15) + 'px'; tooltip.style.top = (e.clientY + 15) + 'px';
+    }
+    
+    hideTooltip() { document.getElementById('tooltip').style.display = 'none'; }
+}
+
+// Start game
+const game = new Game();
+</script>
+</body>
+</html>
