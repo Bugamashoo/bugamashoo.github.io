@@ -246,30 +246,107 @@
         #deathScreen button:hover { background: #555; border-color: #888; }
         
         #controls {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
+            border-top: 2px solid #555;
+            margin-top: 10px;
+            padding-top: 10px;
             color: #aaa;
             font-size: 8px;
             line-height: 1.8;
+            text-align: center;
         }
         
         #inventoryHint {
             position: absolute;
-            bottom: 60px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             color: #ffdd00;
-            font-size: 14px;
-            text-shadow: 2px 2px #000;
+            font-size: 24px;
+            text-shadow: 3px 3px #000;
             pointer-events: none;
             animation: hintPulse 2s ease-in-out infinite;
+            text-align: center;
+            white-space: nowrap;
         }
         
         @keyframes hintPulse {
             0%, 100% { opacity: 0.6; }
             50% { opacity: 1; }
         }
+        
+        #equipmentPanel {
+            position: absolute;
+            top: 285px;
+            right: 20px;
+            background: rgba(40, 40, 60, 0.95);
+            border: 3px solid #666;
+            padding: 12px;
+            display: none;
+            pointer-events: auto;
+            z-index: 100;
+            width: 160px;
+        }
+        
+        #equipmentPanel.open { display: block; }
+        
+        #equipmentPanel h3 {
+            color: #ffdd00;
+            font-size: 10px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .equip-section-label {
+            color: #aaa;
+            font-size: 8px;
+            margin-bottom: 4px;
+            margin-top: 8px;
+        }
+        
+        .equip-slot {
+            width: 42px;
+            height: 42px;
+            background: rgba(80, 80, 100, 0.8);
+            border: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 3px;
+        }
+        
+        .equip-slot.armor-slot { border-color: #668; }
+        .equip-slot.accessory-slot { border-color: #686; }
+        .equip-slot:hover { border-color: #aaa; }
+        .equip-slot.drag-over { border-color: #ffdd00; background: rgba(100, 100, 120, 0.9); }
+        
+        .equip-slot .slot-label {
+            position: absolute;
+            top: 1px;
+            left: 3px;
+            color: #666;
+            font-size: 6px;
+            pointer-events: none;
+        }
+        
+        #armorSlots, #accessorySlots {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        #defenseDisplay {
+            color: #ccc;
+            font-size: 9px;
+            text-align: center;
+            margin-top: 10px;
+            border-top: 2px solid #555;
+            padding-top: 8px;
+        }
+        
+        #defenseDisplay span { color: #ffdd00; }
         
         #minimap {
             position: absolute;
@@ -324,7 +401,7 @@
         
         #chestUI {
             position: absolute;
-            top: 70px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(50, 40, 30, 0.95);
@@ -389,6 +466,10 @@
                 <h3>CRAFTING</h3>
                 <div id="craftingGrid"></div>
             </div>
+            <div id="controls">
+                [WASD] Move &amp; Jump | [Left Click] Attack/Mine | [Right Click] Place/Interact<br>
+                [1-9] Hotbar | [E] Inventory | [Q] Drop | [H] Use Item | [Shift+Click] Quick Move
+            </div>
         </div>
         
         <div id="chestUI">
@@ -396,16 +477,20 @@
             <div id="chestGrid"></div>
         </div>
         
+        <div id="equipmentPanel">
+            <h3>EQUIPMENT</h3>
+            <div class="equip-section-label">ARMOR</div>
+            <div id="armorSlots"></div>
+            <div class="equip-section-label">ACCESSORIES</div>
+            <div id="accessorySlots"></div>
+            <div id="defenseDisplay">Defense: <span id="defenseValue">0</span></div>
+        </div>
+        
         <div id="tooltip"></div>
         
         <div id="deathScreen">
             <h1>YOU DIED</h1>
             <button onclick="game.respawn()">Respawn</button>
-        </div>
-        
-        <div id="controls">
-            [WASD] Move &amp; Jump | [Left Click] Attack/Mine | [Right Click] Place/Interact<br>
-            [1-9] Hotbar | [E] Inventory | [Q] Drop | [H] Use Item | [Shift+Click] Quick Move
         </div>
         
         <div id="inventoryHint">Press [E] to open Inventory &amp; Crafting</div>
@@ -575,7 +660,13 @@ const ITEMS = {
     CLOUD_IN_BOTTLE: 464, SHINY_RED_BALLOON: 465, LUCKY_HORSESHOE: 466, FART_IN_JAR: 467,
     BAND_OF_REGENERATION: 468, BAND_OF_STARPOWER: 469, MANA_FLOWER: 470,
     AGLET: 471, ANKLET_OF_WIND: 472, FERAL_CLAWS: 473, TITAN_GLOVE: 474,
-    COBALT_SHIELD: 475, OBSIDIAN_SHIELD: 476, CROSS_NECKLACE: 477, STAR_CLOAK: 478
+    COBALT_SHIELD: 475, OBSIDIAN_SHIELD: 476, CROSS_NECKLACE: 477, STAR_CLOAK: 478,
+    // Armor - Helmets (500-509)
+    WOOD_HELMET: 500, COPPER_HELMET: 501, IRON_HELMET: 502, GOLD_HELMET: 503, SHADOW_HELMET: 504, CRIMSON_HELMET: 505, MOLTEN_HELMET: 506,
+    // Armor - Chestplates (510-519)
+    WOOD_CHESTPLATE: 510, COPPER_CHESTPLATE: 511, IRON_CHESTPLATE: 512, GOLD_CHESTPLATE: 513, SHADOW_CHESTPLATE: 514, CRIMSON_CHESTPLATE: 515, MOLTEN_CHESTPLATE: 516,
+    // Armor - Leggings (520-529)
+    WOOD_LEGGINGS: 520, COPPER_LEGGINGS: 521, IRON_LEGGINGS: 522, GOLD_LEGGINGS: 523, SHADOW_LEGGINGS: 524, CRIMSON_LEGGINGS: 525, MOLTEN_LEGGINGS: 526
 };
 
 const ITEM_DATA = {
@@ -741,7 +832,31 @@ const ITEM_DATA = {
     [ITEMS.COBALT_SHIELD]: { name: 'Cobalt Shield', type: 'accessory', effect: 'noknockback', stackable: false, rarity: 'rare' },
     [ITEMS.OBSIDIAN_SHIELD]: { name: 'Obsidian Shield', type: 'accessory', effect: 'noknockbackfire', stackable: false, rarity: 'rare' },
     [ITEMS.CROSS_NECKLACE]: { name: 'Cross Necklace', type: 'accessory', effect: 'invincibility', stackable: false, rarity: 'rare' },
-    [ITEMS.STAR_CLOAK]: { name: 'Star Cloak', type: 'accessory', effect: 'staronhit', stackable: false, rarity: 'rare' }
+    [ITEMS.STAR_CLOAK]: { name: 'Star Cloak', type: 'accessory', effect: 'staronhit', stackable: false, rarity: 'rare' },
+    // Armor - Helmets
+    [ITEMS.WOOD_HELMET]: { name: 'Wood Helmet', type: 'helmet', defense: 1, stackable: false },
+    [ITEMS.COPPER_HELMET]: { name: 'Copper Helmet', type: 'helmet', defense: 2, stackable: false },
+    [ITEMS.IRON_HELMET]: { name: 'Iron Helmet', type: 'helmet', defense: 3, stackable: false },
+    [ITEMS.GOLD_HELMET]: { name: 'Gold Helmet', type: 'helmet', defense: 4, stackable: false },
+    [ITEMS.SHADOW_HELMET]: { name: 'Shadow Helmet', type: 'helmet', defense: 6, stackable: false, rarity: 'rare' },
+    [ITEMS.CRIMSON_HELMET]: { name: 'Crimson Helmet', type: 'helmet', defense: 6, stackable: false, rarity: 'rare' },
+    [ITEMS.MOLTEN_HELMET]: { name: 'Molten Helmet', type: 'helmet', defense: 8, stackable: false, rarity: 'rare' },
+    // Armor - Chestplates
+    [ITEMS.WOOD_CHESTPLATE]: { name: 'Wood Chestplate', type: 'chestplate', defense: 1, stackable: false },
+    [ITEMS.COPPER_CHESTPLATE]: { name: 'Copper Chestplate', type: 'chestplate', defense: 3, stackable: false },
+    [ITEMS.IRON_CHESTPLATE]: { name: 'Iron Chestplate', type: 'chestplate', defense: 4, stackable: false },
+    [ITEMS.GOLD_CHESTPLATE]: { name: 'Gold Chestplate', type: 'chestplate', defense: 5, stackable: false },
+    [ITEMS.SHADOW_CHESTPLATE]: { name: 'Shadow Chestplate', type: 'chestplate', defense: 8, stackable: false, rarity: 'rare' },
+    [ITEMS.CRIMSON_CHESTPLATE]: { name: 'Crimson Chestplate', type: 'chestplate', defense: 8, stackable: false, rarity: 'rare' },
+    [ITEMS.MOLTEN_CHESTPLATE]: { name: 'Molten Chestplate', type: 'chestplate', defense: 10, stackable: false, rarity: 'rare' },
+    // Armor - Leggings
+    [ITEMS.WOOD_LEGGINGS]: { name: 'Wood Leggings', type: 'leggings', defense: 1, stackable: false },
+    [ITEMS.COPPER_LEGGINGS]: { name: 'Copper Leggings', type: 'leggings', defense: 2, stackable: false },
+    [ITEMS.IRON_LEGGINGS]: { name: 'Iron Leggings', type: 'leggings', defense: 3, stackable: false },
+    [ITEMS.GOLD_LEGGINGS]: { name: 'Gold Leggings', type: 'leggings', defense: 4, stackable: false },
+    [ITEMS.SHADOW_LEGGINGS]: { name: 'Shadow Leggings', type: 'leggings', defense: 5, stackable: false, rarity: 'rare' },
+    [ITEMS.CRIMSON_LEGGINGS]: { name: 'Crimson Leggings', type: 'leggings', defense: 5, stackable: false, rarity: 'rare' },
+    [ITEMS.MOLTEN_LEGGINGS]: { name: 'Molten Leggings', type: 'leggings', defense: 7, stackable: false, rarity: 'rare' }
 };
 
 // Add blocks to items
@@ -883,6 +998,35 @@ const RECIPES = [
     { result: ITEMS.SWIFTNESS_POTION, count: 1, ingredients: [{ id: ITEMS.GEL, count: 3 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.REGENERATION_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.ARCHERY_POTION, count: 1, ingredients: [{ id: ITEMS.LENS, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    
+    // Armor - Wood
+    { result: ITEMS.WOOD_HELMET, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.WOOD_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 15 }], station: BLOCKS.WORKBENCH },
+    // Armor - Copper
+    { result: ITEMS.COPPER_HELMET, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    // Armor - Iron
+    { result: ITEMS.IRON_HELMET, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    // Armor - Gold
+    { result: ITEMS.GOLD_HELMET, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 30 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
+    // Armor - Shadow
+    { result: ITEMS.SHADOW_HELMET, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 15 }, { id: ITEMS.SHADOW_SCALE, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SHADOW_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 25 }, { id: ITEMS.SHADOW_SCALE, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SHADOW_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 20 }, { id: ITEMS.SHADOW_SCALE, count: 12 }], station: BLOCKS.WORKBENCH },
+    // Armor - Crimson
+    { result: ITEMS.CRIMSON_HELMET, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 15 }, { id: ITEMS.TISSUE_SAMPLE, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CRIMSON_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 25 }, { id: ITEMS.TISSUE_SAMPLE, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CRIMSON_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 20 }, { id: ITEMS.TISSUE_SAMPLE, count: 12 }], station: BLOCKS.WORKBENCH },
+    // Armor - Molten
+    { result: ITEMS.MOLTEN_HELMET, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
     
     // Building blocks
     { result: BLOCKS.DIRT, count: 1, ingredients: [{ id: BLOCKS.MUD, count: 1 }], station: null },
@@ -1041,6 +1185,10 @@ class Game {
         this.draggedItem = null;
         this.dragSource = null;
         
+        // Equipment slots: 3 armor + 5 accessories
+        this.armorSlots = [null, null, null]; // helmet, chestplate, leggings
+        this.accessorySlots = new Array(5).fill(null);
+        
         this.enemies = [];
         this.particles = [];
         this.droppedItems = [];
@@ -1105,9 +1253,21 @@ class Game {
                 const hint = document.getElementById('inventoryHint');
                 if (hint) hint.style.display = 'none';
                 if (this.chestOpen) { this.closeChest(); }
-                else { this.inventoryOpen = !this.inventoryOpen; document.getElementById('inventory').classList.toggle('open', this.inventoryOpen); if (this.inventoryOpen) this.updateInventoryUI(); }
+                else {
+                    this.inventoryOpen = !this.inventoryOpen;
+                    document.getElementById('inventory').classList.toggle('open', this.inventoryOpen);
+                    document.getElementById('equipmentPanel').classList.toggle('open', this.inventoryOpen);
+                    if (this.inventoryOpen) { this.updateInventoryUI(); this.updateEquipmentUI(); }
+                }
             }
-            if (e.key === 'Escape') { if (this.chestOpen) this.closeChest(); if (this.inventoryOpen) { this.inventoryOpen = false; document.getElementById('inventory').classList.remove('open'); } }
+            if (e.key === 'Escape') {
+                if (this.chestOpen) this.closeChest();
+                if (this.inventoryOpen) {
+                    this.inventoryOpen = false;
+                    document.getElementById('inventory').classList.remove('open');
+                    document.getElementById('equipmentPanel').classList.remove('open');
+                }
+            }
             if (e.key.toLowerCase() === 'q') this.dropSelectedItem();
             if (e.key.toLowerCase() === 'h') this.useSelectedItem();
         });
@@ -1552,7 +1712,7 @@ class Game {
         const item = this.inventory[this.selectedSlot];
         if (!item) return;
         const itemData = ITEM_DATA[item.id];
-        if (!itemData || !['sword', 'pickaxe', 'axe'].includes(itemData.type)) return;
+        if (!itemData || !['sword', 'pickaxe', 'axe', 'hammer'].includes(itemData.type)) return;
         
         const damage = itemData.damage || 5;
         const knockback = (itemData.knockback || 4) * 2;
@@ -1669,7 +1829,9 @@ class Game {
         
         if (itemData?.type === 'magic') { this.useMagicWeapon(item.id, itemData); return; }
         
-        if (itemData && ['sword', 'pickaxe', 'axe'].includes(itemData.type)) {
+        if (itemData?.type === 'bow') { this.useBow(item, itemData); return; }
+        
+        if (itemData && ['sword', 'pickaxe', 'axe', 'hammer'].includes(itemData.type)) {
             if (!this.player.isSwinging && this.attackCooldown === 0) {
                 this.player.isSwinging = true;
                 this.player.swingTimer = 0;
@@ -1679,7 +1841,57 @@ class Game {
             }
         }
         
-        this.handleMining();
+        // Only mine if holding a pickaxe, axe, or hammer
+        if (itemData && ['pickaxe', 'axe', 'hammer'].includes(itemData.type)) {
+            this.handleMining();
+        }
+    }
+    
+    useBow(item, itemData) {
+        if (this.attackCooldown > 0) return;
+        
+        // Find best arrows in inventory
+        let arrowSlot = -1;
+        let arrowData = null;
+        for (let i = 0; i < this.inventory.length; i++) {
+            if (this.inventory[i] && ITEM_DATA[this.inventory[i].id]?.type === 'ammo') {
+                arrowSlot = i;
+                arrowData = ITEM_DATA[this.inventory[i].id];
+                break;
+            }
+        }
+        if (arrowSlot === -1) return; // No arrows
+        
+        this.attackCooldown = itemData.speed || 15;
+        
+        const pcx = this.player.x + this.player.width / 2, pcy = this.player.y + this.player.height / 2;
+        const angle = Math.atan2(this.mouse.worldY - pcy, this.mouse.worldX - pcx);
+        const totalDamage = (itemData.damage || 0) + (arrowData.damage || 0);
+        const speed = 10;
+        
+        // Arrow color based on type
+        const arrowColors = {
+            [ITEMS.WOOD_ARROW]: '#8B4513',
+            [ITEMS.FLAMING_ARROW]: '#FF6600',
+            [ITEMS.JESTER_ARROW]: '#FFFF00',
+            [ITEMS.UNHOLY_ARROW]: '#9966FF',
+            [ITEMS.HELLFIRE_ARROW]: '#FF3300',
+            [ITEMS.FROSTBURN_ARROW]: '#00CCFF'
+        };
+        const arrowColor = arrowColors[this.inventory[arrowSlot].id] || '#8B4513';
+        
+        this.projectiles.push({
+            x: pcx, y: pcy,
+            vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+            damage: totalDamage, life: 120, color: arrowColor, size: 5,
+            gravity: 0.12, bounces: 0, homing: false, hitEnemies: new Set(),
+            isArrow: true, angle: angle
+        });
+        
+        // Consume arrow
+        this.inventory[arrowSlot].count--;
+        if (this.inventory[arrowSlot].count <= 0) this.inventory[arrowSlot] = null;
+        this.updateHotbar();
     }
     
     useMagicWeapon(id, itemData) {
@@ -1774,8 +1986,10 @@ class Game {
         this.inventoryOpen = true;
         document.getElementById('chestUI').classList.add('open');
         document.getElementById('inventory').classList.add('open');
+        document.getElementById('equipmentPanel').classList.add('open');
         this.updateChestUI();
         this.updateInventoryUI();
+        this.updateEquipmentUI();
     }
     
     closeChest() {
@@ -1867,9 +2081,11 @@ class Game {
     
     damagePlayer(amount) {
         if (this.player.invulnerable > 0) return;
-        this.player.health -= amount;
+        const defense = this.getDefense();
+        const reducedAmount = Math.max(1, Math.floor(amount - defense / 2));
+        this.player.health -= reducedAmount;
         this.player.invulnerable = 60;
-        this.particles.push({ x: this.player.x + this.player.width / 2, y: this.player.y, vx: 0, vy: -2, life: 40, text: amount.toString(), color: '#FF0000' });
+        this.particles.push({ x: this.player.x + this.player.width / 2, y: this.player.y, vx: 0, vy: -2, life: 40, text: reducedAmount.toString(), color: '#FF0000' });
         this.updateHealthBar();
         if (this.player.health <= 0) { this.player.dead = true; document.getElementById('deathScreen').classList.add('show'); }
     }
@@ -2089,9 +2305,26 @@ class Game {
         
         // Projectiles
         for (const p of this.projectiles) {
-            ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill();
-            ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+            if (p.isArrow) {
+                const angle = Math.atan2(p.vy, p.vx);
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(angle);
+                // Arrow shaft
+                ctx.fillStyle = '#8B4513'; ctx.fillRect(-8, -1, 16, 2);
+                // Arrowhead
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.moveTo(8, -3); ctx.lineTo(14, 0); ctx.lineTo(8, 3); ctx.closePath(); ctx.fill();
+                // Fletching
+                ctx.fillStyle = '#CC3333';
+                ctx.beginPath(); ctx.moveTo(-8, -2.5); ctx.lineTo(-5, 0); ctx.lineTo(-8, 0); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(-8, 2.5); ctx.lineTo(-5, 0); ctx.lineTo(-8, 0); ctx.closePath(); ctx.fill();
+                ctx.restore();
+            } else {
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+            }
         }
         
         // Enemies
@@ -2258,7 +2491,7 @@ class Game {
         if (p.isSwinging && this.inventory[this.selectedSlot]) {
             const item = this.inventory[this.selectedSlot];
             const itemData = ITEM_DATA[item.id];
-            if (itemData && ['sword', 'pickaxe', 'axe'].includes(itemData.type)) {
+            if (itemData && ['sword', 'pickaxe', 'axe', 'hammer'].includes(itemData.type)) {
                 ctx.save();
                 const size = (itemData.size || 1) * 40;
                 const thrust = p.swingThrust || 0;
@@ -2305,6 +2538,10 @@ class Game {
             ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, 0, 4, size * 0.8);
             ctx.fillStyle = color;
             ctx.beginPath(); ctx.moveTo(-2, -size * 0.3); ctx.lineTo(-size * 0.35, -size * 0.15); ctx.lineTo(-size * 0.35, size * 0.1); ctx.lineTo(-2, size * 0.05); ctx.closePath(); ctx.fill();
+        } else if (itemData.type === 'hammer') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, 0, 4, size * 0.8);
+            ctx.fillStyle = color;
+            ctx.fillRect(-size * 0.25, -size * 0.3, size * 0.5, size * 0.25);
         }
     }
     
@@ -2316,8 +2553,9 @@ class Game {
         if (name.includes('iron')) return '#C0C0C0';
         if (name.includes('gold')) return '#FFD700';
         if (name.includes('diamond')) return '#00CED1';
-        if (name.includes('demonite') || name.includes("light's")) return '#6633AA';
-        if (name.includes('crimtane') || name.includes('blood')) return '#AA1133';
+        if (name.includes('shadow') || name.includes('demonite') || name.includes("light's")) return '#6633AA';
+        if (name.includes('crimson') || name.includes('crimtane') || name.includes('blood')) return '#AA1133';
+        if (name.includes('molten') || name.includes('fiery') || name.includes('hellstone')) return '#FF4500';
         return '#808080';
     }
     
@@ -2382,6 +2620,70 @@ class Game {
             ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 3, 4, size * 0.7);
             ctx.fillStyle = '#9966FF'; ctx.beginPath(); ctx.arc(0, -size / 3, size / 4, 0, Math.PI * 2); ctx.fill();
             ctx.globalAlpha = 0.4; ctx.beginPath(); ctx.arc(0, -size / 3, size / 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+        } else if (d.type === 'bow') {
+            const bowColor = this.getToolColor(id);
+            // Bow arc
+            ctx.strokeStyle = bowColor; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(size * 0.1, 0, size * 0.35, -Math.PI * 0.6, Math.PI * 0.6); ctx.stroke();
+            // Bowstring
+            ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(size * 0.1 + Math.cos(-Math.PI * 0.6) * size * 0.35, Math.sin(-Math.PI * 0.6) * size * 0.35);
+            ctx.lineTo(size * 0.1 + Math.cos(Math.PI * 0.6) * size * 0.35, Math.sin(Math.PI * 0.6) * size * 0.35);
+            ctx.stroke();
+        } else if (d.type === 'ammo') {
+            // Arrow shaft
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-1, -size / 3, 2, size * 0.65);
+            // Arrowhead
+            ctx.fillStyle = '#A0A0A0';
+            ctx.beginPath(); ctx.moveTo(-3, -size / 3); ctx.lineTo(0, -size / 2.2); ctx.lineTo(3, -size / 3); ctx.closePath(); ctx.fill();
+            // Fletching
+            ctx.fillStyle = '#CC3333';
+            ctx.beginPath(); ctx.moveTo(-3, size / 3 - 2); ctx.lineTo(0, size / 3 - 5); ctx.lineTo(0, size / 3 - 2); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(3, size / 3 - 2); ctx.lineTo(0, size / 3 - 5); ctx.lineTo(0, size / 3 - 2); ctx.closePath(); ctx.fill();
+        } else if (d.type === 'hammer') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 2 + 4, 4, size - 4);
+            ctx.fillStyle = color; ctx.fillRect(-size / 3, -size / 2 + 2, size * 2 / 3, size / 3);
+        } else if (d.type === 'spear') {
+            ctx.fillStyle = '#8B4513'; ctx.fillRect(-1.5, -size / 4, 3, size * 0.6);
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.moveTo(-4, -size / 4); ctx.lineTo(0, -size / 2 + 2); ctx.lineTo(4, -size / 4); ctx.closePath(); ctx.fill();
+        } else if (d.type === 'boomerang' || d.type === 'yoyo' || d.type === 'flail') {
+            ctx.fillStyle = color || '#808080';
+            ctx.beginPath(); ctx.arc(0, 0, size / 3, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(-2, -2, size / 5, 0, Math.PI * 2); ctx.fill();
+        } else if (d.type === 'helmet') {
+            ctx.fillStyle = color;
+            // Dome
+            ctx.beginPath(); ctx.arc(0, -size * 0.05, size * 0.3, Math.PI, 0); ctx.fill();
+            // Band
+            ctx.fillRect(-size * 0.3, -size * 0.05, size * 0.6, size * 0.25);
+            // Visor
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillRect(-size * 0.25, size * 0.05, size * 0.5, size * 0.1);
+        } else if (d.type === 'chestplate') {
+            ctx.fillStyle = color;
+            // Torso
+            ctx.fillRect(-size * 0.3, -size * 0.25, size * 0.6, size * 0.5);
+            // Shoulders
+            ctx.fillRect(-size * 0.4, -size * 0.25, size * 0.15, size * 0.2);
+            ctx.fillRect(size * 0.25, -size * 0.25, size * 0.15, size * 0.2);
+            // Highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(-size * 0.15, -size * 0.2, size * 0.3, size * 0.15);
+        } else if (d.type === 'leggings') {
+            ctx.fillStyle = color;
+            // Left leg
+            ctx.fillRect(-size * 0.25, -size * 0.2, size * 0.2, size * 0.45);
+            // Right leg
+            ctx.fillRect(size * 0.05, -size * 0.2, size * 0.2, size * 0.45);
+            // Belt
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(-size * 0.25, -size * 0.2, size * 0.5, size * 0.08);
+        } else if (d.type === 'accessory') {
+            ctx.fillStyle = d.rarity === 'legendary' ? '#FFD700' : d.rarity === 'rare' ? '#00FF88' : '#C0C0C0';
+            ctx.beginPath(); ctx.arc(0, 0, size / 3, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, size / 3, 0, Math.PI * 2); ctx.stroke();
         } else if (d.type === 'material') {
             const colors = { [ITEMS.COPPER_BAR]: '#CD7F32', [ITEMS.IRON_BAR]: '#C0C0C0', [ITEMS.GOLD_BAR]: '#FFD700', [ITEMS.DEMONITE_BAR]: '#6633AA', [ITEMS.CRIMTANE_BAR]: '#AA1133', [ITEMS.WOOD_PLANK]: '#DEB887', [ITEMS.STICK]: '#8B4513', [ITEMS.GEL]: '#00FF00', [ITEMS.LENS]: '#FF6B6B', [ITEMS.FALLEN_STAR]: '#FFFF00' };
             ctx.fillStyle = colors[id] || '#808080'; ctx.fillRect(-size / 3, -size / 3, size * 2 / 3, size * 2 / 3);
@@ -2479,6 +2781,77 @@ class Game {
         }
     }
     
+    updateEquipmentUI() {
+        const armorLabels = ['Helmet', 'Chest', 'Legs'];
+        const armorTypes = ['helmet', 'chestplate', 'leggings'];
+        const armorGrid = document.getElementById('armorSlots'); armorGrid.innerHTML = '';
+        
+        for (let i = 0; i < 3; i++) {
+            const slot = document.createElement('div'); slot.className = 'equip-slot armor-slot';
+            const label = document.createElement('span'); label.className = 'slot-label'; label.textContent = armorLabels[i]; slot.appendChild(label);
+            const item = this.armorSlots[i];
+            if (item) {
+                const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+                this.drawItem(canvas.getContext('2d'), 0, 0, item.id, 32);
+                slot.appendChild(canvas);
+            }
+            const idx = i;
+            slot.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    if (this.draggedItem) this.handleDrop({ type: 'armor', index: idx });
+                    else if (item) this.startDrag(item, { type: 'armor', index: idx });
+                }
+            });
+            slot.addEventListener('mouseover', (e) => { if (item) this.showTooltip(e, item.id); if (this.draggedItem) slot.classList.add('drag-over'); });
+            slot.addEventListener('mouseout', () => { this.hideTooltip(); slot.classList.remove('drag-over'); });
+            slot.addEventListener('mouseup', () => { if (this.draggedItem) this.handleDrop({ type: 'armor', index: idx }); });
+            armorGrid.appendChild(slot);
+        }
+        
+        const accGrid = document.getElementById('accessorySlots'); accGrid.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+            const slot = document.createElement('div'); slot.className = 'equip-slot accessory-slot';
+            const label = document.createElement('span'); label.className = 'slot-label'; label.textContent = 'Acc ' + (i + 1); slot.appendChild(label);
+            const item = this.accessorySlots[i];
+            if (item) {
+                const canvas = document.createElement('canvas'); canvas.width = 32; canvas.height = 32;
+                this.drawItem(canvas.getContext('2d'), 0, 0, item.id, 32);
+                slot.appendChild(canvas);
+            }
+            const idx = i;
+            slot.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    if (this.draggedItem) this.handleDrop({ type: 'accessory', index: idx });
+                    else if (item) this.startDrag(item, { type: 'accessory', index: idx });
+                }
+            });
+            slot.addEventListener('mouseover', (e) => { if (item) this.showTooltip(e, item.id); if (this.draggedItem) slot.classList.add('drag-over'); });
+            slot.addEventListener('mouseout', () => { this.hideTooltip(); slot.classList.remove('drag-over'); });
+            slot.addEventListener('mouseup', () => { if (this.draggedItem) this.handleDrop({ type: 'accessory', index: idx }); });
+            accGrid.appendChild(slot);
+        }
+        
+        document.getElementById('defenseValue').textContent = this.getDefense();
+    }
+    
+    getDefense() {
+        let def = 0;
+        for (const slot of this.armorSlots) { if (slot) def += ITEM_DATA[slot.id]?.defense || 0; }
+        for (const slot of this.accessorySlots) { if (slot) def += ITEM_DATA[slot.id]?.defense || 0; }
+        return def;
+    }
+    
+    getEquipSlot(target) {
+        if (target.type === 'armor') return this.armorSlots[target.index];
+        if (target.type === 'accessory') return this.accessorySlots[target.index];
+        return null;
+    }
+    
+    setEquipSlot(target, item) {
+        if (target.type === 'armor') this.armorSlots[target.index] = item;
+        else if (target.type === 'accessory') this.accessorySlots[target.index] = item;
+    }
+    
     updateChestUI() {
         const grid = document.getElementById('chestGrid'); grid.innerHTML = '';
         if (!this.currentChest || !this.chestData[this.currentChest]) return;
@@ -2513,18 +2886,56 @@ class Game {
         dragDiv.innerHTML = ''; dragDiv.appendChild(canvas);
         if (source.type === 'inventory') this.inventory[source.index] = null;
         else if (source.type === 'chest') this.chestData[this.currentChest][source.index] = null;
-        this.updateInventoryUI(); if (this.chestOpen) this.updateChestUI();
+        else if (source.type === 'armor') this.armorSlots[source.index] = null;
+        else if (source.type === 'accessory') this.accessorySlots[source.index] = null;
+        this.updateInventoryUI(); this.updateEquipmentUI(); if (this.chestOpen) this.updateChestUI();
     }
     
     handleDrop(target) {
         if (!this.draggedItem) return;
-        let targetSlot = target.type === 'inventory' ? this.inventory[target.index] : this.chestData[this.currentChest][target.index];
+        const dragItemData = ITEM_DATA[this.draggedItem.id];
+        
+        // Equipment slot validation
+        const armorTypes = ['helmet', 'chestplate', 'leggings'];
+        if (target.type === 'armor') {
+            const requiredType = armorTypes[target.index];
+            if (dragItemData?.type !== requiredType) {
+                // Put item back to source
+                this.returnDragToSource();
+                return;
+            }
+            const existing = this.armorSlots[target.index];
+            if (existing) this.returnItemToSource(existing);
+            this.armorSlots[target.index] = this.draggedItem;
+            this.clearDrag(); this.updateHotbar(); this.updateInventoryUI(); this.updateEquipmentUI(); if (this.chestOpen) this.updateChestUI();
+            return;
+        }
+        
+        if (target.type === 'accessory') {
+            if (dragItemData?.type !== 'accessory') {
+                this.returnDragToSource();
+                return;
+            }
+            const existing = this.accessorySlots[target.index];
+            if (existing) this.returnItemToSource(existing);
+            this.accessorySlots[target.index] = this.draggedItem;
+            this.clearDrag(); this.updateHotbar(); this.updateInventoryUI(); this.updateEquipmentUI(); if (this.chestOpen) this.updateChestUI();
+            return;
+        }
+        
+        // Standard inventory/chest drop
+        let targetSlot;
+        if (target.type === 'inventory') targetSlot = this.inventory[target.index];
+        else targetSlot = this.chestData[this.currentChest][target.index];
         
         if (targetSlot && targetSlot.id === this.draggedItem.id && ITEM_DATA[targetSlot.id]?.stackable) {
             targetSlot.count += this.draggedItem.count;
         } else if (targetSlot) {
+            // Swap: put current target back to drag source
             if (this.dragSource.type === 'inventory') this.inventory[this.dragSource.index] = targetSlot;
             else if (this.dragSource.type === 'chest') this.chestData[this.currentChest][this.dragSource.index] = targetSlot;
+            else if (this.dragSource.type === 'armor') this.armorSlots[this.dragSource.index] = targetSlot;
+            else if (this.dragSource.type === 'accessory') this.accessorySlots[this.dragSource.index] = targetSlot;
             if (target.type === 'inventory') this.inventory[target.index] = this.draggedItem;
             else this.chestData[this.currentChest][target.index] = this.draggedItem;
         } else {
@@ -2532,7 +2943,28 @@ class Game {
             else this.chestData[this.currentChest][target.index] = this.draggedItem;
         }
         
-        this.clearDrag(); this.updateHotbar(); this.updateInventoryUI(); if (this.chestOpen) this.updateChestUI();
+        this.clearDrag(); this.updateHotbar(); this.updateInventoryUI(); this.updateEquipmentUI(); if (this.chestOpen) this.updateChestUI();
+    }
+    
+    returnDragToSource() {
+        if (!this.draggedItem || !this.dragSource) return;
+        if (this.dragSource.type === 'inventory') this.inventory[this.dragSource.index] = this.draggedItem;
+        else if (this.dragSource.type === 'chest') this.chestData[this.currentChest][this.dragSource.index] = this.draggedItem;
+        else if (this.dragSource.type === 'armor') this.armorSlots[this.dragSource.index] = this.draggedItem;
+        else if (this.dragSource.type === 'accessory') this.accessorySlots[this.dragSource.index] = this.draggedItem;
+        this.clearDrag(); this.updateHotbar(); this.updateInventoryUI(); this.updateEquipmentUI(); if (this.chestOpen) this.updateChestUI();
+    }
+    
+    returnItemToSource(item) {
+        // Put displaced equipment item back into drag source slot or find empty inventory slot
+        if (this.dragSource.type === 'inventory') { this.inventory[this.dragSource.index] = item; return; }
+        if (this.dragSource.type === 'chest') { this.chestData[this.currentChest][this.dragSource.index] = item; return; }
+        // Otherwise put in first empty inventory slot
+        for (let i = 0; i < this.inventory.length; i++) {
+            if (!this.inventory[i]) { this.inventory[i] = item; return; }
+        }
+        // Drop on ground if no space
+        this.spawnDroppedItem(this.player.x + this.player.width / 2, this.player.y, item.id, item.count);
     }
     
     quickMove(source) {
@@ -2558,6 +2990,7 @@ class Game {
         const tooltip = document.getElementById('tooltip');
         let html = `<div class="item-name ${d.rarity || ''}">${d.name}</div>`;
         if (d.damage) html += `<div class="item-desc">Damage: ${d.damage}</div>`;
+        if (d.defense) html += `<div class="item-desc">Defense: ${d.defense}</div>`;
         if (d.power) html += `<div class="item-desc">Power: ${d.power}%</div>`;
         if (d.mana) html += `<div class="item-desc">Mana: ${d.mana}</div>`;
         if (d.heal) html += `<div class="item-desc">Heals: ${d.heal}</div>`;
