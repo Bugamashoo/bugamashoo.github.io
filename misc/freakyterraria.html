@@ -249,14 +249,19 @@
             border-top: 2px solid #555;
             margin-top: 10px;
             padding-top: 10px;
-            color: #aaa;
-            font-size: 8px;
-            line-height: 1.8;
-            text-align: center;
+            color: #ddd;
+            font-size: 9px;
+            line-height: 2.2;
+            text-align: left;
+            padding-left: 6px;
+        }
+        
+        #controls span {
+            color: #ffdd00;
         }
         
         #inventoryHint {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -267,6 +272,7 @@
             animation: hintPulse 2s ease-in-out infinite;
             text-align: center;
             white-space: nowrap;
+            z-index: 50;
         }
         
         @keyframes hintPulse {
@@ -467,8 +473,15 @@
                 <div id="craftingGrid"></div>
             </div>
             <div id="controls">
-                [WASD] Move &amp; Jump | [Left Click] Attack/Mine | [Right Click] Place/Interact<br>
-                [1-9] Hotbar | [E] Inventory | [Q] Drop | [H] Use Item | [Shift+Click] Quick Move
+                <span>[W/A/S/D]</span> Move &amp; Jump<br>
+                <span>[S]</span> Drop through platforms<br>
+                <span>[Left Click]</span> Attack / Mine<br>
+                <span>[Right Click]</span> Place / Interact<br>
+                <span>[1-9]</span> Select hotbar slot<br>
+                <span>[E]</span> Open / Close inventory<br>
+                <span>[Q]</span> Drop selected item<br>
+                <span>[F]</span> Use selected item<br>
+                <span>[Shift+Click]</span> Quick move item
             </div>
         </div>
         
@@ -568,33 +581,33 @@ const BLOCKS = {
 
 const BLOCK_DATA = {
     [BLOCKS.AIR]: { name: 'Air', solid: false, transparent: true, hardness: 0 },
-    [BLOCKS.DIRT]: { name: 'Dirt', solid: true, transparent: false, hardness: 1, color: '#8B4513', drops: BLOCKS.DIRT },
-    [BLOCKS.GRASS]: { name: 'Grass', solid: true, transparent: false, hardness: 1, color: '#5D4037', topColor: '#4CAF50', drops: BLOCKS.DIRT },
-    [BLOCKS.STONE]: { name: 'Stone', solid: true, transparent: false, hardness: 3, color: '#808080', drops: BLOCKS.COBBLESTONE },
+    [BLOCKS.DIRT]: { name: 'Dirt', solid: true, transparent: false, hardness: 1, color: '#9B6B3C', drops: BLOCKS.DIRT },
+    [BLOCKS.GRASS]: { name: 'Grass', solid: true, transparent: false, hardness: 1, color: '#7B5B3A', topColor: '#4CAF50', drops: BLOCKS.DIRT },
+    [BLOCKS.STONE]: { name: 'Stone', solid: true, transparent: false, hardness: 3, color: '#8A8A8A', drops: BLOCKS.COBBLESTONE },
     [BLOCKS.COPPER_ORE]: { name: 'Copper Ore', solid: true, transparent: false, hardness: 4, color: '#CD7F32', drops: BLOCKS.COPPER_ORE },
     [BLOCKS.IRON_ORE]: { name: 'Iron Ore', solid: true, transparent: false, hardness: 5, color: '#8B7355', drops: BLOCKS.IRON_ORE },
     [BLOCKS.GOLD_ORE]: { name: 'Gold Ore', solid: true, transparent: false, hardness: 6, color: '#FFD700', drops: BLOCKS.GOLD_ORE },
     [BLOCKS.DIAMOND]: { name: 'Diamond', solid: true, transparent: false, hardness: 8, color: '#00CED1', drops: BLOCKS.DIAMOND },
-    [BLOCKS.WOOD]: { name: 'Wood', solid: true, transparent: false, hardness: 2, color: '#8B4513', drops: BLOCKS.WOOD },
+    [BLOCKS.WOOD]: { name: 'Wood', solid: false, transparent: true, hardness: 2, color: '#5C3A1E', drops: BLOCKS.WOOD },
     [BLOCKS.LEAVES]: { name: 'Leaves', solid: false, transparent: true, hardness: 0.5, color: '#228B22', drops: null },
-    [BLOCKS.SAND]: { name: 'Sand', solid: true, transparent: false, hardness: 1, color: '#F4A460', drops: BLOCKS.SAND },
+    [BLOCKS.SAND]: { name: 'Sand', solid: true, transparent: false, hardness: 1, color: '#E8C872', drops: BLOCKS.SAND },
     [BLOCKS.WATER]: { name: 'Water', solid: false, transparent: true, hardness: 0, color: 'rgba(30,144,255,0.6)', liquid: true },
     [BLOCKS.TORCH]: { name: 'Torch', solid: false, transparent: true, hardness: 0.1, light: 12, drops: BLOCKS.TORCH },
-    [BLOCKS.WORKBENCH]: { name: 'Workbench', solid: true, transparent: false, hardness: 2, color: '#DEB887', drops: BLOCKS.WORKBENCH, station: true },
-    [BLOCKS.FURNACE]: { name: 'Furnace', solid: true, transparent: false, hardness: 3, color: '#696969', drops: BLOCKS.FURNACE, station: true },
+    [BLOCKS.WORKBENCH]: { name: 'Workbench', solid: false, transparent: false, hardness: 2, color: '#DEB887', drops: BLOCKS.WORKBENCH, station: true, platform: true },
+    [BLOCKS.FURNACE]: { name: 'Furnace', solid: false, transparent: false, hardness: 3, color: '#696969', drops: BLOCKS.FURNACE, station: true, platform: true },
     [BLOCKS.CHEST]: { name: 'Chest', solid: true, transparent: false, hardness: 2, color: '#DAA520', drops: BLOCKS.CHEST },
     [BLOCKS.WOOD_PLATFORM]: { name: 'Platform', solid: false, transparent: true, hardness: 1, color: '#A0522D', platform: true, drops: BLOCKS.WOOD_PLATFORM },
-    [BLOCKS.COBBLESTONE]: { name: 'Cobblestone', solid: true, transparent: false, hardness: 3, color: '#606060', drops: BLOCKS.COBBLESTONE },
-    [BLOCKS.BRICK]: { name: 'Brick', solid: true, transparent: false, hardness: 4, color: '#B22222', drops: BLOCKS.BRICK },
-    [BLOCKS.GLASS]: { name: 'Glass', solid: true, transparent: true, hardness: 1, color: '#ADD8E6', drops: BLOCKS.GLASS },
+    [BLOCKS.COBBLESTONE]: { name: 'Cobblestone', solid: true, transparent: false, hardness: 3, color: '#6B6B6B', drops: BLOCKS.COBBLESTONE },
+    [BLOCKS.BRICK]: { name: 'Brick', solid: true, transparent: false, hardness: 4, color: '#B33A2A', drops: BLOCKS.BRICK },
+    [BLOCKS.GLASS]: { name: 'Glass', solid: true, transparent: true, hardness: 1, color: '#C8E8F0', drops: BLOCKS.GLASS },
     [BLOCKS.HELLSTONE]: { name: 'Hellstone', solid: true, transparent: false, hardness: 10, color: '#FF4500', drops: BLOCKS.HELLSTONE },
     [BLOCKS.OBSIDIAN]: { name: 'Obsidian', solid: true, transparent: false, hardness: 15, color: '#1a0a2e', drops: BLOCKS.OBSIDIAN },
     [BLOCKS.MUSHROOM]: { name: 'Mushroom', solid: false, transparent: true, hardness: 0.1, color: '#FF6B6B', drops: BLOCKS.MUSHROOM },
     [BLOCKS.FLOWER_RED]: { name: 'Red Flower', solid: false, transparent: true, hardness: 0.1, color: '#FF0000', drops: BLOCKS.FLOWER_RED },
     [BLOCKS.FLOWER_YELLOW]: { name: 'Yellow Flower', solid: false, transparent: true, hardness: 0.1, color: '#FFFF00', drops: BLOCKS.FLOWER_YELLOW },
     [BLOCKS.TALL_GRASS]: { name: 'Tall Grass', solid: false, transparent: true, hardness: 0.1, color: '#90EE90', drops: null },
-    [BLOCKS.CLAY]: { name: 'Clay', solid: true, transparent: false, hardness: 2, color: '#B8860B', drops: BLOCKS.CLAY },
-    [BLOCKS.MUD]: { name: 'Mud', solid: true, transparent: false, hardness: 1, color: '#5C4033', drops: BLOCKS.MUD },
+    [BLOCKS.CLAY]: { name: 'Clay', solid: true, transparent: false, hardness: 2, color: '#C47A52', drops: BLOCKS.CLAY },
+    [BLOCKS.MUD]: { name: 'Mud', solid: true, transparent: false, hardness: 1, color: '#4A3728', drops: BLOCKS.MUD },
     [BLOCKS.SNOW]: { name: 'Snow', solid: true, transparent: false, hardness: 1, color: '#FFFAFA', drops: BLOCKS.SNOW },
     [BLOCKS.ICE]: { name: 'Ice', solid: true, transparent: true, hardness: 2, color: '#87CEEB', drops: BLOCKS.ICE },
     [BLOCKS.LAVA]: { name: 'Lava', solid: false, transparent: true, hardness: 0, color: 'rgba(255,69,0,0.8)', liquid: true, damage: 50, light: 10 },
@@ -1174,7 +1187,8 @@ class Game {
             speed: 4, jumpForce: 12, onGround: false, direction: 1,
             health: 100, maxHealth: 100, mana: 20, maxMana: 20,
             dead: false, invulnerable: 0, swingAngle: 0, isSwinging: false,
-            swingTimer: 0, swingDuration: 15, swingThrust: 0, hasHitThisSwing: new Set()
+            swingTimer: 0, swingDuration: 15, swingThrust: 0, hasHitThisSwing: new Set(),
+            fallStartY: 0
         };
         
         this.inventory = new Array(50).fill(null);
@@ -1204,6 +1218,7 @@ class Game {
         this.attackCooldown = 0;
         this.magicCooldown = 0;
         this.spawnPoint = { x: 0, y: 0 };
+        this.fallDamageImmunity = 300; // 5 seconds at 60fps - prevents spawn fall damage
         
         this.noise = new SimplexNoise(Date.now());
         
@@ -1269,7 +1284,7 @@ class Game {
                 }
             }
             if (e.key.toLowerCase() === 'q') this.dropSelectedItem();
-            if (e.key.toLowerCase() === 'h') this.useSelectedItem();
+            if (e.key.toLowerCase() === 'f') this.useSelectedItem();
         });
         
         window.addEventListener('keyup', (e) => { this.keys[e.key.toLowerCase()] = false; if (!e.shiftKey) this.shiftHeld = false; });
@@ -1335,26 +1350,33 @@ class Game {
             if (Math.abs(x - evilCenter) < evilWidth) biome = evilType;
             
             for (let y = 0; y < this.tilesY; y++) {
-                this.biomeMap[x][y] = y >= hellY ? 'hell' : (y >= undergroundY ? 'underground' : biome);
+                this.biomeMap[x][y] = y >= hellY ? 'hell' : (y >= surfaceHeight + 16 ? 'underground' : biome);
+                const stoneStart = surfaceHeight + 16;
                 
-                if (y < surfaceHeight - 5) {
+                if (y < surfaceHeight) {
                     this.tiles[x][y] = BLOCKS.AIR;
                 } else if (y === surfaceHeight) {
+                    // Surface block
                     if (biome === 'desert') this.tiles[x][y] = BLOCKS.SAND;
                     else if (biome === 'snow') this.tiles[x][y] = BLOCKS.SNOW;
                     else if (biome === 'corruption') this.tiles[x][y] = BLOCKS.CORRUPT_GRASS;
                     else if (biome === 'crimson') this.tiles[x][y] = BLOCKS.CRIMSON_GRASS;
                     else this.tiles[x][y] = BLOCKS.GRASS;
                 } else if (y < surfaceHeight + 6) {
+                    // Shallow subsurface
                     if (biome === 'desert') this.tiles[x][y] = BLOCKS.SAND;
                     else if (biome === 'snow') this.tiles[x][y] = BLOCKS.SNOW;
                     else if (biome === 'corruption') this.tiles[x][y] = BLOCKS.EBONSTONE;
                     else if (biome === 'crimson') this.tiles[x][y] = BLOCKS.CRIMSTONE;
                     else this.tiles[x][y] = BLOCKS.DIRT;
-                } else if (y < undergroundY) {
-                    this.tiles[x][y] = BLOCKS.DIRT;
+                } else if (y < stoneStart) {
+                    // Dirt layer (down to 16 blocks below surface)
+                    if (biome === 'corruption') { this.tiles[x][y] = BLOCKS.EBONSTONE; }
+                    else if (biome === 'crimson') { this.tiles[x][y] = BLOCKS.CRIMSTONE; }
+                    else this.tiles[x][y] = BLOCKS.DIRT;
                     this.backgroundTiles[x][y] = BLOCKS.DIRT;
                 } else if (y < hellY) {
+                    // Stone layer
                     if (biome === 'corruption') this.tiles[x][y] = BLOCKS.EBONSTONE;
                     else if (biome === 'crimson') this.tiles[x][y] = BLOCKS.CRIMSTONE;
                     else this.tiles[x][y] = BLOCKS.STONE;
@@ -1392,7 +1414,7 @@ class Game {
         for (const ore of ores) {
             for (let x = 0; x < this.tilesX; x++) {
                 for (let y = ore.minY; y < ore.maxY; y++) {
-                    if (this.tiles[x][y] === BLOCKS.STONE || this.tiles[x][y] === BLOCKS.DIRT) {
+                    if (this.tiles[x][y] === BLOCKS.STONE || this.tiles[x][y] === BLOCKS.DIRT || this.tiles[x][y] === BLOCKS.EBONSTONE || this.tiles[x][y] === BLOCKS.CRIMSTONE) {
                         if (this.noise.octave2D(x * ore.freq + ore.block * 100, y * ore.freq, 2, 0.5) > ore.thresh) {
                             this.tiles[x][y] = ore.block;
                         }
@@ -1613,7 +1635,7 @@ class Game {
     update() {
         if (this.player.dead) return;
         
-        this.gameTime += 1 / 60;
+        this.gameTime += 2 / 60;
         if (this.gameTime >= this.dayLength) { this.gameTime = 0; this.day++; }
         
         const hour = this.gameTime / 60;
@@ -1668,7 +1690,15 @@ class Game {
         if (p.vy > 15) p.vy = 15;
         
         // Reset ground state before collision checks
+        const wasOnGround = p.onGround;
         p.onGround = false;
+        
+        // Track fall - record highest point while in air
+        if (wasOnGround) {
+            p.fallStartY = p.y;
+        } else if (p.y < p.fallStartY) {
+            p.fallStartY = p.y; // Update to highest point (lowest Y)
+        }
         
         // Move and resolve X collision first
         if (Math.abs(p.vx) > 0.01) {
@@ -1680,6 +1710,19 @@ class Game {
         if (Math.abs(p.vy) > 0.01) {
             p.y += p.vy;
             this.resolveCollision(p, 'y');
+        }
+        
+        // Fall damage immunity countdown
+        if (this.fallDamageImmunity > 0) this.fallDamageImmunity--;
+        
+        // Fall damage based on tile distance (threshold: 20 tiles)
+        if (p.onGround && !wasOnGround) {
+            const fallTiles = (p.y - p.fallStartY) / this.tileSize;
+            if (fallTiles > 20 && this.fallDamageImmunity <= 0) {
+                const fallDamage = Math.floor((fallTiles - 20) * 5);
+                if (fallDamage > 0) this.damagePlayer(fallDamage);
+            }
+            p.fallStartY = p.y;
         }
         
         // Clamp to world bounds
@@ -1778,6 +1821,9 @@ class Game {
                     const isPlatform = bd.platform && entity.vy >= 0 && axis === 'y';
                     
                     if (!isSolid && !isPlatform) continue;
+                    
+                    // Drop through platforms when pressing down
+                    if (isPlatform && (this.keys['s'] || this.keys['arrowdown'])) continue;
                     
                     if (isPlatform) {
                         const entityBottom = entity.y + entity.height;
@@ -1885,7 +1931,8 @@ class Game {
             vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
             damage: totalDamage, life: 120, color: arrowColor, size: 5,
             gravity: 0.12, bounces: 0, homing: false, hitEnemies: new Set(),
-            isArrow: true, angle: angle
+            isArrow: true, angle: angle,
+            knockback: (itemData.knockback || 2) * 2 / 5
         });
         
         // Consume arrow
@@ -1934,8 +1981,22 @@ class Game {
         
         const bd = BLOCK_DATA[block];
         const item = this.inventory[this.selectedSlot];
-        let power = 15;
-        if (item && ITEM_DATA[item.id]?.type === 'pickaxe') power = ITEM_DATA[item.id].power;
+        const itemData = item ? ITEM_DATA[item.id] : null;
+        const toolType = itemData?.type;
+        
+        // Tree blocks: wood and leaves
+        const isTreeBlock = block === BLOCKS.WOOD || block === BLOCKS.LEAVES;
+        
+        // Axes only work on tree blocks
+        if (toolType === 'axe' && !isTreeBlock) return;
+        // Pickaxes work on everything except tree blocks
+        if (toolType === 'pickaxe' && isTreeBlock) return;
+        
+        // Get tool power
+        let power = 10; // bare hands / wrong tool fallback
+        if (toolType === 'pickaxe' && !isTreeBlock) power = itemData.power;
+        else if (toolType === 'axe' && isTreeBlock) power = itemData.power;
+        else if (toolType === 'hammer') power = itemData.power;
         
         if (this.miningTarget !== `${tx},${ty}`) { this.miningTarget = `${tx},${ty}`; this.miningProgress = 0; }
         
@@ -1961,6 +2022,16 @@ class Game {
         const pcx = this.player.x + this.player.width / 2, pcy = this.player.y + this.player.height / 2;
         if (Math.sqrt((pcx - (tx * this.tileSize + 8)) ** 2 + (pcy - (ty * this.tileSize + 8)) ** 2) > 140) return;
         if (this.tiles[tx][ty] !== BLOCKS.AIR && this.tiles[tx][ty] !== BLOCKS.WATER) return;
+        
+        // Must have at least one adjacent solid block or background tile (Terraria placement rule)
+        const hasAdj = (
+            (tx > 0 && BLOCK_DATA[this.tiles[tx - 1][ty]]?.solid) ||
+            (tx < this.tilesX - 1 && BLOCK_DATA[this.tiles[tx + 1][ty]]?.solid) ||
+            (ty > 0 && BLOCK_DATA[this.tiles[tx][ty - 1]]?.solid) ||
+            (ty < this.tilesY - 1 && BLOCK_DATA[this.tiles[tx][ty + 1]]?.solid) ||
+            (this.backgroundTiles[tx] && this.backgroundTiles[tx][ty] !== BLOCKS.AIR)
+        );
+        if (!hasAdj) return;
         
         const item = this.inventory[this.selectedSlot];
         if (!item || ITEM_DATA[item.id]?.type !== 'block') return;
@@ -2158,6 +2229,12 @@ class Game {
                 if (proj.hitEnemies.has(e)) continue;
                 if (Math.sqrt((proj.x - (e.x + e.width / 2)) ** 2 + (proj.y - (e.y + e.height / 2)) ** 2) < e.width / 2 + proj.size / 2) {
                     e.health -= proj.damage; e.invulnerable = 10;
+                    // Apply projectile knockback
+                    if (proj.knockback) {
+                        const hitAngle = Math.atan2(e.y + e.height / 2 - proj.y, e.x + e.width / 2 - proj.x);
+                        e.vx += Math.cos(hitAngle) * proj.knockback;
+                        e.vy += Math.sin(hitAngle) * proj.knockback - 2;
+                    }
                     this.particles.push({ x: e.x + e.width / 2, y: e.y, vx: 0, vy: -2, life: 40, text: proj.damage.toString(), color: '#9966FF' });
                     if (proj.pierce) proj.hitEnemies.add(e); else proj.life = 0;
                     if (e.health <= 0) { for (const drop of e.type.drops) { if (Math.random() < drop.chance) this.spawnDroppedItem(e.x, e.y, drop.id, drop.min + Math.floor(Math.random() * (drop.max - drop.min + 1))); } }
@@ -2233,6 +2310,9 @@ class Game {
         this.player.vx = 0; this.player.vy = 0;
         this.player.health = this.player.maxHealth; this.player.mana = this.player.maxMana;
         this.player.dead = false; this.player.invulnerable = 120;
+        this.player.fallStartY = this.player.y;
+        this.fallDamageImmunity = 300; // 5s immunity after respawn
+        this.enemies = []; // Despawn all enemies
         document.getElementById('deathScreen').classList.remove('show');
         this.updateHealthBar(); this.updateManaBar();
     }
@@ -2251,6 +2331,57 @@ class Game {
         
         ctx.fillStyle = this.getSkyColor();
         ctx.fillRect(0, 0, width, height);
+        
+        // Sky details (sun/moon, stars) - only if player is near surface
+        const playerDepth = this.player.y / this.worldHeight;
+        if (playerDepth < 0.5) {
+            const hour = this.gameTime / 60;
+            const isNight = hour >= 19 || hour < 5;
+            
+            // Stars at night
+            if (isNight) {
+                const starAlpha = hour >= 20 || hour < 4 ? 0.8 : 0.4;
+                ctx.globalAlpha = starAlpha;
+                ctx.fillStyle = '#fff';
+                for (let i = 0; i < 80; i++) {
+                    const sx = ((i * 137 + 43) % width);
+                    const sy = ((i * 97 + 17) % (height * 0.4));
+                    const sz = 1 + (i % 3);
+                    ctx.fillRect(sx, sy, sz, sz);
+                }
+                ctx.globalAlpha = 1;
+            }
+            
+            // Sun or Moon
+            let celestialProgress;
+            if (hour >= 5 && hour < 19) {
+                celestialProgress = (hour - 5) / 14; // Sun arc
+                const cx = width * 0.1 + celestialProgress * width * 0.8;
+                const cy = height * 0.15 + Math.sin(celestialProgress * Math.PI) * -height * 0.12;
+                // Sun
+                ctx.fillStyle = '#FFF176';
+                ctx.beginPath(); ctx.arc(cx, cy, 28, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#FFEE58';
+                ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI * 2); ctx.fill();
+                // Sun glow
+                ctx.globalAlpha = 0.15;
+                ctx.fillStyle = '#FFEE58';
+                ctx.beginPath(); ctx.arc(cx, cy, 50, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1;
+            } else {
+                const nightStart = hour >= 19 ? hour - 19 : hour + 5;
+                celestialProgress = nightStart / 10;
+                const cx = width * 0.1 + celestialProgress * width * 0.8;
+                const cy = height * 0.15 + Math.sin(celestialProgress * Math.PI) * -height * 0.12;
+                // Moon
+                ctx.fillStyle = '#E8E8E8';
+                ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#C8C8C8';
+                ctx.beginPath(); ctx.arc(cx + 4, cy - 2, 6, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(cx - 6, cy + 5, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(cx + 2, cy + 8, 3, 0, Math.PI * 2); ctx.fill();
+            }
+        }
         
         ctx.save();
         ctx.translate(width / 2, height / 2);
@@ -2339,17 +2470,37 @@ class Game {
             else { ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30; ctx.fillRect(p.x - 2, p.y - 2, 4, 4); ctx.globalAlpha = 1; }
         }
         
-        // Mining indicator
+        // Tile cursor highlight
+        if (!this.inventoryOpen && !this.chestOpen) {
+            const htx = Math.floor(this.mouse.worldX / this.tileSize);
+            const hty = Math.floor(this.mouse.worldY / this.tileSize);
+            if (htx >= 0 && htx < this.tilesX && hty >= 0 && hty < this.tilesY) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(htx * this.tileSize + 0.5, hty * this.tileSize + 0.5, this.tileSize - 1, this.tileSize - 1);
+            }
+        }
+        
+        // Mining indicator with crack stages
         if (this.miningTarget) {
             const [tx, ty] = this.miningTarget.split(',').map(Number);
             const block = this.tiles[tx][ty];
             if (block !== BLOCKS.AIR) {
                 const progress = Math.min(1, this.miningProgress / (BLOCK_DATA[block].hardness * 10));
-                ctx.strokeStyle = '#FFF'; ctx.lineWidth = 2;
-                ctx.strokeRect(tx * this.tileSize, ty * this.tileSize, this.tileSize, this.tileSize);
-                ctx.globalAlpha = progress; ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(tx * this.tileSize, ty * this.tileSize, this.tileSize, this.tileSize);
+                const px = tx * this.tileSize, py = ty * this.tileSize, ts = this.tileSize;
+                // Crack lines based on progress
+                ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.5;
+                if (progress > 0.1) { ctx.beginPath(); ctx.moveTo(px + ts * 0.5, py); ctx.lineTo(px + ts * 0.4, py + ts * 0.5); ctx.stroke(); }
+                if (progress > 0.3) { ctx.beginPath(); ctx.moveTo(px + ts * 0.4, py + ts * 0.5); ctx.lineTo(px + ts * 0.6, py + ts); ctx.stroke(); }
+                if (progress > 0.5) { ctx.beginPath(); ctx.moveTo(px + ts * 0.4, py + ts * 0.5); ctx.lineTo(px, py + ts * 0.7); ctx.stroke(); }
+                if (progress > 0.7) { ctx.beginPath(); ctx.moveTo(px + ts * 0.4, py + ts * 0.5); ctx.lineTo(px + ts, py + ts * 0.4); ctx.stroke(); }
+                // Darken overlay
+                ctx.globalAlpha = progress * 0.4; ctx.fillStyle = 'rgba(0,0,0,1)';
+                ctx.fillRect(px, py, ts, ts);
                 ctx.globalAlpha = 1;
+                // Selection border
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+                ctx.strokeRect(px + 0.5, py + 0.5, ts - 1, ts - 1);
             }
         }
         
@@ -2387,11 +2538,11 @@ class Game {
     drawBlock(ctx, x, y, block) {
         const d = BLOCK_DATA[block];
         if (!d) return;
-        const px = x * this.tileSize, py = y * this.tileSize;
+        const px = x * this.tileSize, py = y * this.tileSize, ts = this.tileSize;
         
         if (block === BLOCKS.WATER || block === BLOCKS.LAVA) {
             ctx.fillStyle = d.color;
-            ctx.fillRect(px, py + 2, this.tileSize, this.tileSize - 2);
+            ctx.fillRect(px, py + 2, ts, ts - 2);
             return;
         }
         
@@ -2405,23 +2556,29 @@ class Game {
         if ([BLOCKS.GRASS, BLOCKS.CORRUPT_GRASS, BLOCKS.CRIMSON_GRASS].includes(block)) {
             const hasAirAbove = y > 0 && this.tiles[x][y - 1] === BLOCKS.AIR;
             ctx.fillStyle = d.color;
-            ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            ctx.fillRect(px, py, ts, ts);
             if (hasAirAbove) {
                 ctx.fillStyle = d.topColor;
-                ctx.fillRect(px, py, this.tileSize, 4);
+                ctx.fillRect(px, py, ts, 4);
+                // Deterministic grass blades based on tile position
                 for (let i = 0; i < 4; i++) {
-                    const bx = px + 2 + i * 4, bh = 2 + Math.random() * 3;
+                    const seed = (x * 73 + i * 37) & 0xFF;
+                    const bx = px + 1 + (seed % 13);
+                    const bh = 2 + (seed % 4);
                     ctx.fillRect(bx, py - bh, 2, bh);
                 }
             }
+            this.drawTileEdges(ctx, x, y, px, py, ts);
             return;
         }
         
         if (block === BLOCKS.TALL_GRASS) {
             ctx.fillStyle = d.color;
-            ctx.fillRect(px + 2, py + 4, 2, 12);
-            ctx.fillRect(px + 6, py + 2, 2, 14);
-            ctx.fillRect(px + 10, py + 6, 2, 10);
+            // Deterministic blade positions
+            const s1 = (x * 53) % 7, s2 = (x * 31) % 5, s3 = (x * 71) % 6;
+            ctx.fillRect(px + 2 + s1, py + 4, 2, 12);
+            ctx.fillRect(px + 6 + s2, py + 2, 2, 14);
+            ctx.fillRect(px + 10 + s3, py + 6, 2, 10);
             return;
         }
         
@@ -2438,18 +2595,20 @@ class Game {
         }
         
         if (block === BLOCKS.WORKBENCH) {
-            ctx.fillStyle = d.color; ctx.fillRect(px, py, this.tileSize, this.tileSize);
-            ctx.fillStyle = '#8B4513';
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, ts, ts);
+            ctx.fillStyle = '#6B3A1E';
             ctx.fillRect(px + 2, py + 2, 12, 3);
             ctx.fillRect(px + 2, py + 8, 5, 5);
             ctx.fillRect(px + 9, py + 8, 5, 5);
+            this.drawTileEdges(ctx, x, y, px, py, ts);
             return;
         }
         
         if (block === BLOCKS.FURNACE) {
-            ctx.fillStyle = d.color; ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, ts, ts);
             ctx.fillStyle = '#333'; ctx.fillRect(px + 4, py + 6, 8, 8);
             ctx.fillStyle = '#FF4500'; ctx.fillRect(px + 5, py + 9, 6, 4);
+            this.drawTileEdges(ctx, x, y, px, py, ts);
             return;
         }
         
@@ -2457,27 +2616,170 @@ class Game {
             ctx.fillStyle = '#8B4513'; ctx.fillRect(px + 1, py + 4, 14, 10);
             ctx.fillStyle = d.color; ctx.fillRect(px + 2, py + 5, 12, 8);
             ctx.fillStyle = '#FFD700'; ctx.fillRect(px + 6, py + 7, 4, 3);
+            this.drawTileEdges(ctx, x, y, px, py, ts);
             return;
         }
         
-        // Default block
-        ctx.fillStyle = d.color || '#808080';
-        ctx.fillRect(px, py, this.tileSize, this.tileSize);
+        if (block === BLOCKS.WOOD) {
+            // Wood with grain texture
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, ts, ts);
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            ctx.fillRect(px + 3, py, 2, ts);
+            ctx.fillRect(px + 10, py, 2, ts);
+            ctx.fillStyle = 'rgba(255,200,100,0.08)';
+            ctx.fillRect(px + 6, py, 3, ts);
+            this.drawTileEdges(ctx, x, y, px, py, ts);
+            return;
+        }
         
-        // Stone texture
-        if ([BLOCKS.STONE, BLOCKS.COBBLESTONE, BLOCKS.EBONSTONE, BLOCKS.CRIMSTONE].includes(block)) {
-            ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        if (block === BLOCKS.WOOD_PLATFORM) {
+            // Thin platform plank
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, ts, 5);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(px, py + 4, ts, 1);
+            ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(px, py, ts, 1);
+            return;
+        }
+        
+        if (block === BLOCKS.LEAVES) {
+            ctx.fillStyle = d.color; ctx.fillRect(px, py, ts, ts);
+            // Leaf detail
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(px + ((x * 5) % 8), py + ((y * 7) % 8), 5, 5);
+            ctx.fillStyle = 'rgba(100,255,100,0.15)';
+            ctx.fillRect(px + ((x * 11) % 10), py + ((y * 3) % 10), 4, 4);
+            return;
+        }
+        
+        // Default block fill
+        ctx.fillStyle = d.color || '#808080';
+        ctx.fillRect(px, py, ts, ts);
+        
+        // Stone texture - cracked look
+        if (block === BLOCKS.STONE) {
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
             for (let i = 0; i < 3; i++) ctx.fillRect(px + (x * 7 + i * 13) % 12, py + (y * 11 + i * 7) % 12, 4, 4);
+            ctx.fillStyle = 'rgba(255,255,255,0.06)';
+            ctx.fillRect(px + (x * 3) % 10, py + (y * 9) % 10, 3, 3);
+        }
+        
+        // Cobblestone - distinct rounded pebble pattern
+        if (block === BLOCKS.COBBLESTONE) {
+            ctx.fillStyle = 'rgba(0,0,0,0.18)';
+            ctx.fillRect(px + 1, py + 1, 6, 6);
+            ctx.fillRect(px + 9, py + 3, 5, 5);
+            ctx.fillRect(px + 2, py + 9, 5, 5);
+            ctx.fillRect(px + 9, py + 10, 5, 4);
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.fillRect(px + 2, py + 2, 4, 3);
+            ctx.fillRect(px + 10, py + 4, 3, 2);
+        }
+        
+        // Ebonstone - dark veiny texture
+        if (block === BLOCKS.EBONSTONE) {
+            ctx.fillStyle = 'rgba(100,50,180,0.15)';
+            ctx.fillRect(px + (x * 5 + 2) % 10, py, 2, ts);
+            ctx.fillRect(px, py + (y * 7 + 3) % 10, ts, 2);
+        }
+        
+        // Crimstone - fleshy red texture
+        if (block === BLOCKS.CRIMSTONE) {
+            ctx.fillStyle = 'rgba(200,50,50,0.15)';
+            ctx.fillRect(px + (x * 3 + 1) % 8, py + (y * 5) % 8, 5, 5);
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(px + (x * 9) % 12, py + (y * 11) % 12, 3, 3);
+        }
+        
+        // Brick - mortar lines
+        if (block === BLOCKS.BRICK) {
+            ctx.fillStyle = 'rgba(180,160,140,0.4)';
+            ctx.fillRect(px, py + 7, ts, 1);
+            ctx.fillRect(px + 7, py, 1, 7);
+            ctx.fillRect(px, py + 15, ts, 1);
+            ctx.fillRect(px + 12, py + 8, 1, 7);
+        }
+        
+        // Glass - shine effect
+        if (block === BLOCKS.GLASS) {
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.fillRect(px + 2, py + 2, 3, 6);
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(px + 6, py + 4, 2, 3);
+        }
+        
+        // Hellstone - glowing cracks
+        if (block === BLOCKS.HELLSTONE) {
+            ctx.fillStyle = 'rgba(255,200,0,0.2)';
+            ctx.fillRect(px + (x * 7) % 10, py + (y * 3) % 8, 3, 2);
+            ctx.fillRect(px + (x * 11) % 12, py + (y * 9) % 12, 2, 3);
+        }
+        
+        // Snow - sparkle
+        if (block === BLOCKS.SNOW) {
+            ctx.fillStyle = 'rgba(200,220,255,0.3)';
+            ctx.fillRect(px + (x * 5) % 12, py + (y * 7) % 12, 2, 2);
+            ctx.fillRect(px + (x * 11) % 10, py + (y * 3) % 10, 2, 2);
+        }
+        
+        // Ice - fracture lines
+        if (block === BLOCKS.ICE) {
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 0.5;
+            ctx.beginPath(); ctx.moveTo(px + 2, py + 4); ctx.lineTo(px + 10, py + 12); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(px + 12, py + 2); ctx.lineTo(px + 6, py + 14); ctx.stroke();
+        }
+        
+        // Sand - grain specks
+        if (block === BLOCKS.SAND) {
+            ctx.fillStyle = 'rgba(160,120,60,0.15)';
+            for (let i = 0; i < 4; i++) ctx.fillRect(px + (x * 7 + i * 11) % 13, py + (y * 5 + i * 9) % 13, 2, 2);
+        }
+        
+        // Clay - terracotta streaks
+        if (block === BLOCKS.CLAY) {
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(px, py + (y * 7) % 6 + 3, ts, 2);
+            ctx.fillRect(px, py + (y * 11) % 6 + 10, ts, 2);
+        }
+        
+        // Dirt - subtle grain
+        if (block === BLOCKS.DIRT) {
+            ctx.fillStyle = 'rgba(0,0,0,0.08)';
+            ctx.fillRect(px + (x * 3 + 1) % 10, py + (y * 7 + 2) % 10, 3, 3);
+            ctx.fillRect(px + (x * 11 + 5) % 12, py + (y * 5 + 8) % 12, 2, 2);
+        }
+        
+        // Obsidian - glassy sheen
+        if (block === BLOCKS.OBSIDIAN) {
+            ctx.fillStyle = 'rgba(60,30,100,0.2)';
+            ctx.fillRect(px + 2, py + 2, 5, 8);
+            ctx.fillStyle = 'rgba(255,255,255,0.06)';
+            ctx.fillRect(px + 3, py + 3, 2, 4);
         }
         
         // Ore spots
         if ([BLOCKS.COPPER_ORE, BLOCKS.IRON_ORE, BLOCKS.GOLD_ORE, BLOCKS.DIAMOND, BLOCKS.DEMONITE_ORE, BLOCKS.CRIMTANE_ORE].includes(block)) {
-            ctx.fillStyle = '#808080'; ctx.fillRect(px, py, this.tileSize, this.tileSize);
+            ctx.fillStyle = '#8A8A8A'; ctx.fillRect(px, py, ts, ts);
             ctx.fillStyle = d.color;
             ctx.fillRect(px + 2, py + 4, 5, 4);
             ctx.fillRect(px + 9, py + 2, 4, 5);
             ctx.fillRect(px + 5, py + 10, 6, 4);
         }
+        
+        // Tile edge shading for all solid and platform blocks
+        this.drawTileEdges(ctx, x, y, px, py, ts);
+    }
+    
+    drawTileEdges(ctx, x, y, px, py, ts) {
+        const block = this.tiles[x][y];
+        const d = BLOCK_DATA[block];
+        if (!d || (!d.solid && !d.platform)) return;
+        const airAbove = y > 0 && (!BLOCK_DATA[this.tiles[x][y - 1]]?.solid && !BLOCK_DATA[this.tiles[x][y - 1]]?.platform);
+        const airBelow = y < this.tilesY - 1 && (!BLOCK_DATA[this.tiles[x][y + 1]]?.solid && !BLOCK_DATA[this.tiles[x][y + 1]]?.platform);
+        const airLeft = x > 0 && (!BLOCK_DATA[this.tiles[x - 1][y]]?.solid && !BLOCK_DATA[this.tiles[x - 1][y]]?.platform);
+        const airRight = x < this.tilesX - 1 && (!BLOCK_DATA[this.tiles[x + 1][y]]?.solid && !BLOCK_DATA[this.tiles[x + 1][y]]?.platform);
+        if (airAbove) { ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(px, py, ts, 2); }
+        if (airLeft) { ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(px, py, 2, ts); }
+        if (airBelow) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(px, py + ts - 2, ts, 2); }
+        if (airRight) { ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(px + ts - 2, py, 2, ts); }
     }
     
     drawPlayer(ctx) {
@@ -2496,8 +2798,10 @@ class Game {
                 const size = (itemData.size || 1) * 40;
                 const thrust = p.swingThrust || 0;
                 const baseAngle = p.direction > 0 ? -Math.PI / 4 : Math.PI + Math.PI / 4;
+                const handleLen = itemData.type === 'sword' ? 16 : size * 0.8;
                 ctx.translate(p.direction * thrust, 0);
                 ctx.rotate(baseAngle + p.swingAngle * p.direction + Math.PI / 2);
+                ctx.translate(0, -handleLen); // Shift so handle bottom is at pivot
                 this.drawWeapon(ctx, item.id, size);
                 ctx.restore();
             }
@@ -2505,16 +2809,30 @@ class Game {
         
         ctx.translate(-p.width / 2, -p.height / 2);
         
-        // Body
-        ctx.fillStyle = '#4169E1'; ctx.fillRect(4, 14, 16, 20);
+        // Body - colored by chestplate
+        const chestColor = this.armorSlots[1] ? this.getToolColor(this.armorSlots[1].id) : '#4169E1';
+        ctx.fillStyle = chestColor; ctx.fillRect(4, 14, 16, 20);
+        // Shoulder details if armored
+        if (this.armorSlots[1]) {
+            ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(4, 14, 16, 4);
+            ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(4, 30, 16, 4);
+        }
         // Head
         ctx.fillStyle = '#FFD39B'; ctx.fillRect(6, 0, 12, 14);
         // Hair
         ctx.fillStyle = '#8B4513'; ctx.fillRect(6, 0, 12, 5);
+        // Helmet overlay
+        if (this.armorSlots[0]) {
+            const helmColor = this.getToolColor(this.armorSlots[0].id);
+            ctx.fillStyle = helmColor; ctx.globalAlpha = 0.7;
+            ctx.fillRect(5, 0, 14, 7);
+            ctx.globalAlpha = 1;
+        }
         // Eye
         ctx.fillStyle = '#000'; ctx.fillRect(p.direction > 0 ? 14 : 8, 6, 2, 3);
-        // Legs
-        ctx.fillStyle = '#1E90FF'; ctx.fillRect(6, 34, 5, 8); ctx.fillRect(13, 34, 5, 8);
+        // Legs - colored by leggings
+        const legColor = this.armorSlots[2] ? this.getToolColor(this.armorSlots[2].id) : '#1E90FF';
+        ctx.fillStyle = legColor; ctx.fillRect(6, 34, 5, 8); ctx.fillRect(13, 34, 5, 8);
         
         ctx.restore();
         ctx.globalAlpha = 1;
@@ -2598,6 +2916,13 @@ class Game {
         if (d.type === 'block') {
             ctx.fillStyle = BLOCK_DATA[id]?.color || '#808080';
             ctx.fillRect(x, y, size, size);
+            // 2-letter label for blocks
+            const abbr = (d.name || '').substring(0, 2).toUpperCase();
+            const fontSize = Math.max(6, Math.floor(size * 0.32));
+            ctx.font = `bold ${fontSize}px sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#000'; ctx.fillText(abbr, x + size / 2 + 1, y + size / 2 + 1);
+            ctx.fillStyle = '#fff'; ctx.fillText(abbr, x + size / 2, y + size / 2);
             return;
         }
         
@@ -2617,9 +2942,12 @@ class Game {
             ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 2 + 4, 4, size - 4);
             ctx.fillStyle = color; ctx.fillRect(-size / 2 + 2, -size / 2 + 2, size / 2, size / 2);
         } else if (d.type === 'magic') {
+            const name = (d.name || '').toLowerCase();
+            const orbColor = name.includes('fire') || name.includes('flame') ? '#FF6622' : name.includes('water') || name.includes('aqua') ? '#22AAFF' : name.includes('demon') ? '#CC2222' : name.includes('crimson') || name.includes('blood') ? '#AA1133' : name.includes('vile') ? '#6633AA' : name.includes('space') || name.includes('zap') || name.includes('thunder') ? '#44DDFF' : '#9966FF';
             ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 3, 4, size * 0.7);
-            ctx.fillStyle = '#9966FF'; ctx.beginPath(); ctx.arc(0, -size / 3, size / 4, 0, Math.PI * 2); ctx.fill();
-            ctx.globalAlpha = 0.4; ctx.beginPath(); ctx.arc(0, -size / 3, size / 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+            ctx.fillStyle = orbColor; ctx.beginPath(); ctx.arc(0, -size / 3, size / 4, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 0.35; ctx.fillStyle = orbColor; ctx.beginPath(); ctx.arc(0, -size / 3, size / 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(-size * 0.06, -size / 3 - size * 0.06, size * 0.08, 0, Math.PI * 2); ctx.fill();
         } else if (d.type === 'bow') {
             const bowColor = this.getToolColor(id);
             // Bow arc
@@ -2632,15 +2960,18 @@ class Game {
             ctx.lineTo(size * 0.1 + Math.cos(Math.PI * 0.6) * size * 0.35, Math.sin(Math.PI * 0.6) * size * 0.35);
             ctx.stroke();
         } else if (d.type === 'ammo') {
+            const name = (d.name || '').toLowerCase();
+            const headColor = name.includes('flaming') ? '#FF6600' : name.includes('jester') ? '#FFFF00' : name.includes('unholy') ? '#9966FF' : name.includes('hellfire') ? '#FF2200' : name.includes('frost') ? '#00CCFF' : '#A0A0A0';
+            const fletchColor = name.includes('flaming') ? '#FF8800' : name.includes('jester') ? '#FFDD00' : name.includes('unholy') ? '#8844CC' : name.includes('hellfire') ? '#FF4400' : name.includes('frost') ? '#44DDFF' : '#CC3333';
             // Arrow shaft
-            ctx.fillStyle = '#8B4513'; ctx.fillRect(-1, -size / 3, 2, size * 0.65);
+            ctx.fillStyle = '#8B6842'; ctx.fillRect(-1, -size / 3, 2, size * 0.65);
             // Arrowhead
-            ctx.fillStyle = '#A0A0A0';
+            ctx.fillStyle = headColor;
             ctx.beginPath(); ctx.moveTo(-3, -size / 3); ctx.lineTo(0, -size / 2.2); ctx.lineTo(3, -size / 3); ctx.closePath(); ctx.fill();
             // Fletching
-            ctx.fillStyle = '#CC3333';
-            ctx.beginPath(); ctx.moveTo(-3, size / 3 - 2); ctx.lineTo(0, size / 3 - 5); ctx.lineTo(0, size / 3 - 2); ctx.closePath(); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(3, size / 3 - 2); ctx.lineTo(0, size / 3 - 5); ctx.lineTo(0, size / 3 - 2); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = fletchColor;
+            ctx.beginPath(); ctx.moveTo(-3, size / 3 - 2); ctx.lineTo(0, size / 3 - 6); ctx.lineTo(0, size / 3 - 2); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(3, size / 3 - 2); ctx.lineTo(0, size / 3 - 6); ctx.lineTo(0, size / 3 - 2); ctx.closePath(); ctx.fill();
         } else if (d.type === 'hammer') {
             ctx.fillStyle = '#8B4513'; ctx.fillRect(-2, -size / 2 + 4, 4, size - 4);
             ctx.fillStyle = color; ctx.fillRect(-size / 3, -size / 2 + 2, size * 2 / 3, size / 3);
@@ -2648,10 +2979,35 @@ class Game {
             ctx.fillStyle = '#8B4513'; ctx.fillRect(-1.5, -size / 4, 3, size * 0.6);
             ctx.fillStyle = color;
             ctx.beginPath(); ctx.moveTo(-4, -size / 4); ctx.lineTo(0, -size / 2 + 2); ctx.lineTo(4, -size / 4); ctx.closePath(); ctx.fill();
-        } else if (d.type === 'boomerang' || d.type === 'yoyo' || d.type === 'flail') {
+        } else if (d.type === 'boomerang') {
+            // L-shaped boomerang
             ctx.fillStyle = color || '#808080';
-            ctx.beginPath(); ctx.arc(0, 0, size / 3, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(-2, -2, size / 5, 0, Math.PI * 2); ctx.fill();
+            ctx.save(); ctx.rotate(-Math.PI / 4);
+            ctx.fillRect(-size * 0.35, -size * 0.08, size * 0.45, size * 0.16);
+            ctx.fillRect(-size * 0.08, -size * 0.08, size * 0.16, size * 0.45);
+            ctx.restore();
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(-size * 0.15, -size * 0.15, size * 0.1, size * 0.1);
+        } else if (d.type === 'yoyo') {
+            // Yoyo with string
+            ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(0, -size * 0.05); ctx.stroke();
+            ctx.fillStyle = color || '#808080';
+            ctx.beginPath(); ctx.arc(0, size * 0.08, size * 0.25, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath(); ctx.arc(0, size * 0.08, size * 0.1, 0, Math.PI * 2); ctx.fill();
+        } else if (d.type === 'flail') {
+            // Ball on chain
+            ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(0, -size * 0.3); ctx.lineTo(0, 0); ctx.stroke();
+            ctx.fillStyle = '#666'; ctx.fillRect(-2, -size * 0.3, 4, 4); // handle
+            ctx.fillStyle = color || '#808080';
+            ctx.beginPath(); ctx.arc(0, size * 0.12, size * 0.25, 0, Math.PI * 2); ctx.fill();
+            // Spikes
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.fillRect(-size * 0.28, size * 0.08, size * 0.08, size * 0.08);
+            ctx.fillRect(size * 0.2, size * 0.08, size * 0.08, size * 0.08);
+            ctx.fillRect(-size * 0.04, size * 0.33, size * 0.08, size * 0.08);
         } else if (d.type === 'helmet') {
             ctx.fillStyle = color;
             // Dome
@@ -2681,22 +3037,224 @@ class Game {
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
             ctx.fillRect(-size * 0.25, -size * 0.2, size * 0.5, size * 0.08);
         } else if (d.type === 'accessory') {
-            ctx.fillStyle = d.rarity === 'legendary' ? '#FFD700' : d.rarity === 'rare' ? '#00FF88' : '#C0C0C0';
-            ctx.beginPath(); ctx.arc(0, 0, size / 3, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, size / 3, 0, Math.PI * 2); ctx.stroke();
+            const name = (d.name || '').toLowerCase();
+            const rarityColor = d.rarity === 'legendary' ? '#FFD700' : d.rarity === 'rare' ? '#00FF88' : '#C0C0C0';
+            if (name.includes('boot') || name.includes('aglet') || name.includes('anklet')) {
+                // Boot shape
+                ctx.fillStyle = rarityColor;
+                ctx.fillRect(-size * 0.2, -size * 0.3, size * 0.35, size * 0.5);
+                ctx.fillRect(-size * 0.2, size * 0.1, size * 0.5, size * 0.15);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(-size * 0.2, size * 0.05, size * 0.35, size * 0.06);
+            } else if (name.includes('shield')) {
+                // Shield shape
+                ctx.fillStyle = rarityColor;
+                ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(size * 0.3, -size * 0.15);
+                ctx.lineTo(size * 0.25, size * 0.25); ctx.lineTo(0, size * 0.38);
+                ctx.lineTo(-size * 0.25, size * 0.25); ctx.lineTo(-size * 0.3, -size * 0.15); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(-size * 0.1, -size * 0.2, size * 0.2, size * 0.15);
+            } else if (name.includes('balloon') || name.includes('bottle') || name.includes('jar')) {
+                // Bottle/balloon shape
+                ctx.fillStyle = rarityColor;
+                ctx.beginPath(); ctx.ellipse(0, size * 0.05, size * 0.25, size * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath(); ctx.ellipse(-size * 0.08, -size * 0.08, size * 0.08, size * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#8B4513'; ctx.fillRect(-size * 0.08, -size * 0.35, size * 0.16, size * 0.12);
+            } else if (name.includes('necklace') || name.includes('cloak') || name.includes('band')) {
+                // Ring/necklace
+                ctx.strokeStyle = rarityColor; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.arc(0, 0, size * 0.25, 0, Math.PI * 2); ctx.stroke();
+                ctx.fillStyle = rarityColor;
+                ctx.beginPath(); ctx.arc(0, size * 0.25, size * 0.1, 0, Math.PI * 2); ctx.fill();
+            } else if (name.includes('glove') || name.includes('claw')) {
+                // Glove
+                ctx.fillStyle = rarityColor;
+                ctx.fillRect(-size * 0.25, -size * 0.15, size * 0.5, size * 0.35);
+                ctx.fillRect(-size * 0.25, -size * 0.35, size * 0.12, size * 0.25);
+                ctx.fillRect(-size * 0.08, -size * 0.38, size * 0.12, size * 0.28);
+                ctx.fillRect(size * 0.08, -size * 0.35, size * 0.12, size * 0.25);
+            } else if (name.includes('horseshoe')) {
+                // Horseshoe U shape
+                ctx.strokeStyle = rarityColor; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(0, -size * 0.05, size * 0.25, 0, Math.PI); ctx.stroke();
+                ctx.fillStyle = rarityColor;
+                ctx.fillRect(-size * 0.27, -size * 0.05, size * 0.08, size * 0.3);
+                ctx.fillRect(size * 0.19, -size * 0.05, size * 0.08, size * 0.3);
+            } else {
+                // Default gem/trinket
+                ctx.fillStyle = rarityColor;
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.3); ctx.lineTo(size * 0.25, -size * 0.1);
+                ctx.lineTo(size * 0.2, size * 0.25); ctx.lineTo(-size * 0.2, size * 0.25);
+                ctx.lineTo(-size * 0.25, -size * 0.1); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                ctx.beginPath(); ctx.moveTo(0, -size * 0.25); ctx.lineTo(size * 0.15, -size * 0.08);
+                ctx.lineTo(0, size * 0.05); ctx.lineTo(-size * 0.15, -size * 0.08); ctx.closePath(); ctx.fill();
+            }
         } else if (d.type === 'material') {
-            const colors = { [ITEMS.COPPER_BAR]: '#CD7F32', [ITEMS.IRON_BAR]: '#C0C0C0', [ITEMS.GOLD_BAR]: '#FFD700', [ITEMS.DEMONITE_BAR]: '#6633AA', [ITEMS.CRIMTANE_BAR]: '#AA1133', [ITEMS.WOOD_PLANK]: '#DEB887', [ITEMS.STICK]: '#8B4513', [ITEMS.GEL]: '#00FF00', [ITEMS.LENS]: '#FF6B6B', [ITEMS.FALLEN_STAR]: '#FFFF00' };
-            ctx.fillStyle = colors[id] || '#808080'; ctx.fillRect(-size / 3, -size / 3, size * 2 / 3, size * 2 / 3);
+            const barColors = { [ITEMS.COPPER_BAR]: '#CD7F32', [ITEMS.IRON_BAR]: '#C0C0C0', [ITEMS.GOLD_BAR]: '#FFD700', [ITEMS.DEMONITE_BAR]: '#6633AA', [ITEMS.CRIMTANE_BAR]: '#AA1133', [ITEMS.HELLSTONE_BAR]: '#FF4500', [ITEMS.METEORITE_BAR]: '#8B4583' };
+            const name = (d.name || '').toLowerCase();
+            if (barColors[id]) {
+                // Flat ingot bar shape
+                ctx.fillStyle = barColors[id];
+                ctx.fillRect(-size * 0.38, -size * 0.12, size * 0.76, size * 0.28);
+                // Top bevel
+                ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                ctx.fillRect(-size * 0.35, -size * 0.12, size * 0.7, size * 0.06);
+                // Bottom shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fillRect(-size * 0.35, size * 0.08, size * 0.7, size * 0.06);
+            } else if (name.includes('plank')) {
+                ctx.fillStyle = '#C4996B'; ctx.fillRect(-size * 0.38, -size * 0.15, size * 0.76, size * 0.3);
+                ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(-size * 0.1, -size * 0.15, 1, size * 0.3);
+                ctx.fillRect(size * 0.15, -size * 0.15, 1, size * 0.3);
+            } else if (name.includes('stick')) {
+                ctx.fillStyle = '#8B6842'; ctx.fillRect(-1, -size * 0.38, 3, size * 0.76);
+                ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(-1, -size * 0.38, 1, size * 0.76);
+            } else if (name.includes('gel')) {
+                ctx.fillStyle = '#44EE44'; ctx.globalAlpha = 0.8;
+                ctx.beginPath(); ctx.ellipse(0, size * 0.05, size * 0.28, size * 0.22, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 0.4;
+                ctx.beginPath(); ctx.ellipse(size * 0.08, -size * 0.08, size * 0.15, size * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 1;
+            } else if (name.includes('lens')) {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath(); ctx.arc(0, 0, size * 0.28, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#220000';
+                ctx.beginPath(); ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                ctx.beginPath(); ctx.arc(-size * 0.08, -size * 0.1, size * 0.08, 0, Math.PI * 2); ctx.fill();
+            } else if (name.includes('star')) {
+                ctx.fillStyle = '#FFFF44';
+                for (let i = 0; i < 5; i++) {
+                    const a = (i * Math.PI * 2 / 5) - Math.PI / 2;
+                    const r = size * 0.33;
+                    ctx.fillRect(Math.cos(a) * r - 2, Math.sin(a) * r - 2, 4, 4);
+                }
+                ctx.beginPath(); ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,200,0.4)';
+                ctx.beginPath(); ctx.arc(0, 0, size * 0.25, 0, Math.PI * 2); ctx.fill();
+            } else if (name.includes('bone')) {
+                ctx.fillStyle = '#F0E8D0';
+                ctx.fillRect(-size * 0.05, -size * 0.3, size * 0.1, size * 0.6);
+                ctx.beginPath(); ctx.arc(-size * 0.1, -size * 0.28, size * 0.08, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(size * 0.1, -size * 0.28, size * 0.08, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(-size * 0.1, size * 0.28, size * 0.08, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(size * 0.1, size * 0.28, size * 0.08, 0, Math.PI * 2); ctx.fill();
+            } else if (name.includes('hook')) {
+                ctx.strokeStyle = '#A0A0A0'; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.arc(0, -size * 0.05, size * 0.2, 0.3, Math.PI * 1.8); ctx.stroke();
+                ctx.fillStyle = '#A0A0A0';
+                ctx.beginPath(); ctx.moveTo(size * 0.15, size * 0.12); ctx.lineTo(size * 0.25, size * 0.25); ctx.lineTo(size * 0.08, size * 0.18); ctx.closePath(); ctx.fill();
+            } else if (name.includes('chain')) {
+                ctx.strokeStyle = '#888'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.ellipse(0, -size * 0.18, size * 0.1, size * 0.14, 0, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.ellipse(0, size * 0.1, size * 0.1, size * 0.14, 0, 0, Math.PI * 2); ctx.stroke();
+            } else if (name.includes('feather')) {
+                ctx.fillStyle = '#D0D0D0';
+                ctx.beginPath(); ctx.ellipse(0, 0, size * 0.08, size * 0.35, 0.2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#888'; ctx.fillRect(-1, -size * 0.35, 2, size * 0.7);
+            } else if (name.includes('scale') || name.includes('sample') || name.includes('chunk') || name.includes('vertebra')) {
+                // Organic drops - irregular blob
+                const c = name.includes('scale') || name.includes('rotten') ? '#6633AA' : name.includes('sample') || name.includes('vertebra') ? '#AA1133' : '#808080';
+                ctx.fillStyle = c;
+                ctx.beginPath(); ctx.moveTo(-size * 0.2, -size * 0.25); ctx.lineTo(size * 0.25, -size * 0.15);
+                ctx.lineTo(size * 0.2, size * 0.2); ctx.lineTo(-size * 0.15, size * 0.25);
+                ctx.lineTo(-size * 0.28, size * 0.05); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(-size * 0.1, -size * 0.15, size * 0.12, size * 0.12);
+            } else if (name.includes('vine') || name.includes('spore') || name.includes('stinger') || name.includes('cobweb')) {
+                const c = name.includes('cobweb') ? '#DDDDDD' : name.includes('stinger') ? '#CC8822' : '#44AA44';
+                ctx.fillStyle = c;
+                if (name.includes('cobweb')) {
+                    ctx.strokeStyle = c; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(-size * 0.3, -size * 0.3); ctx.lineTo(size * 0.3, size * 0.3); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(size * 0.3, -size * 0.3); ctx.lineTo(-size * 0.3, size * 0.3); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(0, size * 0.35); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(-size * 0.35, 0); ctx.lineTo(size * 0.35, 0); ctx.stroke();
+                } else if (name.includes('stinger')) {
+                    ctx.beginPath(); ctx.moveTo(0, -size * 0.38); ctx.lineTo(size * 0.12, size * 0.2); ctx.lineTo(-size * 0.12, size * 0.2); ctx.closePath(); ctx.fill();
+                } else {
+                    // Vine / spores
+                    ctx.strokeStyle = c; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.bezierCurveTo(size * 0.2, -size * 0.1, -size * 0.2, size * 0.1, 0, size * 0.35); ctx.stroke();
+                }
+            } else if (name.includes('skull')) {
+                ctx.fillStyle = '#D0C8B8';
+                ctx.beginPath(); ctx.arc(0, -size * 0.05, size * 0.25, 0, Math.PI * 2); ctx.fill();
+                ctx.fillRect(-size * 0.15, size * 0.12, size * 0.3, size * 0.12);
+                ctx.fillStyle = '#222';
+                ctx.fillRect(-size * 0.12, -size * 0.1, size * 0.08, size * 0.08);
+                ctx.fillRect(size * 0.04, -size * 0.1, size * 0.08, size * 0.08);
+            } else if (name.includes('mandible') || name.includes('fin')) {
+                const c = name.includes('fin') ? '#5588AA' : '#C2A060';
+                ctx.fillStyle = c;
+                ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(size * 0.25, size * 0.15);
+                ctx.quadraticCurveTo(0, size * 0.35, -size * 0.25, size * 0.15); ctx.closePath(); ctx.fill();
+            } else {
+                // Generic material square with border
+                ctx.fillStyle = '#808080'; ctx.fillRect(-size / 3, -size / 3, size * 2 / 3, size * 2 / 3);
+                ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(-size / 3, -size / 3, size * 2 / 3, size * 0.12);
+            }
         } else if (d.type === 'consumable' || d.type === 'tool') {
-            ctx.fillStyle = d.heal ? '#FF6B6B' : d.manaRestore ? '#6B6BFF' : d.maxHealth ? '#FF1493' : '#9966FF';
-            ctx.beginPath(); ctx.ellipse(0, 2, size / 3, size / 3, 0, 0, Math.PI * 2); ctx.fill();
-            if (d.heal || d.manaRestore) { ctx.fillStyle = '#ddd'; ctx.fillRect(-3, -size / 3, 6, size / 3); }
+            const name = (d.name || '').toLowerCase();
+            if (d.heal || d.manaRestore || name.includes('potion')) {
+                // Potion bottle
+                const potionColor = d.heal ? '#FF4455' : d.manaRestore ? '#4466FF' : name.includes('iron') ? '#CCAA55' : name.includes('swift') ? '#55CCFF' : name.includes('regen') ? '#FF88CC' : name.includes('archery') ? '#88FF44' : '#AABB44';
+                // Bottle shape
+                ctx.fillStyle = 'rgba(200,220,255,0.4)';
+                ctx.fillRect(-size * 0.06, -size * 0.38, size * 0.12, size * 0.12); // neck
+                ctx.beginPath(); ctx.ellipse(0, size * 0.08, size * 0.22, size * 0.28, 0, 0, Math.PI * 2); ctx.fill();
+                // Liquid fill
+                ctx.fillStyle = potionColor;
+                ctx.beginPath(); ctx.ellipse(0, size * 0.12, size * 0.18, size * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+                // Cork
+                ctx.fillStyle = '#AA8855'; ctx.fillRect(-size * 0.07, -size * 0.4, size * 0.14, size * 0.1);
+                // Highlight
+                ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                ctx.fillRect(-size * 0.14, -size * 0.02, size * 0.06, size * 0.12);
+            } else if (name.includes('crystal')) {
+                // Crystal shape
+                const crystalColor = d.maxHealth ? '#FF1493' : '#4488FF';
+                ctx.fillStyle = crystalColor;
+                ctx.beginPath(); ctx.moveTo(0, -size * 0.38); ctx.lineTo(size * 0.22, -size * 0.05);
+                ctx.lineTo(size * 0.15, size * 0.3); ctx.lineTo(-size * 0.15, size * 0.3);
+                ctx.lineTo(-size * 0.22, -size * 0.05); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(size * 0.1, -size * 0.05);
+                ctx.lineTo(0, size * 0.1); ctx.lineTo(-size * 0.1, -size * 0.05); ctx.closePath(); ctx.fill();
+            } else if (name.includes('mirror')) {
+                // Hand mirror
+                ctx.fillStyle = '#8B4513'; ctx.fillRect(-size * 0.05, size * 0.05, size * 0.1, size * 0.3);
+                ctx.fillStyle = '#88AADD';
+                ctx.beginPath(); ctx.ellipse(0, -size * 0.1, size * 0.22, size * 0.25, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath(); ctx.ellipse(-size * 0.06, -size * 0.15, size * 0.08, size * 0.1, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#AA8833'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.ellipse(0, -size * 0.1, size * 0.22, size * 0.25, 0, 0, Math.PI * 2); ctx.stroke();
+            } else if (name.includes('hook') || name.includes('whip')) {
+                // Grappling hook
+                ctx.strokeStyle = '#888'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(0, 0); ctx.stroke();
+                ctx.fillStyle = '#A0A0A0';
+                ctx.beginPath(); ctx.moveTo(-size * 0.2, size * 0.15); ctx.lineTo(0, size * 0.35); ctx.lineTo(size * 0.2, size * 0.15); ctx.lineTo(0, size * 0.05); ctx.closePath(); ctx.fill();
+            } else {
+                // Default tool orb
+                ctx.fillStyle = '#9966FF';
+                ctx.beginPath(); ctx.arc(0, 0, size * 0.28, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                ctx.beginPath(); ctx.arc(-size * 0.06, -size * 0.08, size * 0.1, 0, Math.PI * 2); ctx.fill();
+            }
         }
+        
+        // Draw 2-letter abbreviation on all items
+        const abbr = (d.name || '').substring(0, 2).toUpperCase();
+        const fontSize = Math.max(6, Math.floor(size * 0.32));
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillStyle = '#000'; ctx.fillText(abbr, 1, size / 2 + 1);
+        ctx.fillStyle = '#fff'; ctx.fillText(abbr, 0, size / 2);
         
         ctx.restore();
     }
-    
-    // UI Methods
     updateUI() { this.updateHotbar(); this.updateHealthBar(); this.updateManaBar(); }
     
     updateHotbar() {
