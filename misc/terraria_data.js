@@ -579,11 +579,11 @@ const CHEST_LOOT = {
 // Enemies
 const ENEMIES = {
     // Surface - Day
-    SLIME: { name: 'Green Slime', width: 8, height: 6, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    BLUE_SLIME: { name: 'Blue Slime', width: 9, height: 7, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    PURPLE_SLIME: { name: 'Purple Slime', width: 10, height: 8, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    PINKY: { name: 'Pinky', width: 6, height: 4, health: 300, damage: 8, defense: 5, color: '#FFB6C1', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 10, max: 20, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    YELLOW_SLIME: { name: 'Yellow Slime', width: 9, height: 7, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    SLIME: { name: 'Green Slime', width: 14, height: 12, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    BLUE_SLIME: { name: 'Blue Slime', width: 14, height: 12, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PURPLE_SLIME: { name: 'Purple Slime', width: 14, height: 12, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PINKY: { name: 'Pinky', width: 10, height: 8, health: 300, damage: 8, defense: 5, color: '#FFB6C1', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 10, max: 20, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    YELLOW_SLIME: { name: 'Yellow Slime', width: 14, height: 12, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
     // Surface - Night
     ZOMBIE: { name: 'Zombie', width: 28, height: 48, health: 60, damage: 15, defense: 5, color: '#556B2F', ai: 'walker', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 0, max: 2, chance: 0.3 }], spawnDay: false, spawnNight: true, biome: 'any' },
     BLOOD_ZOMBIE: { name: 'Blood Zombie', width: 30, height: 50, health: 90, damage: 22, defense: 8, color: '#8B0000', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.4 }], spawnDay: false, spawnNight: true, biome: 'any' },
