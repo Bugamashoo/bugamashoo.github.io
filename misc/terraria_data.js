@@ -9,7 +9,8 @@ const BLOCKS = {
     WOOD_PLATFORM: 16, COBBLESTONE: 17, BRICK: 18, GLASS: 19, HELLSTONE: 20, OBSIDIAN: 21,
     MUSHROOM: 22, FLOWER_RED: 23, FLOWER_YELLOW: 24, TALL_GRASS: 25, CLAY: 26, MUD: 27,
     SNOW: 29, ICE: 30, LAVA: 31, CORRUPT_GRASS: 32, EBONSTONE: 33, DEMONITE_ORE: 34,
-    CRIMSON_GRASS: 35, CRIMSTONE: 36, CRIMTANE_ORE: 37, VILE_MUSHROOM: 38
+    CRIMSON_GRASS: 35, CRIMSTONE: 36, CRIMTANE_ORE: 37, VILE_MUSHROOM: 38,
+    DOOR: 39
 };
 
 const BLOCK_DATA = {
@@ -50,7 +51,8 @@ const BLOCK_DATA = {
     [BLOCKS.CRIMSON_GRASS]: { name: 'Crimson Grass', solid: true, transparent: false, hardness: 1, color: '#4d1a1a', topColor: '#8b0000', drops: BLOCKS.DIRT },
     [BLOCKS.CRIMSTONE]: { name: 'Crimstone', solid: true, transparent: false, hardness: 6, color: '#5a1a1a', drops: BLOCKS.CRIMSTONE },
     [BLOCKS.CRIMTANE_ORE]: { name: 'Crimtane Ore', solid: true, transparent: false, hardness: 7, color: '#aa1133', drops: BLOCKS.CRIMTANE_ORE },
-    [BLOCKS.VILE_MUSHROOM]: { name: 'Vile Mushroom', solid: false, transparent: true, hardness: 0.1, color: '#6633aa', drops: BLOCKS.VILE_MUSHROOM }
+    [BLOCKS.VILE_MUSHROOM]: { name: 'Vile Mushroom', solid: false, transparent: true, hardness: 0.1, color: '#6633aa', drops: BLOCKS.VILE_MUSHROOM },
+    [BLOCKS.DOOR]: { name: 'Door', solid: true, transparent: true, hardness: 1, color: '#8B5E3C', drops: BLOCKS.DOOR, door: true }
 };
 
 // Items
@@ -132,19 +134,19 @@ const ITEM_DATA = {
     [ITEMS.GOLD_PICKAXE]: { name: 'Gold Pickaxe', type: 'pickaxe', power: 75, damage: 8, speed: 12, size: 0.9 },
     [ITEMS.DIAMOND_PICKAXE]: { name: 'Diamond Pickaxe', type: 'pickaxe', power: 100, damage: 12, speed: 10, size: 0.95, rarity: 'rare' },
     [ITEMS.NIGHTMARE_PICKAXE]: { name: 'Nightmare Pickaxe', type: 'pickaxe', power: 120, damage: 15, speed: 9, size: 1.0, rarity: 'rare' },
-    [ITEMS.DEATHBRINGER_PICKAXE]: { name: 'Deathbringer Pickaxe', type: 'pickaxe', power: 125, damage: 16, speed: 9, size: 1.0, rarity: 'rare' },
-    [ITEMS.MOLTEN_PICKAXE]: { name: 'Molten Pickaxe', type: 'pickaxe', power: 150, damage: 18, speed: 8, size: 1.05, rarity: 'rare' },
+    [ITEMS.DEATHBRINGER_PICKAXE]: { name: 'Deathbringer Pickaxe', type: 'pickaxe', power: 125, damage: 16, speed: 7, size: 1.0, rarity: 'rare' },
+    [ITEMS.MOLTEN_PICKAXE]: { name: 'Molten Pickaxe', type: 'pickaxe', power: 150, damage: 18, speed: 5, size: 1.05, rarity: 'rare' },
     // Axes
     [ITEMS.WOOD_AXE]: { name: 'Wood Axe', type: 'axe', power: 30, damage: 4, speed: 24, size: 0.7 },
     [ITEMS.STONE_AXE]: { name: 'Stone Axe', type: 'axe', power: 45, damage: 6, speed: 22, size: 0.75 },
     [ITEMS.COPPER_AXE]: { name: 'Copper Axe', type: 'axe', power: 55, damage: 7, speed: 20, size: 0.8 },
     [ITEMS.IRON_AXE]: { name: 'Iron Axe', type: 'axe', power: 65, damage: 9, speed: 18, size: 0.85 },
-    [ITEMS.GOLD_AXE]: { name: 'Gold Axe', type: 'axe', power: 75, damage: 11, speed: 16, size: 0.9 },
+    [ITEMS.GOLD_AXE]: { name: 'Gold Axe', type: 'axe', power: 75, damage: 11, speed: 14, size: 0.9 },
     // Hammers
     [ITEMS.WOOD_HAMMER]: { name: 'Wood Hammer', type: 'hammer', power: 25, damage: 3, speed: 30, size: 0.8 },
     [ITEMS.COPPER_HAMMER]: { name: 'Copper Hammer', type: 'hammer', power: 45, damage: 6, speed: 26, size: 0.85 },
     [ITEMS.IRON_HAMMER]: { name: 'Iron Hammer', type: 'hammer', power: 60, damage: 9, speed: 22, size: 0.9 },
-    [ITEMS.GOLD_HAMMER]: { name: 'Gold Hammer', type: 'hammer', power: 75, damage: 12, speed: 18, size: 0.95 },
+    [ITEMS.GOLD_HAMMER]: { name: 'Gold Hammer', type: 'hammer', power: 75, damage: 12, speed: 14, size: 0.95 },
     // Swords
     [ITEMS.WOOD_SWORD]: { name: 'Wood Sword', type: 'sword', damage: 8, speed: 20, knockback: 4, size: 0.8 },
     [ITEMS.CACTUS_SWORD]: { name: 'Cactus Sword', type: 'sword', damage: 12, speed: 18, knockback: 4, size: 0.85 },
@@ -174,15 +176,15 @@ const ITEM_DATA = {
     [ITEMS.TRIDENT]: { name: 'Trident', type: 'spear', damage: 32, speed: 16, knockback: 6, size: 1.4, range: 80, rarity: 'rare' },
     [ITEMS.SWORDFISH]: { name: 'Swordfish', type: 'spear', damage: 26, speed: 18, knockback: 5, size: 1.3, range: 75, rarity: 'rare' },
     // Bows
-    [ITEMS.WOOD_BOW]: { name: 'Wood Bow', type: 'bow', damage: 6, speed: 22, knockback: 1, size: 0.9 },
+    [ITEMS.WOOD_BOW]: { name: 'Wood Bow', type: 'bow', damage: 7, speed: 24, knockback: 1, size: 0.9 },
     [ITEMS.COPPER_BOW]: { name: 'Copper Bow', type: 'bow', damage: 9, speed: 20, knockback: 1, size: 0.95 },
     [ITEMS.IRON_BOW]: { name: 'Iron Bow', type: 'bow', damage: 12, speed: 18, knockback: 2, size: 1.0 },
-    [ITEMS.GOLD_BOW]: { name: 'Gold Bow', type: 'bow', damage: 16, speed: 16, knockback: 2, size: 1.05 },
-    [ITEMS.DEMON_BOW]: { name: 'Demon Bow', type: 'bow', damage: 22, speed: 14, knockback: 2, size: 1.1, rarity: 'rare' },
-    [ITEMS.TENDON_BOW]: { name: 'Tendon Bow', type: 'bow', damage: 24, speed: 14, knockback: 2, size: 1.1, rarity: 'rare' },
-    [ITEMS.MOLTEN_FURY]: { name: 'Molten Fury', type: 'bow', damage: 35, speed: 12, knockback: 3, size: 1.2, rarity: 'rare' },
+    [ITEMS.GOLD_BOW]: { name: 'Gold Bow', type: 'bow', damage: 32, speed: 40, knockback: 5, size: 1.2 },
+    [ITEMS.DEMON_BOW]: { name: 'Demon Bow', type: 'bow', damage: 19, speed: 14, knockback: 2, size: 1.1, rarity: 'rare' },
+    [ITEMS.TENDON_BOW]: { name: 'Tendon Bow', type: 'bow', damage: 21, speed: 14, knockback: 2, size: 1.1, rarity: 'rare' },
+    [ITEMS.MOLTEN_FURY]: { name: 'Molten Fury', type: 'bow', damage: 25, speed: 12, knockback: 3, size: 1.2, rarity: 'rare' },
     // Arrows
-    [ITEMS.WOOD_ARROW]: { name: 'Wood Arrow', type: 'ammo', damage: 4, stackable: true },
+    [ITEMS.WOOD_ARROW]: { name: 'Wood Arrow', type: 'ammo', damage: 3, stackable: true },
     [ITEMS.FLAMING_ARROW]: { name: 'Flaming Arrow', type: 'ammo', damage: 7, stackable: true },
     [ITEMS.JESTER_ARROW]: { name: "Jester's Arrow", type: 'ammo', damage: 10, stackable: true, rarity: 'magic' },
     [ITEMS.UNHOLY_ARROW]: { name: 'Unholy Arrow', type: 'ammo', damage: 12, stackable: true, rarity: 'rare' },
@@ -202,18 +204,18 @@ const ITEM_DATA = {
     [ITEMS.THUNDER_ZAPPER]: { name: 'Thunder Zapper', type: 'magic', damage: 12, speed: 10, mana: 4, projectile: 'thunder', rarity: 'magic' },
     [ITEMS.GRAY_ZAPINATOR]: { name: 'Gray Zapinator', type: 'magic', damage: 25, speed: 8, mana: 8, projectile: 'zapinator', rarity: 'rare' },
     // Boomerangs
-    [ITEMS.WOOD_BOOMERANG]: { name: 'Wood Boomerang', type: 'boomerang', damage: 12, speed: 16, knockback: 6, size: 0.8 },
-    [ITEMS.ENCHANTED_BOOMERANG]: { name: 'Enchanted Boomerang', type: 'boomerang', damage: 22, speed: 12, knockback: 8, size: 0.9, rarity: 'magic' },
-    [ITEMS.FLAMARANG]: { name: 'Flamarang', type: 'boomerang', damage: 38, speed: 10, knockback: 9, size: 1.0, rarity: 'rare' },
-    [ITEMS.THORN_CHAKRAM]: { name: 'Thorn Chakram', type: 'boomerang', damage: 32, speed: 11, knockback: 8, size: 0.95, rarity: 'rare' },
-    [ITEMS.ICE_BOOMERANG]: { name: 'Ice Boomerang', type: 'boomerang', damage: 24, speed: 12, knockback: 7, size: 0.9, rarity: 'rare' },
+    [ITEMS.WOOD_BOOMERANG]: { name: 'Wood Boomerang', type: 'boomerang', damage: 6, speed: 16, knockback: 6, size: 0.8 },
+    [ITEMS.ENCHANTED_BOOMERANG]: { name: 'Enchanted Boomerang', type: 'boomerang', damage: 14, speed: 12, knockback: 8, size: 0.9, rarity: 'magic' },
+    [ITEMS.FLAMARANG]: { name: 'Flamarang', type: 'boomerang', damage: 38, speed: 25, knockback: 12, size: 1.0, rarity: 'rare' },
+    [ITEMS.THORN_CHAKRAM]: { name: 'Thorn Chakram', type: 'boomerang', damage: 19, speed: 15, knockback: 8, size: 0.95, rarity: 'rare' },
+    [ITEMS.ICE_BOOMERANG]: { name: 'Ice Boomerang', type: 'boomerang', damage: 21, speed: 12, knockback: 7, size: 0.9, rarity: 'rare' },
     // Yoyos
-    [ITEMS.WOOD_YOYO]: { name: 'Wood Yoyo', type: 'yoyo', damage: 11, speed: 18, knockback: 2, size: 0.6, range: 80 },
-    [ITEMS.RALLY]: { name: 'Rally', type: 'yoyo', damage: 15, speed: 16, knockback: 2, size: 0.65, range: 100, rarity: 'magic' },
-    [ITEMS.MALAISE]: { name: 'Malaise', type: 'yoyo', damage: 22, speed: 14, knockback: 3, size: 0.7, range: 120, rarity: 'rare' },
-    [ITEMS.ARTERY]: { name: 'Artery', type: 'yoyo', damage: 24, speed: 14, knockback: 3, size: 0.7, range: 120, rarity: 'rare' },
-    [ITEMS.AMAZON]: { name: 'Amazon', type: 'yoyo', damage: 28, speed: 12, knockback: 3, size: 0.75, range: 140, rarity: 'rare' },
-    [ITEMS.CASCADE]: { name: 'Cascade', type: 'yoyo', damage: 35, speed: 10, knockback: 4, size: 0.8, range: 160, rarity: 'rare' },
+    [ITEMS.WOOD_YOYO]: { name: 'Wood Yoyo', type: 'yoyo', damage: 5, speed: 18, knockback: 2, size: 0.6, range: 80 },
+    [ITEMS.RALLY]: { name: 'Rally', type: 'yoyo', damage: 8, speed: 16, knockback: 2, size: 0.65, range: 100, rarity: 'magic' },
+    [ITEMS.MALAISE]: { name: 'Malaise', type: 'yoyo', damage: 12, speed: 14, knockback: 3, size: 0.7, range: 120, rarity: 'rare' },
+    [ITEMS.ARTERY]: { name: 'Artery', type: 'yoyo', damage: 14, speed: 14, knockback: 3, size: 0.7, range: 120, rarity: 'rare' },
+    [ITEMS.AMAZON]: { name: 'Amazon', type: 'yoyo', damage: 18, speed: 12, knockback: 3, size: 0.75, range: 140, rarity: 'rare' },
+    [ITEMS.CASCADE]: { name: 'Cascade', type: 'yoyo', damage: 25, speed: 10, knockback: 4, size: 0.8, range: 160, rarity: 'rare' },
     // Flails
     [ITEMS.CHAIN_KNIFE]: { name: 'Chain Knife', type: 'flail', damage: 14, speed: 18, knockback: 4, size: 0.7, range: 60 },
     [ITEMS.BALL_O_HURT]: { name: "Ball O' Hurt", type: 'flail', damage: 22, speed: 20, knockback: 6, size: 0.9, range: 80, rarity: 'rare' },
@@ -249,8 +251,8 @@ const ITEM_DATA = {
     [ITEMS.OBSIDIAN_SKULL]: { name: 'Obsidian Skull', type: 'material', stackable: true },
     [ITEMS.ANTLION_MANDIBLE]: { name: 'Antlion Mandible', type: 'material', stackable: true },
     // Consumables
-    [ITEMS.HEALING_POTION]: { name: 'Healing Potion', type: 'consumable', heal: 100, stackable: true },
-    [ITEMS.GREATER_HEALING_POTION]: { name: 'Greater Healing Potion', type: 'consumable', heal: 200, stackable: true, rarity: 'rare' },
+    [ITEMS.HEALING_POTION]: { name: 'Healing Potion', type: 'consumable', heal: 50, stackable: true },
+    [ITEMS.GREATER_HEALING_POTION]: { name: 'Greater Healing Potion', type: 'consumable', heal: 120, stackable: true, rarity: 'rare' },
     [ITEMS.MANA_POTION]: { name: 'Mana Potion', type: 'consumable', manaRestore: 100, stackable: true, rarity: 'magic' },
     [ITEMS.GREATER_MANA_POTION]: { name: 'Greater Mana Potion', type: 'consumable', manaRestore: 200, stackable: true, rarity: 'magic' },
     [ITEMS.HEART_CRYSTAL]: { name: 'Heart Crystal', type: 'consumable', maxHealth: 20, stackable: true, rarity: 'rare' },
@@ -312,20 +314,20 @@ const ITEM_DATA = {
     [ITEMS.CRIMSON_LEGGINGS]: { name: 'Crimson Leggings', type: 'leggings', defense: 5, stackable: false, rarity: 'rare' },
     [ITEMS.MOLTEN_LEGGINGS]: { name: 'Molten Leggings', type: 'leggings', defense: 7, stackable: false, rarity: 'rare' },
     // Guns
-    [ITEMS.FLINTLOCK_PISTOL]: { name: 'Flintlock Pistol', type: 'gun', damage: 14, speed: 18, knockback: 3, size: 0.7 },
-    [ITEMS.MUSKET]: { name: 'Musket', type: 'gun', damage: 26, speed: 28, knockback: 5, size: 1.0, rarity: 'rare' },
-    [ITEMS.HANDGUN]: { name: 'Handgun', type: 'gun', damage: 20, speed: 10, knockback: 3, size: 0.75, rarity: 'rare' },
-    [ITEMS.PHOENIX_BLASTER]: { name: 'Phoenix Blaster', type: 'gun', damage: 28, speed: 9, knockback: 4, size: 0.85, rarity: 'rare' },
-    [ITEMS.STAR_CANNON]: { name: 'Star Cannon', type: 'gun', damage: 62, speed: 12, knockback: 5, size: 1.0, rarity: 'legendary', usesStars: true },
-    [ITEMS.MINISHARK]: { name: 'Minishark', type: 'gun', damage: 8, speed: 3, knockback: 1, size: 0.9, rarity: 'rare' },
+    [ITEMS.FLINTLOCK_PISTOL]: { name: 'Flintlock Pistol', type: 'gun', damage: 8, speed: 24, knockback: 2, size: 0.7 },
+    [ITEMS.MUSKET]: { name: 'Musket', type: 'gun', damage: 27, speed: 48, knockback: 7, size: 1.0, rarity: 'rare' },
+    [ITEMS.HANDGUN]: { name: 'Handgun', type: 'gun', damage: 12, speed: 10, knockback: 3, size: 0.75, rarity: 'rare' },
+    [ITEMS.PHOENIX_BLASTER]: { name: 'Phoenix Blaster', type: 'gun', damage: 28, speed: 9, knockback: 2, size: 0.85, rarity: 'rare' },
+    [ITEMS.STAR_CANNON]: { name: 'Star Cannon', type: 'gun', damage: 62, speed: 12, knockback: 14, size: 1.0, rarity: 'legendary', usesStars: true },
+    [ITEMS.MINISHARK]: { name: 'Minishark', type: 'gun', damage: 2, speed: 4, knockback: 1, size: 0.9, rarity: 'rare' },
     // Bullets
-    [ITEMS.MUSKET_BALL]: { name: 'Musket Ball', type: 'bullet', damage: 7, stackable: true },
-    [ITEMS.SILVER_BULLET]: { name: 'Silver Bullet', type: 'bullet', damage: 12, stackable: true, rarity: 'magic' },
-    [ITEMS.METEOR_SHOT]: { name: 'Meteor Shot', type: 'bullet', damage: 15, stackable: true, rarity: 'rare' },
+    [ITEMS.MUSKET_BALL]: { name: 'Musket Ball', type: 'bullet', damage: 2, stackable: true },
+    [ITEMS.SILVER_BULLET]: { name: 'Silver Bullet', type: 'bullet', damage: 6, stackable: true, rarity: 'magic' },
+    [ITEMS.METEOR_SHOT]: { name: 'Meteor Shot', type: 'bullet', damage: 8, stackable: true, rarity: 'rare' },
     // Zenith weapons
-    [ITEMS.ZENITH_BOW]: { name: 'Zenith Bow', type: 'bow', damage: 37, speed: 10, knockback: 4, size: 1.3, rarity: 'legendary', zenithBow: true },
-    [ITEMS.ZENITH_BLASTER]: { name: 'Zenith Blaster', type: 'gun', damage: 3, speed: 4, knockback: 1, size: 1.0, rarity: 'legendary', zenithBlaster: true },
-    [ITEMS.ZENITH_STAFF]: { name: 'Zenith Staff', type: 'magic', damage: 3, speed: 2, mana: 0, rarity: 'legendary', zenithStaff: true },
+    [ITEMS.ZENITH_BOW]: { name: 'Zenith Bow', type: 'bow', damage: 21, speed: 7, knockback: 6, size: 1.3, rarity: 'legendary', zenithBow: true },
+    [ITEMS.ZENITH_BLASTER]: { name: 'Zenith Blaster', type: 'gun', damage: 5, speed: 2, knockback: 2, size: 1.0, rarity: 'legendary', zenithBlaster: true },
+    [ITEMS.ZENITH_STAFF]: { name: 'Zenith Staff', type: 'magic', damage: 3, speed: 2, mana: 1, rarity: 'legendary', zenithStaff: true },
     // Throwables
     [ITEMS.GRENADE]: { name: 'Grenade', type: 'throwable', damage: 40, speed: 14, knockback: 6, stackable: true, blastRadius: 2.4 },
     [ITEMS.NUKE]: { name: 'Nuke', type: 'throwable', damage: 200, speed: 20, knockback: 15, stackable: true, blastRadius: 30, rarity: 'legendary' }
@@ -340,194 +342,167 @@ for (const [key, val] of Object.entries(BLOCKS)) {
 
 // Recipes
 const RECIPES = [
-    // Basic materials
-    { result: ITEMS.WOOD_PLANK, count: 4, ingredients: [{ id: BLOCKS.WOOD, count: 1 }], station: null },
-    { result: ITEMS.STICK, count: 4, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 2 }], station: null },
+    // Blocks
+    { result: BLOCKS.COBBLESTONE, count: 4, ingredients: [{ id: BLOCKS.STONE, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: BLOCKS.STONE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 4 }], station: BLOCKS.FURNACE },
     { result: BLOCKS.TORCH, count: 3, ingredients: [{ id: ITEMS.STICK, count: 1 }, { id: ITEMS.GEL, count: 1 }], station: null },
     { result: BLOCKS.WOOD_PLATFORM, count: 2, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 1 }], station: null },
-    { result: ITEMS.MANA_CRYSTAL, count: 1, ingredients: [{ id: ITEMS.FALLEN_STAR, count: 5 }], station: null },
-    { result: ITEMS.CHAIN, count: 10, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }], station: null },
-    { result: ITEMS.WOOD_ARROW, count: 5, ingredients: [{ id: ITEMS.STICK, count: 1 }, { id: BLOCKS.STONE, count: 1 }], station: null },
-    
-    // Stations
     { result: BLOCKS.WORKBENCH, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 10 }], station: null },
     { result: BLOCKS.FURNACE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 20 }, { id: BLOCKS.TORCH, count: 3 }], station: BLOCKS.WORKBENCH },
     { result: BLOCKS.CHEST, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.IRON_BAR, count: 2 }], station: BLOCKS.WORKBENCH },
-    
-    // Wood tools & weapons
-    { result: ITEMS.WOOD_PICKAXE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_AXE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_SWORD, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 7 }, { id: ITEMS.STICK, count: 2 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_HAMMER, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_SPEAR, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_BOW, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 5 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_BOOMERANG, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_YOYO, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 5 }, { id: ITEMS.COBWEB, count: 5 }], station: BLOCKS.WORKBENCH },
-    
-    // Stone tools
-    { result: ITEMS.STONE_PICKAXE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.STONE_AXE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    
-    // Smelting - Bars
+    { result: BLOCKS.GLASS, count: 1, ingredients: [{ id: BLOCKS.SAND, count: 2 }], station: BLOCKS.FURNACE },
+    { result: BLOCKS.BRICK, count: 1, ingredients: [{ id: BLOCKS.CLAY, count: 2 }], station: BLOCKS.FURNACE },
+    { result: BLOCKS.DIRT, count: 1, ingredients: [{ id: BLOCKS.MUD, count: 1 }], station: null },
+    { result: BLOCKS.DOOR, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }], station: BLOCKS.WORKBENCH },
+    // Materials
+    { result: ITEMS.WOOD_PLANK, count: 4, ingredients: [{ id: BLOCKS.WOOD, count: 1 }], station: null },
+    { result: ITEMS.STICK, count: 4, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 2 }], station: null },
+    { result: ITEMS.CHAIN, count: 10, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }], station: null },
     { result: ITEMS.COPPER_BAR, count: 1, ingredients: [{ id: BLOCKS.COPPER_ORE, count: 3 }], station: BLOCKS.FURNACE },
     { result: ITEMS.IRON_BAR, count: 1, ingredients: [{ id: BLOCKS.IRON_ORE, count: 3 }], station: BLOCKS.FURNACE },
     { result: ITEMS.GOLD_BAR, count: 1, ingredients: [{ id: BLOCKS.GOLD_ORE, count: 4 }], station: BLOCKS.FURNACE },
     { result: ITEMS.DEMONITE_BAR, count: 1, ingredients: [{ id: BLOCKS.DEMONITE_ORE, count: 3 }], station: BLOCKS.FURNACE },
     { result: ITEMS.CRIMTANE_BAR, count: 1, ingredients: [{ id: BLOCKS.CRIMTANE_ORE, count: 3 }], station: BLOCKS.FURNACE },
     { result: ITEMS.HELLSTONE_BAR, count: 1, ingredients: [{ id: BLOCKS.HELLSTONE, count: 3 }, { id: BLOCKS.OBSIDIAN, count: 1 }], station: BLOCKS.FURNACE },
-    { result: BLOCKS.GLASS, count: 1, ingredients: [{ id: BLOCKS.SAND, count: 2 }], station: BLOCKS.FURNACE },
-    { result: BLOCKS.BRICK, count: 1, ingredients: [{ id: BLOCKS.CLAY, count: 2 }], station: BLOCKS.FURNACE },
-    
-    // Copper equipment
+    { result: ITEMS.METEORITE_BAR, count: 5, ingredients: [{ id: ITEMS.IRON_BAR, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.FURNACE },
+    { result: ITEMS.OBSIDIAN_SKULL, count: 1, ingredients: [{ id: BLOCKS.OBSIDIAN, count: 20 }], station: BLOCKS.FURNACE },
+    // Pickaxes
+    { result: ITEMS.WOOD_PICKAXE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.STONE_PICKAXE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.COPPER_PICKAXE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_AXE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_HAMMER, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 6 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_SPEAR, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 8 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_BOW, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 7 }], station: BLOCKS.WORKBENCH },
-    
-    // Iron equipment
     { result: ITEMS.IRON_PICKAXE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_AXE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_HAMMER, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 7 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_SPEAR, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 9 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_BOW, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
-    
-    // Gold equipment
     { result: ITEMS.GOLD_PICKAXE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 15 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_AXE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_HAMMER, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_SPEAR, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_BOW, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 9 }], station: BLOCKS.WORKBENCH },
-    
-    // Diamond equipment
     { result: ITEMS.DIAMOND_PICKAXE, count: 1, ingredients: [{ id: BLOCKS.DIAMOND, count: 15 }, { id: ITEMS.GOLD_BAR, count: 5 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.DIAMOND_SWORD, count: 1, ingredients: [{ id: BLOCKS.DIAMOND, count: 12 }, { id: ITEMS.GOLD_BAR, count: 3 }], station: BLOCKS.WORKBENCH },
-    
-    // Evil biome weapons
-    { result: ITEMS.LIGHTS_BANE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.BLOOD_BUTCHERER, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.DEMON_BOW, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.TENDON_BOW, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.NIGHTMARE_PICKAXE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 12 }, { id: ITEMS.SHADOW_SCALE, count: 6 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.DEATHBRINGER_PICKAXE, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 12 }, { id: ITEMS.TISSUE_SAMPLE, count: 6 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_PICKAXE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    // Axes
+    { result: ITEMS.WOOD_AXE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.STONE_AXE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_AXE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_AXE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_AXE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    // Hammers
+    { result: ITEMS.WOOD_HAMMER, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_HAMMER, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_HAMMER, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_HAMMER, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    // Swords
+    { result: ITEMS.WOOD_SWORD, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 7 }, { id: ITEMS.STICK, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 6 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 7 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_SHORTSWORD, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_BROADSWORD, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DIAMOND_SWORD, count: 1, ingredients: [{ id: BLOCKS.DIAMOND, count: 12 }, { id: ITEMS.GOLD_BAR, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.LIGHTS_BANE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.BLOOD_BUTCHERER, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.BLADE_OF_GRASS, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 12 }, { id: ITEMS.STINGER, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.FIERY_GREATSWORD, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.NIGHTS_EDGE, count: 1, ingredients: [{ id: ITEMS.LIGHTS_BANE, count: 1 }, { id: ITEMS.MURAMASA, count: 1 }, { id: ITEMS.BLADE_OF_GRASS, count: 1 }, { id: ITEMS.FIERY_GREATSWORD, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Spears
+    { result: ITEMS.WOOD_SPEAR, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 6 }, { id: ITEMS.STICK, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_SPEAR, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 8 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_SPEAR, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 9 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_SPEAR, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    // Bows
+    { result: ITEMS.WOOD_BOW, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 5 }, { id: ITEMS.STICK, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_BOW, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 7 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_BOW, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_BOW, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 9 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_FURY, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DEMON_BOW, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.TENDON_BOW, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.ZENITH_BOW, count: 1, ingredients: [{ id: ITEMS.WOOD_BOW, count: 1 }, { id: ITEMS.COPPER_BOW, count: 1 }, { id: ITEMS.IRON_BOW, count: 1 }, { id: ITEMS.GOLD_BOW, count: 1 }, { id: ITEMS.DEMON_BOW, count: 1 }, { id: ITEMS.MOLTEN_FURY, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Boomerangs
+    { result: ITEMS.WOOD_BOOMERANG, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 8 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.THORN_CHAKRAM, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 6 }, { id: ITEMS.STINGER, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.FLAMARANG, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }, { id: ITEMS.ENCHANTED_BOOMERANG, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Yoyos
+    { result: ITEMS.WOOD_YOYO, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 5 }, { id: ITEMS.COBWEB, count: 5 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.MALAISE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.ARTERY, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.BALL_O_HURT, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 10 }, { id: ITEMS.SHADOW_SCALE, count: 4 }], station: BLOCKS.WORKBENCH },
-    
-    // Hellstone equipment
-    { result: ITEMS.MOLTEN_PICKAXE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.FIERY_GREATSWORD, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MOLTEN_FURY, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.FLAMARANG, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }, { id: ITEMS.ENCHANTED_BOOMERANG, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.SUNFURY, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }, { id: ITEMS.CHAIN, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.CASCADE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
-    
-    // Special weapons
-    { result: ITEMS.NIGHTS_EDGE, count: 1, ingredients: [{ id: ITEMS.LIGHTS_BANE, count: 1 }, { id: ITEMS.MURAMASA, count: 1 }, { id: ITEMS.BLADE_OF_GRASS, count: 1 }, { id: ITEMS.FIERY_GREATSWORD, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.BLADE_OF_GRASS, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 12 }, { id: ITEMS.STINGER, count: 15 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.THORN_CHAKRAM, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 6 }, { id: ITEMS.STINGER, count: 10 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.AMAZON, count: 1, ingredients: [{ id: ITEMS.JUNGLE_SPORES, count: 8 }, { id: ITEMS.STINGER, count: 6 }, { id: ITEMS.VINE, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IVY_WHIP, count: 1, ingredients: [{ id: ITEMS.VINE, count: 3 }, { id: ITEMS.JUNGLE_SPORES, count: 12 }], station: BLOCKS.WORKBENCH },
-    
-    // Arrows
-    { result: ITEMS.FLAMING_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: BLOCKS.TORCH, count: 1 }], station: null },
-    { result: ITEMS.FROSTBURN_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: BLOCKS.ICE, count: 1 }], station: null },
-    { result: ITEMS.UNHOLY_ARROW, count: 5, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 5 }, { id: ITEMS.ROTTEN_CHUNK, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.JESTER_ARROW, count: 20, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 20 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.HELLFIRE_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: ITEMS.HELLSTONE_BAR, count: 1 }], station: BLOCKS.WORKBENCH },
-    
-    // Magic weapons
+    { result: ITEMS.CASCADE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    // Flails
+    { result: ITEMS.CHAIN_KNIFE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 6 }, { id: ITEMS.CHAIN, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.BALL_O_HURT, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 10 }, { id: ITEMS.SHADOW_SCALE, count: 4 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SUNFURY, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }, { id: ITEMS.CHAIN, count: 10 }], station: BLOCKS.WORKBENCH },
+    // Guns
+    { result: ITEMS.FLINTLOCK_PISTOL, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 8 }, { id: ITEMS.WOOD_PLANK, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MUSKET, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 12 }, { id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.LENS, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.HANDGUN, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.IRON_BAR, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MINISHARK, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 15 }, { id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.SHARK_FIN, count: 5 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.PHOENIX_BLASTER, count: 1, ingredients: [{ id: ITEMS.HANDGUN, count: 1 }, { id: ITEMS.HELLSTONE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.STAR_CANNON, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 15 }, { id: ITEMS.FALLEN_STAR, count: 20 }, { id: ITEMS.LENS, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.ZENITH_BLASTER, count: 1, ingredients: [{ id: ITEMS.FLINTLOCK_PISTOL, count: 1 }, { id: ITEMS.MUSKET, count: 1 }, { id: ITEMS.HANDGUN, count: 1 }, { id: ITEMS.PHOENIX_BLASTER, count: 1 }, { id: ITEMS.MINISHARK, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Magic Weapons
     { result: ITEMS.WAND_OF_SPARKING, count: 1, ingredients: [{ id: ITEMS.STICK, count: 5 }, { id: ITEMS.FALLEN_STAR, count: 3 }, { id: ITEMS.GEL, count: 5 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.THUNDER_ZAPPER, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 8 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.VILETHORN, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 8 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.CRIMSON_ROD, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 8 }, { id: ITEMS.FALLEN_STAR, count: 5 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.FLAMELASH, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 10 }, { id: ITEMS.FALLEN_STAR, count: 10 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.FLOWER_OF_FIRE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }, { id: ITEMS.FALLEN_STAR, count: 12 }], station: BLOCKS.WORKBENCH },
-    
-    // Tools
-    { result: ITEMS.GRAPPLING_HOOK, count: 1, ingredients: [{ id: ITEMS.HOOK, count: 1 }, { id: ITEMS.CHAIN, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.CHAIN_KNIFE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 6 }, { id: ITEMS.CHAIN, count: 2 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.DUAL_HOOK, count: 1, ingredients: [{ id: ITEMS.HOOK, count: 2 }, { id: ITEMS.CHAIN, count: 6 }], station: BLOCKS.WORKBENCH },
-    
-    // Accessories
-    { result: ITEMS.SPECTRE_BOOTS, count: 1, ingredients: [{ id: ITEMS.HERMES_BOOTS, count: 1 }, { id: ITEMS.ROCKET_BOOTS, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.OBSIDIAN_SKULL, count: 1, ingredients: [{ id: BLOCKS.OBSIDIAN, count: 20 }], station: BLOCKS.FURNACE },
-    { result: ITEMS.OBSIDIAN_SHIELD, count: 1, ingredients: [{ id: ITEMS.OBSIDIAN_SKULL, count: 1 }, { id: ITEMS.COBALT_SHIELD, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MANA_FLOWER, count: 1, ingredients: [{ id: ITEMS.MANA_POTION, count: 5 }, { id: ITEMS.BAND_OF_STARPOWER, count: 1 }], station: BLOCKS.WORKBENCH },
-    
-    // Potions
-    { result: ITEMS.HEALING_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.GEL, count: 2 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GREATER_HEALING_POTION, count: 1, ingredients: [{ id: ITEMS.HEALING_POTION, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MANA_POTION, count: 1, ingredients: [{ id: BLOCKS.VILE_MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GREATER_MANA_POTION, count: 1, ingredients: [{ id: ITEMS.MANA_POTION, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 2 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRONSKIN_POTION, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.SWIFTNESS_POTION, count: 1, ingredients: [{ id: ITEMS.GEL, count: 3 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.REGENERATION_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.ARCHERY_POTION, count: 1, ingredients: [{ id: ITEMS.LENS, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
-    
-    // Armor - Wood
-    { result: ITEMS.WOOD_HELMET, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 12 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 20 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.WOOD_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 15 }], station: BLOCKS.WORKBENCH },
-    // Armor - Copper
-    { result: ITEMS.COPPER_HELMET, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 12 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.COPPER_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
-    // Armor - Iron
-    { result: ITEMS.IRON_HELMET, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.IRON_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
-    // Armor - Gold
-    { result: ITEMS.GOLD_HELMET, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 30 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.GOLD_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
-    // Armor - Shadow
-    { result: ITEMS.SHADOW_HELMET, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 15 }, { id: ITEMS.SHADOW_SCALE, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.SHADOW_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 25 }, { id: ITEMS.SHADOW_SCALE, count: 15 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.SHADOW_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 20 }, { id: ITEMS.SHADOW_SCALE, count: 12 }], station: BLOCKS.WORKBENCH },
-    // Armor - Crimson
-    { result: ITEMS.CRIMSON_HELMET, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 15 }, { id: ITEMS.TISSUE_SAMPLE, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.CRIMSON_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 25 }, { id: ITEMS.TISSUE_SAMPLE, count: 15 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.CRIMSON_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 20 }, { id: ITEMS.TISSUE_SAMPLE, count: 12 }], station: BLOCKS.WORKBENCH },
-    // Armor - Molten
-    { result: ITEMS.MOLTEN_HELMET, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MOLTEN_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MOLTEN_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
-    
-    // Building blocks
-    { result: BLOCKS.DIRT, count: 1, ingredients: [{ id: BLOCKS.MUD, count: 1 }], station: null },
-    { result: BLOCKS.COBBLESTONE, count: 4, ingredients: [{ id: BLOCKS.STONE, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: BLOCKS.STONE, count: 1, ingredients: [{ id: BLOCKS.COBBLESTONE, count: 4 }], station: BLOCKS.FURNACE },
-    
+    { result: ITEMS.ZENITH_STAFF, count: 1, ingredients: [{ id: ITEMS.WAND_OF_SPARKING, count: 1 }, { id: ITEMS.THUNDER_ZAPPER, count: 1 }, { id: ITEMS.VILETHORN, count: 1 }, { id: ITEMS.FLAMELASH, count: 1 }, { id: ITEMS.FLOWER_OF_FIRE, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Arrows
+    { result: ITEMS.WOOD_ARROW, count: 5, ingredients: [{ id: ITEMS.STICK, count: 1 }, { id: BLOCKS.STONE, count: 1 }], station: null },
+    { result: ITEMS.FLAMING_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: BLOCKS.TORCH, count: 1 }], station: null },
+    { result: ITEMS.FROSTBURN_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: BLOCKS.ICE, count: 1 }], station: null },
+    { result: ITEMS.JESTER_ARROW, count: 20, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 20 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.UNHOLY_ARROW, count: 5, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 5 }, { id: ITEMS.ROTTEN_CHUNK, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.HELLFIRE_ARROW, count: 10, ingredients: [{ id: ITEMS.WOOD_ARROW, count: 10 }, { id: ITEMS.HELLSTONE_BAR, count: 1 }], station: BLOCKS.WORKBENCH },
     // Bullets
     { result: ITEMS.MUSKET_BALL, count: 50, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }], station: BLOCKS.FURNACE },
     { result: ITEMS.SILVER_BULLET, count: 25, ingredients: [{ id: ITEMS.MUSKET_BALL, count: 25 }, { id: ITEMS.GOLD_BAR, count: 1 }], station: BLOCKS.WORKBENCH },
     { result: ITEMS.METEOR_SHOT, count: 25, ingredients: [{ id: ITEMS.MUSKET_BALL, count: 25 }, { id: ITEMS.METEORITE_BAR, count: 1 }], station: BLOCKS.WORKBENCH },
-    
-    // Guns
-    { result: ITEMS.FLINTLOCK_PISTOL, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 8 }, { id: ITEMS.WOOD_PLANK, count: 5 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MUSKET, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 12 }, { id: ITEMS.WOOD_PLANK, count: 8 }, { id: ITEMS.LENS, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.HANDGUN, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.IRON_BAR, count: 5 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.PHOENIX_BLASTER, count: 1, ingredients: [{ id: ITEMS.HANDGUN, count: 1 }, { id: ITEMS.HELLSTONE_BAR, count: 10 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.STAR_CANNON, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 15 }, { id: ITEMS.FALLEN_STAR, count: 20 }, { id: ITEMS.LENS, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.MINISHARK, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 15 }, { id: ITEMS.GOLD_BAR, count: 10 }, { id: ITEMS.SHARK_FIN, count: 5 }], station: BLOCKS.WORKBENCH },
-    
-    // Zenith weapons
-    { result: ITEMS.ZENITH_BOW, count: 1, ingredients: [{ id: ITEMS.WOOD_BOW, count: 1 }, { id: ITEMS.COPPER_BOW, count: 1 }, { id: ITEMS.IRON_BOW, count: 1 }, { id: ITEMS.GOLD_BOW, count: 1 }, { id: ITEMS.DEMON_BOW, count: 1 }, { id: ITEMS.MOLTEN_FURY, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.ZENITH_BLASTER, count: 1, ingredients: [{ id: ITEMS.FLINTLOCK_PISTOL, count: 1 }, { id: ITEMS.MUSKET, count: 1 }, { id: ITEMS.HANDGUN, count: 1 }, { id: ITEMS.PHOENIX_BLASTER, count: 1 }, { id: ITEMS.MINISHARK, count: 1 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.ZENITH_STAFF, count: 1, ingredients: [{ id: ITEMS.WAND_OF_SPARKING, count: 1 }, { id: ITEMS.THUNDER_ZAPPER, count: 1 }, { id: ITEMS.VILETHORN, count: 1 }, { id: ITEMS.FLAMELASH, count: 1 }, { id: ITEMS.FLOWER_OF_FIRE, count: 1 }], station: BLOCKS.WORKBENCH },
-    
     // Throwables
     { result: ITEMS.GRENADE, count: 5, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }, { id: ITEMS.GEL, count: 3 }], station: BLOCKS.WORKBENCH },
-    { result: ITEMS.NUKE, count: 1, ingredients: [{ id: ITEMS.GRENADE, count: 50 }, { id: ITEMS.HELLSTONE_BAR, count: 30 }, { id: ITEMS.DEMONITE_BAR, count: 20 }, { id: ITEMS.GOLD_BAR, count: 20 }, { id: ITEMS.FALLEN_STAR, count: 15 }], station: BLOCKS.WORKBENCH }
+    { result: ITEMS.NUKE, count: 1, ingredients: [{ id: ITEMS.GRENADE, count: 50 }, { id: ITEMS.HELLSTONE_BAR, count: 30 }, { id: ITEMS.DEMONITE_BAR, count: 20 }, { id: ITEMS.GOLD_BAR, count: 20 }, { id: ITEMS.FALLEN_STAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    // Tools
+    { result: ITEMS.IVY_WHIP, count: 1, ingredients: [{ id: ITEMS.VINE, count: 3 }, { id: ITEMS.JUNGLE_SPORES, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GRAPPLING_HOOK, count: 1, ingredients: [{ id: ITEMS.HOOK, count: 1 }, { id: ITEMS.CHAIN, count: 3 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.DUAL_HOOK, count: 1, ingredients: [{ id: ITEMS.HOOK, count: 2 }, { id: ITEMS.CHAIN, count: 6 }], station: BLOCKS.WORKBENCH },
+    // Accessories
+    { result: ITEMS.SPECTRE_BOOTS, count: 1, ingredients: [{ id: ITEMS.HERMES_BOOTS, count: 1 }, { id: ITEMS.ROCKET_BOOTS, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.LIGHTNING_BOOTS, count: 1, ingredients: [{ id: ITEMS.SPECTRE_BOOTS, count: 1 }, { id: ITEMS.AGLET, count: 1 }, { id: ITEMS.ANKLET_OF_WIND, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.OBSIDIAN_SHIELD, count: 1, ingredients: [{ id: ITEMS.OBSIDIAN_SKULL, count: 1 }, { id: ITEMS.COBALT_SHIELD, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MANA_FLOWER, count: 1, ingredients: [{ id: ITEMS.MANA_POTION, count: 5 }, { id: ITEMS.BAND_OF_STARPOWER, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Consumables
+    { result: ITEMS.IRONSKIN_POTION, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MANA_CRYSTAL, count: 1, ingredients: [{ id: ITEMS.FALLEN_STAR, count: 5 }], station: null },
+    { result: ITEMS.HEALING_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.GEL, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GREATER_HEALING_POTION, count: 1, ingredients: [{ id: ITEMS.HEALING_POTION, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MANA_POTION, count: 1, ingredients: [{ id: BLOCKS.VILE_MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GREATER_MANA_POTION, count: 1, ingredients: [{ id: ITEMS.MANA_POTION, count: 3 }, { id: ITEMS.FALLEN_STAR, count: 2 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SWIFTNESS_POTION, count: 1, ingredients: [{ id: ITEMS.GEL, count: 3 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.REGENERATION_POTION, count: 1, ingredients: [{ id: BLOCKS.MUSHROOM, count: 2 }, { id: ITEMS.FALLEN_STAR, count: 1 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.ARCHERY_POTION, count: 1, ingredients: [{ id: ITEMS.LENS, count: 1 }, { id: BLOCKS.MUSHROOM, count: 1 }], station: BLOCKS.WORKBENCH },
+    // Helmets
+    { result: ITEMS.WOOD_HELMET, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_HELMET, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_HELMET, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_HELMET, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SHADOW_HELMET, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 15 }, { id: ITEMS.SHADOW_SCALE, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CRIMSON_HELMET, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 15 }, { id: ITEMS.TISSUE_SAMPLE, count: 10 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_HELMET, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    // Chestplates
+    { result: ITEMS.WOOD_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 30 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SHADOW_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 25 }, { id: ITEMS.SHADOW_SCALE, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CRIMSON_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 25 }, { id: ITEMS.TISSUE_SAMPLE, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_CHESTPLATE, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
+    // Leggings
+    { result: ITEMS.WOOD_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.WOOD_PLANK, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.COPPER_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.COPPER_BAR, count: 15 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.IRON_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.IRON_BAR, count: 20 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.GOLD_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.GOLD_BAR, count: 25 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.SHADOW_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.DEMONITE_BAR, count: 20 }, { id: ITEMS.SHADOW_SCALE, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.CRIMSON_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.CRIMTANE_BAR, count: 20 }, { id: ITEMS.TISSUE_SAMPLE, count: 12 }], station: BLOCKS.WORKBENCH },
+    { result: ITEMS.MOLTEN_LEGGINGS, count: 1, ingredients: [{ id: ITEMS.HELLSTONE_BAR, count: 20 }], station: BLOCKS.WORKBENCH }
 ];
-
 // Chest loot tables
 const CHEST_LOOT = {
     surface: [
@@ -541,7 +516,8 @@ const CHEST_LOOT = {
         { id: ITEMS.WOOD_BOOMERANG, min: 1, max: 1, chance: 0.2 },
         { id: ITEMS.FLAMING_ARROW, min: 20, max: 50, chance: 0.3 },
         { id: ITEMS.RALLY, min: 1, max: 1, chance: 0.1 },
-        { id: ITEMS.ENCHANTED_SWORD, min: 1, max: 1, chance: 0.03 }
+        { id: ITEMS.ENCHANTED_SWORD, min: 1, max: 1, chance: 0.03 },
+        { id: ITEMS.SHARK_FIN, min: 1, max: 3, chance: 0.15 }
     ],
     underground: [
         { id: ITEMS.HEALING_POTION, min: 3, max: 6, chance: 0.8 },
@@ -558,7 +534,16 @@ const CHEST_LOOT = {
         { id: ITEMS.ICE_BOOMERANG, min: 1, max: 1, chance: 0.08 },
         { id: ITEMS.BLUE_MOON, min: 1, max: 1, chance: 0.06 },
         { id: ITEMS.HANDGUN, min: 1, max: 1, chance: 0.08 },
-        { id: ITEMS.MUSKET_BALL, min: 30, max: 60, chance: 0.3 }
+        { id: ITEMS.MUSKET_BALL, min: 30, max: 60, chance: 0.3 },
+        { id: ITEMS.COBWEB, min: 5, max: 15, chance: 0.4 },
+        { id: ITEMS.VINE, min: 1, max: 3, chance: 0.25 },
+        { id: ITEMS.JUNGLE_SPORES, min: 3, max: 8, chance: 0.25 },
+        { id: ITEMS.STINGER, min: 2, max: 5, chance: 0.2 },
+        { id: ITEMS.ROCKET_BOOTS, min: 1, max: 1, chance: 0.06 },
+        { id: ITEMS.ANKLET_OF_WIND, min: 1, max: 1, chance: 0.08 },
+        { id: ITEMS.TITAN_GLOVE, min: 1, max: 1, chance: 0.06 },
+        { id: ITEMS.CROSS_NECKLACE, min: 1, max: 1, chance: 0.06 },
+        { id: ITEMS.HEART_CRYSTAL, min: 1, max: 1, chance: 0.5 }
     ],
     evil: [
         { id: ITEMS.VILETHORN, min: 1, max: 1, chance: 0.15 },
@@ -567,7 +552,8 @@ const CHEST_LOOT = {
         { id: ITEMS.CRIMTANE_BAR, min: 3, max: 8, chance: 0.4 },
         { id: ITEMS.SHADOW_SCALE, min: 3, max: 8, chance: 0.3 },
         { id: ITEMS.TISSUE_SAMPLE, min: 3, max: 8, chance: 0.3 },
-        { id: ITEMS.BALL_O_HURT, min: 1, max: 1, chance: 0.1 }
+        { id: ITEMS.BALL_O_HURT, min: 1, max: 1, chance: 0.1 },
+        { id: ITEMS.STAR_CLOAK, min: 1, max: 1, chance: 0.08 }
     ],
     hell: [
         { id: ITEMS.HELLSTONE_BAR, min: 5, max: 15, chance: 0.6 },
@@ -578,7 +564,8 @@ const CHEST_LOOT = {
         { id: ITEMS.SUNFURY, min: 1, max: 1, chance: 0.1 },
         { id: ITEMS.HELLFIRE_ARROW, min: 30, max: 75, chance: 0.4 },
         { id: ITEMS.PHOENIX_BLASTER, min: 1, max: 1, chance: 0.06 },
-        { id: ITEMS.METEOR_SHOT, min: 30, max: 60, chance: 0.3 }
+        { id: ITEMS.METEOR_SHOT, min: 30, max: 60, chance: 0.3 },
+        { id: ITEMS.METEORITE_BAR, min: 3, max: 8, chance: 0.35 }
     ],
     sky: [
         { id: ITEMS.LUCKY_HORSESHOE, min: 1, max: 1, chance: 0.25 },
@@ -592,11 +579,11 @@ const CHEST_LOOT = {
 // Enemies
 const ENEMIES = {
     // Surface - Day
-    SLIME: { name: 'Green Slime', width: 32, height: 24, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    BLUE_SLIME: { name: 'Blue Slime', width: 36, height: 28, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    PURPLE_SLIME: { name: 'Purple Slime', width: 40, height: 32, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    SLIME: { name: 'Green Slime', width: 16, height: 12, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    BLUE_SLIME: { name: 'Blue Slime', width: 18, height: 14, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PURPLE_SLIME: { name: 'Purple Slime', width: 20, height: 16, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
     PINKY: { name: 'Pinky', width: 18, height: 14, health: 150, damage: 8, defense: 5, color: '#FFB6C1', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 10, max: 20, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    YELLOW_SLIME: { name: 'Yellow Slime', width: 38, height: 30, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    YELLOW_SLIME: { name: 'Yellow Slime', width: 19, height: 15, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
     // Surface - Night
     ZOMBIE: { name: 'Zombie', width: 28, height: 48, health: 60, damage: 15, defense: 5, color: '#556B2F', ai: 'walker', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 0, max: 2, chance: 0.3 }], spawnDay: false, spawnNight: true, biome: 'any' },
     BLOOD_ZOMBIE: { name: 'Blood Zombie', width: 30, height: 50, health: 90, damage: 22, defense: 8, color: '#8B0000', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.4 }], spawnDay: false, spawnNight: true, biome: 'any' },
@@ -611,7 +598,7 @@ const ENEMIES = {
     GIANT_WORM: { name: 'Giant Worm', width: 24, height: 24, health: 40, damage: 12, defense: 2, color: '#8B4513', ai: 'worm', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     CAVE_BAT: { name: 'Cave Bat', width: 12, height: 10, health: 25, damage: 16, defense: 2, color: '#4A4A4A', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     GIANT_BAT: { name: 'Giant Bat', width: 18, height: 14, health: 60, damage: 28, defense: 6, color: '#363636', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
-    MOTHER_SLIME: { name: 'Mother Slime', width: 50, height: 40, health: 120, damage: 22, defense: 6, color: '#00AA00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 5, max: 10, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'underground' },
+    MOTHER_SLIME: { name: 'Mother Slime', width: 25, height: 20, health: 120, damage: 22, defense: 6, color: '#00AA00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 5, max: 10, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'underground' },
     CRAWDAD: { name: 'Crawdad', width: 32, height: 20, health: 50, damage: 18, defense: 8, color: '#CD5555', ai: 'walker', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     // Corruption
     EATER: { name: 'Eater of Souls', width: 18, height: 18, health: 65, damage: 25, defense: 6, color: '#6633AA', ai: 'flying', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 1, max: 2, chance: 0.5 }, { id: ITEMS.SHADOW_SCALE, min: 1, max: 1, chance: 0.05 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
@@ -628,15 +615,15 @@ const ENEMIES = {
     FIRE_IMP: { name: 'Fire Imp', width: 32, height: 44, health: 90, damage: 35, defense: 8, color: '#FF4500', ai: 'caster', drops: [], spawnDay: true, spawnNight: true, biome: 'hell' },
     BONE_SERPENT: { name: 'Bone Serpent', width: 32, height: 32, health: 120, damage: 45, defense: 10, color: '#FFFAF0', ai: 'worm', drops: [{ id: ITEMS.BONE, min: 3, max: 6, chance: 0.8 }], spawnDay: true, spawnNight: true, biome: 'hell' },
     HELLBAT: { name: 'Hellbat', width: 16, height: 14, health: 70, damage: 40, defense: 8, color: '#FF6347', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'hell' },
-    LAVA_SLIME: { name: 'Lava Slime', width: 36, height: 28, health: 80, damage: 30, defense: 10, color: '#FF8C00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'hell' },
+    LAVA_SLIME: { name: 'Lava Slime', width: 18, height: 14, health: 80, damage: 30, defense: 10, color: '#FF8C00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'hell' },
     // Sky
     HARPY: { name: 'Harpy', width: 22, height: 18, health: 100, damage: 30, defense: 6, color: '#87CEEB', ai: 'flying', drops: [{ id: ITEMS.FEATHER, min: 1, max: 3, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'sky' },
     // Desert
     ANTLION: { name: 'Antlion', width: 36, height: 24, health: 50, damage: 18, defense: 4, color: '#C2B280', ai: 'burrower', drops: [{ id: ITEMS.ANTLION_MANDIBLE, min: 1, max: 1, chance: 0.3 }], spawnDay: true, spawnNight: true, biome: 'desert' },
     VULTURE: { name: 'Vulture', width: 19, height: 16, health: 55, damage: 22, defense: 4, color: '#696969', ai: 'flying', drops: [], spawnDay: true, spawnNight: false, biome: 'desert' },
-    TOMB_CRAWLER: { name: 'Tomb Crawler', width: 28, height: 28, health: 60, damage: 24, defense: 6, color: '#D2B48C', ai: 'worm', drops: [], spawnDay: true, spawnNight: true, biome: 'desert' },
+    TOMB_CRAWLER: { name: 'Tomb Crawler', width: 28, height: 28, health: 60, damage: 24, defense: 6, color: '#D2B48C', ai: 'worm', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     // Snow
-    ICE_SLIME: { name: 'Ice Slime', width: 34, height: 26, health: 35, damage: 12, defense: 3, color: '#ADD8E6', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'snow' },
+    ICE_SLIME: { name: 'Ice Slime', width: 17, height: 13, health: 35, damage: 12, defense: 3, color: '#ADD8E6', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'snow' },
     UNDEAD_VIKING: { name: 'Undead Viking', width: 30, height: 50, health: 80, damage: 25, defense: 10, color: '#708090', ai: 'walker', drops: [{ id: ITEMS.BONE, min: 2, max: 4, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'snow' },
     ICE_BAT: { name: 'Ice Bat', width: 14, height: 12, health: 45, damage: 20, defense: 4, color: '#E0FFFF', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'snow' },
     SNOW_FLINX: { name: 'Snow Flinx', width: 26, height: 22, health: 55, damage: 18, defense: 5, color: '#FFFAFA', ai: 'walker', drops: [], spawnDay: true, spawnNight: true, biome: 'snow' }
