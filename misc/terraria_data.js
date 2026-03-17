@@ -579,11 +579,11 @@ const CHEST_LOOT = {
 // Enemies
 const ENEMIES = {
     // Surface - Day
-    SLIME: { name: 'Green Slime', width: 16, height: 12, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    BLUE_SLIME: { name: 'Blue Slime', width: 18, height: 14, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    PURPLE_SLIME: { name: 'Purple Slime', width: 20, height: 16, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    PINKY: { name: 'Pinky', width: 18, height: 14, health: 150, damage: 8, defense: 5, color: '#FFB6C1', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 10, max: 20, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
-    YELLOW_SLIME: { name: 'Yellow Slime', width: 19, height: 15, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    SLIME: { name: 'Green Slime', width: 8, height: 6, health: 25, damage: 7, defense: 0, color: '#00FF00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 1, max: 3, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    BLUE_SLIME: { name: 'Blue Slime', width: 9, height: 7, health: 40, damage: 10, defense: 2, color: '#0088FF', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 4, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PURPLE_SLIME: { name: 'Purple Slime', width: 10, height: 8, health: 55, damage: 14, defense: 4, color: '#9932CC', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 2, max: 5, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    PINKY: { name: 'Pinky', width: 6, height: 4, health: 300, damage: 8, defense: 5, color: '#FFB6C1', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 10, max: 20, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
+    YELLOW_SLIME: { name: 'Yellow Slime', width: 9, height: 7, health: 65, damage: 18, defense: 5, color: '#FFD700', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'any' },
     // Surface - Night
     ZOMBIE: { name: 'Zombie', width: 28, height: 48, health: 60, damage: 15, defense: 5, color: '#556B2F', ai: 'walker', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 0, max: 2, chance: 0.3 }], spawnDay: false, spawnNight: true, biome: 'any' },
     BLOOD_ZOMBIE: { name: 'Blood Zombie', width: 30, height: 50, health: 90, damage: 22, defense: 8, color: '#8B0000', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.4 }], spawnDay: false, spawnNight: true, biome: 'any' },
@@ -598,7 +598,7 @@ const ENEMIES = {
     GIANT_WORM: { name: 'Giant Worm', width: 24, height: 24, health: 40, damage: 12, defense: 2, color: '#8B4513', ai: 'worm', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     CAVE_BAT: { name: 'Cave Bat', width: 12, height: 10, health: 25, damage: 16, defense: 2, color: '#4A4A4A', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     GIANT_BAT: { name: 'Giant Bat', width: 18, height: 14, health: 60, damage: 28, defense: 6, color: '#363636', ai: 'flying', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
-    MOTHER_SLIME: { name: 'Mother Slime', width: 25, height: 20, health: 120, damage: 22, defense: 6, color: '#00AA00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 5, max: 10, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'underground' },
+    MOTHER_SLIME: { name: 'Mother Slime', width: 18, height: 16, health: 120, damage: 22, defense: 6, color: '#00AA00', ai: 'slime', drops: [{ id: ITEMS.GEL, min: 5, max: 10, chance: 1 }], spawnDay: true, spawnNight: true, biome: 'underground' },
     CRAWDAD: { name: 'Crawdad', width: 32, height: 20, health: 50, damage: 18, defense: 8, color: '#CD5555', ai: 'walker', drops: [], spawnDay: true, spawnNight: true, biome: 'underground' },
     // Corruption
     EATER: { name: 'Eater of Souls', width: 18, height: 18, health: 65, damage: 25, defense: 6, color: '#6633AA', ai: 'flying', drops: [{ id: ITEMS.ROTTEN_CHUNK, min: 1, max: 2, chance: 0.5 }, { id: ITEMS.SHADOW_SCALE, min: 1, max: 1, chance: 0.05 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
@@ -607,7 +607,7 @@ const ENEMIES = {
     SLIMER: { name: 'Slimer', width: 14, height: 14, health: 75, damage: 32, defense: 5, color: '#7B68EE', ai: 'flying', drops: [{ id: ITEMS.GEL, min: 3, max: 6, chance: 0.8 }], spawnDay: true, spawnNight: true, biome: 'corruption' },
     // Crimson
     CRIMERA: { name: 'Crimera', width: 16, height: 16, health: 70, damage: 28, defense: 5, color: '#AA1133', ai: 'flying', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.5 }, { id: ITEMS.TISSUE_SAMPLE, min: 1, max: 1, chance: 0.05 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
-    FACE_MONSTER: { name: 'Face Monster', width: 36, height: 44, health: 100, damage: 35, defense: 8, color: '#CD5C5C', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 2, max: 3, chance: 0.6 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
+    FACE_MONSTER: { name: 'Face Monster', width: 36, height: 44, health: 150, damage: 35, defense: 8, color: '#CD5C5C', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 2, max: 3, chance: 0.6 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
     BLOOD_CRAWLER: { name: 'Blood Crawler', width: 40, height: 24, health: 80, damage: 30, defense: 6, color: '#B22222', ai: 'walker', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 2, chance: 0.5 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
     BLOOD_FEEDER: { name: 'Blood Feeder', width: 12, height: 12, health: 55, damage: 22, defense: 3, color: '#DC143C', ai: 'flying', drops: [{ id: ITEMS.VERTEBRAE, min: 1, max: 1, chance: 0.4 }], spawnDay: true, spawnNight: true, biome: 'crimson' },
     // Hell
