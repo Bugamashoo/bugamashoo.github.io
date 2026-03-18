@@ -127,9 +127,9 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:r
 .monitor-panel{background:#0a0c0e;border:1px solid var(--panel-border);overflow:hidden;padding:10px}
 .monitor-panel::before{content:'';position:absolute;top:-4px;left:0;right:0;height:4px;background:var(--cyan);opacity:.06;animation:scanline 4s linear infinite;pointer-events:none}
 .monitor-title{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--cyan-dim);margin-bottom:8px}
-.event-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9000;display:none;align-items:center;justify-content:center;pointer-events:none}
+.event-overlay{position:fixed;top:auto;left:20px;right:auto;bottom:20px;background:rgba(0,0,0,.2);z-index:9000;display:none;pointer-events:none}
 .event-overlay.active{display:flex}
-.event-panel{background:var(--panel-bg);border:3px solid var(--red);border-radius:6px;width:560px;max-width:90vw;box-shadow:0 0 40px rgba(255,46,46,.3);animation:alarmPulse 1s ease-in-out infinite}
+.event-panel{background:var(--panel-bg);border: 3px solid var(--red);border-radius: 6px;width: 250px;pointer-events: all;box-shadow: 0 0 40px rgba(255,46,46,0.3);animation: alarmPulse 1s ease-in-out infinite;}
 .event-header{background:var(--red-dim);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--red)}
 .event-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--red);letter-spacing:3px;font-weight:900}
 .event-timer{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--red);text-shadow:0 0 10px rgba(255,46,46,.6)}
