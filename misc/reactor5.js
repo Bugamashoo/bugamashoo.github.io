@@ -94,21 +94,21 @@ function drawG(cid, data, col, max, unit) {
 
   ctx.clearRect(0, 0, w, h);
 
-  // Grid lines
+  // Grid lines (3 lines: top, mid, bottom)
   ctx.strokeStyle = 'rgba(58,63,68,0.4)';
   ctx.lineWidth = 1;
-  for (let i = 0; i < 5; i++) {
-    const y = h * (i / 4);
+  for (let i = 0; i < 3; i++) {
+    const y = h * (i / 2);
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
   }
 
   if (data.length > 1) {
-    // Line
+    // Line — thinner stroke for dense 1200-point history
     ctx.beginPath();
     ctx.strokeStyle = col;
-    ctx.lineWidth   = 3;
+    ctx.lineWidth   = 2;
     ctx.shadowColor = col;
-    ctx.shadowBlur  = 6;
+    ctx.shadowBlur  = 4;
     const s = w / (MH - 1);
     data.forEach((v, i) => {
       const x = i * s;
@@ -126,11 +126,11 @@ function drawG(cid, data, col, max, unit) {
     ctx.fill();
   }
 
-  // Current value label
+  // Current value label — position proportional to canvas height
   if (data.length) {
     ctx.shadowBlur = 0;
-    ctx.font       = 'bold 24px Share Tech Mono';
+    ctx.font       = 'bold 20px Share Tech Mono';
     ctx.fillStyle  = col;
-    ctx.fillText(data[data.length - 1].toFixed(1) + ' ' + unit, w - 280, 30);
+    ctx.fillText(data[data.length - 1].toFixed(1) + ' ' + unit, w - 260, h * 0.4);
   }
 }

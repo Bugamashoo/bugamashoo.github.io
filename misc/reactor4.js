@@ -11,6 +11,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     document.getElementById('tab-' + b.dataset.tab).classList.add('active');
+    if (b.dataset.tab === 'systems') buildSys();
   });
 });
 

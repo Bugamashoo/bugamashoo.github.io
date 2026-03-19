@@ -37,7 +37,9 @@ const S = {
     comms:    { name:'COMMS UPLINK',   status:'online', health:100, mode:'normal', affects:'sensor',   sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 }
   },
   // Event tracking
-  activeEvent:null, eventStepsComplete:[], eventsResolved:0, eventsFailed:0, gameOver:0
+  activeEvent:null, eventStepsComplete:[], eventsResolved:0, eventsFailed:0, gameOver:0,
+  // Power averages
+  bestAvg5m: 0
 };
 
 const MODES = {
@@ -68,11 +70,16 @@ let ignHoldStart  = 0;
 let tick          = 0;
 let nextEventTime = 0;
 let monHist       = { temp:[], pressure:[], plasma:[], power:[], coolant:[], radiation:[] };
-const MH          = 120; // monitor history length
+const MH          = 1200; // monitor history length (~9 min at 20Hz, sampled every 3 ticks)
 let repairTarget        = null; // module key currently being repaired (null = no active repair)
 let diagTarget          = null; // module key currently being diagnosed (null = no active diag)
 let bypassRestartTarget = null; // module key mid-bypass-restart (null = none)
+let modPowerTimers = {};        // { [moduleKey]: { dir:'on'|'off', id:timeoutId } }
+let gaugeDamageTimes = {};     // { [gaugeId]: next S.uptime to deal damage, or null if disarmed }
 let diagStart     = 0;    // Date.now() when diagnosis started
 let diagDuration  = 0;    // random 1-5s duration for current diagnosis
-let nextErrorTime  = 60 + Math.random() * 240; // uptime threshold for next system error (60-300s)
+let nextErrorTime  = 30 + Math.random() * 60; // uptime threshold for next system error (30-90s)
 let recentEventIds = []; // last 3 triggered event IDs — prevents same event repeating until 3 others have fired
+let fuelPumpOffStart = 0; // Date.now() when fuel pumps went off; 0 = pumps are on or grace expired
+let powerHist5m = []; // power samples every 60 ticks (3s), max 100 entries = 5 min rolling window
+let moduleHealthPrev = {}; // previous-tick health per module key, for threshold crossing detection

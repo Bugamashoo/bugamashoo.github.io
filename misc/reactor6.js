@@ -21,7 +21,10 @@ function buildSys() {
     const d = document.createElement('div');
     d.className = 'module-card';
 
-    const sc = (m.mode !== 'normal' && m.status !== 'offline') ? m.mode : m.status;
+    const isPoweringOn  = modPowerTimers[k]?.dir === 'on';
+    const isPoweringOff = modPowerTimers[k]?.dir === 'off';
+    const isBypassRestarting = bypassRestartTarget === k;
+    const sc = isPoweringOn || isPoweringOff ? 'degraded' : (m.mode !== 'normal' && m.status !== 'offline') ? m.mode : m.status;
     const affectsLabel = m.affects ? '→ ' + S.modules[m.affects].name : '';
     const hColor = m.health > 70 ? 'green' : m.health > 40 ? 'amber' : 'red';
     const isRepairing = repairTarget === k;
@@ -29,18 +32,18 @@ function buildSys() {
     const isOff = m.status === 'offline';
     // sensor and comms have no meaningful configurable modes; backup only supports normal/overclock
     const hasModes = k !== 'comms' && k !== 'sensor';
-
-    const isBypassRestarting = bypassRestartTarget === k;
     const statusExtra = m.sysErrorVisible ? ' <span style="color:var(--red);font-size:0.8em">SYSTEM ERROR</span>' :
                         isRepairing ? ' <span style="color:var(--cyan);font-size:0.8em">REPAIRING...</span>' :
                         isDiagnosing ? ' <span style="color:var(--amber);font-size:0.8em">DIAGNOSING...</span>' :
-                        isBypassRestarting ? ' <span style="color:var(--magenta);font-size:0.8em">RESTARTING (BYPASS)...</span>' : '';
+                        isBypassRestarting ? ' <span style="color:var(--magenta);font-size:0.8em">RESTARTING (BYPASS)...</span>' :
+                        isPoweringOn  ? ' <span style="color:var(--green);font-size:0.8em">POWERING ON...</span>' :
+                        isPoweringOff ? ' <span style="color:var(--amber);font-size:0.8em">POWERING OFF...</span>' : '';
 
     d.innerHTML =
       `<div class="module-title">
          <span>${m.name}${statusExtra}</span>
          <span class="module-status ${sc}">
-           ${isOff ? 'OFFLINE' : m.sysErrorVisible ? 'SYS ERROR' : (MODES[m.mode]?.label || 'NORMAL')}
+           ${isPoweringOn ? 'PWR ON' : isPoweringOff ? 'PWR OFF' : isOff ? 'OFFLINE' : m.sysErrorVisible ? 'SYS ERROR' : (MODES[m.mode]?.label || 'NORMAL')}
          </span>
        </div>
        <div class="display-box">
@@ -67,7 +70,7 @@ function buildSys() {
          }
        </div>
        <div class="mode-row" style="margin-top:4px">
-         <button class="mod-btn" onclick="powerMod('${k}')">${isOff ? 'POWER ON' : 'POWER OFF'}</button>
+         <button class="mod-btn" onclick="powerMod('${k}')">${modPowerTimers[k] ? 'CANCEL' : (isOff ? 'POWER ON' : 'POWER OFF')}</button>
          <button class="mod-btn" onclick="rstMod('${k}')">RESTART</button>
          <button class="mod-btn ${isRepairing ? 'active-mode' : ''}" onclick="toggleRepair('${k}')">${isRepairing ? 'STOP REPAIR' : 'REPAIR'}</button>
          <button class="mod-btn ${isDiagnosing ? 'active-mode' : ''}" onclick="diagMod('${k}')">${isDiagnosing ? 'DIAGNOSING...' : 'DIAGNOSE'}</button>
@@ -94,27 +97,58 @@ window.setMode = function(k, mode) {
 
 window.powerAllMods = function() {
   const allOnline = Object.values(S.modules).every(m => m.status !== 'offline');
-  Object.entries(S.modules).forEach(([k, m]) => {
-    if (allOnline) {
-      m.status = 'offline';
-      m.mode = 'normal';
-    } else {
-      if (m.status === 'offline') m.status = 'online';
-    }
-  });
-  addLog(allOnline ? 'ALL MODULES POWERED OFF' : 'ALL MODULES POWERED ON', allOnline ? 'warn' : 'ok');
+  // Cancel all existing power transitions
+  Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
+  if (allOnline) {
+    addLog('ALL MODULES POWERING OFF...', 'warn');
+    Object.entries(S.modules).forEach(([k, m]) => {
+      modPowerTimers[k] = { dir: 'off', id: setTimeout(() => {
+        m.status = 'offline'; m.mode = 'normal';
+        delete modPowerTimers[k];
+        buildSys();
+      }, 5000) };
+    });
+  } else {
+    addLog('ALL MODULES POWERING ON...', 'ok');
+    Object.entries(S.modules).forEach(([k, m]) => {
+      if (m.status === 'offline') {
+        modPowerTimers[k] = { dir: 'on', id: setTimeout(() => {
+          m.status = 'online';
+          delete modPowerTimers[k];
+          buildSys();
+        }, 5000) };
+      }
+    });
+  }
   buildSys();
 };
 
 window.powerMod = function(k) {
   const m = S.modules[k];
-  if (m.status === 'offline') {
-    m.status = 'online';
-    addLog(m.name + ' POWERED ON', 'ok');
+  // If already transitioning, cancel it
+  if (modPowerTimers[k]) {
+    clearTimeout(modPowerTimers[k].id);
+    delete modPowerTimers[k];
+    addLog(m.name + ' power transition cancelled', 'sys');
+    buildSys();
+    return;
+  }
+  if (m.status !== 'offline') {
+    addLog(m.name + ' powering off...', 'warn');
+    modPowerTimers[k] = { dir: 'off', id: setTimeout(() => {
+      m.status = 'offline'; m.mode = 'normal';
+      delete modPowerTimers[k];
+      addLog(m.name + ' POWERED OFF', 'warn');
+      buildSys();
+    }, 5000) };
   } else {
-    m.status = 'offline';
-    m.mode = 'normal';
-    addLog(m.name + ' POWERED OFF', 'warn');
+    addLog(m.name + ' powering on...', 'ok');
+    modPowerTimers[k] = { dir: 'on', id: setTimeout(() => {
+      m.status = 'online';
+      delete modPowerTimers[k];
+      addLog(m.name + ' POWERED ON', 'ok');
+      buildSys();
+    }, 5000) };
   }
   buildSys();
 };
@@ -123,7 +157,8 @@ window.rstMod = function(k) {
   const m = S.modules[k];
   const wasBypassed = m.mode === 'bypass';
   addLog('Restarting ' + m.name + (wasBypassed ? ' (bypass)' : '') + '...', 'sys');
-  // Cancel diagnosis if targeting this module
+  // Cancel power transition and diagnosis if targeting this module
+  if (modPowerTimers[k]) { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; }
   if (diagTarget === k) { diagTarget = null; diagStart = 0; }
   if (wasBypassed) {
     // Bypass restart: stays online in bypass mode, errors cleared after 5s

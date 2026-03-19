@@ -23,6 +23,14 @@
       <div class="hdr-box-label">SCORE</div>
       <div class="hdr-box-value" id="scoreDisp">0</div>
     </div>
+    <div class="hdr-box hdr-box-power">
+      <div class="hdr-box-label">OUTPUT MW</div>
+      <div class="hdr-box-value" id="hdrOutput">0.00</div>
+    </div>
+    <div class="hdr-box hdr-box-avg5m">
+      <div class="hdr-box-label">5M AVG MW</div>
+      <div class="hdr-box-value" id="hdrAvg5m">—</div>
+    </div>
   </div>
   <div class="header-status"><span id="headerStatus" class="blink">■ STANDBY</span></div>
 </div>
@@ -37,7 +45,59 @@
 <div class="tab-content active" id="tab-controls">
 <div class="main-grid">
   <div class="panel" style="grid-column:1;grid-row:1/3"><div class="panel-label">Startup Sequence</div><div class="panel-body"><div id="seqSteps"></div>
-    <div class="sub-panel mt-6"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz"><div class="reactor-ring r3" id="ring3"></div><div class="reactor-ring r2" id="ring2"></div><div class="reactor-ring r1" id="ring1"></div><div class="reactor-core" id="reactorCore"></div></div>
+    <div class="sub-panel mt-6"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz">
+  <svg id="reactorSVG" viewBox="0 0 140 125" xmlns="http://www.w3.org/2000/svg" width="140" height="125" style="display:block">
+    <defs>
+      <filter id="rGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="3.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="rGlowStr" x="-120%" y="-120%" width="340%" height="340%">
+        <feGaussianBlur stdDeviation="8" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+        <stop id="cgS0" offset="15%" stop-color="#ffffff" stop-opacity="1"/>
+        <stop id="cgS1" offset="65%" stop-color="#00e5ff" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#0d1418"/>
+        <stop offset="100%" stop-color="#060808"/>
+      </radialGradient>
+    </defs>
+    <!-- Background hex fill -->
+    <polygon points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="url(#bgGrad)"/>
+    <!-- Outer border hex -->
+    <polygon id="hexBorder" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
+    <!-- Ring 3 — containment field -->
+    <polygon id="ring3" class="rviz-ring" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="none" stroke="#1e2830" stroke-width="1.5"/>
+    <!-- Ring 2 — magnetic -->
+    <polygon id="ring2" class="rviz-ring" points="108,62.5 89,95.4 51,95.4 32,62.5 51,29.6 89,29.6" fill="none" stroke="#1e2830" stroke-width="2"/>
+    <!-- Ring 1 — plasma -->
+    <polygon id="ring1" class="rviz-ring" points="94,62.5 82,83.3 58,83.3 46,62.5 58,41.7 82,41.7" fill="none" stroke="#1e2830" stroke-width="2.5"/>
+    <!-- Electrical arc paths -->
+    <g id="arcLayer">
+      <path id="arc0" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
+      <path id="arc1" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
+      <path id="arc2" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
+      <path id="arc3" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
+      <path id="arc4" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
+      <path id="arc5" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
+    </g>
+    <!-- Core glow halo -->
+    <circle id="coreGlowCirc" cx="70" cy="62.5" r="22" fill="url(#coreGrad)" opacity="0"/>
+    <!-- Core hex -->
+    <polygon id="reactorCore" points="83,62.5 76.5,73.8 63.5,73.8 57,62.5 63.5,51.2 76.5,51.2" fill="#0d1418" stroke="#1e2830" stroke-width="1.5"/>
+    <!-- Corner accent nodes -->
+    <circle id="rDot0" cx="130" cy="62.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot1" cx="100" cy="114.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot2" cx="40" cy="114.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot3" cx="10" cy="62.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot4" cx="40" cy="10.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot5" cx="100" cy="10.5" r="2.5" fill="#1e2830"/>
+  </svg>
+</div>
     <div class="power-display mt-4"><div class="display-label" style="text-align:center">NET OUTPUT</div><div class="power-value" id="netOutput">0.00</div><div class="power-unit">MEGAWATTS</div></div></div>
     <div class="sub-panel mt-4"><div class="sub-panel-title">Fuel</div><div class="display-box"><div class="display-label">REMAINING</div><div class="display-value amber" id="disp_fuelRemaining">100.0</div><div class="bar-gauge"><div class="bar-fill green" id="bar_fuelRemaining" style="width:100%"></div></div></div>
     <div class="display-box mt-4"><div class="display-label">CONSUMPTION KG/MIN</div><div class="display-value cyan" id="disp_fuelConsump">0.0</div></div></div>
@@ -74,7 +134,7 @@
   <div class="go-subtitle" id="goSubtitle">CRITICAL REACTOR FAILURE</div>
   <div class="go-uptime-label">FINAL MISSION UPTIME</div>
   <div class="go-uptime" id="goUptime">00:00:00</div>
-  <div class="go-stats"><div class="go-stat"><div class="go-stat-val cyan" id="goScore">0</div><div class="go-stat-label">FINAL SCORE</div></div><div class="go-stat"><div class="go-stat-val green" id="goResolved">0</div><div class="go-stat-label">EVENTS RESOLVED</div></div><div class="go-stat"><div class="go-stat-val amber" id="goPeak">0 MW</div><div class="go-stat-label">PEAK OUTPUT</div></div><div class="go-stat"><div class="go-stat-val red" id="goFailed">0</div><div class="go-stat-label">EVENTS FAILED</div></div></div>
+  <div class="go-stats"><div class="go-stat"><div class="go-stat-val cyan" id="goScore">0</div><div class="go-stat-label">FINAL SCORE</div></div><div class="go-stat"><div class="go-stat-val green" id="goResolved">0</div><div class="go-stat-label">EVENTS RESOLVED</div></div><div class="go-stat"><div class="go-stat-val amber" id="goPeak">0 MW</div><div class="go-stat-label">PEAK OUTPUT</div></div><div class="go-stat"><div class="go-stat-val green" id="goAvg5m">0 MW</div><div class="go-stat-label">BEST 5M AVG</div></div><div class="go-stat"><div class="go-stat-val red" id="goFailed">0</div><div class="go-stat-label">EVENTS FAILED</div></div></div>
   <div class="go-narrative" id="goNarrative"></div>
   <button class="go-restart" onclick="location.reload()">RESTART REACTOR</button>
 </div></div>

@@ -7,7 +7,7 @@
 function addLog(m, t='') {
   const ts = new Date().toTimeString().slice(0,8);
   logEntries.push({ t:ts, m, c:t });
-  if (logEntries.length > 100) logEntries.shift();
+  if (logEntries.length > 20) logEntries.shift();
   const e = document.getElementById('logBox');
   if (e) {
     e.innerHTML = logEntries.map(x =>

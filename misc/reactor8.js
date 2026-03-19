@@ -35,11 +35,18 @@ function renderEvt() {
     (S.eventStepsComplete.filter(Boolean).length / S.activeEvent.steps.length * 100) + '%';
 }
 
+const DEESC_TRACKED = ['mainThrottle','fuelInject','coolantFlow','containPower',
+                        'auxCoolRate','backupContPow','rodA','rodB','rodC',
+                        'pressureRelief','mixRatio','fieldTune'];
+const DEESC_DURATION = 15000; // ms to hold controls steady
+const DEESC_TOL      = 2;    // ±units allowed before reset
+
 function updateEvt() {
   if (!S.activeEvent) return;
+  const ev = S.activeEvent;
 
   // Check each step (sequential — must complete in order)
-  S.activeEvent.steps.forEach((s, i) => {
+  ev.steps.forEach((s, i) => {
     if (!S.eventStepsComplete[i]) {
       const prev = i === 0 || S.eventStepsComplete[i - 1];
       if (prev && s.check()) {
@@ -49,36 +56,86 @@ function updateEvt() {
     }
   });
 
-  // Countdown timer
-  const elapsed = (Date.now() - S.activeEvent.startTime) / 1000;
-  const rem     = Math.max(0, S.activeEvent.time - elapsed);
+  const allDone = S.eventStepsComplete.every(Boolean);
+
+  // ── De-escalation phase ──────────────────────────────────────
+  if (allDone) {
+    const panel = document.querySelector('.event-panel');
+
+    if (!ev.deescalating) {
+      ev.deescalating  = true;
+      ev.deescStart    = Date.now();
+      ev.deescSnapshot = {};
+      DEESC_TRACKED.forEach(k => { ev.deescSnapshot[k] = S[k]; });
+      document.getElementById('eventTitle').textContent = 'Deescalating...';
+      if (panel) panel.classList.add('deescalating');
+      addLog('HOLD CONTROLS — deescalating', 'ok');
+    } else {
+      // Reset hold timer if any control moved beyond tolerance
+      const moved = DEESC_TRACKED.some(k => Math.abs(S[k] - ev.deescSnapshot[k]) > DEESC_TOL);
+      if (moved) {
+        ev.deescStart = Date.now();
+        DEESC_TRACKED.forEach(k => { ev.deescSnapshot[k] = S[k]; });
+      }
+
+      if (Date.now() - ev.deescStart >= DEESC_DURATION) {
+        S.eventsResolved++;
+        addLog('EVENT RESOLVED', 'ok');
+        doFlash('rgba(57,255,20,0.15)');
+        closeEvt();
+        return;
+      }
+    }
+
+    // Hold-progress bar (0→100% over DEESC_DURATION)
+    renderEvt();
+    const holdPct = Math.min(100, (Date.now() - ev.deescStart) / DEESC_DURATION * 100);
+    document.getElementById('eventProgress').style.width = holdPct + '%';
+
+    // Frozen timer display
+    const td = document.getElementById('eventTimer');
+    td.textContent  = 'HOLD';
+    td.style.animation = 'none';
+    td.style.color  = 'var(--green)';
+    return;
+  }
+
+  // ── Normal countdown ─────────────────────────────────────────
+  const elapsed = (Date.now() - ev.startTime) / 1000;
+  const rem     = Math.max(0, ev.time - elapsed);
   const td      = document.getElementById('eventTimer');
   td.textContent = Math.floor(rem / 60).toString().padStart(2,'0') + ':' +
                    Math.floor(rem % 60).toString().padStart(2,'0');
   td.style.animation = rem <= 10 ? 'blink .3s step-end infinite' : 'none';
+  td.style.color = '';
 
   renderEvt();
 
-  // Resolved
-  if (S.eventStepsComplete.every(Boolean)) {
-    S.eventsResolved++;
-    addLog('EVENT RESOLVED', 'ok');
-    doFlash('rgba(57,255,20,0.15)');
-    closeEvt();
-    return;
-  }
-
-  // Timed out → catastrophe
-  if (rem <= 0) {
-    triggerCatastrophe(S.activeEvent.id);
-  }
+  if (rem <= 0) triggerCatastrophe(ev.id);
 }
 
 function closeEvt() {
+  const panel = document.querySelector('.event-panel');
+  if (panel) panel.classList.remove('deescalating');
+  const td = document.getElementById('eventTimer');
+  if (td) { td.style.color = ''; td.style.animation = 'none'; }
   S.activeEvent = null;
   document.getElementById('eventOverlay').classList.remove('active');
-  nextEventTime = S.uptime + 30 + Math.random() * 90;
+  nextEventTime = S.uptime + 60 + Math.random() * 240;
 }
+
+// ── Hover passthrough for event overlay ───────────────────────
+// Tracks mouse position via document so pointer-events:none doesn't break it
+document.addEventListener('mousemove', function(e) {
+  const overlay = document.getElementById('eventOverlay');
+  if (!overlay.classList.contains('active')) return;
+  const panel = overlay.querySelector('.event-panel');
+  if (!panel) return;
+  const r = panel.getBoundingClientRect();
+  const inside = e.clientX >= r.left && e.clientX <= r.right &&
+                 e.clientY >= r.top  && e.clientY <= r.bottom;
+  overlay.classList.toggle('hover-passthrough', inside);
+});
 
 function triggerCatastrophe(evtId) {
   S.gameOver = 1;
@@ -102,6 +159,7 @@ function triggerCatastrophe(evtId) {
     document.getElementById('goUptime').textContent   = fmtTime(S.uptime);
     document.getElementById('goResolved').textContent = S.eventsResolved;
     document.getElementById('goPeak').textContent     = S.peakPower.toFixed(1) + ' MW';
+    document.getElementById('goAvg5m').textContent    = S.bestAvg5m.toFixed(1) + ' MW';
     document.getElementById('goFailed').textContent   = S.eventsFailed + 1;
     document.getElementById('goScore').textContent     = Math.round(S.score);
     document.getElementById('goNarrative').textContent= cat.narrative;

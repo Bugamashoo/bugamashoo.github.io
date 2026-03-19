@@ -268,4 +268,4 @@ const EVENTS = [
   }
 ];
 
-nextEventTime = 30 + Math.random() * 60;
+nextEventTime = 60 + Math.random() * 240;
