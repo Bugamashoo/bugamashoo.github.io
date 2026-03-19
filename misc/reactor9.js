@@ -189,6 +189,8 @@ function simulate() {
            - Math.abs(S.corePressure - 15) * 2;
     tSt *= (0.8 + S.fieldTune / 500);
     if (S.containField) tSt += 10;
+    // Low containment integrity destabilises plasma
+    if (S.containIntegrity < 60) tSt -= (60 - S.containIntegrity) * 0.4;
     if (eF < 1) tSt -= 45; // No fuel flow — plasma cannot be sustained
     tSt *= (1 - rE * 0.3);
     tSt  = Math.max(0, Math.min(100, tSt));
@@ -206,10 +208,24 @@ function simulate() {
                    + (S.containIntegrity < 50 ? 15 : 0);
 
   // ── Containment integrity ──
-  if (S.igniting && S.containPower < 30) S.containIntegrity -= 0.05;
-  else if (S.containPower > 50 && S.containField) S.containIntegrity += 0.02;
-  if (S.coreTemp > 8000) S.containIntegrity -= 0.03;
-  if (S.backupFieldStr > 2) S.containIntegrity += 0.01;
+  if (S.igniting) {
+    // Drain scales with how far containPower is below safe threshold (50)
+    if (S.containPower < 50) {
+      const deficit = (50 - S.containPower) / 50; // 1.0 at 0%, 0.0 at 50%
+      S.containIntegrity -= 0.02 + deficit * 0.04; // 0.02–0.06/tick
+    }
+    // Regen when containPower > 50 with field on; scales with power level
+    if (S.containPower > 50 && S.containField) {
+      const surplus = (S.containPower - 50) / 50; // 0.0 at 50%, 1.0 at 100%
+      S.containIntegrity += 0.01 + surplus * 0.03; // 0.01–0.04/tick
+    }
+    // Overtemp drain scales with severity
+    if (S.coreTemp > 8000) {
+      S.containIntegrity -= 0.02 + (S.coreTemp - 8000) / 5000 * 0.06;
+    }
+  }
+  // Backup field regen scales with strength (max ~8)
+  if (S.backupFieldStr > 0) S.containIntegrity += S.backupFieldStr * 0.003;
   S.containIntegrity = Math.max(0, Math.min(100, S.containIntegrity));
 
   // ── Turbine + grid ──
