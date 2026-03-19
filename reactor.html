@@ -1,189 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="./misc/reactor.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MKIV TOKAMAK REACTOR — CONTROL INTERFACE</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Special+Elite&display=swap');
-:root{--amber:#ff9f1c;--amber-dim:#7a4d0e;--red:#ff2e2e;--red-dim:#6b1212;--green:#39ff14;--green-dim:#1a6b0a;--cyan:#00e5ff;--cyan-dim:#005f6b;--panel-bg:#1a1c1e;--panel-surface:#25282c;--panel-border:#3a3f44;--metal-dark:#15171a;--magenta:#ff2eaa}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--metal-dark);color:var(--amber);font-family:'Share Tech Mono',monospace;overflow-x:hidden;min-height:100vh;user-select:none;-webkit-user-select:none}
-body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none;z-index:9999}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--metal-dark)}::-webkit-scrollbar-thumb{background:var(--panel-border);border-radius:2px}
-.shake{animation:shake .3s ease-in-out}
-@keyframes shake{0%,100%{transform:translate(0)}25%{transform:translate(-4px,2px)}50%{transform:translate(3px,-2px)}75%{transform:translate(-2px,1px)}}
-.flash-ov{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9998;animation:fo .4s ease-out forwards}
-@keyframes fo{to{opacity:0}}
-@keyframes blink{50%{opacity:0}}
-@keyframes pulse{50%{box-shadow:0 0 14px var(--amber)}}
-@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes coreGlow{0%,100%{box-shadow:0 0 20px var(--cyan),0 0 40px rgba(0,229,255,.3)}50%{box-shadow:0 0 35px var(--cyan),0 0 70px rgba(0,229,255,.4)}}
-@keyframes alarmPulse{0%,100%{background:rgba(255,46,46,.05)}50%{background:rgba(255,46,46,.15)}}
-@keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-200%)}}
-@keyframes scanline{0%{top:-4px}100%{top:100%}}
-@keyframes bigShake{0%,100%{transform:translate(0)}10%{transform:translate(-8px,6px)}20%{transform:translate(7px,-5px)}30%{transform:translate(-6px,4px)}40%{transform:translate(5px,-7px)}50%{transform:translate(-4px,8px)}60%{transform:translate(6px,-3px)}70%{transform:translate(-7px,5px)}80%{transform:translate(4px,-6px)}90%{transform:translate(-3px,7px)}}
-@keyframes meltdown{0%{filter:none;opacity:1}30%{filter:brightness(3) saturate(2)}60%{filter:brightness(5) hue-rotate(30deg)}100%{filter:brightness(0) saturate(0);opacity:0}}
-@keyframes implode{0%{transform:scale(1);filter:none}40%{transform:scale(0.3);filter:brightness(3) hue-rotate(-60deg)}70%{transform:scale(0.05);filter:brightness(8)}100%{transform:scale(0);opacity:0}}
-@keyframes empBlast{0%{filter:none;opacity:1}15%{filter:brightness(10) contrast(3)}30%{filter:brightness(0.1)}50%{filter:brightness(6) saturate(0)}70%{filter:brightness(0.05)}100%{filter:brightness(0);opacity:0}}
-@keyframes nukeFlash{0%{filter:none;opacity:1}5%{filter:brightness(20) saturate(0)}20%{filter:brightness(8) sepia(1)}50%{filter:brightness(2) hue-rotate(20deg)}100%{filter:brightness(0);opacity:0}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.header{background:linear-gradient(180deg,#2a2d31,var(--panel-bg));border-bottom:3px solid var(--panel-border);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:10}
-.header::after{content:'';position:absolute;bottom:-6px;left:0;right:0;height:3px;background:var(--amber-dim);box-shadow:0 0 10px rgba(255,159,28,.3)}
-.header-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:15px;letter-spacing:4px;text-shadow:0 0 10px rgba(255,159,28,.5)}
-.header-status{font-size:11px;letter-spacing:2px}
-.uptime-display{background:#060808;border:2px solid var(--green-dim);border-radius:4px;padding:4px 14px;text-align:center;box-shadow:inset 0 1px 6px rgba(0,0,0,.8),0 0 12px rgba(57,255,20,.1)}
-.uptime-label{font-size:7px;letter-spacing:3px;color:var(--green-dim);font-family:'Rajdhani',sans-serif;font-weight:700}
-.uptime-value{font-family:'Share Tech Mono',monospace;font-size:20px;color:var(--green);text-shadow:0 0 10px rgba(57,255,20,.6);letter-spacing:2px}
-.best-label{font-size:7px;color:var(--amber-dim);letter-spacing:1px}
-.tabs-bar{background:var(--panel-bg);border-bottom:2px solid var(--panel-border);display:flex;overflow-x:auto;z-index:5}
-.tab-btn{padding:8px 16px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#5a5f66;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;transition:all .2s;white-space:nowrap}
-.tab-btn:hover{color:var(--amber-dim)}
-.tab-btn.active{color:var(--amber);border-bottom-color:var(--amber);background:rgba(255,159,28,.05)}
-.tab-btn.alert{color:var(--red);animation:blink .6s step-end infinite}
-.tab-content{display:none;min-height:calc(100vh - 110px)}.tab-content.active{display:block}
-.main-grid{display:grid;grid-template-columns:250px 1fr 270px;grid-template-rows:auto auto;gap:0;min-height:calc(100vh - 110px)}
-.panel{background:var(--panel-bg);border:1px solid var(--panel-border)}.panel-label{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:3px;color:var(--amber-dim);text-align:center;padding:6px;background:var(--metal-dark);border-bottom:1px solid var(--panel-border);text-transform:uppercase}
-.panel-body{padding:10px}.sub-panel{background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:3px;margin:4px 0;padding:8px}
-.sub-panel-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:9px;letter-spacing:2px;color:var(--amber-dim);text-transform:uppercase;margin-bottom:6px;padding-bottom:3px;border-bottom:1px solid var(--panel-border)}
-.switch-group{display:flex;flex-direction:column;align-items:center;gap:3px;margin:6px 3px}
-.switch-name{font-size:8px;letter-spacing:1px;color:var(--amber-dim);text-align:center;font-family:'Rajdhani',sans-serif;font-weight:700;text-transform:uppercase;max-width:54px;line-height:1.2}
-.toggle-switch{width:40px;height:64px;background:var(--metal-dark);border:2px solid var(--panel-border);border-radius:5px;position:relative;cursor:pointer;box-shadow:inset 0 2px 8px rgba(0,0,0,.5)}
-.toggle-switch:hover{border-color:var(--amber-dim)}.toggle-switch.on{border-color:var(--green-dim)}
-.toggle-handle{width:34px;height:26px;background:linear-gradient(180deg,#606670,#3a3f44,#505560);border:1px solid #6a6f75;border-radius:3px;position:absolute;left:1px;top:2px;transition:top .12s;box-shadow:0 2px 4px rgba(0,0,0,.5)}
-.toggle-switch.on .toggle-handle{top:32px}
-.switch-indicator{width:5px;height:5px;border-radius:50%;background:var(--red-dim);transition:all .3s}
-.toggle-switch.on+.switch-indicator{background:var(--green);box-shadow:0 0 6px var(--green)}
-.lever-group{display:flex;flex-direction:column;align-items:center;gap:3px}
-.lever-name{font-size:8px;letter-spacing:1px;color:var(--amber-dim);font-family:'Rajdhani',sans-serif;font-weight:700;text-transform:uppercase}
-.lever-track{width:46px;height:160px;background:var(--metal-dark);border:2px solid var(--panel-border);border-radius:5px;position:relative;box-shadow:inset 0 4px 12px rgba(0,0,0,.6);cursor:pointer}
-.lever-track::before{content:'';position:absolute;left:50%;top:8px;bottom:8px;width:3px;transform:translateX(-50%);background:var(--panel-border);border-radius:2px}
-.lever-handle{width:42px;height:24px;background:linear-gradient(180deg,#707580,#4a4f55,#606570);border:2px solid #7a7f85;border-radius:5px;position:absolute;left:0;bottom:4px;cursor:grab;box-shadow:0 2px 6px rgba(0,0,0,.6);z-index:2;display:flex;align-items:center;justify-content:center}
-.lever-handle:active{cursor:grabbing}
-.lever-handle .grip{width:20px;height:2px;background:#8a8f95;border-radius:1px;box-shadow:0 4px 0 #8a8f95,0 8px 0 #8a8f95}
-.big-lever-track{width:62px;height:220px}.big-lever-track .lever-handle{width:58px;height:30px;background:linear-gradient(180deg,#8a1a1a,#c62828,#8a1a1a);border-color:#e53935}
-.big-lever-track .lever-handle .grip{background:#ef9a9a;box-shadow:0 4px 0 #ef9a9a,0 8px 0 #ef9a9a}
-.lever-readout{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);text-align:center;text-shadow:0 0 6px rgba(0,229,255,.4);min-width:46px}
-.push-btn{border-radius:50%;border:3px solid var(--panel-border);cursor:pointer;transition:all .1s;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:8px;letter-spacing:1px;text-transform:uppercase}
-.push-btn:active{box-shadow:0 1px 2px rgba(0,0,0,.5),inset 0 2px 6px rgba(0,0,0,.4)!important;transform:translateY(2px)}
-.push-btn.red-btn{background:radial-gradient(circle at 40% 35%,#ff4444,#b71c1c);border-color:#d32f2f;color:#fff;box-shadow:0 4px 8px rgba(0,0,0,.5),inset 0 1px 2px rgba(255,255,255,.2)}
-.push-btn.amber-btn{background:radial-gradient(circle at 40% 35%,var(--amber),#b36b00);border-color:var(--amber-dim);color:#000;box-shadow:0 4px 8px rgba(0,0,0,.5),inset 0 1px 2px rgba(255,255,255,.2)}
-.push-btn.green-btn{background:radial-gradient(circle at 40% 35%,#4caf50,#1b5e20);border-color:#2e7d32;color:#fff;box-shadow:0 4px 8px rgba(0,0,0,.5),inset 0 1px 2px rgba(255,255,255,.2)}
-.push-btn.cyan-btn{background:radial-gradient(circle at 40% 35%,var(--cyan),#006680);border-color:var(--cyan-dim);color:#000;box-shadow:0 4px 8px rgba(0,0,0,.5),inset 0 1px 2px rgba(255,255,255,.2)}
-.display-box{background:#0a0c0e;border:2px solid var(--panel-border);border-radius:3px;padding:5px 8px;box-shadow:inset 0 2px 6px rgba(0,0,0,.8)}
-.display-label{font-size:7px;letter-spacing:2px;color:#5a5f66;text-transform:uppercase;font-family:'Rajdhani',sans-serif;font-weight:700}
-.display-value{font-family:'Share Tech Mono',monospace;font-size:16px;text-shadow:0 0 8px;line-height:1.1}
-.display-value.amber{color:var(--amber)}.display-value.green{color:var(--green)}.display-value.cyan{color:var(--cyan)}.display-value.red{color:var(--red)}
-.warning-row{display:flex;gap:4px;flex-wrap:wrap}
-.warning-light{display:flex;align-items:center;gap:4px;padding:3px 6px;background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:2px;font-size:8px;letter-spacing:1px;color:#5a5f66;transition:all .3s}
-.warning-light .dot{width:7px;height:7px;border-radius:50%;background:var(--panel-border);transition:all .3s;flex-shrink:0}
-.warning-light.active-amber .dot{background:var(--amber);box-shadow:0 0 6px var(--amber)}.warning-light.active-amber{color:var(--amber)}
-.warning-light.active-red .dot{background:var(--red);box-shadow:0 0 8px var(--red);animation:blink .5s step-end infinite}.warning-light.active-red{color:var(--red)}
-.warning-light.active-green .dot{background:var(--green);box-shadow:0 0 6px var(--green)}.warning-light.active-green{color:var(--green)}
-.bar-gauge{height:8px;background:var(--metal-dark);border:1px solid var(--panel-border);border-radius:2px;overflow:hidden;margin-top:2px}
-.bar-fill{height:100%;width:0%;transition:width .5s;border-radius:1px}
-.bar-fill.amber{background:linear-gradient(90deg,var(--amber-dim),var(--amber))}.bar-fill.green{background:linear-gradient(90deg,var(--green-dim),var(--green))}.bar-fill.cyan{background:linear-gradient(90deg,var(--cyan-dim),var(--cyan))}.bar-fill.red{background:linear-gradient(90deg,var(--red-dim),var(--red))}
-.log-box{background:#060808;border:2px solid var(--panel-border);border-radius:3px;height:120px;overflow-y:auto;padding:4px;font-size:9px;line-height:1.4;box-shadow:inset 0 2px 8px rgba(0,0,0,.8)}
-.log-entry{margin:1px 0}.log-time{color:#4a4f55}.log-msg{color:var(--amber-dim)}.log-msg.warn{color:var(--amber)}.log-msg.err{color:var(--red)}.log-msg.ok{color:var(--green)}.log-msg.sys{color:var(--cyan)}
-.scram-btn{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ff1744,#b71c1c);border:4px solid #d32f2f;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:900;font-size:14px;color:#fff;box-shadow:0 6px 12px rgba(0,0,0,.6),inset 0 2px 3px rgba(255,255,255,.2),0 0 20px rgba(255,23,68,.3);transition:all .1s;letter-spacing:2px}
-.scram-btn:active{transform:translateY(3px);box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 3px 8px rgba(0,0,0,.4)}
-.reactor-viz{width:110px;height:110px;margin:6px auto;position:relative;border-radius:50%;background:radial-gradient(circle,#0a0c0e 40%,var(--panel-surface));border:3px solid var(--panel-border);box-shadow:inset 0 0 20px rgba(0,0,0,.8);overflow:hidden}
-.reactor-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:var(--panel-border);transition:all 1s}
-.reactor-core.active{background:var(--cyan);box-shadow:0 0 20px var(--cyan),0 0 40px rgba(0,229,255,.3);animation:coreGlow 2s ease-in-out infinite}
-.reactor-ring{position:absolute;top:50%;left:50%;border:2px solid var(--panel-border);border-radius:50%;transform:translate(-50%,-50%);transition:all 1s}
-.reactor-ring.r1{width:48px;height:48px}.reactor-ring.r2{width:72px;height:72px}.reactor-ring.r3{width:96px;height:96px}
-.reactor-ring.active{border-color:rgba(0,229,255,.4)}.reactor-ring.spinning{animation:spin 3s linear infinite}
-.power-display{background:#060808;border:3px solid var(--panel-border);border-radius:4px;padding:8px;text-align:center;box-shadow:inset 0 2px 10px rgba(0,0,0,.8)}
-.power-value{font-family:'Share Tech Mono',monospace;font-size:28px;color:var(--green);text-shadow:0 0 15px rgba(57,255,20,.5);line-height:1}
-.power-unit{font-size:10px;color:var(--green-dim);letter-spacing:3px}
-.switch-row{display:flex;justify-content:center;flex-wrap:wrap;gap:1px}
-.lever-row{display:flex;justify-content:center;align-items:flex-end;gap:12px;padding:10px}
-.display-grid{display:grid;gap:4px}.display-grid.cols-2{grid-template-columns:1fr 1fr}
-.knob-group{display:flex;flex-direction:column;align-items:center;gap:3px}
-.knob-housing{width:50px;height:50px;background:var(--metal-dark);border:2px solid var(--panel-border);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,.6);cursor:pointer}
-.knob{width:36px;height:36px;background:radial-gradient(circle at 40% 35%,#606670,#3a3f44);border-radius:50%;border:2px solid #6a6f75;position:relative;box-shadow:0 2px 4px rgba(0,0,0,.4)}
-.knob-pointer{position:absolute;top:3px;left:50%;width:3px;height:12px;background:var(--amber);border-radius:1px;transform:translateX(-50%)}
-.seq-step{display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:2px;transition:all .3s}
-.seq-step.active{border-color:var(--amber)}.seq-step.complete{border-color:var(--green-dim);background:rgba(57,255,20,.03)}
-.seq-step.complete .seq-dot{background:var(--green);box-shadow:0 0 4px var(--green)}
-.seq-step.active .seq-dot{background:var(--amber);animation:pulse 1s ease-in-out infinite}
-.seq-dot{width:6px;height:6px;border-radius:50%;background:var(--panel-border);flex-shrink:0}
-.seq-label{color:#7a7f86;font-size:9px}.seq-step.complete .seq-label{color:var(--green)}.seq-step.active .seq-label{color:var(--amber)}
-.flex-center{display:flex;justify-content:center;align-items:center}.flex-col{display:flex;flex-direction:column}
-.gap-4{gap:4px}.gap-6{gap:6px}.gap-8{gap:8px}.gap-12{gap:12px}.mt-4{margin-top:4px}.mt-6{margin-top:6px}
-.manual-container{display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 110px)}
-.manual-nav{background:#1e1c18;border-right:3px solid #3a3528;padding:12px}
-.manual-nav-btn{display:block;width:100%;padding:8px 12px;margin:3px 0;background:transparent;border:1px solid transparent;color:#8a8070;font-family:'Special Elite',cursive;font-size:13px;text-align:left;cursor:pointer;border-radius:3px}
-.manual-nav-btn.active{background:rgba(255,159,28,.08);border-color:#5a4d30;color:var(--amber)}
-.manual-body{background:#1a1810;padding:24px 32px;overflow-y:auto;max-height:calc(100vh - 110px);font-family:'Special Elite',cursive;color:#b8a882;font-size:13px;line-height:1.8}
-.manual-header{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--amber);letter-spacing:4px;border-bottom:2px solid #3a3528;padding-bottom:8px;margin-bottom:16px}
-.manual-step{display:flex;gap:12px;margin:10px 0;padding:10px;background:rgba(255,159,28,.03);border-left:3px solid var(--amber-dim);border-radius:0 4px 4px 0}
-.manual-step-num{font-family:'Orbitron',sans-serif;font-size:18px;color:var(--amber);font-weight:900;min-width:32px}
-.manual-step-text{font-family:'Special Elite',cursive;color:#c8b892;font-size:13px;line-height:1.6}
-.manual-warning{background:rgba(255,46,46,.06);border:1px solid var(--red-dim);border-radius:4px;padding:10px;margin:12px 0;color:#e88;font-size:12px}
-.manual-note{background:rgba(0,229,255,.04);border:1px solid var(--cyan-dim);border-radius:4px;padding:10px;margin:12px 0;color:#8cc;font-size:12px}
-.stamp{font-family:'Orbitron',sans-serif;color:var(--red);font-size:11px;letter-spacing:3px;border:2px solid var(--red);padding:4px 12px;display:inline-block;transform:rotate(-3deg);opacity:.7;margin:8px 0}
-.monitors-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:0;min-height:calc(100vh - 110px)}
-.monitor-panel{background:#0a0c0e;border:1px solid var(--panel-border);overflow:hidden;padding:10px}
-.monitor-panel::before{content:'';position:absolute;top:-4px;left:0;right:0;height:4px;background:var(--cyan);opacity:.06;animation:scanline 4s linear infinite;pointer-events:none}
-.monitor-title{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--cyan-dim);margin-bottom:8px}
-.event-overlay{position:fixed;top:auto;left:20px;right:auto;bottom:20px;background:rgba(0,0,0,.2);z-index:9000;display:none;pointer-events:none}
-.event-overlay.active{display:flex}
-.event-panel{background:var(--panel-bg);border: 3px solid var(--red);border-radius: 6px;width: 250px;pointer-events: all;box-shadow: 0 0 40px rgba(255,46,46,0.3);animation: alarmPulse 1s ease-in-out infinite;}
-.event-header{background:var(--red-dim);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--red)}
-.event-title{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--red);letter-spacing:3px;font-weight:900}
-.event-timer{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--red);text-shadow:0 0 10px rgba(255,46,46,.6)}
-.event-body{padding:16px}
-.event-desc{font-family:'Special Elite',cursive;color:#ccc;font-size:13px;line-height:1.6;margin-bottom:12px}
-.event-viz{background:#0a0c0e;border:2px solid var(--panel-border);border-radius:4px;padding:12px;margin:10px 0;min-height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.event-step-item{display:flex;align-items:center;gap:8px;padding:5px 8px;margin:3px 0;background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:3px;font-size:11px;color:#8a8f96;transition:all .3s}
-.event-step-item.done{border-color:var(--green-dim);color:var(--green);background:rgba(57,255,20,.05)}
-.event-step-item .estep-dot{width:8px;height:8px;border-radius:50%;background:var(--panel-border);transition:all .3s;flex-shrink:0}
-.event-step-item.done .estep-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
-.event-progress{height:6px;background:var(--metal-dark);border:1px solid var(--panel-border);border-radius:3px;margin-top:10px;overflow:hidden}
-.event-progress-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--amber));transition:width .3s;border-radius:2px}
-.systems-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.module-card{background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:4px;padding:10px}
-.module-title{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--amber-dim);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
-.module-status{font-size:8px;padding:2px 6px;border-radius:2px;letter-spacing:1px}
-.module-status.online{background:rgba(57,255,20,.1);color:var(--green);border:1px solid var(--green-dim)}
-.module-status.offline{background:rgba(255,46,46,.1);color:var(--red);border:1px solid var(--red-dim)}
-.module-status.degraded{background:rgba(255,159,28,.1);color:var(--amber);border:1px solid var(--amber-dim)}
-.module-status.overclock{background:rgba(255,46,170,.1);color:var(--magenta);border:1px solid #6b1250}
-.module-status.eco{background:rgba(0,229,255,.1);color:var(--cyan);border:1px solid var(--cyan-dim)}
-.module-status.locked{background:rgba(90,95,102,.2);color:#8a8f96;border:1px solid #5a5f66}
-.module-status.bypass{background:rgba(255,224,71,.1);color:#ffe047;border:1px solid #6b5f1e}
-.mod-btn{padding:4px 8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:8px;letter-spacing:1px;background:var(--panel-bg);border:1px solid var(--panel-border);color:var(--amber-dim);cursor:pointer;border-radius:2px;text-transform:uppercase;transition:all .2s}
-.mod-btn:hover{border-color:var(--amber);color:var(--amber)}
-.mod-btn.danger:hover{color:var(--red);border-color:var(--red)}
-.mod-btn.active-mode{border-color:var(--magenta);color:var(--magenta);background:rgba(255,46,170,.05)}
-.mode-row{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
-.mode-effect{font-size:7px;color:#5a5f66;margin-top:4px;line-height:1.4;font-family:'Rajdhani',sans-serif}
-.mode-effect .pos{color:var(--green-dim)}.mode-effect .neg{color:var(--red-dim)}.mode-effect .link{color:var(--cyan-dim)}
-.ticker-bar{background:var(--metal-dark);border-top:1px solid var(--panel-border);border-bottom:1px solid var(--panel-border);height:22px;overflow:hidden;display:flex;align-items:center;position:relative}
-.ticker-text{white-space:nowrap;font-size:10px;color:var(--amber-dim);letter-spacing:1px;animation:ticker 30s linear infinite;position:absolute}
-/* GAME OVER */
-#gameOverScreen{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:#000;align-items:center;justify-content:center;flex-direction:column}
-#gameOverScreen.active{display:flex}
-#gameOverInner{text-align:center;max-width:700px;padding:40px;animation:fadeUp 2s ease-out}
-.go-title{font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;letter-spacing:8px;margin-bottom:8px}
-.go-subtitle{font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:4px;color:#5a5f66;margin-bottom:30px}
-.go-uptime-label{font-size:10px;letter-spacing:4px;color:var(--amber-dim);font-family:'Rajdhani',sans-serif;font-weight:700}
-.go-uptime{font-family:'Share Tech Mono',monospace;font-size:48px;color:var(--amber);text-shadow:0 0 20px rgba(255,159,28,.5);margin:8px 0 20px}
-.go-stats{display:flex;gap:30px;justify-content:center;margin-bottom:30px}
-.go-stat{text-align:center}.go-stat-val{font-size:20px;font-family:'Share Tech Mono',monospace}.go-stat-label{font-size:8px;letter-spacing:2px;color:#5a5f66;font-family:'Rajdhani',sans-serif;font-weight:700}
-.go-narrative{font-family:'Special Elite',cursive;font-size:15px;line-height:1.8;color:#a0a5ab;margin:20px auto;max-width:600px;text-align:left;padding:20px;border:1px solid var(--panel-border);background:rgba(26,28,30,.8);border-radius:4px}
-.go-restart{margin-top:30px;padding:14px 40px;font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:4px;background:transparent;border:2px solid var(--amber);color:var(--amber);cursor:pointer;border-radius:4px;transition:all .3s}
-.go-restart:hover{background:var(--amber);color:#000}
-</style>
+<title>MKIV REACTOR CONTROL</title>
 </head>
 <body>
 <div class="header">
   <div class="header-title">MKIV TOKAMAK — CONTROL INTERFACE</div>
-  <div class="uptime-display">
-    <div class="uptime-label">MISSION UPTIME</div>
-    <div class="uptime-value" id="uptimeDisp">00:00:00</div>
-    <div class="best-label">BEST: <span id="bestUptime">00:00:00</span> | RESOLVED: <span id="evtCount">0</span> FAILED: <span id="evtFail">0</span></div>
+  <div class="header-displays">
+    <div class="hdr-box hdr-box-warn" id="warnBox">
+      <div class="hdr-box-label">STATUS</div>
+      <div class="hdr-box-value" id="warnIndicator">⚠</div>
+    </div>
+    <div class="uptime-display">
+      <div class="uptime-label">MISSION UPTIME</div>
+      <div class="uptime-value" id="uptimeDisp">00:00:00</div>
+      <div class="best-label">BEST: <span id="bestUptime">00:00:00</span> | RESOLVED: <span id="evtCount">0</span> FAILED: <span id="evtFail">0</span></div>
+    </div>
+    <div class="hdr-box hdr-box-score">
+      <div class="hdr-box-label">SCORE</div>
+      <div class="hdr-box-value" id="scoreDisp">0</div>
+    </div>
   </div>
   <div class="header-status"><span id="headerStatus" class="blink">■ STANDBY</span></div>
 </div>
@@ -235,199 +74,17 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:r
   <div class="go-subtitle" id="goSubtitle">CRITICAL REACTOR FAILURE</div>
   <div class="go-uptime-label">FINAL MISSION UPTIME</div>
   <div class="go-uptime" id="goUptime">00:00:00</div>
-  <div class="go-stats"><div class="go-stat"><div class="go-stat-val green" id="goResolved">0</div><div class="go-stat-label">EVENTS RESOLVED</div></div><div class="go-stat"><div class="go-stat-val amber" id="goPeak">0 MW</div><div class="go-stat-label">PEAK OUTPUT</div></div><div class="go-stat"><div class="go-stat-val red" id="goFailed">0</div><div class="go-stat-label">EVENTS FAILED</div></div></div>
+  <div class="go-stats"><div class="go-stat"><div class="go-stat-val cyan" id="goScore">0</div><div class="go-stat-label">FINAL SCORE</div></div><div class="go-stat"><div class="go-stat-val green" id="goResolved">0</div><div class="go-stat-label">EVENTS RESOLVED</div></div><div class="go-stat"><div class="go-stat-val amber" id="goPeak">0 MW</div><div class="go-stat-label">PEAK OUTPUT</div></div><div class="go-stat"><div class="go-stat-val red" id="goFailed">0</div><div class="go-stat-label">EVENTS FAILED</div></div></div>
   <div class="go-narrative" id="goNarrative"></div>
   <button class="go-restart" onclick="location.reload()">RESTART REACTOR</button>
 </div></div>
-<script>
-const S={auxPower:0,fuelPumps:0,coolantPumps:0,containField:0,ignPrime:0,turbineEngage:0,gridSync:0,radShield:0,magCoils:0,ventSystem:0,backupGen:0,auxCoolPump:0,auxCoolLoop:0,backupContA:0,backupContB:0,emergVent:0,emergDump:0,rodSafetyOff:0,mainThrottle:0,fuelInject:0,coolantFlow:0,containPower:0,auxCoolRate:0,backupContPow:0,rodA:0,rodB:0,rodC:0,pressureRelief:50,mixRatio:50,fieldTune:50,igniting:0,ignitionHeld:0,coreTemp:20,corePressure:1,coolantTemp:15,fuelRemaining:100,plasmaStability:0,magneticFlux:0,neutronDensity:0,powerOutput:0,turbineRPM:0,gridLoad:0,containIntegrity:100,coolantFlowRate:0,auxCoolTemp:12,auxCoolFlow:0,backupFieldStr:0,rodPosition:100,reactorState:'OFFLINE',seqStep:0,startupComplete:0,scramActive:0,uptime:0,bestUptime:0,fuelConsump:0,radiationLevel:0,heatSinkTemp:20,secondaryPressure:1,peakPower:0,
-modules:{thermal:{name:'THERMAL MGMT',status:'online',health:100,mode:'normal',affects:'coolant'},magnetic:{name:'MAGNETIC CTRL',status:'online',health:100,mode:'normal',affects:'sensor'},fuel:{name:'FUEL DELIVERY',status:'online',health:100,mode:'normal',affects:'thermal'},coolant:{name:'PRIMARY COOLANT',status:'online',health:100,mode:'normal',affects:'thermal'},turbine:{name:'TURBINE GEN',status:'online',health:100,mode:'normal',affects:'grid'},grid:{name:'GRID INTERFACE',status:'online',health:100,mode:'normal',affects:'comms'},sensor:{name:'SENSOR ARRAY',status:'online',health:100,mode:'normal',affects:'magnetic'},comms:{name:'COMMS UPLINK',status:'online',health:100,mode:'normal',affects:'sensor'}},
-activeEvent:null,eventStepsComplete:[],eventsResolved:0,eventsFailed:0,gameOver:0};
-const MODES={normal:{label:'NORMAL',perfMult:1,healthDrain:1,heatMod:0,desc:'+0% perf, normal drain'},overclock:{label:'OVERCLOCK',perfMult:1.5,healthDrain:3,heatMod:15,desc:'+50% perf, 3x drain, +heat'},eco:{label:'ECO',perfMult:0.6,healthDrain:0.3,heatMod:-5,desc:'-40% perf, slow drain, -heat'},locked:{label:'LOCKED',perfMult:0,healthDrain:0,heatMod:0,desc:'Frozen. No input/output'},bypass:{label:'BYPASS',perfMult:1.3,healthDrain:2,heatMod:8,desc:'+30% perf, no safety, 2x drain'}};
-const SEQUENCE=[{label:'AUX POWER ON',check:()=>S.auxPower},{label:'RAD SHIELDING',check:()=>S.radShield},{label:'FUEL PUMPS',check:()=>S.fuelPumps},{label:'COOLANT PUMPS',check:()=>S.coolantPumps},{label:'MAG COILS',check:()=>S.magCoils},{label:'CONTAIN >60%',check:()=>S.containPower>=60},{label:'FUEL INJ >10%',check:()=>S.fuelInject>=10},{label:'IGN PRIME',check:()=>S.ignPrime},{label:'HOLD IGN 3s',check:()=>S.igniting},{label:'THROTTLE >20%',check:()=>S.mainThrottle>=20},{label:'TURBINE',check:()=>S.turbineEngage},{label:'GRID SYNC',check:()=>S.gridSync}];
-let logEntries=[],ignHoldStart=0,tick=0,nextEventTime=0,monHist={temp:[],pressure:[],plasma:[],power:[],coolant:[],radiation:[]};
-const MH=120;
-function addLog(m,t=''){const ts=new Date().toTimeString().slice(0,8);logEntries.push({t:ts,m,c:t});if(logEntries.length>100)logEntries.shift();const e=document.getElementById('logBox');if(e){e.innerHTML=logEntries.map(x=>'<div class="log-entry"><span class="log-time">'+x.t+'</span> <span class="log-msg '+x.c+'">'+x.m+'</span></div>').join('');e.scrollTop=e.scrollHeight}}
-function doShake(){document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),300)}
-function doFlash(c){const d=document.createElement('div');d.className='flash-ov';d.style.background=c||'rgba(255,159,28,0.12)';document.body.appendChild(d);setTimeout(()=>d.remove(),500)}
-function modPerf(key){const m=S.modules[key];if(!m||m.status==='offline')return 0;const md=MODES[m.mode]||MODES.normal;return m.status==='degraded'?md.perfMult*0.5:md.perfMult}
-function modHeat(key){const m=S.modules[key];if(!m)return 0;return(MODES[m.mode]||MODES.normal).heatMod}
-document.querySelectorAll('.tab-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active')})});
-function buildSB(cid,defs){const c=document.getElementById(cid);if(!c)return;defs.forEach(d=>{const g=document.createElement('div');g.className='switch-group';g.innerHTML='<div class="switch-name">'+d.label+'</div><div class="toggle-switch" data-switch="'+d.id+'"><div class="toggle-handle"></div></div><div class="switch-indicator"></div>';c.appendChild(g);g.querySelector('.toggle-switch').addEventListener('click',function(){togSw(d.id,this)})})}
-function togSw(id,el){if(S.scramActive&&!['auxPower','backupGen','emergVent','emergDump','rodSafetyOff'].includes(id))return;const mm={fuelPumps:'fuel',coolantPumps:'coolant',turbineEngage:'turbine',gridSync:'grid',magCoils:'magnetic'};if(mm[id]){const m=S.modules[mm[id]];if(m.status==='offline'){addLog('BLOCKED: '+mm[id]+' offline','err');return}if(m.mode==='locked'){addLog('BLOCKED: '+mm[id]+' LOCKED','err');return}}S[id]=S[id]?0:1;el.classList.toggle('on',!!S[id]);addLog(id.replace(/([A-Z])/g,' $1').toUpperCase()+' → '+(S[id]?'ON':'OFF'),S[id]?'ok':'warn');doFlash();checkSeq()}
-buildSB('switchBank1',[{id:'auxPower',label:'AUX PWR'},{id:'radShield',label:'RAD SHIELD'},{id:'fuelPumps',label:'FUEL PUMP'},{id:'coolantPumps',label:'COOL PUMP'},{id:'magCoils',label:'MAG COILS'},{id:'ignPrime',label:'IGN PRIME'},{id:'turbineEngage',label:'TURBINE'},{id:'gridSync',label:'GRID SYNC'}]);
-buildSB('switchBank2',[{id:'ventSystem',label:'VENT SYS'},{id:'backupGen',label:'BACKUP GEN'},{id:'containField',label:'CONTAIN'}]);
-buildSB('auxCoolSwitches',[{id:'auxCoolPump',label:'AUX PUMP'},{id:'auxCoolLoop',label:'AUX LOOP'}]);
-buildSB('backupContSwitches',[{id:'backupContA',label:'FIELD A'},{id:'backupContB',label:'FIELD B'}]);
-buildSB('emergSwitches',[{id:'emergVent',label:'EMRG VENT'},{id:'emergDump',label:'FUEL DUMP'},{id:'rodSafetyOff',label:'ROD SAFE'}]);
-function buildLev(cid,defs){const c=document.getElementById(cid);if(!c)return;defs.forEach(d=>{const g=document.createElement('div');g.className='lever-group';const tc=d.big?'lever-track big-lever-track':'lever-track';const h=d.big?220:160;g.innerHTML='<div class="lever-name">'+d.label+'</div><div class="'+tc+'" data-lever="'+d.id+'" style="height:'+h+'px"><div class="lever-handle"><div class="grip"></div></div></div><div class="lever-readout" id="readout_'+d.id+'">0%</div>';c.appendChild(g);setupLev(g.querySelector('.lever-track'),d.id)})}
-function setupLev(tr,id){const h=tr.querySelector('.lever-handle');let drag=0;function setL(cy){const r=tr.getBoundingClientRect(),ht=r.height-28;let y=Math.max(0,Math.min(ht,cy-r.top-14));S[id]=Math.round((1-y/ht)*100);h.style.bottom='auto';h.style.top=y+'px';const ro=document.getElementById('readout_'+id);if(ro)ro.textContent=S[id]+'%';checkSeq()}
-h.addEventListener('mousedown',e=>{drag=1;e.preventDefault()});h.addEventListener('touchstart',()=>{drag=1},{passive:1});tr.addEventListener('click',e=>setL(e.clientY));document.addEventListener('mousemove',e=>{if(drag){e.preventDefault();setL(e.clientY)}});document.addEventListener('touchmove',e=>{if(drag){e.preventDefault();setL(e.touches[0].clientY)}},{passive:0});document.addEventListener('mouseup',()=>drag=0);document.addEventListener('touchend',()=>drag=0)}
-buildLev('leverRow',[{id:'containPower',label:'CONTAIN'},{id:'fuelInject',label:'FUEL INJ'},{id:'mainThrottle',label:'THROTTLE',big:1},{id:'coolantFlow',label:'COOLANT'}]);
-buildLev('auxCoolLevers',[{id:'auxCoolRate',label:'AUX RATE'}]);buildLev('backupContLevers',[{id:'backupContPow',label:'FIELD PWR'}]);
-buildLev('rodLevers',[{id:'rodA',label:'ROD A'},{id:'rodB',label:'ROD B'},{id:'rodC',label:'ROD C'}]);
-(function(){[{id:'pressureRelief',label:'PRESS RELIEF'},{id:'mixRatio',label:'MIX RATIO'},{id:'fieldTune',label:'FIELD TUNE'}].forEach(d=>{const g=document.createElement('div');g.className='knob-group';g.innerHTML='<div class="switch-name">'+d.label+'</div><div class="knob-housing"><div class="knob" style="transform:rotate('+((S[d.id]/100)*270-135)+'deg)"><div class="knob-pointer"></div></div></div><div class="lever-readout" id="readout_'+d.id+'">'+S[d.id]+'%</div>';document.getElementById('knobPanel').appendChild(g);g.querySelector('.knob-housing').addEventListener('click',()=>{S[d.id]=(S[d.id]+10)%110;if(S[d.id]>100)S[d.id]=0;g.querySelector('.knob').style.transform='rotate('+((S[d.id]/100)*270-135)+'deg)';document.getElementById('readout_'+d.id).textContent=S[d.id]+'%'})})})();
-(function(){const c=document.getElementById('buttonPanel');c.innerHTML='<div class="flex-col gap-4" style="align-items:center"><div class="push-btn amber-btn" id="ignBtn" style="width:64px;height:64px;font-size:8px">IGNITE</div><div class="switch-name">HOLD 3s</div></div><div class="flex-col gap-4" style="align-items:center"><div class="push-btn green-btn" id="testBtn" style="width:50px;height:50px;font-size:7px">LAMP<br>TEST</div><div class="switch-name">TEST</div></div><div class="flex-col gap-4" style="align-items:center"><div class="push-btn cyan-btn" id="purgeBtn" style="width:50px;height:50px;font-size:7px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div>';
-const ib=document.getElementById('ignBtn');ib.addEventListener('mousedown',sI);ib.addEventListener('touchstart',sI,{passive:1});ib.addEventListener('mouseup',eI);ib.addEventListener('touchend',eI);ib.addEventListener('mouseleave',eI);
-document.getElementById('testBtn').addEventListener('click',()=>{document.querySelectorAll('.warning-light').forEach(w=>{w.classList.add('active-amber');setTimeout(()=>w.classList.remove('active-amber'),1000)});addLog('LAMP TEST OK','ok')});
-document.getElementById('purgeBtn').addEventListener('click',()=>{S.corePressure=Math.max(1,S.corePressure*.6);addLog('LINE PURGE','sys');doFlash('rgba(0,229,255,0.1)')})})();
-(function(){const c=document.getElementById('emergButtons');['PLASMA DUMP','COOL FLOOD','HARD RESET'].forEach((l,i)=>{const b=document.createElement('div');b.innerHTML='<div class="push-btn '+['red-btn','cyan-btn','amber-btn'][i]+'" style="width:52px;height:52px;font-size:7px">'+l+'</div>';c.appendChild(b);b.querySelector('.push-btn').addEventListener('click',()=>{if(i===0){S.igniting=0;S.coreTemp*=.5;S.plasmaStability=0;addLog('PLASMA DUMPED','err');doShake()}if(i===1){S.coolantFlow=100;S.auxCoolRate=100;S.coreTemp*=.3;addLog('COOLANT FLOOD','sys')}if(i===2)hardReset()})})})();
-function hardReset(){addLog('*** HARD RESET ***','err');doShake();Object.keys(S.modules).forEach(k=>{S.modules[k].status='offline';S.modules[k].health=Math.max(50,S.modules[k].health)});S.igniting=0;S.startupComplete=0;S.scramActive=0;S.seqStep=0;['fuelPumps','coolantPumps','containField','ignPrime','turbineEngage','gridSync','magCoils','radShield','ventSystem'].forEach(k=>S[k]=0);S.mainThrottle=0;S.fuelInject=0;S.containPower=0;S.coolantFlow=0;document.querySelectorAll('.lever-handle').forEach(h=>{h.style.top='';h.style.bottom='4px'});document.querySelectorAll('.toggle-switch').forEach(sw=>sw.classList.toggle('on',!!S[sw.dataset.switch]));setTimeout(()=>{Object.keys(S.modules).forEach(k=>{S.modules[k].status='online';S.modules[k].mode='normal'});addLog('Modules restarted','ok')},4000)}
-function sI(){if(!S.ignPrime||!S.auxPower){addLog('IGN FAIL','err');return}if(S.modules.fuel.mode==='locked'){addLog('IGN FAIL: Fuel LOCKED','err');return}S.ignitionHeld=1;ignHoldStart=Date.now();addLog('IGNITION...','warn')}
-function eI(){S.ignitionHeld=0;if(S.igniting)return;if(ignHoldStart>0&&Date.now()-ignHoldStart<3000)addLog('IGN ABORT','err');ignHoldStart=0}
-function buildDG(cid,defs){const c=document.getElementById(cid);if(!c)return;defs.forEach(d=>{const b=document.createElement('div');b.className='display-box';b.innerHTML='<div class="display-label">'+d.label+'</div><div class="display-value '+d.color+'" id="disp_'+d.id+'">0</div><div class="bar-gauge"><div class="bar-fill '+d.color+'" id="bar_'+d.id+'"></div></div>';c.appendChild(b)})}
-buildDG('coreReadings',[{id:'coreTemp',label:'CORE TEMP',color:'amber'},{id:'corePressure',label:'PRESSURE',color:'cyan'},{id:'plasmaStability',label:'PLASMA STAB',color:'green'},{id:'neutronDensity',label:'NEUTRON FLUX',color:'cyan'}]);
-buildDG('systemVitals',[{id:'coolantTemp',label:'COOLANT TEMP',color:'cyan'},{id:'coolantFlowRate',label:'COOL FLOW',color:'cyan'},{id:'turbineRPM',label:'TURBINE RPM',color:'amber'},{id:'containIntegrity',label:'CONTAIN %',color:'green'},{id:'magneticFlux',label:'MAG FLUX',color:'cyan'},{id:'radiationLevel',label:'RADIATION',color:'amber'}]);
-buildDG('auxCoolReadings',[{id:'auxCoolTemp',label:'AUX COOL',color:'cyan'},{id:'auxCoolFlow',label:'AUX FLOW',color:'cyan'}]);
-buildDG('backupContReadings',[{id:'backupFieldStr',label:'BACKUP FIELD',color:'green'},{id:'secondaryPressure',label:'SEC PRESS',color:'cyan'}]);
-buildDG('emergReadings',[{id:'rodPosition',label:'ROD POS',color:'amber'},{id:'heatSinkTemp',label:'HEAT SINK',color:'cyan'}]);
-(function(){['OVERTEMP','OVERPRESSURE','CONTAINMENT','COOLANT','FUEL LOW','RADIATION','SCRAM','ONLINE','MOD FAULT','EVENT'].forEach((l,i)=>{const ids=['warnOvertemp','warnOverpressure','warnContainment','warnCoolant','warnFuel','warnRadiation','warnScram','warnOnline','warnModFault','warnEvent'];const w=document.createElement('div');w.className='warning-light';w.id=ids[i];w.innerHTML='<div class="dot"></div>'+l;document.getElementById('warningRow').appendChild(w)})})();
-(function(){SEQUENCE.forEach((s,i)=>{const e=document.createElement('div');e.className='seq-step';e.id='seq_'+i;e.innerHTML='<div class="seq-dot"></div><div class="seq-label">'+(i+1)+'. '+s.label+'</div>';document.getElementById('seqSteps').appendChild(e)})})();
-document.getElementById('scramBtn').addEventListener('click',doScram);
-function doScram(){S.scramActive=1;S.reactorState='SCRAM';addLog('*** SCRAM ***','err');doShake();doFlash('rgba(255,46,46,0.2)');['fuelPumps','coolantPumps','containField','ignPrime','turbineEngage','gridSync','magCoils','radShield','ventSystem'].forEach(k=>S[k]=0);S.igniting=0;S.ignitionHeld=0;S.startupComplete=0;S.seqStep=0;S.mainThrottle=0;S.fuelInject=0;S.containPower=0;document.querySelectorAll('.lever-handle').forEach(h=>{h.style.top='';h.style.bottom='4px'});document.querySelectorAll('[data-lever]').forEach(t=>{const id=t.dataset.lever,r=document.getElementById('readout_'+id);if(r&&!['pressureRelief','mixRatio','fieldTune','auxCoolRate','backupContPow','rodA','rodB','rodC'].includes(id))r.textContent='0%'});document.querySelectorAll('.toggle-switch').forEach(sw=>sw.classList.toggle('on',!!S[sw.dataset.switch]));setTimeout(()=>{S.scramActive=0;addLog('SCRAM reset','ok')},5000)}
-// MANUAL
-const MP={startup:'<div class="manual-header">I. STARTUP</div>'+SEQUENCE.map((s,i)=>'<div class="manual-step"><div class="manual-step-num">'+(i+1).toString().padStart(2,'0')+'</div><div class="manual-step-text">'+s.label+'</div></div>').join('')+'<div class="manual-note">First-hour throttle 30-50%. Allow equilibrium.</div>',
-shutdown:'<div class="manual-header">II. SHUTDOWN</div><div class="manual-step"><div class="manual-step-num">01</div><div class="manual-step-text">Disengage GRID SYNC → reduce THROTTLE to 10% → disengage TURBINE → FUEL INJ to 0% → disengage IGN PRIME → CONTAINMENT to 0% after <500°C → disengage MAG COILS, FUEL, COOLANT, RAD SHIELD, AUX POWER last.</div></div>',
-emergency:'<div class="manual-header">III. EMERGENCY</div><div class="manual-warning">⚠ FAILURE TO RESOLVE EVENTS RESULTS IN CATASTROPHIC REACTOR FAILURE. There is no second chance.</div><div class="manual-step"><div class="manual-step-num">!!</div><div class="manual-step-text"><b>SCRAM</b>: All systems killed. 5s lockout. Does NOT engage backups. <b>HARD RESET</b>: All modules restart (4s blackout). <b>PLASMA DUMP</b>: Kills plasma. <b>COOLANT FLOOD</b>: Max cooling.</div></div>',
-malfunctions:'<div class="manual-header">IV. MALFUNCTIONS</div><div style="margin-bottom:12px">Events occur randomly during operation. Each has unique consequences if the timer expires:<br><br><b style="color:var(--red)">COOLANT LEAK</b> → <b>MELTDOWN</b>: Core melts through containment floor<br><b style="color:var(--red)">MAG COIL DRIFT</b> → <b>PLASMA ERUPTION</b>: Uncontained superheated plasma<br><b style="color:var(--red)">FUEL CONTAMINATION</b> → <b>CHEMICAL EXPLOSION</b>: Volatile chain reaction<br><b style="color:var(--red)">TURBINE VIBRATION</b> → <b>MECHANICAL DISINTEGRATION</b>: Centrifugal failure<br><b style="color:var(--red)">SENSOR FAULT</b> → <b>BLIND CASCADE</b>: Undetected failures compound<br><b style="color:var(--red)">PLASMA INSTABILITY</b> → <b>MAGNETIC IMPLOSION</b>: Field collapse crushes core<br><b style="color:var(--red)">GRID FREQ DRIFT</b> → <b>EMP BLAST</b>: Massive electromagnetic pulse<br><b style="color:var(--red)">RADIATION SPIKE</b> → <b>CONTAMINATION EVENT</b>: Radiological disaster</div><div class="manual-warning">All failures are PERMANENT. Game over. Your uptime is your score.</div>',
-modes:'<div class="manual-header">V. MODULE MODES</div><div style="margin-bottom:12px">Each module on the SYSTEMS tab can be set to different operating modes. All modes have tradeoffs and affect connected systems.<br><br><b style="color:var(--green)">NORMAL</b>: Standard operation. Balanced performance and wear.<br><b style="color:var(--magenta)">OVERCLOCK</b>: +50% output. 3x health drain. Adds heat. Connected module also takes extra stress.<br><b style="color:var(--cyan)">ECO</b>: -40% output. Very slow drain. Reduces heat. Good for stabilization.<br><b style="color:#8a8f96">LOCKED</b>: Module frozen. No input, no output. Controls disabled. Useful during repairs.<br><b style="color:#ffe047">BYPASS</b>: +30% output. Ignores safety interlocks. 2x drain. Connected module receives noise.</div><div class="manual-note">INTERCONNECTIONS: Each module affects one neighbor. Thermal↔Coolant, Magnetic↔Sensor, Fuel→Thermal, Turbine→Grid, Grid→Comms, Comms→Sensor. Overclocking one stresses the other.</div>',
-reference:'<div class="manual-header">VI. REFERENCE</div><div class="manual-note">SAFE: Temp 1000-6000°C | Press 5-30 ATM | Plasma >60% | Contain >50% | Coolant >200 L/min | RPM 3000-12000 | Rad <40 mSv</div><div class="manual-warning">DANGER: Temp >8000°C | Press >40 | Contain <20% | Rad >80 → AUTO-SCRAM/FAILURE</div><div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>'};
-document.querySelectorAll('.manual-nav-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.manual-nav-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('manualBody').innerHTML=MP[b.dataset.manual]||''})});
-document.getElementById('manualBody').innerHTML=MP.startup;
-// MONITORS
-(function(){[{id:'mon_temp',t:'CORE TEMPERATURE'},{id:'mon_pressure',t:'PRESSURE'},{id:'mon_plasma',t:'PLASMA STABILITY'},{id:'mon_power',t:'POWER OUTPUT'},{id:'mon_coolant',t:'COOLANT FLOW'},{id:'mon_radiation',t:'RADIATION'}].forEach(x=>{const p=document.createElement('div');p.className='monitor-panel';p.innerHTML='<div class="monitor-title">'+x.t+'</div><canvas id="'+x.id+'" style="width:100%;height:calc(100% - 24px)"></canvas>';document.getElementById('monitorsGrid').appendChild(p)})})();
-function drawG(cid,data,col,max,unit){const cv=document.getElementById(cid);if(!cv)return;cv.width=cv.clientWidth*2;cv.height=cv.clientHeight*2;const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='rgba(58,63,68,0.4)';ctx.lineWidth=1;for(let i=0;i<5;i++){const y=h*(i/4);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}if(data.length>1){ctx.beginPath();ctx.strokeStyle=col;ctx.lineWidth=3;ctx.shadowColor=col;ctx.shadowBlur=6;const s=w/(MH-1);data.forEach((v,i)=>{const x=i*s,y=h-Math.min(1,v/max)*h;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});ctx.stroke();ctx.shadowBlur=0;ctx.lineTo((data.length-1)*s,h);ctx.lineTo(0,h);ctx.closePath();ctx.fillStyle=col.replace(')',',0.1)').replace('rgb','rgba');ctx.fill()}if(data.length){ctx.shadowBlur=0;ctx.font='bold 24px Share Tech Mono';ctx.fillStyle=col;ctx.fillText(data[data.length-1].toFixed(1)+' '+unit,w-280,30)}}
-// SYSTEMS
-function buildSys(){const c=document.getElementById('systemsGrid');c.innerHTML='';Object.entries(S.modules).forEach(([k,m])=>{const d=document.createElement('div');d.className='module-card';const sc=m.mode!=='normal'&&m.status!=='offline'?m.mode:m.status;
-const affectsLabel=m.affects?'→ '+S.modules[m.affects].name:'';
-d.innerHTML='<div class="module-title"><span>'+m.name+'</span><span class="module-status '+sc+'">'+((m.status==='offline'?'OFFLINE':MODES[m.mode]?.label)||'NORMAL')+'</span></div>'
-+'<div class="display-box"><div class="display-label">HEALTH</div><div class="display-value '+(m.health>70?'green':m.health>40?'amber':'red')+'">'+m.health.toFixed(0)+'%</div><div class="bar-gauge"><div class="bar-fill '+(m.health>70?'green':m.health>40?'amber':'red')+'" style="width:'+m.health+'%"></div></div></div>'
-+'<div class="mode-effect"><span class="link">AFFECTS: '+affectsLabel+'</span><br>'+(MODES[m.mode]?.desc||'')+'</div>'
-+'<div class="mode-row">'
-+'<button class="mod-btn '+(m.mode==='normal'?'active-mode':'')+'" onclick="setMode(\''+k+'\',\'normal\')">NORMAL</button>'
-+'<button class="mod-btn '+(m.mode==='overclock'?'active-mode':'')+'" onclick="setMode(\''+k+'\',\'overclock\')">OVERCLOCK</button>'
-+'<button class="mod-btn '+(m.mode==='eco'?'active-mode':'')+'" onclick="setMode(\''+k+'\',\'eco\')">ECO</button>'
-+'<button class="mod-btn '+(m.mode==='locked'?'active-mode':'')+'" onclick="setMode(\''+k+'\',\'locked\')">LOCK</button>'
-+'<button class="mod-btn '+(m.mode==='bypass'?'active-mode':'')+'" onclick="setMode(\''+k+'\',\'bypass\')">BYPASS</button>'
-+'</div>'
-+'<div class="mode-row" style="margin-top:4px">'
-+'<button class="mod-btn" onclick="rstMod(\''+k+'\')">RESTART</button>'
-+'<button class="mod-btn" onclick="diagMod(\''+k+'\')">DIAGNOSE</button>'
-+'</div>';
-c.appendChild(d)})}
-window.setMode=function(k,mode){const m=S.modules[k];if(m.status==='offline'){addLog(m.name+' is OFFLINE','err');return}m.mode=mode;addLog(m.name+' → '+MODES[mode].label,'sys');if(m.affects&&mode==='overclock'){const t=S.modules[m.affects];if(t.status==='online')t.health=Math.max(0,t.health-3);addLog(t.name+' stressed by overclock','warn')}buildSys()};
-window.rstMod=function(k){const m=S.modules[k];addLog('Restarting '+m.name+'...','sys');m.status='offline';m.mode='normal';buildSys();setTimeout(()=>{m.status='online';m.health=Math.min(100,m.health+25);addLog(m.name+' ONLINE','ok');buildSys()},5000)};
-window.diagMod=function(k){addLog('Diag '+S.modules[k].name+': '+S.modules[k].health.toFixed(0)+'% '+S.modules[k].mode,'sys')};
-buildSys();
-// EVENTS + CATASTROPHES
-const CATASTROPHES={coolant_leak:{anim:'meltdown',title:'MELTDOWN',subtitle:'CORE BREACH — TOTAL LOSS',color:'var(--red)',narrative:"The coolant leak you failed to address cascaded into a full thermal runaway. Without adequate cooling, the plasma-facing components exceeded 15,000°C in under forty seconds. The tungsten divertor plates liquefied. Molten material breached the vacuum vessel, burning through three meters of biological shielding before emergency concrete injection halted its descent. The facility is a total loss. A 2-kilometer exclusion zone has been established. No personnel casualties thanks to automated evacuation, but the reactor will take eleven years and $47 billion to decommission. Your operating license has been permanently revoked."},
-mag_drift:{anim:'nukeFlash',title:'PLASMA ERUPTION',subtitle:'UNCONTAINED SUPERHEATED PLASMA',color:'var(--amber)',narrative:"The magnetic confinement field drifted beyond recovery. Without stable field geometry, the 150-million-degree plasma touched the inner wall of the tokamak for 0.003 seconds. That was enough. The resulting energy release vaporized the vacuum vessel and sent a column of superheated gas through the roof of the containment building. The thermal plume was visible from orbit. Emergency responders found the reactor hall had been converted into a glass-lined crater. Surrounding structures suffered severe thermal damage in a 400-meter radius. The incident has been classified as an INES Level 5 event. Congressional hearings begin next month."},
-fuel_contam:{anim:'nukeFlash',title:'CHEMICAL EXPLOSION',subtitle:'VOLATILE CHAIN REACTION',color:'var(--amber)',narrative:"The contaminated fuel line introduced carbon particulates into the fusion chamber at a critical moment. The impurities created localized hotspots that destabilized the fuel pellet injection timing. A cascading series of micro-detonations propagated through the fuel delivery system, rupturing the tritium storage tanks. The resulting hydrogen explosion leveled the fuel processing wing and sent a tritium cloud drifting southeast. 14,000 residents were evacuated. The cleanup will take years, and the groundwater monitoring program has been extended indefinitely. You will be called to testify."},
-turbine_vib:{anim:'empBlast',title:'MECHANICAL DISINTEGRATION',subtitle:'CENTRIFUGAL FAILURE',color:'var(--cyan)',narrative:"The harmonic resonance you ignored amplified until the primary turbine shaft exceeded its rated RPM by 340%. The first-stage turbine blades separated from the rotor at supersonic velocity, shredding the turbine housing like paper. A 200kg blade fragment penetrated the generator hall wall and embedded itself in the backup transformer, causing an electrical fire. The chain reaction of mechanical failures propagated through the steam system, rupturing two heat exchangers. The facility is structurally compromised and has been condemned. Three maintenance robots were destroyed. The insurance company is asking questions you won't enjoy answering."},
-sensor_fault:{anim:'meltdown',title:'BLIND CASCADE',subtitle:'UNDETECTED FAILURES COMPOUND',color:'var(--amber)',narrative:"With the sensor array offline, you were flying blind. What you couldn't see was the coolant flow rate dropping, the containment field weakening, and the core temperature climbing — all simultaneously. By the time secondary indicators made the situation obvious, seven independent safety thresholds had been exceeded. The automated safety systems, receiving no sensor data, did not trigger. The reactor entered an uncontrolled state for 47 seconds before manual intervention was possible. By then, the damage was done. Partial fuel melt, containment degradation, and a significant radiological release within the building. The facility will require two years of decontamination before anyone can enter the reactor hall without a hazmat suit."},
-plasma_instab:{anim:'implode',title:'MAGNETIC IMPLOSION',subtitle:'FIELD COLLAPSE CRUSHES CORE',color:'var(--magenta)',narrative:"The plasma instability grew beyond the confinement field's ability to compensate. In a catastrophic feedback loop, the magnetic field lines snapped inward, compressing the reactor vessel with enormous electromagnetic force. The vacuum vessel crumpled like aluminum foil. The resulting implosion created a pressure wave that shattered every window within 300 meters and knocked personnel off their feet throughout the facility. The reactor core is now a compressed mass of exotic metal alloys fused together at the molecular level. Scientists are actually quite interested in studying it, but the 200-year decommissioning timeline puts a damper on the research enthusiasm."},
-grid_drift:{anim:'empBlast',title:'EMP BLAST',subtitle:'ELECTROMAGNETIC PULSE',color:'var(--cyan)',narrative:"The frequency mismatch between the reactor output and the power grid created a resonance cascade in the main transformer bank. The resulting energy discharge sent a massive electromagnetic pulse through the grid infrastructure. Every electronic device within a 5-kilometer radius was destroyed instantly. The regional power grid collapsed, triggering blackouts affecting 2.3 million people. Hospital backup generators survived, but traffic systems, communications, water treatment, and banking systems were knocked offline for 72 hours. The economic damage is estimated at $8.4 billion. Your name is now a verb meaning 'to catastrophically fail at a simple task.' Congratulations."},
-rad_spike:{anim:'nukeFlash',title:'CONTAMINATION EVENT',subtitle:'RADIOLOGICAL DISASTER',color:'var(--green)',narrative:"The neutron flux exceeded the biological shielding capacity by a factor of twelve. The radiation burst lasted only 9 seconds, but it was enough to activate structural materials throughout the reactor building, turning steel beams, concrete walls, and copper wiring into radioactive sources. The facility is now emitting 50 times the allowable dose rate. A 10-kilometer exclusion zone has been established. 340 workers received doses exceeding annual limits and are undergoing medical monitoring. The site has been added to the national nuclear waste registry. Environmental monitoring stations detect elevated readings in local waterways. The decommissioning authority estimates 60 years before the site returns to background levels."}};
-const EVENTS=[
-{id:'coolant_leak',title:'⚠ COOLANT LEAK',time:45,desc:'Primary coolant pressure dropping. Micro-fracture in segment 7.',viz:'<div style="color:var(--cyan);text-align:center;font-size:11px">COOLANT PRESSURE<br><span style="font-size:36px;color:var(--red)">▼ DROPPING</span></div>',steps:[{text:'AUX PUMP ON (Backup)',check:()=>S.auxCoolPump},{text:'AUX LOOP ON (Backup)',check:()=>S.auxCoolLoop},{text:'AUX RATE >50%',check:()=>S.auxCoolRate>=50},{text:'LINE PURGE',check:()=>S.corePressure<15||!S.igniting}]},
-{id:'mag_drift',title:'⚠ MAG COIL DRIFT',time:35,desc:'Harmonic resonance in confinement field.',viz:'<div style="color:var(--magenta);text-align:center"><span style="font-size:28px;animation:blink .3s step-end infinite">HARMONICS UNSTABLE</span></div>',steps:[{text:'FIELD TUNE 70-80%',check:()=>S.fieldTune>=70&&S.fieldTune<=80},{text:'CONTAIN >80%',check:()=>S.containPower>=80},{text:'CONTAIN switch ON',check:()=>S.containField}]},
-{id:'fuel_contam',title:'⚠ FUEL CONTAMINATION',time:55,desc:'Impurities in deuterium feed line.',viz:'<div style="text-align:center"><div style="font-size:36px;color:var(--red);font-family:Share Tech Mono">'+Math.floor(Math.random()*900+1200)+' PPM</div><div style="font-size:9px;color:#5a5f66">MAX SAFE: 200 PPM</div></div>',steps:[{text:'FUEL PUMPS OFF',check:()=>!S.fuelPumps},{text:'FUEL INJ to 0%',check:()=>S.fuelInject<=0},{text:'MIX RATIO 30-40%',check:()=>S.mixRatio>=30&&S.mixRatio<=40},{text:'FUEL PUMPS ON',check:()=>S.fuelPumps}]},
-{id:'turbine_vib',title:'⚠ TURBINE VIBRATION',time:35,desc:'Dangerous harmonic vibration in turbine.',viz:'<div style="text-align:center;color:var(--amber)"><div style="display:flex;justify-content:center;gap:2px;margin:6px 0">'+Array.from({length:24},()=>'<div style="width:5px;height:'+Math.floor(Math.random()*45+8)+'px;background:var(--amber);border-radius:1px"></div>').join('')+'</div><div style="font-size:9px;color:#5a5f66">847 Hz</div></div>',steps:[{text:'THROTTLE <30%',check:()=>S.mainThrottle<=30},{text:'TURBINE OFF',check:()=>!S.turbineEngage},{text:'PRESS RELIEF 60-70%',check:()=>S.pressureRelief>=60&&S.pressureRelief<=70},{text:'TURBINE ON',check:()=>S.turbineEngage}]},
-{id:'sensor_fault',title:'⚠ SENSOR FAULT',time:40,desc:'Sensor array offline. Restart from Systems tab.',viz:'<div style="text-align:center;font-size:42px;color:var(--red);animation:blink .3s step-end infinite">NO SIGNAL</div>',steps:[{text:'SYSTEMS tab',check:()=>document.querySelector('[data-tab="systems"]').classList.contains('active')},{text:'Restart SENSOR ARRAY',check:()=>S.modules.sensor.status==='online'&&S.modules.sensor.health>50}]},
-{id:'plasma_instab',title:'⚠ PLASMA INSTABILITY',time:50,desc:'Edge-localized mode. Boundary oscillating.',viz:'<div style="text-align:center"><div style="width:70px;height:70px;margin:0 auto;border-radius:50%;background:radial-gradient(circle,var(--cyan),transparent 70%);animation:coreGlow .3s ease-in-out infinite"></div><div style="font-size:10px;color:var(--red);margin-top:6px;animation:blink .5s step-end infinite">UNSTABLE</div></div>',steps:[{text:'FIELD TUNE 80-90%',check:()=>S.fieldTune>=80&&S.fieldTune<=90},{text:'CONTAIN >90%',check:()=>S.containPower>=90},{text:'FIELD A ON (Backup)',check:()=>S.backupContA},{text:'FIELD PWR >50%',check:()=>S.backupContPow>=50}]},
-{id:'grid_drift',title:'⚠ GRID FREQ DRIFT',time:30,desc:'60Hz sync lost.',viz:'<div style="text-align:center;color:var(--amber)"><div style="font-size:32px;font-family:Share Tech Mono">'+(57+Math.random()*6).toFixed(1)+' Hz</div><div style="font-size:9px;color:var(--red)">TARGET: 60.0</div></div>',steps:[{text:'GRID SYNC OFF',check:()=>!S.gridSync},{text:'THROTTLE 40-60%',check:()=>S.mainThrottle>=40&&S.mainThrottle<=60},{text:'GRID SYNC ON',check:()=>S.gridSync}]},
-{id:'rad_spike',title:'☢ RADIATION SPIKE',time:55,desc:'Neutron flux exceeding shielding.',viz:'<div style="text-align:center"><div style="font-size:56px;animation:blink .4s step-end infinite">☢</div><div style="color:var(--red);font-size:13px;letter-spacing:2px">ALERT</div></div>',steps:[{text:'RAD SHIELD ON',check:()=>S.radShield},{text:'FIELD A & B ON',check:()=>S.backupContA&&S.backupContB},{text:'THROTTLE <40%',check:()=>S.mainThrottle<=40},{text:'ROD A >50%',check:()=>S.rodA>=50}]}
-];
-nextEventTime=30+Math.random()*60;
-function triggerEvent(){if(S.activeEvent||!S.startupComplete)return;const e=EVENTS[Math.floor(Math.random()*EVENTS.length)];S.activeEvent={...e,startTime:Date.now()};S.eventStepsComplete=new Array(e.steps.length).fill(0);document.getElementById('eventOverlay').classList.add('active');document.getElementById('eventTitle').textContent=e.title;document.getElementById('eventDesc').textContent=e.desc;renderEvt();addLog('EVENT: '+e.title,'err');doShake();doFlash('rgba(255,46,46,0.15)')}
-function renderEvt(){if(!S.activeEvent)return;document.getElementById('eventViz').innerHTML=S.activeEvent.viz;document.getElementById('eventSteps').innerHTML=S.activeEvent.steps.map((s,i)=>'<div class="event-step-item '+(S.eventStepsComplete[i]?'done':'')+'"><div class="estep-dot"></div>'+s.text+'</div>').join('');document.getElementById('eventProgress').style.width=(S.eventStepsComplete.filter(Boolean).length/S.activeEvent.steps.length*100)+'%'}
-function updateEvt(){if(!S.activeEvent)return;S.activeEvent.steps.forEach((s,i)=>{if(!S.eventStepsComplete[i]){const prev=i===0||S.eventStepsComplete[i-1];if(prev&&s.check()){S.eventStepsComplete[i]=1;doFlash('rgba(57,255,20,0.1)')}}});const el=(Date.now()-S.activeEvent.startTime)/1000,rem=Math.max(0,S.activeEvent.time-el);const td=document.getElementById('eventTimer');td.textContent=Math.floor(rem/60).toString().padStart(2,'0')+':'+Math.floor(rem%60).toString().padStart(2,'0');td.style.animation=rem<=10?'blink .3s step-end infinite':'none';renderEvt();
-if(S.eventStepsComplete.every(Boolean)){S.eventsResolved++;addLog('EVENT RESOLVED','ok');doFlash('rgba(57,255,20,0.15)');closeEvt();return}
-if(rem<=0){triggerCatastrophe(S.activeEvent.id);return}}
-function closeEvt(){S.activeEvent=null;document.getElementById('eventOverlay').classList.remove('active');nextEventTime=S.uptime+30+Math.random()*90}
-function triggerCatastrophe(evtId){S.gameOver=1;document.getElementById('eventOverlay').classList.remove('active');const cat=CATASTROPHES[evtId]||CATASTROPHES.coolant_leak;
-// Play destruction animation on body
-document.body.style.animation=cat.anim+' 4s ease-in-out forwards';document.body.style.animationDelay='0.5s';
-// Screen shake
-document.body.classList.add('shake');document.body.style.animationName='bigShake,'+cat.anim;document.body.style.animationDuration='2s,4s';document.body.style.animationDelay='0s,1s';document.body.style.animationTimingFunction='ease-in-out';document.body.style.animationFillMode='forwards';
-setTimeout(()=>{
-const go=document.getElementById('gameOverScreen');go.classList.add('active');
-document.getElementById('goTitle').textContent=cat.title;document.getElementById('goTitle').style.color=cat.color;
-document.getElementById('goSubtitle').textContent=cat.subtitle;
-document.getElementById('goUptime').textContent=fmtTime(S.uptime);
-document.getElementById('goResolved').textContent=S.eventsResolved;
-document.getElementById('goPeak').textContent=S.peakPower.toFixed(1)+' MW';
-document.getElementById('goFailed').textContent=S.eventsFailed+1;
-document.getElementById('goNarrative').textContent=cat.narrative;
-document.body.style.animation='none';
-},4500)}
-function checkSeq(){if(S.startupComplete)return;let step=0;for(let i=0;i<SEQUENCE.length;i++){if(SEQUENCE[i].check())step=i+1;else break}if(step!==S.seqStep){if(step>S.seqStep){addLog('SEQ '+step+'/'+SEQUENCE.length,'ok');doFlash()}S.seqStep=step}if(step>=SEQUENCE.length&&!S.startupComplete){S.startupComplete=1;S.reactorState='ONLINE';addLog('*** REACTOR ONLINE ***','ok');doShake();doFlash()}}
-function fmtTime(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=Math.floor(s%60);return h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0')+':'+sc.toString().padStart(2,'0')}
-function simulate(){if(S.gameOver)return;tick++;const dt=1/20;
-if(S.ignitionHeld&&!S.igniting&&ignHoldStart>0&&Date.now()-ignHoldStart>=3000){S.igniting=1;addLog('PLASMA IGNITION','ok');doShake();doFlash();checkSeq()}
-if(!S.ignPrime&&S.igniting){S.igniting=0;addLog('PLASMA LOST','err')}
-const aM=S.auxPower?1:0,fM=S.fuelPumps?1:0,cM=S.coolantPumps?1:0;
-const fP=modPerf('fuel'),cP=modPerf('coolant'),tP=modPerf('turbine'),mP=modPerf('magnetic'),gP=modPerf('grid'),sP=modPerf('sensor');
-const fH=modHeat('fuel'),cH=modHeat('coolant'),tH=modHeat('thermal'),mH=modHeat('magnetic');
-if(S.igniting&&fM){S.fuelRemaining=Math.max(0,S.fuelRemaining-(S.fuelInject/100)*.005*fP*dt);S.fuelConsump=S.fuelInject*.3*fM*fP}else S.fuelConsump*=.9;
-if(S.emergDump){S.fuelRemaining=Math.max(0,S.fuelRemaining-.1*dt);S.fuelConsump+=6}
-const eF=S.fuelInject*fM*aM*fP*(S.fuelRemaining>0?1:0);
-const rE=S.rodSafetyOff?(S.rodA+S.rodB+S.rodC)/300:0;
-let tT=20;if(S.igniting){tT+=eF*120+S.mainThrottle*50;tT*=(.5+S.mixRatio/200);tT*=(1-rE*.7);tT+=fH+tH+mH}
-const cE=S.coolantFlow*cM*aM*.6*cP+(S.auxCoolPump&&S.auxCoolLoop?S.auxCoolRate*.3:0);tT-=cE;if(S.emergVent)tT-=200;tT=Math.max(20,tT);S.coreTemp+=(tT-S.coreTemp)*.02;
-let tPr=1;if(S.igniting){tPr+=(S.coreTemp-20)/100-S.pressureRelief/100*3+S.mainThrottle/30;tPr*=(1-rE*.5)}if(S.emergVent)tPr*=.8;S.corePressure+=(Math.max(.5,tPr)-S.corePressure)*.03;
-S.secondaryPressure=S.corePressure*.6+S.backupContPow*.05;
-let tC=15;if(S.igniting)tC+=S.coreTemp*.08;if(cM)tC-=S.coolantFlow*.1*cP;S.coolantTemp+=(Math.max(10,tC)-S.coolantTemp)*.05;
-S.coolantFlowRate=S.coolantFlow*cM*aM*12*cP;
-S.auxCoolTemp=12+(S.igniting?S.coreTemp*.03:0)-(S.auxCoolPump&&S.auxCoolLoop?S.auxCoolRate*.08:0);
-S.auxCoolFlow=S.auxCoolPump&&S.auxCoolLoop?S.auxCoolRate*8:0;
-let tF=0;if(S.magCoils&&aM)tF=(S.containPower/100)*8*(.7+S.fieldTune/300)*mP;S.magneticFlux+=(tF-S.magneticFlux)*.05;
-S.backupFieldStr=(S.backupContA?1:0)*(S.backupContPow/100)*4+(S.backupContB?1:0)*(S.backupContPow/100)*4;
-let tSt=0;if(S.igniting){tSt=50+S.magneticFlux*5+S.backupFieldStr*2-Math.max(0,S.coreTemp-5000)/100-Math.abs(S.corePressure-15)*2;tSt*=(.8+S.fieldTune/500);if(S.containField)tSt+=10;tSt*=(1-rE*.3);
-// Sensor noise in bypass mode
-if(S.modules.sensor.mode==='bypass')tSt+=Math.random()*10-5;
-tSt=Math.max(0,Math.min(100,tSt))}S.plasmaStability+=(tSt-S.plasmaStability)*.04;
-let tN=0;if(S.igniting)tN=(S.coreTemp/100)*(S.plasmaStability/100)*eF*(1-rE*.6);S.neutronDensity+=(tN-S.neutronDensity)*.03;
-S.radiationLevel=S.neutronDensity*.3+(S.igniting&&!S.radShield?20:0)+(S.containIntegrity<50?15:0);
-if(S.igniting&&S.containPower<30)S.containIntegrity-=.05;else if(S.containPower>50&&S.containField)S.containIntegrity+=.02;
-if(S.coreTemp>8000)S.containIntegrity-=.03;if(S.backupFieldStr>2)S.containIntegrity+=.01;S.containIntegrity=Math.max(0,Math.min(100,S.containIntegrity));
-let tR=0;if(S.turbineEngage&&S.igniting&&aM)tR=S.mainThrottle*150*(S.plasmaStability/100)*tP;S.turbineRPM+=(tR-S.turbineRPM)*.02;
-if(S.gridSync&&S.turbineRPM>1000)S.gridLoad+=(80-S.gridLoad)*.01*gP;else S.gridLoad*=.95;
-let tW=0;if(S.igniting&&S.turbineEngage){tW=(S.turbineRPM/15000)*S.mainThrottle*(S.plasmaStability/100)*8.5*(1-rE*.4)*tP;if(!S.ventSystem)tW*=.85;if(S.backupGen)tW+=.5}S.powerOutput+=(Math.max(0,tW)-S.powerOutput)*.03;
-if(S.powerOutput>S.peakPower)S.peakPower=S.powerOutput;
-S.heatSinkTemp=20+S.coreTemp*.005-cE*.02;S.rodPosition=S.rodSafetyOff?(S.rodA+S.rodB+S.rodC)/3:100;
-// Module health + interconnections
-if(S.igniting&&tick%60===0){Object.entries(S.modules).forEach(([k,m])=>{if(m.status==='offline'||m.mode==='locked')return;
-const md=MODES[m.mode];m.health=Math.max(0,m.health-Math.random()*.2*md.healthDrain);
-// Overclock stresses linked module
-if(m.mode==='overclock'&&m.affects){const t=S.modules[m.affects];if(t.status!=='offline')t.health=Math.max(0,t.health-Math.random()*.4)}
-// Bypass adds noise to linked module
-if(m.mode==='bypass'&&m.affects){const t=S.modules[m.affects];if(t.status!=='offline')t.health=Math.max(0,t.health-Math.random()*.2)}
-if(m.health<25&&m.status==='online'&&Math.random()<.03){m.status='degraded';addLog(m.name+' DEGRADED','warn')}
-if(m.health<5&&m.status!=='offline'){m.status='offline';m.mode='normal';addLog(m.name+' FAILED — restart required','err')}})}
-if(S.reactorState==='ONLINE'){S.uptime+=dt;if(S.uptime>S.bestUptime)S.bestUptime=S.uptime}
-if(S.scramActive)S.reactorState='SCRAM';else if(S.startupComplete&&S.powerOutput>1)S.reactorState=S.coreTemp>9000||S.containIntegrity<20?'CRITICAL':'ONLINE';else if(S.auxPower&&!S.startupComplete)S.reactorState='STARTUP';else if(!S.auxPower){S.reactorState='OFFLINE';S.startupComplete=0;S.igniting=0;S.seqStep=0}
-if(S.containIntegrity<=5&&!S.scramActive&&S.igniting){doScram();addLog('AUTO-SCRAM: Containment','err')}
-if(S.activeEvent)updateEvt();else if(S.startupComplete&&S.uptime>nextEventTime)triggerEvent();
-if(tick%3===0){monHist.temp.push(S.coreTemp);monHist.pressure.push(S.corePressure);monHist.plasma.push(S.plasmaStability);monHist.power.push(S.powerOutput);monHist.coolant.push(S.coolantFlowRate);monHist.radiation.push(S.radiationLevel);Object.values(monHist).forEach(h=>{if(h.length>MH)h.shift()})}
-if(tick%80===0&&S.igniting){if(S.coreTemp>7000)addLog('WARN: Temp','warn');if(S.containIntegrity<40)addLog('WARN: Containment','err')}
-updateUI()}
-function updD(id,t,mx){const e=document.getElementById('disp_'+id),b=document.getElementById('bar_'+id);if(e)e.textContent=t;if(b){const p=Math.min(100,Math.max(0,parseFloat(t)/mx*100));b.style.width=p+'%';b.className='bar-fill '+(p>80?'red':p>60?'amber':'green')}}
-function setW(id,t){const e=document.getElementById(id);if(!e)return;e.classList.remove('active-amber','active-red','active-green');if(t)e.classList.add('active-'+t)}
-function updateUI(){
-updD('coreTemp',S.coreTemp.toFixed(0),10000);updD('corePressure',S.corePressure.toFixed(1),50);updD('plasmaStability',S.plasmaStability.toFixed(1),100);updD('neutronDensity',S.neutronDensity.toFixed(1),100);updD('coolantTemp',S.coolantTemp.toFixed(0),200);updD('coolantFlowRate',S.coolantFlowRate.toFixed(0),1200);updD('turbineRPM',S.turbineRPM.toFixed(0),15000);updD('containIntegrity',S.containIntegrity.toFixed(1),100);updD('magneticFlux',S.magneticFlux.toFixed(2),8);updD('radiationLevel',S.radiationLevel.toFixed(1),100);updD('auxCoolTemp',S.auxCoolTemp.toFixed(0),100);updD('auxCoolFlow',S.auxCoolFlow.toFixed(0),800);updD('backupFieldStr',S.backupFieldStr.toFixed(1),8);updD('secondaryPressure',S.secondaryPressure.toFixed(1),30);updD('rodPosition',S.rodPosition.toFixed(0),100);updD('heatSinkTemp',S.heatSinkTemp.toFixed(0),200);
-const fe=document.getElementById('disp_fuelRemaining');if(fe)fe.textContent=S.fuelRemaining.toFixed(1);const fb=document.getElementById('bar_fuelRemaining');if(fb){fb.style.width=S.fuelRemaining+'%';fb.className='bar-fill '+(S.fuelRemaining<20?'red':S.fuelRemaining<50?'amber':'green')}
-const fc=document.getElementById('disp_fuelConsump');if(fc)fc.textContent=S.fuelConsump.toFixed(1);
-const po=document.getElementById('netOutput');po.textContent=S.powerOutput.toFixed(2);po.style.color=S.powerOutput>500?'var(--red)':S.powerOutput>100?'var(--amber)':'var(--green)';
-const core=document.getElementById('reactorCore');core.classList.toggle('active',!!S.igniting);if(S.igniting){const i=Math.min(1,S.powerOutput/200);core.style.width=(24+i*18)+'px';core.style.height=(24+i*18)+'px'}
-document.getElementById('ring1').classList.toggle('active',!!S.igniting);document.getElementById('ring1').classList.toggle('spinning',S.igniting&&S.plasmaStability>30);document.getElementById('ring2').classList.toggle('active',!!S.magCoils);document.getElementById('ring2').classList.toggle('spinning',S.magneticFlux>2);document.getElementById('ring3').classList.toggle('active',S.containPower>30);
-setW('warnOvertemp',S.coreTemp>7000?'red':S.coreTemp>4000?'amber':'');setW('warnOverpressure',S.corePressure>35?'red':S.corePressure>20?'amber':'');setW('warnContainment',S.containIntegrity<30?'red':S.containIntegrity<60?'amber':'');setW('warnCoolant',S.coolantFlowRate<100&&S.igniting?'amber':'');setW('warnFuel',S.fuelRemaining<10?'red':S.fuelRemaining<25?'amber':'');setW('warnRadiation',S.radiationLevel>60?'red':S.radiationLevel>30?'amber':'');setW('warnScram',S.scramActive?'red':'');setW('warnOnline',S.reactorState==='ONLINE'?'green':'');setW('warnModFault',Object.values(S.modules).some(m=>m.status!=='online')?'amber':'');setW('warnEvent',S.activeEvent?'red':'');
-for(let i=0;i<SEQUENCE.length;i++){const e=document.getElementById('seq_'+i);if(!e)continue;e.classList.remove('active','complete');if(i<S.seqStep)e.classList.add('complete');else if(i===S.seqStep)e.classList.add('active')}
-const hs=document.getElementById('headerStatus');switch(S.reactorState){case'OFFLINE':hs.textContent='■ OFFLINE';hs.style.color='#5a5f66';break;case'STARTUP':hs.textContent='■ STARTUP';hs.style.color='var(--amber)';break;case'ONLINE':hs.textContent='■ ONLINE — '+S.powerOutput.toFixed(1)+' MW';hs.style.color='var(--green)';break;case'CRITICAL':hs.textContent='■ CRITICAL';hs.style.color='var(--red)';break;case'SCRAM':hs.textContent='■ SCRAM';hs.style.color='var(--red)';break}
-document.getElementById('uptimeDisp').textContent=fmtTime(S.uptime);document.getElementById('bestUptime').textContent=fmtTime(S.bestUptime);document.getElementById('evtCount').textContent=S.eventsResolved;document.getElementById('evtFail').textContent=S.eventsFailed;
-if(document.getElementById('tab-monitors').classList.contains('active')&&tick%6===0){drawG('mon_temp',monHist.temp,'rgb(255,159,28)',10000,'°C');drawG('mon_pressure',monHist.pressure,'rgb(0,229,255)',50,'ATM');drawG('mon_plasma',monHist.plasma,'rgb(57,255,20)',100,'%');drawG('mon_power',monHist.power,'rgb(57,255,20)',600,'MW');drawG('mon_coolant',monHist.coolant,'rgb(0,229,255)',1200,'L/m');drawG('mon_radiation',monHist.radiation,'rgb(255,46,46)',100,'mSv')}
-if(document.getElementById('tab-systems').classList.contains('active')&&tick%40===0)buildSys()}
-addLog('MKIV TOKAMAK v4.7.2','sys');addLog('Manual: MANUAL tab','');addLog('Module modes: SYSTEMS tab','sys');addLog('All systems nominal','ok');
-setInterval(simulate,50);
-</script>
+<script src="./misc/reactor1.js"></script>  <!-- State (S), MODES, SEQUENCE, shared vars -->
+<script src="./misc/reactor2.js"></script>  <!-- EVENTS[], CATASTROPHES{} definitions -->
+<script src="./misc/reactor3.js"></script>  <!-- Utilities: addLog, doShake, doFlash, modPerf, modHeat, fmtTime -->
+<script src="./misc/reactor4.js"></script>  <!-- Control UI: tabs, switches, levers, knobs, push buttons -->
+<script src="./misc/reactor5.js"></script>  <!-- Display UI: gauges, warning lights, seq steps, monitor canvases, drawG() -->
+<script src="./misc/reactor6.js"></script>  <!-- Systems tab: buildSys, setMode, rstMod, diagMod -->
+<script src="./misc/reactor7.js"></script>  <!-- Manual tab: MP content object + nav wiring -->
+<script src="./misc/reactor8.js"></script>  <!-- Event system: triggerEvent, updateEvt, closeEvt, triggerCatastrophe -->
+<script src="./misc/reactor9.js"></script>  <!-- Simulation loop, UI update, doScram, hardReset, ignition, init -->
 </body></html>
