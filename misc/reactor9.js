@@ -1,11 +1,11 @@
-// ============================================================
+
 // reactor9.js — SIMULATION ENGINE + UI UPDATE + INIT
 // Load order: 9th / last
 // Contains: doScram, hardReset, sI/eI (ignition), checkSeq,
 //           simulate (physics loop), updD/setW/updateUI, init log
-// ============================================================
 
-// ── SCRAM ─────────────────────────────────────────────────────
+
+// SCRAM
 document.getElementById('scramBtn').addEventListener('click', doScram);
 
 function doScram() {
@@ -71,7 +71,7 @@ function sI() {
 function eI() {
   S.ignitionHeld = 0;
   if (S.igniting) return;
-  if (ignHoldStart > 0 && Date.now() - ignHoldStart < 3000) addLog('IGN ABORT', 'err');
+  if (ignHoldStart > 0 && Date.now() - ignHoldStart < 2500) addLog('IGN ABORT', 'err');
   ignHoldStart = 0;
 }
 
@@ -97,15 +97,15 @@ function checkSeq() {
 
 // ── GAUGE DANGER → MODULE DAMAGE ──────────────────────────────
 // Each entry: gauge display name, danger condition, target module key.
-// When a gauge is in danger, a timer arms (15–60s). On expiry the module
-// takes 4–13% damage and the timer rearms. Timer disarms when safe again.
+// When a gauge is in danger, a timer arms (15–45s). On expiry the module
+// takes 6–15% damage and the timer rearms. Timer disarms when safe again.
 const GAUGE_DANGERS = [
-  { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > 7000,                     mod: 'thermal'  },
+  { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > 6000,                     mod: 'thermal'  },
   { id: 'corePres',     label: 'CORE PRESSURE',     check: () => S.corePressure > 35,                   mod: 'fuel'     },
   { id: 'plasma',       label: 'PLASMA STABILITY',  check: () => S.igniting && S.plasmaStability < 20,  mod: 'magnetic' },
   { id: 'coolTemp',     label: 'COOLANT TEMP',       check: () => S.coolantTemp > 150,                   mod: 'coolant'  },
   { id: 'coolFlow',     label: 'COOLANT FLOW',       check: () => S.igniting && S.coolantFlowRate < 100, mod: 'coolant'  },
-  { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < 15,               mod: 'magnetic' },
+  { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < 20,               mod: 'magnetic' },
   { id: 'radiation',    label: 'RADIATION LEVEL',    check: () => S.radiationLevel > 60,                 mod: 'sensor'   },
   { id: 'turbineRPM',   label: 'TURBINE RPM',        check: () => S.turbineRPM > 13000,                  mod: 'grid'     },
   { id: 'heatSink',     label: 'HEAT SINK TEMP',     check: () => S.heatSinkTemp > 150,                  mod: 'coolant'  },
@@ -119,7 +119,7 @@ function simulate() {
   const dt = 1 / 20;
 
   // Ignition hold timer
-  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= 3000) {
+  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= 2500) {
     S.igniting = 1;
     addLog('PLASMA IGNITION', 'ok');
     doShake(); doFlash();
@@ -130,16 +130,16 @@ function simulate() {
   const aM = S.auxPower    ? 1 : 0;
   const cM = S.coolantPumps? 1 : 0;
 
-  // Fuel pump grace period — pumps must be off for 8s before fuel flow cuts
+  // Fuel pump grace period — pumps must be off for 15s before fuel flow cuts
   if (S.fuelPumps) {
     if (fuelPumpOffStart !== 0) { fuelPumpOffStart = 0; }
   } else {
     if (fuelPumpOffStart === 0) {
       fuelPumpOffStart = Date.now();
-      if (S.igniting) addLog('WARN: Fuel pumps offline — shutdown in 8s', 'warn');
+      if (S.igniting) addLog('WARN: Fuel pumps offline — shutdown in 15s', 'warn');
     }
   }
-  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < 8000;
+  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < 15000;
   const fM = (S.fuelPumps || fuelPumpGrace) ? 1 : 0;
 
   const fP = modPerf('fuel');   const cP = modPerf('coolant');
@@ -334,7 +334,7 @@ function simulate() {
       const sliderMult = 0.5 + (sliderLoad[k] ?? 50) / 100;
       // Bypass: no self-drain (healthDrain=0), redirect 2× stress to backup
       if (m.mode === 'bypass') {
-        bypassStress += Math.random() * 0.2 * 2 * errMult * sliderMult; // 2× equivalent stress
+        bypassStress += Math.random() * 0.2 * 2.5 * errMult * sliderMult; // 2.5× equivalent stress
       } else {
         m.health = Math.max(0, m.health - Math.random() * 0.2 * md.healthDrain * errMult * sliderMult);
       }
@@ -384,16 +384,16 @@ function simulate() {
     if (gd.check()) {
       if (gaugeDamageTimes[gd.id] == null) {
         // Just entered danger — arm the timer
-        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 45;
+        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 15;
       } else if (S.uptime >= gaugeDamageTimes[gd.id]) {
         // Timer expired — deal damage and rearm
         const m = S.modules[gd.mod];
         if (m && m.status !== 'offline') {
-          const dmg = 4 + Math.random() * 9;
+          const dmg = 6 + Math.random() * 9;
           m.health = Math.max(0, m.health - dmg);
           addLog(gd.label + ' value critical, ' + m.name + ' system damaged', 'err');
         }
-        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 45;
+        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 30;
       }
     } else {
       gaugeDamageTimes[gd.id] = null; // safe — disarm
@@ -431,7 +431,7 @@ function simulate() {
             sm.sysErrorVisible = false;
             sm.errorPenalty = 0.85 + Math.random() * 0.05;
             sm.errorCount = 1;
-            addLog('System error spread to ' + sm.name, 'warn');
+            addLog('System error propegation detected, 'warn');
           }
         } else {
           pm.errorPenalty = Math.max(0.5, pm.errorPenalty - (0.05 + Math.random() * 0.05));
