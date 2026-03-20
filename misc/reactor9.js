@@ -552,7 +552,7 @@ function simulate() {
 
   // ── Periodic warnings ──
   if (tick % 80 === 0 && S.igniting) {
-    if (S.coreTemp > 7000)           addLog('WARN: Temp', 'warn');
+    if (S.coreTemp > 6000)           addLog('WARN: Temp', 'warn');
     if (S.containIntegrity < 40)     addLog('WARN: Containment', 'err');
   }
 
@@ -595,7 +595,7 @@ function updateUI() {
   updD('neutronDensity',   S.neutronDensity.toFixed(1),     100);
   updD('coolantTemp',      S.coolantTemp.toFixed(0),        200,   hi(150));
   updD('coolantFlowRate',  S.coolantFlowRate.toFixed(0),    1200,  lo(100, () => !!S.igniting));
-  updD('turbineRPM',       S.turbineRPM.toFixed(0),         15000, hi(13000));
+  updD('turbineRPM',       S.turbineRPM.toFixed(0),         20000, hi(13000));
   updD('containIntegrity', S.containIntegrity.toFixed(1),   100,   lo(15));
   updD('magneticFlux',     S.magneticFlux.toFixed(2),       8);
   updD('radiationLevel',   S.radiationLevel.toFixed(1),     100,   hi(60));
@@ -699,13 +699,13 @@ function updateUI() {
   if (tick % 3 === 0) {
     const instab   = rvOn ? Math.max(0, (100 - S.plasmaStability) / 100) : 0;
     const baseArcs = rvOn && rvIntens > 0.15 ? 1 : 0;           // always 1 arc when running
-    const numArcs  = Math.min(6, baseArcs + Math.round(instab * 5)); // up to 5 extra from instability
-    for (let i = 0; i < 6; i++) {
+    const numArcs  = Math.min(9, baseArcs + Math.round(instab * 5)); // up to 5 extra from instability
+    for (let i = 0; i < 9; i++) {
       const arc = document.getElementById('arc' + i);
       if (!arc) continue;
       if (i < numArcs) {
         const angle  = Math.random() * Math.PI * 2;
-        const reach  = 14 + Math.random() * 34;                 // 14–48 px from center
+        const reach  = 18 + Math.random() * 40;                 // 14–48 px from center
         const ex     = rvCX + reach * Math.cos(angle);
         const ey     = rvCY + reach * Math.sin(angle);
         // Two-segment jagged arc: center → jag → endpoint
@@ -723,7 +723,7 @@ function updateUI() {
 
   // Warning lights
   setW('warnOvertemp',    S.coreTemp > 7000       ? 'red'   : S.coreTemp > 4000     ? 'amber' : '');
-  setW('warnOverpressure',S.corePressure > 35      ? 'red'   : S.corePressure > 20   ? 'amber' : '');
+  setW('warnOverpressure',S.corePressure > 25      ? 'red'   : S.corePressure > 15   ? 'amber' : '');
   setW('warnContainment', S.containIntegrity < 30  ? 'red'   : S.containIntegrity < 60 ? 'amber' : '');
   setW('warnCoolant',     S.igniting ? (S.coolantTemp > 150 ? 'red' : S.coolantFlowRate < 100 ? 'amber' : '') : '');
   setW('warnFuel',        S.fuelRemaining < 10     ? 'red'   : S.fuelRemaining < 25  ? 'amber' : '');
@@ -732,7 +732,7 @@ function updateUI() {
   setW('warnOnline',      S.reactorState === 'ONLINE' ? 'green' : '');
   setW('warnModFault',    Object.values(S.modules).some(m => m.status !== 'online') ? 'amber' : '');
   const activeErrors = Object.values(S.modules).filter(m => m.sysError).length;
-  setW('warnSysFault',    activeErrors >= 6 ? 'red' : activeErrors >= 2 ? 'amber' : '');
+  setW('warnSysFault',    activeErrors >= 10 ? 'red' : activeErrors >= 4 ? 'amber' : '');
   setW('warnEvent',       S.activeEvent            ? 'red'   : '');
 
   // Sequence steps
@@ -802,7 +802,7 @@ function updateUI() {
 
 // ── INIT ──────────────────────────────────────────────────────
 addLog('MKIV TOKAMAK v4.7.2', 'sys');
-addLog('Manual: MANUAL tab', '');
+addLog('Manual: MANUAL tab', 'sys');
 addLog('Module modes: SYSTEMS tab', 'sys');
 addLog('All systems nominal', 'ok');
 
