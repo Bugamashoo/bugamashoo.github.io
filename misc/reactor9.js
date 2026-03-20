@@ -431,7 +431,7 @@ function simulate() {
             sm.sysErrorVisible = false;
             sm.errorPenalty = 0.85 + Math.random() * 0.05;
             sm.errorCount = 1;
-            addLog('System error propegation detected, 'warn');
+            addLog('System error propegation detected', 'warn');
           }
         } else {
           pm.errorPenalty = Math.max(0.5, pm.errorPenalty - (0.05 + Math.random() * 0.05));
