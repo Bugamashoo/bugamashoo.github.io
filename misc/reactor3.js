@@ -25,7 +25,7 @@ function doShake() {
 function doFlash(c) {
   const d = document.createElement('div');
   d.className = 'flash-ov';
-  d.style.background = c || 'rgba(255,159,28,0.12)';
+  d.style.background = c || 'rgba(255,159,28,0.06)';
   document.body.appendChild(d);
   setTimeout(() => d.remove(), 500);
 }

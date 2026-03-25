@@ -27,14 +27,14 @@ const S = {
   radiationLevel:0, heatSinkTemp:20, secondaryPressure:1, peakPower:0,
   // Modules
   modules: {
-    thermal:  { name:'THERMAL MGMT',   status:'online', health:100, mode:'normal', affects:'coolant',  sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    magnetic: { name:'MAGNETIC CTRL',  status:'online', health:100, mode:'normal', affects:'sensor',   sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    fuel:     { name:'FUEL DELIVERY',  status:'online', health:100, mode:'normal', affects:'thermal',  sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    coolant:  { name:'PRIMARY COOLANT',status:'online', health:100, mode:'normal', affects:'thermal',  sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    backup:   { name:'BACKUP SYSTEMS', status:'online', health:100, mode:'normal', affects:null,       sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    grid:     { name:'GRID INTERFACE', status:'online', health:100, mode:'normal', affects:'comms',    sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    sensor:   { name:'SENSOR ARRAY',   status:'online', health:100, mode:'normal', affects:'magnetic', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
-    comms:    { name:'COMMS UPLINK',   status:'online', health:100, mode:'normal', affects:'sensor',   sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 }
+    thermal:  { name:'THERMAL MGMT',   status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    coolant:  { name:'PRIMARY COOLANT',status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    fuel:     { name:'FUEL DELIVERY',  status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    magnetic: { name:'MAGNETIC CTRL',  status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    grid:     { name:'GRID INTERFACE', status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    backup:   { name:'BACKUP SYSTEMS', status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    sensor:   { name:'SENSOR ARRAY',   status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
+    comms:    { name:'COMMS UPLINK',   status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 }
   },
   // Event tracking
   activeEvent:null, eventStepsComplete:[], eventsResolved:0, eventsFailed:0, gameOver:0,
@@ -46,7 +46,7 @@ const MODES = {
   normal:   { label:'NORMAL',    perfMult:1.0, healthDrain:1,   heatMod:0,  desc:'+0% perf, normal drain'        },
   overclock:{ label:'OVERCLOCK', perfMult:1.5, healthDrain:3,   heatMod:15, desc:'+50% perf, 3x drain, +heat'   },
   eco:      { label:'ECO',       perfMult:0.6, healthDrain:0.3, heatMod:-5, desc:'-40% perf, slow drain, -heat' },
-  bypass:   { label:'BYPASS',    perfMult:0.9, healthDrain:0,   heatMod:0,  desc:'~90% perf, no self-drain, stress→backup' }
+  bypass:   { label:'USING BACKUP SYSTEMS', perfMult:0.9, healthDrain:0, heatMod:0, desc:'~90% perf, no self-drain, stress→backup' }
 };
 
 const SEQUENCE = [
@@ -83,3 +83,4 @@ let recentEventIds = []; // last 3 triggered event IDs — prevents same event r
 let fuelPumpOffStart = 0; // Date.now() when fuel pumps went off; 0 = pumps are on or grace expired
 let powerHist5m = []; // power samples every 60 ticks (3s), max 100 entries = 5 min rolling window
 let moduleHealthPrev = {}; // previous-tick health per module key, for threshold crossing detection
+let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets uptime at 10s

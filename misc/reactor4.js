@@ -15,6 +15,18 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   });
 });
 
+// ── Knife switch geometry constants ──────────────────────────
+const KS = {
+  HINGE_Y: 42,       // pivot Y in switch coords
+  UP_Y: 14,           // handle center Y when OFF (up)
+  DOWN_Y: 70,         // handle center Y when ON (down)
+  H_H: 12,            // handle height
+  PL_X: 13,           // left pivot X (post center)
+  PR_X: 37,           // right pivot X (post center)
+  HL_X: 15,            // handle left attachment X (just inside red edge)
+  HR_X: 35            // handle right attachment X (just inside red edge)
+};
+
 // ── Switch banks ─────────────────────────────────────────────
 function buildSB(cid, defs) {
   const c = document.getElementById(cid);
@@ -24,16 +36,54 @@ function buildSB(cid, defs) {
     g.className = 'switch-group';
     g.innerHTML =
       `<div class="switch-name">${d.label}</div>` +
-      `<div class="toggle-switch" data-switch="${d.id}"><div class="toggle-handle"></div></div>` +
+      `<div class="knife-switch" data-switch="${d.id}">` +
+        `<div class="ks-cap"></div>` +
+        `<div class="ks-post ks-post-left"></div>` +
+        `<div class="ks-post ks-post-right"></div>` +
+        `<div class="ks-hinge"></div>` +
+        `<div class="ks-arm ks-arm-left"></div>` +
+        `<div class="ks-arm ks-arm-right"></div>` +
+        `<div class="ks-handle"></div>` +
+        `<div class="ks-contact"></div>` +
+      `</div>` +
       `<div class="switch-indicator"></div>`;
     c.appendChild(g);
-    g.querySelector('.toggle-switch').addEventListener('click', function() { togSw(d.id, this); });
+    const ks = g.querySelector('.knife-switch');
+    positionKnifeSwitch(ks, false);
+    setupKnifeSwitch(ks, d.id);
+  });
+}
+
+function positionKnifeSwitch(el, isOn, centerY) {
+  if (centerY === undefined) centerY = isOn ? KS.DOWN_Y : KS.UP_Y;
+  const handle = el.querySelector('.ks-handle');
+  const arms   = el.querySelectorAll('.ks-arm');
+  handle.style.top = (centerY - KS.H_H / 2) + 'px';
+
+  // Left arm: hinge (PL_X, HINGE_Y) → handle left (HL_X, centerY)
+  const ldx = KS.HL_X - KS.PL_X, ldy = centerY - KS.HINGE_Y;
+  const lLen = Math.sqrt(ldx * ldx + ldy * ldy);
+  arms[0].style.height = lLen + 'px';
+  arms[0].style.transform = `rotate(${Math.atan2(ldx, ldy) * 180 / Math.PI}deg)`;
+
+  // Right arm: hinge (PR_X, HINGE_Y) → handle right (HR_X, centerY)
+  const rdx = KS.HR_X - KS.PR_X, rdy = centerY - KS.HINGE_Y;
+  const rLen = Math.sqrt(rdx * rdx + rdy * rdy);
+  arms[1].style.height = rLen + 'px';
+  arms[1].style.transform = `rotate(${Math.atan2(rdx, rdy) * 180 / Math.PI}deg)`;
+}
+
+// Global helper so reactor9 can sync visuals after scram/reset
+function syncKnifeSwitches() {
+  document.querySelectorAll('.knife-switch').forEach(sw => {
+    const on = !!S[sw.dataset.switch];
+    sw.classList.toggle('on', on);
+    positionKnifeSwitch(sw, on);
   });
 }
 
 function togSw(id, el) {
   if (S.scramActive && !['auxPower','backupGen','emergVent','emergDump','rodSafetyOff'].includes(id)) return;
-  // Block if linked module is offline
   const mm = { fuelPumps:'fuel', coolantPumps:'coolant', gridSync:'grid', magCoils:'magnetic' };
   if (mm[id]) {
     const m = S.modules[mm[id]];
@@ -44,6 +94,67 @@ function togSw(id, el) {
   addLog(id.replace(/([A-Z])/g,' $1').toUpperCase() + ' → ' + (S[id] ? 'ON' : 'OFF'), S[id] ? 'ok' : 'warn');
   doFlash();
   checkSeq();
+}
+
+function animateKnifeSwitch(el, isOn) {
+  const handle = el.querySelector('.ks-handle');
+  const startCenterY = parseFloat(handle.style.top || 0) + KS.H_H / 2;
+  const targetCenterY = isOn ? KS.DOWN_Y : KS.UP_Y;
+  const t0 = performance.now();
+  const DUR = 160;
+  function step(now) {
+    const t = Math.min(1, (now - t0) / DUR);
+    const e = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out quad
+    positionKnifeSwitch(el, null, startCenterY + (targetCenterY - startCenterY) * e);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function setupKnifeSwitch(el, id) {
+  let dragging = false, startY = 0, startState = 0, lastZone = -1;
+  const range  = KS.DOWN_Y - KS.UP_Y;
+  const ON_THRESHOLD = KS.DOWN_Y - 10;
+
+  function startDrag(clientY) {
+    dragging = true;
+    startY = clientY;
+    startState = S[id] || 0;
+    lastZone = startState;
+    document.body.style.cursor = 'ns-resize';
+  }
+
+  function moveDrag(clientY) {
+    if (!dragging) return;
+    const dy = clientY - startY;
+    let centerY;
+    if (startState === 0) centerY = KS.UP_Y + Math.max(0, Math.min(range, dy));
+    else                  centerY = KS.DOWN_Y + Math.max(-range, Math.min(0, dy));
+    positionKnifeSwitch(el, null, centerY);
+
+    const wantOn = centerY >= ON_THRESHOLD ? 1 : 0;
+    if (wantOn !== lastZone && wantOn !== (S[id] || 0)) {
+      togSw(id, el);
+      lastZone = wantOn;
+    }
+  }
+
+  function endDrag(clientY) {
+    if (!dragging) return;
+    dragging = false;
+    document.body.style.cursor = '';
+
+    if (Math.abs(clientY - startY) < 8) togSw(id, el);
+
+    animateKnifeSwitch(el, !!S[id]);
+  }
+
+  el.addEventListener('mousedown',  e => { startDrag(e.clientY); e.preventDefault(); });
+  el.addEventListener('touchstart', e => { startDrag(e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+  document.addEventListener('mousemove', e => moveDrag(e.clientY));
+  document.addEventListener('touchmove', e => { if (dragging) { e.preventDefault(); moveDrag(e.touches[0].clientY); } }, { passive: false });
+  document.addEventListener('mouseup',  e => endDrag(e.clientY));
+  document.addEventListener('touchend', e => endDrag(e.changedTouches[0].clientY));
 }
 
 buildSB('switchBank1', [
@@ -93,7 +204,8 @@ function setupLev(tr, id) {
     const r  = tr.getBoundingClientRect();
     const ht = r.height - 28;
     let y    = Math.max(0, Math.min(ht, cy - r.top - 14));
-    S[id]    = Math.round((1 - y / ht) * 100);
+    S[id]    = Math.round(Math.round((1 - y / ht) * 100 / 5) * 5);
+    y        = (1 - S[id] / 100) * ht;
     h.style.bottom = 'auto';
     h.style.top    = y + 'px';
     const ro = document.getElementById('readout_' + id);
@@ -101,19 +213,19 @@ function setupLev(tr, id) {
     checkSeq();
   }
 
-  h.addEventListener('mousedown',  e => { drag = 1; e.preventDefault(); });
+  h.addEventListener('mousedown',  e => { drag = 1; document.body.style.cursor = 'ns-resize'; e.preventDefault(); });
   h.addEventListener('touchstart', ()  => { drag = 1; }, { passive:1 });
   tr.addEventListener('click',     e   => setL(e.clientY));
   document.addEventListener('mousemove', e => { if (drag) { e.preventDefault(); setL(e.clientY); } });
   document.addEventListener('touchmove', e => { if (drag) { e.preventDefault(); setL(e.touches[0].clientY); } }, { passive:0 });
-  document.addEventListener('mouseup',  () => drag = 0);
+  document.addEventListener('mouseup',  () => { drag = 0; document.body.style.cursor = ''; });
   document.addEventListener('touchend', () => drag = 0);
 }
 
 buildLev('leverRow', [
   { id:'containPower', label:'CONTAIN'  },
   { id:'fuelInject',   label:'FUEL INJ' },
-  { id:'mainThrottle', label:'THROTTLE', big:1 },
+  { id:'mainThrottle', label:'THROTTLE' },
   { id:'coolantFlow',  label:'COOLANT'  }
 ]);
 buildLev('auxCoolLevers',    [{ id:'auxCoolRate',   label:'AUX RATE'  }]);
@@ -144,7 +256,7 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
     let dragging = false, startX = 0, startVal = 0;
 
     function updateKnob(val) {
-      S[d.id] = Math.max(0, Math.min(100, val));
+      S[d.id] = Math.round(Math.max(5, Math.min(95, val)) / 5) * 5;
       knobEl.style.transform = `rotate(${(S[d.id]/100)*270-135}deg)`;
       document.getElementById('readout_' + d.id).textContent = S[d.id] + '%';
     }

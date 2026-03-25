@@ -1,11 +1,11 @@
-
+// ============================================================
 // reactor9.js — SIMULATION ENGINE + UI UPDATE + INIT
 // Load order: 9th / last
 // Contains: doScram, hardReset, sI/eI (ignition), checkSeq,
 //           simulate (physics loop), updD/setW/updateUI, init log
+// ============================================================
 
-
-// SCRAM
+// ── SCRAM ─────────────────────────────────────────────────────
 document.getElementById('scramBtn').addEventListener('click', doScram);
 
 function doScram() {
@@ -28,7 +28,7 @@ function doScram() {
     if (r && !['pressureRelief','mixRatio','fieldTune','auxCoolRate','backupContPow','rodA','rodB','rodC'].includes(id))
       r.textContent = '0%';
   });
-  document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', !!S[sw.dataset.switch]));
+  syncKnifeSwitches();
 
   setTimeout(() => { S.scramActive = 0; addLog('SCRAM reset', 'ok'); }, 5000);
 }
@@ -52,7 +52,7 @@ function hardReset() {
     .forEach(k => S[k] = 0);
   S.mainThrottle = 0; S.fuelInject = 0; S.containPower = 0; S.coolantFlow = 0;
   document.querySelectorAll('.lever-handle').forEach(h => { h.style.top = ''; h.style.bottom = '4px'; });
-  document.querySelectorAll('.toggle-switch').forEach(sw => sw.classList.toggle('on', !!S[sw.dataset.switch]));
+  syncKnifeSwitches();
 
   setTimeout(() => {
     Object.keys(S.modules).forEach(k => { S.modules[k].status = 'online'; S.modules[k].mode = 'normal'; });
@@ -71,7 +71,7 @@ function sI() {
 function eI() {
   S.ignitionHeld = 0;
   if (S.igniting) return;
-  if (ignHoldStart > 0 && Date.now() - ignHoldStart < 2500) addLog('IGN ABORT', 'err');
+  if (ignHoldStart > 0 && Date.now() - ignHoldStart < 3000) addLog('IGN ABORT', 'err');
   ignHoldStart = 0;
 }
 
@@ -97,15 +97,15 @@ function checkSeq() {
 
 // ── GAUGE DANGER → MODULE DAMAGE ──────────────────────────────
 // Each entry: gauge display name, danger condition, target module key.
-// When a gauge is in danger, a timer arms (15–45s). On expiry the module
-// takes 6–15% damage and the timer rearms. Timer disarms when safe again.
+// When a gauge is in danger, a timer arms (15–60s). On expiry the module
+// takes 4–13% damage and the timer rearms. Timer disarms when safe again.
 const GAUGE_DANGERS = [
-  { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > 6000,                     mod: 'thermal'  },
+  { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > 7000,                     mod: 'thermal'  },
   { id: 'corePres',     label: 'CORE PRESSURE',     check: () => S.corePressure > 35,                   mod: 'fuel'     },
   { id: 'plasma',       label: 'PLASMA STABILITY',  check: () => S.igniting && S.plasmaStability < 20,  mod: 'magnetic' },
   { id: 'coolTemp',     label: 'COOLANT TEMP',       check: () => S.coolantTemp > 150,                   mod: 'coolant'  },
   { id: 'coolFlow',     label: 'COOLANT FLOW',       check: () => S.igniting && S.coolantFlowRate < 100, mod: 'coolant'  },
-  { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < 20,               mod: 'magnetic' },
+  { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < 15,               mod: 'magnetic' },
   { id: 'radiation',    label: 'RADIATION LEVEL',    check: () => S.radiationLevel > 60,                 mod: 'sensor'   },
   { id: 'turbineRPM',   label: 'TURBINE RPM',        check: () => S.turbineRPM > 13000,                  mod: 'grid'     },
   { id: 'heatSink',     label: 'HEAT SINK TEMP',     check: () => S.heatSinkTemp > 150,                  mod: 'coolant'  },
@@ -119,7 +119,7 @@ function simulate() {
   const dt = 1 / 20;
 
   // Ignition hold timer
-  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= 2500) {
+  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= 3000) {
     S.igniting = 1;
     addLog('PLASMA IGNITION', 'ok');
     doShake(); doFlash();
@@ -130,16 +130,16 @@ function simulate() {
   const aM = S.auxPower    ? 1 : 0;
   const cM = S.coolantPumps? 1 : 0;
 
-  // Fuel pump grace period — pumps must be off for 15s before fuel flow cuts
+  // Fuel pump grace period — pumps must be off for 8s before fuel flow cuts
   if (S.fuelPumps) {
     if (fuelPumpOffStart !== 0) { fuelPumpOffStart = 0; }
   } else {
     if (fuelPumpOffStart === 0) {
       fuelPumpOffStart = Date.now();
-      if (S.igniting) addLog('WARN: Fuel pumps offline — shutdown in 15s', 'warn');
+      if (S.igniting) addLog('WARN: Fuel pumps offline — shutdown in 8s', 'warn');
     }
   }
-  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < 15000;
+  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < 8000;
   const fM = (S.fuelPumps || fuelPumpGrace) ? 1 : 0;
 
   const fP = modPerf('fuel');   const cP = modPerf('coolant');
@@ -326,22 +326,27 @@ function simulate() {
       magnetic: S.containPower,
       grid:     S.mainThrottle,
     };
+    // Warning severity score: amber=+1, red=+2 (only operational warnings)
+    let warnX = 0;
+    warnX += S.coreTemp > 7000 ? 2 : S.coreTemp > 4000 ? 1 : 0;
+    warnX += S.corePressure > 35 ? 2 : S.corePressure > 20 ? 1 : 0;
+    warnX += S.containIntegrity < 30 ? 2 : S.containIntegrity < 60 ? 1 : 0;
+    warnX += S.igniting ? (S.coolantTemp > 150 ? 2 : S.coolantFlowRate < 100 ? 1 : 0) : 0;
+    warnX += S.fuelRemaining < 10 ? 2 : S.fuelRemaining < 25 ? 1 : 0;
+    warnX += S.radiationLevel > 60 ? 2 : S.radiationLevel > 30 ? 1 : 0;
+    const warnMult = 1 + warnX / 10;
+
     let bypassStress = 0; // accumulated stress to apply to backup systems
     Object.entries(S.modules).forEach(([k, m]) => {
       if (m.status === 'offline' || k === 'backup') return; // backup has its own drain logic
       const md = MODES[m.mode];
       const errMult = m.sysError ? 1.1 : 1;
       const sliderMult = 0.5 + (sliderLoad[k] ?? 50) / 100;
-      // Bypass: no self-drain (healthDrain=0), redirect 2× stress to backup
+      // Bypass: no self-drain, redirect 2.5× stress to backup
       if (m.mode === 'bypass') {
-        bypassStress += Math.random() * 0.2 * 2.5 * errMult * sliderMult; // 2.5× equivalent stress
+        bypassStress += Math.random() * 0.2 * 2.5 * errMult * sliderMult * warnMult;
       } else {
-        m.health = Math.max(0, m.health - Math.random() * 0.2 * md.healthDrain * errMult * sliderMult);
-      }
-      // Only overclock stresses interconnected module (bypass does not)
-      if (m.mode === 'overclock' && m.affects) {
-        const t = S.modules[m.affects];
-        if (t.status !== 'offline') t.health = Math.max(0, t.health - Math.random() * 0.4);
+        m.health = Math.max(0, m.health - Math.random() * 0.2 * md.healthDrain * errMult * sliderMult * warnMult);
       }
       if (m.health < 25 && m.status === 'online' && Math.random() < 0.03) {
         m.status = 'degraded'; addLog(m.name + ' DEGRADED', 'warn');
@@ -384,16 +389,16 @@ function simulate() {
     if (gd.check()) {
       if (gaugeDamageTimes[gd.id] == null) {
         // Just entered danger — arm the timer
-        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 15;
+        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 45;
       } else if (S.uptime >= gaugeDamageTimes[gd.id]) {
         // Timer expired — deal damage and rearm
         const m = S.modules[gd.mod];
         if (m && m.status !== 'offline') {
-          const dmg = 6 + Math.random() * 9;
+          const dmg = 4 + Math.random() * 9;
           m.health = Math.max(0, m.health - dmg);
           addLog(gd.label + ' value critical, ' + m.name + ' system damaged', 'err');
         }
-        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 30;
+        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 45;
       }
     } else {
       gaugeDamageTimes[gd.id] = null; // safe — disarm
@@ -403,7 +408,7 @@ function simulate() {
   // ── System error spawning ──
   if (S.startupComplete && S.uptime > nextErrorTime) {
     // Pick a random overclock-capable module (not comms/sensor — they have no modes)
-    const errCandidates = Object.keys(S.modules).filter(k => k !== 'comms' && k !== 'sensor');
+    const errCandidates = Object.keys(S.modules).filter(k => k !== 'comms' && k !== 'sensor' && S.modules[k].status !== 'offline');
     const hasAnyError = errCandidates.some(k => S.modules[k].sysError);
 
     if (!hasAnyError) {
@@ -431,7 +436,7 @@ function simulate() {
             sm.sysErrorVisible = false;
             sm.errorPenalty = 0.85 + Math.random() * 0.05;
             sm.errorCount = 1;
-            addLog('System error propegation detected', 'warn');
+            addLog('System error spread to ' + sm.name, 'warn');
           }
         } else {
           pm.errorPenalty = Math.max(0.5, pm.errorPenalty - (0.05 + Math.random() * 0.05));
@@ -473,12 +478,13 @@ function simulate() {
     const rm = S.modules[repairTarget];
     if (rm) {
       if (rm.health < 100) {
-        // Online: 1% per ~1.5s; offline or bypass: 4x faster
-        const rate = (rm.status === 'offline' || rm.mode === 'bypass' ? 4 : 1) / 30;
+        // Online: 1/30; bypass: 3/30; offline: 4.8/30
+        const rate = (rm.status === 'offline' ? 4.8 : rm.mode === 'bypass' ? 3 : 1) / 30;
         rm.health = Math.min(100, rm.health + rate);
       } else {
         addLog(rm.name + ' repair complete', 'ok');
         repairTarget = null;
+        buildSys();
       }
     }
   }
@@ -503,6 +509,17 @@ function simulate() {
   else if (!S.auxPower) {
     S.reactorState = 'OFFLINE';
     S.startupComplete = 0; S.igniting = 0; S.seqStep = 0;
+  }
+
+  // ── Plasma-off uptime reset (10s without igniting → reset uptime) ──
+  if (S.igniting) {
+    plasmaOffTime = 0;
+  } else {
+    plasmaOffTime += dt;
+    if (plasmaOffTime >= 10 && S.uptime > 0) {
+      S.uptime = 0;
+      plasmaOffTime = 0;
+    }
   }
 
   // ── Auto-scram on containment loss ──
@@ -552,7 +569,7 @@ function simulate() {
 
   // ── Periodic warnings ──
   if (tick % 80 === 0 && S.igniting) {
-    if (S.coreTemp > 6000)           addLog('WARN: Temp', 'warn');
+    if (S.coreTemp > 7000)           addLog('WARN: Temp', 'warn');
     if (S.containIntegrity < 40)     addLog('WARN: Containment', 'err');
   }
 
@@ -595,7 +612,7 @@ function updateUI() {
   updD('neutronDensity',   S.neutronDensity.toFixed(1),     100);
   updD('coolantTemp',      S.coolantTemp.toFixed(0),        200,   hi(150));
   updD('coolantFlowRate',  S.coolantFlowRate.toFixed(0),    1200,  lo(100, () => !!S.igniting));
-  updD('turbineRPM',       S.turbineRPM.toFixed(0),         20000, hi(13000));
+  updD('turbineRPM',       S.turbineRPM.toFixed(0),         15000, hi(13000));
   updD('containIntegrity', S.containIntegrity.toFixed(1),   100,   lo(15));
   updD('magneticFlux',     S.magneticFlux.toFixed(2),       8);
   updD('radiationLevel',   S.radiationLevel.toFixed(1),     100,   hi(60));
@@ -695,17 +712,41 @@ function updateUI() {
     if (dot) { dot.setAttribute('fill', rvDotClr); if (rvOn) dot.setAttribute('filter', 'url(#rGlow)'); else dot.removeAttribute('filter'); }
   }
 
+  // Fuel injection indicator (orange triangle, lower-left)
+  const fuelInd = document.getElementById('fuelIndicator');
+  if (fuelInd) {
+    const fp = S.fuelInject / 100;
+    const fuelActive = rvOn && fp > 0;
+    const borderClr = rvOn ? rvCoreClr + '50' : '#1e2830';
+    fuelInd.setAttribute('fill',   fuelActive ? '#ff9f1c' : 'url(#bgGrad)');
+    fuelInd.setAttribute('stroke', borderClr);
+    fuelInd.setAttribute('opacity', fuelActive ? (0.15 + fp * 0.7).toFixed(2) : '1');
+    if (fuelActive) fuelInd.setAttribute('filter', 'url(#rGlow)'); else fuelInd.removeAttribute('filter');
+  }
+
+  // Coolant flow indicator (blue triangle, lower-right)
+  const coolInd = document.getElementById('coolantIndicator');
+  if (coolInd) {
+    const cp = S.coolantFlow / 100;
+    const coolActive = rvOn && cp > 0;
+    const borderClr2 = rvOn ? rvCoreClr + '50' : '#1e2830';
+    coolInd.setAttribute('fill',   coolActive ? '#00e5ff' : 'url(#bgGrad)');
+    coolInd.setAttribute('stroke', borderClr2);
+    coolInd.setAttribute('opacity', coolActive ? (0.15 + cp * 0.7).toFixed(2) : '1');
+    if (coolActive) coolInd.setAttribute('filter', 'url(#rGlow)'); else coolInd.removeAttribute('filter');
+  }
+
   // ── Electrical arcs (updated every 3 ticks ≈ 0.15s) ──
   if (tick % 3 === 0) {
     const instab   = rvOn ? Math.max(0, (100 - S.plasmaStability) / 100) : 0;
     const baseArcs = rvOn && rvIntens > 0.15 ? 1 : 0;           // always 1 arc when running
-    const numArcs  = Math.min(9, baseArcs + Math.round(instab * 5)); // up to 5 extra from instability
-    for (let i = 0; i < 9; i++) {
+    const numArcs  = Math.min(6, baseArcs + Math.round(instab * 5)); // up to 5 extra from instability
+    for (let i = 0; i < 6; i++) {
       const arc = document.getElementById('arc' + i);
       if (!arc) continue;
       if (i < numArcs) {
         const angle  = Math.random() * Math.PI * 2;
-        const reach  = 18 + Math.random() * 40;                 // 14–48 px from center
+        const reach  = 14 + Math.random() * 34;                 // 14–48 px from center
         const ex     = rvCX + reach * Math.cos(angle);
         const ey     = rvCY + reach * Math.sin(angle);
         // Two-segment jagged arc: center → jag → endpoint
@@ -723,7 +764,7 @@ function updateUI() {
 
   // Warning lights
   setW('warnOvertemp',    S.coreTemp > 7000       ? 'red'   : S.coreTemp > 4000     ? 'amber' : '');
-  setW('warnOverpressure',S.corePressure > 25      ? 'red'   : S.corePressure > 15   ? 'amber' : '');
+  setW('warnOverpressure',S.corePressure > 35      ? 'red'   : S.corePressure > 20   ? 'amber' : '');
   setW('warnContainment', S.containIntegrity < 30  ? 'red'   : S.containIntegrity < 60 ? 'amber' : '');
   setW('warnCoolant',     S.igniting ? (S.coolantTemp > 150 ? 'red' : S.coolantFlowRate < 100 ? 'amber' : '') : '');
   setW('warnFuel',        S.fuelRemaining < 10     ? 'red'   : S.fuelRemaining < 25  ? 'amber' : '');
@@ -732,7 +773,7 @@ function updateUI() {
   setW('warnOnline',      S.reactorState === 'ONLINE' ? 'green' : '');
   setW('warnModFault',    Object.values(S.modules).some(m => m.status !== 'online') ? 'amber' : '');
   const activeErrors = Object.values(S.modules).filter(m => m.sysError).length;
-  setW('warnSysFault',    activeErrors >= 10 ? 'red' : activeErrors >= 4 ? 'amber' : '');
+  setW('warnSysFault',    activeErrors >= 6 ? 'red' : activeErrors >= 2 ? 'amber' : '');
   setW('warnEvent',       S.activeEvent            ? 'red'   : '');
 
   // Sequence steps
@@ -802,7 +843,7 @@ function updateUI() {
 
 // ── INIT ──────────────────────────────────────────────────────
 addLog('MKIV TOKAMAK v4.7.2', 'sys');
-addLog('Manual: MANUAL tab', 'sys');
+addLog('Manual: MANUAL tab', '');
 addLog('Module modes: SYSTEMS tab', 'sys');
 addLog('All systems nominal', 'ok');
 

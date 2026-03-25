@@ -8,14 +8,27 @@ function buildSys() {
   const c = document.getElementById('systemsGrid');
   c.innerHTML = '';
 
-  // ── Bulk power control ──
+  // ── Bulk control card (top-left cell) ──
   const allOnline = Object.values(S.modules).every(m => m.status !== 'offline');
-  const bar = document.createElement('div');
-  bar.style.cssText = 'grid-column:1/-1;display:flex;gap:8px;margin-bottom:4px;align-items:center';
-  bar.innerHTML =
-    `<button class="mod-btn" style="font-size:13px;padding:5px 14px" onclick="powerAllMods()">${allOnline ? 'POWER ALL OFF' : 'POWER ALL ON'}</button>` +
-    `<span style="font-size:12px;color:#5a5f66;letter-spacing:1px">${allOnline ? 'ALL MODULES ONLINE' : 'SOME MODULES OFFLINE'}</span>`;
-  c.appendChild(bar);
+  const ctrl = document.createElement('div');
+  ctrl.className = 'module-card';
+  ctrl.style.cssText = 'display:flex;flex-direction:column;justify-content:space-between';
+  ctrl.innerHTML =
+    `<div class="module-title"><span>BULK CONTROL</span></div>` +
+    `<div style="color:var(--${allOnline ? 'green' : 'amber'});font-size:11px;letter-spacing:1px;text-shadow:0 0 6px currentColor;margin:6px 0">` +
+      `${allOnline ? 'ALL MODULES ONLINE' : 'SOME MODULES OFFLINE'}` +
+    `</div>` +
+    `<div style="display:flex;flex-direction:column;gap:6px">` +
+      `<button class="mod-btn" style="width:100%" onclick="powerAllMods()">${allOnline ? 'POWER ALL OFF' : 'POWER ALL ON'}</button>` +
+      `<button class="mod-btn" style="width:100%" onclick="rstAllMods()">RESTART ALL</button>` +
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px">` +
+        `<button class="mod-btn" onclick="setAllMode('normal')">ALL NORMAL</button>` +
+        `<button class="mod-btn" onclick="setAllMode('overclock')">ALL OVERCLOCK</button>` +
+        `<button class="mod-btn" onclick="setAllMode('eco')">ALL ECO</button>` +
+        `<button class="mod-btn" onclick="setAllMode('bypass')">ALL BYPASS</button>` +
+      `</div>` +
+    `</div>`;
+  c.appendChild(ctrl);
 
   Object.entries(S.modules).forEach(([k, m]) => {
     const d = document.createElement('div');
@@ -25,7 +38,6 @@ function buildSys() {
     const isPoweringOff = modPowerTimers[k]?.dir === 'off';
     const isBypassRestarting = bypassRestartTarget === k;
     const sc = isPoweringOn || isPoweringOff ? 'degraded' : (m.mode !== 'normal' && m.status !== 'offline') ? m.mode : m.status;
-    const affectsLabel = m.affects ? '→ ' + S.modules[m.affects].name : '';
     const hColor = m.health > 70 ? 'green' : m.health > 40 ? 'amber' : 'red';
     const isRepairing = repairTarget === k;
     const isDiagnosing = diagTarget === k;
@@ -53,27 +65,24 @@ function buildSys() {
            <div class="bar-fill ${hColor}" style="width:${m.health}%"></div>
          </div>
        </div>
-       <div class="mode-effect">
-         <span class="link">AFFECTS: ${affectsLabel}</span><br>
+       <div class="mode-effect" style="flex:1">
          ${MODES[m.mode]?.desc || ''}
        </div>
-       <div class="mode-row">
-         ${!hasModes
-           ? '<span class="link">No configurable modes</span>'
-           : k === 'backup'
-           ? `<button class="mod-btn ${m.mode==='normal'    ?'active-mode':''}" onclick="setMode('${k}','normal')">NORMAL</button>
-              <button class="mod-btn ${m.mode==='overclock' ?'active-mode':''}" onclick="setMode('${k}','overclock')">OVERCLOCK</button>`
-           : `<button class="mod-btn ${m.mode==='normal'    ?'active-mode':''}" onclick="setMode('${k}','normal')">NORMAL</button>
-              <button class="mod-btn ${m.mode==='overclock' ?'active-mode':''}" onclick="setMode('${k}','overclock')">OVERCLOCK</button>
-              <button class="mod-btn ${m.mode==='eco'       ?'active-mode':''}" onclick="setMode('${k}','eco')">ECO</button>
-              <button class="mod-btn ${m.mode==='bypass'    ?'active-mode':''}" onclick="setMode('${k}','bypass')">BYPASS</button>`
-         }
-       </div>
-       <div class="mode-row" style="margin-top:4px">
-         <button class="mod-btn" onclick="powerMod('${k}')">${modPowerTimers[k] ? 'CANCEL' : (isOff ? 'POWER ON' : 'POWER OFF')}</button>
-         <button class="mod-btn" onclick="rstMod('${k}')">RESTART</button>
-         <button class="mod-btn ${isRepairing ? 'active-mode' : ''}" onclick="toggleRepair('${k}')">${isRepairing ? 'STOP REPAIR' : 'REPAIR'}</button>
-         <button class="mod-btn ${isDiagnosing ? 'active-mode' : ''}" onclick="diagMod('${k}')">${isDiagnosing ? 'DIAGNOSING...' : 'DIAGNOSE'}</button>
+       <div style="display:flex;gap:4px;padding-top:6px">
+         <div class="btn-group" style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:2px">
+           <button class="mod-btn ${m.mode==='normal'   ?'active-mode':''}" ${!hasModes||isOff?'disabled':''} onclick="setMode('${k}','normal')">NORMAL</button>
+           <button class="mod-btn ${m.mode==='overclock'?'active-mode':''}" ${!hasModes||isOff?'disabled':''} onclick="setMode('${k}','overclock')">OVERCLOCK</button>
+           <button class="mod-btn ${m.mode==='eco'      ?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="setMode('${k}','eco')">ECO</button>
+           <button class="mod-btn ${m.mode==='bypass'   ?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="setMode('${k}','bypass')">BYPASS</button>
+         </div>
+         <div class="btn-group" style="flex:1;display:flex;flex-direction:column;gap:2px">
+           <button class="mod-btn" ${isOff?'disabled':''} onclick="rstMod('${k}')">RESTART</button>
+           <button class="mod-btn" onclick="powerMod('${k}')">${modPowerTimers[k]?'CANCEL':(isOff?'POWER ON':'POWER OFF')}</button>
+         </div>
+         <div class="btn-group" style="flex:1;display:flex;flex-direction:column;gap:2px">
+           <button class="mod-btn ${isDiagnosing?'active-mode':''}" ${isOff?'disabled':''} onclick="diagMod('${k}')">${isDiagnosing?'DIAGNOSING':'DIAGNOSE'}</button>
+           <button class="mod-btn ${isRepairing ?'active-mode':''}" onclick="toggleRepair('${k}')">${isRepairing?'STOP REPAIR':'REPAIR'}</button>
+         </div>
        </div>`;
 
     c.appendChild(d);
@@ -87,11 +96,6 @@ window.setMode = function(k, mode) {
   if (mode === 'bypass' && k === 'backup') { addLog('BACKUP SYSTEMS cannot be bypassed', 'err'); return; }
   m.mode = mode;
   addLog(m.name + ' → ' + MODES[mode].label, 'sys');
-  if (m.affects && mode === 'overclock') {
-    const t = S.modules[m.affects];
-    if (t.status === 'online') t.health = Math.max(0, t.health - 3);
-    addLog(t.name + ' stressed by overclock', 'warn');
-  }
   buildSys();
 };
 
@@ -104,6 +108,8 @@ window.powerAllMods = function() {
     Object.entries(S.modules).forEach(([k, m]) => {
       modPowerTimers[k] = { dir: 'off', id: setTimeout(() => {
         m.status = 'offline'; m.mode = 'normal';
+        m.sysError = false; m.sysErrorVisible = false;
+        m.errorPenalty = 1; m.errorCount = 0;
         delete modPowerTimers[k];
         buildSys();
       }, 5000) };
@@ -123,6 +129,38 @@ window.powerAllMods = function() {
   buildSys();
 };
 
+window.rstAllMods = function() {
+  addLog('RESTARTING ALL MODULES...', 'warn');
+  Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
+  if (diagTarget) { diagTarget = null; diagStart = 0; }
+  bypassRestartTarget = null;
+  Object.entries(S.modules).forEach(([k, m]) => {
+    m.status = 'offline'; m.mode = 'normal';
+    m.sysError = false; m.sysErrorVisible = false;
+    m.errorPenalty = 1; m.errorCount = 0;
+  });
+  buildSys();
+  setTimeout(() => {
+    Object.entries(S.modules).forEach(([, m]) => { m.status = 'online'; });
+    addLog('ALL MODULES ONLINE', 'ok');
+    buildSys();
+  }, 5000);
+};
+
+window.setAllMode = function(mode) {
+  // Eligibility mirrors per-module rules: comms/sensor have no modes; backup skips eco/bypass
+  let count = 0;
+  Object.entries(S.modules).forEach(([k, m]) => {
+    if (m.status === 'offline') return;
+    if (k === 'comms' || k === 'sensor') return;
+    if (k === 'backup' && (mode === 'eco' || mode === 'bypass')) return;
+    m.mode = mode;
+    count++;
+  });
+  addLog('ALL MODULES → ' + MODES[mode].label + ' (' + count + ' updated)', 'sys');
+  buildSys();
+};
+
 window.powerMod = function(k) {
   const m = S.modules[k];
   // If already transitioning, cancel it
@@ -137,6 +175,8 @@ window.powerMod = function(k) {
     addLog(m.name + ' powering off...', 'warn');
     modPowerTimers[k] = { dir: 'off', id: setTimeout(() => {
       m.status = 'offline'; m.mode = 'normal';
+      m.sysError = false; m.sysErrorVisible = false;
+      m.errorPenalty = 1; m.errorCount = 0;
       delete modPowerTimers[k];
       addLog(m.name + ' POWERED OFF', 'warn');
       buildSys();
@@ -215,7 +255,7 @@ window.diagMod = function(k) {
   }
   diagTarget = k;
   diagStart = Date.now();
-  diagDuration = (1 + Math.random() * 4) * 1000; // 1-5s
+  diagDuration = (1 + Math.random() * 4) * (m.mode === 'bypass' ? 500 : 1000); // 1-5s normal; 0.5-2.5s in bypass
   addLog('Diagnosing ' + m.name + '...', 'sys');
   buildSys();
 };

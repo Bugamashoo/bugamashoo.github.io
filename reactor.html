@@ -46,7 +46,7 @@
 <div class="main-grid">
   <div class="panel" style="grid-column:1;grid-row:1/3"><div class="panel-label">Startup Sequence</div><div class="panel-body"><div id="seqSteps"></div>
     <div class="sub-panel mt-6"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz">
-  <svg id="reactorSVG" viewBox="0 0 140 125" xmlns="http://www.w3.org/2000/svg" width="140" height="125" style="display:block">
+  <svg id="reactorSVG" viewBox="-16 0 172 125" xmlns="http://www.w3.org/2000/svg" width="172" height="125" style="display:block">
     <defs>
       <filter id="rGlow" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="3.5" result="b"/>
@@ -70,6 +70,10 @@
     <polygon points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="url(#bgGrad)"/>
     <!-- Outer border hex -->
     <polygon id="hexBorder" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
+    <!-- Fuel injection indicator (orange, bottom-left) -->
+    <polygon id="fuelIndicator" points="-13.1,110.5 28.5,110.5 7.7,74.5" fill="url(#bgGrad)" stroke="#1e2830" stroke-width="2.5"/>
+    <!-- Coolant flow indicator (blue, bottom-right) -->
+    <polygon id="coolantIndicator" points="111.5,110.5 153.1,110.5 132.3,74.5" fill="url(#bgGrad)" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Ring 3 — containment field -->
     <polygon id="ring3" class="rviz-ring" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="none" stroke="#1e2830" stroke-width="1.5"/>
     <!-- Ring 2 — magnetic -->
@@ -102,9 +106,9 @@
     <div class="sub-panel mt-4"><div class="sub-panel-title">Fuel</div><div class="display-box"><div class="display-label">REMAINING</div><div class="display-value amber" id="disp_fuelRemaining">100.0</div><div class="bar-gauge"><div class="bar-fill green" id="bar_fuelRemaining" style="width:100%"></div></div></div>
     <div class="display-box mt-4"><div class="display-label">CONSUMPTION KG/MIN</div><div class="display-value cyan" id="disp_fuelConsump">0.0</div></div></div>
   </div></div>
-  <div style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto auto;gap:0">
+  <div style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto 1fr auto;gap:0;height:100%">
     <div class="panel" style="grid-column:1/4"><div class="panel-label">Primary Switch Bank</div><div class="panel-body"><div class="switch-row" id="switchBank1"></div></div></div>
-    <div class="panel" style="grid-column:1/3;grid-row:2"><div class="panel-label">Throttle &amp; Flow</div><div class="lever-row" id="leverRow"></div></div>
+    <div class="panel" style="grid-column:1/3;grid-row:2;display:flex;flex-direction:column"><div class="panel-label">Throttle &amp; Flow</div><div class="lever-row" id="leverRow"></div></div>
     <div class="panel" style="grid-column:3;grid-row:2"><div class="panel-label">Tuning</div><div class="panel-body flex-col gap-8" id="knobPanel" style="align-items:center"></div></div>
     <div class="panel" style="grid-column:1;grid-row:3"><div class="panel-label">Subsystems</div><div class="panel-body"><div class="switch-row" id="switchBank2"></div></div></div>
     <div class="panel" style="grid-column:2;grid-row:3"><div class="panel-label">Ignition</div><div class="panel-body flex-center gap-12" id="buttonPanel"></div></div>
@@ -122,7 +126,7 @@
   <button class="manual-nav-btn active" data-manual="startup">I. Startup</button><button class="manual-nav-btn" data-manual="shutdown">II. Shutdown</button><button class="manual-nav-btn" data-manual="emergency">III. Emergency</button><button class="manual-nav-btn" data-manual="malfunctions">IV. Malfunctions</button><button class="manual-nav-btn" data-manual="modes">V. Module Modes</button><button class="manual-nav-btn" data-manual="reference">VI. Reference</button>
 </div><div class="manual-body" id="manualBody"></div></div></div>
 <div class="tab-content" id="tab-monitors"><div class="monitors-grid" id="monitorsGrid"></div></div>
-<div class="tab-content" id="tab-systems"><div class="panel" style="border:none"><div class="panel-label">Control Module Management</div><div class="panel-body"><div class="systems-grid" id="systemsGrid"></div></div></div></div>
+<div class="tab-content" id="tab-systems"><div class="panel" style="border:none;flex:1;display:flex;flex-direction:column;min-height:0"><div class="panel-label">Control Module Management</div><div class="panel-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:6px"><div class="systems-grid" id="systemsGrid"></div></div></div></div>
 <div class="tab-content" id="tab-backup"><div class="main-grid" style="grid-template-columns:1fr 1fr 1fr">
   <div class="panel"><div class="panel-label">Aux Coolant</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Controls</div><div class="switch-row" id="auxCoolSwitches"></div><div class="lever-row" id="auxCoolLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Readings</div><div class="display-grid cols-2" id="auxCoolReadings"></div></div></div></div>
   <div class="panel"><div class="panel-label">Backup Containment</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Secondary Fields</div><div class="switch-row" id="backupContSwitches"></div><div class="lever-row" id="backupContLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="backupContReadings"></div></div></div></div>
