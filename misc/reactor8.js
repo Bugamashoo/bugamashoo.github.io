@@ -11,7 +11,7 @@ function triggerEvent() {
   if (pool.length === 0) pool = EVENTS; // fallback: all events used recently, reset filter
   const e = pool[Math.floor(Math.random() * pool.length)];
   recentEventIds.push(e.id);
-  if (recentEventIds.length > 3) recentEventIds.shift();
+  if (recentEventIds.length > EVT_RECENT_MEMORY) recentEventIds.shift();
   S.activeEvent          = { ...e, startTime: Date.now() };
   S.eventStepsComplete   = new Array(e.steps.length).fill(0);
   document.getElementById('eventOverlay').classList.add('active');
@@ -38,8 +38,8 @@ function renderEvt() {
 const DEESC_TRACKED = ['mainThrottle','fuelInject','coolantFlow','containPower',
                         'auxCoolRate','backupContPow','rodA','rodB','rodC',
                         'pressureRelief','mixRatio','fieldTune'];
-const DEESC_DURATION = 15000; // ms to hold controls steady
-const DEESC_TOL      = 2;    // ±units allowed before reset
+const DEESC_DURATION = DEESC_HOLD_MS;   // ms to hold controls steady (set in vars.js)
+const DEESC_TOL      = DEESC_TOLERANCE; // ±units allowed before reset (set in vars.js)
 
 function updateEvt() {
   if (!S.activeEvent) return;
@@ -63,14 +63,27 @@ function updateEvt() {
     const panel = document.querySelector('.event-panel');
 
     if (!ev.deescalating) {
-      ev.deescalating  = true;
-      ev.deescStart    = Date.now();
-      ev.deescSnapshot = {};
+      ev.deescalating      = true;
+      ev.deescStart        = Date.now();
+      ev.deescPauseElapsed = (Date.now() - ev.startTime) / 1000;
+      ev.deescSnapshot     = {};
       DEESC_TRACKED.forEach(k => { ev.deescSnapshot[k] = S[k]; });
       document.getElementById('eventTitle').textContent = 'Deescalating...';
       if (panel) panel.classList.add('deescalating');
       addLog('HOLD CONTROLS — deescalating', 'ok');
     } else {
+      // If any slider/dial step moved out of its required range, exit de-escalation
+      const violated = ev.steps.findIndex(s => s.cont && !s.check());
+      if (violated !== -1) {
+        ev.deescalating = false;
+        ev.startTime = Date.now() - ev.deescPauseElapsed * 1000;
+        for (let i = violated; i < S.eventStepsComplete.length; i++) S.eventStepsComplete[i] = 0;
+        if (panel) panel.classList.remove('deescalating');
+        addLog('HOLD BROKEN — control out of range', 'warn');
+        renderEvt();
+        return;
+      }
+
       // Reset hold timer if any control moved beyond tolerance
       const moved = DEESC_TRACKED.some(k => Math.abs(S[k] - ev.deescSnapshot[k]) > DEESC_TOL);
       if (moved) {
@@ -106,7 +119,7 @@ function updateEvt() {
   const td      = document.getElementById('eventTimer');
   td.textContent = Math.floor(rem / 60).toString().padStart(2,'0') + ':' +
                    Math.floor(rem % 60).toString().padStart(2,'0');
-  td.style.animation = rem <= 10 ? 'blink .3s step-end infinite' : 'none';
+  td.style.animation = rem <= EVT_BLINK_THRESHOLD ? 'blink .3s step-end infinite' : 'none';
   td.style.color = '';
 
   renderEvt();
@@ -121,7 +134,7 @@ function closeEvt() {
   if (td) { td.style.color = ''; td.style.animation = 'none'; }
   S.activeEvent = null;
   document.getElementById('eventOverlay').classList.remove('active');
-  nextEventTime = S.uptime + 60 + Math.random() * 240;
+  nextEventTime = S.uptime + EVT_POST_CLOSE_MIN + Math.random() * EVT_POST_CLOSE_RANGE;
 }
 
 // ── Hover passthrough for event overlay ───────────────────────
@@ -164,5 +177,5 @@ function triggerCatastrophe(evtId) {
     document.getElementById('goScore').textContent     = Math.round(S.score);
     document.getElementById('goNarrative').textContent= cat.narrative;
     document.body.style.animation = 'none';
-  }, 4500);
+  }, GAME_OVER_DELAY_MS);
 }

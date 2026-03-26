@@ -13,18 +13,18 @@ const S = {
   mainThrottle:0, fuelInject:0, coolantFlow:0, containPower:0,
   auxCoolRate:0, backupContPow:0, rodA:0, rodB:0, rodC:0,
   // Knobs
-  pressureRelief:50, mixRatio:50, fieldTune:50,
+  pressureRelief:KNOB_DEFAULT, mixRatio:KNOB_DEFAULT, fieldTune:KNOB_DEFAULT,
   // Ignition state
   igniting:0, ignitionHeld:0,
   // Core readings
-  coreTemp:20, corePressure:1, coolantTemp:15, fuelRemaining:100,
+  coreTemp:TEMP_IDLE, corePressure:PRESSURE_BASE, coolantTemp:COOLANT_IDLE, fuelRemaining:FUEL_START,
   plasmaStability:0, magneticFlux:0, neutronDensity:0, powerOutput:0,
   turbineRPM:0, gridLoad:0, containIntegrity:100, coolantFlowRate:0,
-  auxCoolTemp:12, auxCoolFlow:0, backupFieldStr:0, rodPosition:100,
+  auxCoolTemp:AUX_COOL_IDLE, auxCoolFlow:0, backupFieldStr:0, rodPosition:100,
   // Reactor lifecycle
   reactorState:'OFFLINE', seqStep:0, startupComplete:0,
   scramActive:0, uptime:0, bestUptime:0, score:0, scoreTicks:0, fuelConsump:0,
-  radiationLevel:0, heatSinkTemp:20, secondaryPressure:1, peakPower:0,
+  radiationLevel:0, heatSinkTemp:HEATSINK_IDLE, secondaryPressure:PRESSURE_BASE, peakPower:0,
   // Modules
   modules: {
     thermal:  { name:'THERMAL MGMT',   status:'online', health:100, mode:'normal', sysError:false, sysErrorVisible:false, errorPenalty:1, errorCount:0 },
@@ -43,10 +43,10 @@ const S = {
 };
 
 const MODES = {
-  normal:   { label:'NORMAL',    perfMult:1.0, healthDrain:1,   heatMod:0,  desc:'+0% perf, normal drain'        },
-  overclock:{ label:'OVERCLOCK', perfMult:1.5, healthDrain:3,   heatMod:15, desc:'+50% perf, 3x drain, +heat'   },
-  eco:      { label:'ECO',       perfMult:0.6, healthDrain:0.3, heatMod:-5, desc:'-40% perf, slow drain, -heat' },
-  bypass:   { label:'USING BACKUP SYSTEMS', perfMult:0.9, healthDrain:0, heatMod:0, desc:'~90% perf, no self-drain, stress→backup' }
+  normal:   { label:'NORMAL',    perfMult:1.0,                    healthDrain:1,                      heatMod:0,                   desc:'+0% perf, normal drain'        },
+  overclock:{ label:'OVERCLOCK', perfMult:MODE_OVERCLOCK_PERF,    healthDrain:MODE_OVERCLOCK_DRAIN,   heatMod:MODE_OVERCLOCK_HEAT, desc:'+50% perf, 3x drain, +heat'   },
+  eco:      { label:'ECO',       perfMult:MODE_ECO_PERF,          healthDrain:MODE_ECO_DRAIN,         heatMod:MODE_ECO_HEAT,       desc:'-40% perf, slow drain, -heat' },
+  bypass:   { label:'USING BACKUP SYSTEMS', perfMult:MODE_BYPASS_PERF, healthDrain:0,                heatMod:0,                   desc:'~90% perf, no self-drain, stress→backup' }
 };
 
 const SEQUENCE = [
@@ -55,11 +55,11 @@ const SEQUENCE = [
   { label:'FUEL PUMPS',     check:()=>S.fuelPumps                          },
   { label:'COOLANT PUMPS',  check:()=>S.coolantPumps                       },
   { label:'MAG COILS',      check:()=>S.magCoils                           },
-  { label:'CONTAIN >60%',   check:()=>S.containPower>=60                   },
-  { label:'FUEL INJ >10%',  check:()=>S.fuelInject>=10                     },
+  { label:'CONTAIN >60%',   check:()=>S.containPower>=SEQ_CONTAIN_MIN       },
+  { label:'FUEL INJ >10%',  check:()=>S.fuelInject>=SEQ_FUEL_INJ_MIN        },
   { label:'IGN PRIME',      check:()=>S.ignPrime                           },
   { label:'HOLD IGN 3s',    check:()=>S.igniting                           },
-  { label:'THROTTLE >20%',  check:()=>S.mainThrottle>=20                   },
+  { label:'THROTTLE >20%',  check:()=>S.mainThrottle>=SEQ_THROTTLE_MIN      },
   { label:'TURBINE',        check:()=>S.turbineEngage                      },
   { label:'GRID SYNC',      check:()=>S.gridSync                           }
 ];
@@ -70,15 +70,16 @@ let ignHoldStart  = 0;
 let tick          = 0;
 let nextEventTime = 0;
 let monHist       = { temp:[], pressure:[], plasma:[], power:[], coolant:[], radiation:[] };
-const MH          = 1200; // monitor history length (~9 min at 20Hz, sampled every 3 ticks)
+const MH          = MONITOR_HISTORY_LEN; // monitor history length (set in vars.js)
 let repairTarget        = null; // module key currently being repaired (null = no active repair)
 let diagTarget          = null; // module key currently being diagnosed (null = no active diag)
 let bypassRestartTarget = null; // module key mid-bypass-restart (null = none)
 let modPowerTimers = {};        // { [moduleKey]: { dir:'on'|'off', id:timeoutId } }
+let rstTargets = new Set();     // module keys currently mid-restart
 let gaugeDamageTimes = {};     // { [gaugeId]: next S.uptime to deal damage, or null if disarmed }
 let diagStart     = 0;    // Date.now() when diagnosis started
 let diagDuration  = 0;    // random 1-5s duration for current diagnosis
-let nextErrorTime  = 30 + Math.random() * 60; // uptime threshold for next system error (30-90s)
+let nextErrorTime  = ERR_SPAWN_INIT_MIN + Math.random() * ERR_SPAWN_INIT_RANGE; // uptime threshold for next system error
 let recentEventIds = []; // last 3 triggered event IDs — prevents same event repeating until 3 others have fired
 let fuelPumpOffStart = 0; // Date.now() when fuel pumps went off; 0 = pumps are on or grace expired
 let powerHist5m = []; // power samples every 60 ticks (3s), max 100 entries = 5 min rolling window

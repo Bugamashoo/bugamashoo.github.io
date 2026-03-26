@@ -88,50 +88,50 @@ const CATASTROPHES = {
 
 const EVENTS = [
   {
-    id:'coolant_leak', title:'⚠ COOLANT LEAK', time:40,
+    id:'coolant_leak', title:'⚠ COOLANT LEAK', time:EVT_TIME_COOLANT_LEAK,
     desc:'Primary coolant pressure dropping. Micro-fracture in segment 7.',
     viz:`<div style="color:var(--cyan);text-align:center;font-size:11px">COOLANT PRESSURE<br><span style="font-size:36px;color:var(--red)">▼ DROPPING</span></div>`,
     steps:[
       { text:'AUX PUMP ON (Backup)',  check:()=>S.auxCoolPump },
       { text:'AUX LOOP ON (Backup)',  check:()=>S.auxCoolLoop },
-      { text:'AUX RATE >50%',         check:()=>S.auxCoolRate>=50 },
+      { text:'AUX RATE >50%',         check:()=>S.auxCoolRate>=50,  cont:true },
       { text:'LINE PURGE',            check:()=>S.corePressure<15||!S.ing }
     ]
   },
   {
-    id:'mag_drift', title:'⚠ MAG COIL DRIFT', time:20,
+    id:'mag_drift', title:'⚠ MAG COIL DRIFT', time:EVT_TIME_MAG_DRIFT,
     desc:'Harmonic resonance in confinement field.',
     viz:`<div style="color:var(--magenta);text-align:center"><span style="font-size:28px;animation:blink .3s step-end infinite">HARMONICS UNSTABLE</span></div>`,
     steps:[
-      { text:'FIELD TUNE 70-80%',  check:()=>S.fieldTune>=70&&S.fieldTune<=80 },
-      { text:'CONTAIN >80%',       check:()=>S.containPower>=80 },
+      { text:'FIELD TUNE 70-80%',  check:()=>S.fieldTune>=70&&S.fieldTune<=80, cont:true },
+      { text:'CONTAIN >80%',       check:()=>S.containPower>=80,               cont:true },
       { text:'CONTAIN switch ON',  check:()=>S.containField }
     ]
   },
   {
-    id:'fuel_contam', title:'⚠ FUEL CONTAMINATION', time:30,
+    id:'fuel_contam', title:'⚠ FUEL CONTAMINATION', time:EVT_TIME_FUEL_CONTAM,
     desc:'Impurities in deuterium feed line.',
     viz:`<div style="text-align:center"><div style="font-size:36px;color:var(--red);font-family:Share Tech Mono">${Math.floor(Math.random()*900+1200)} PPM</div><div style="font-size:9px;color:#5a5f66">MAX SAFE: 200 PPM</div></div>`,
     steps:[
       { text:'FUEL PUMPS OFF',      check:()=>!S.fuelPumps },
-      { text:'FUEL INJ <10%',       check:()=>S.fuelInject<=10 },
-      { text:'MIX RATIO 30-40%',    check:()=>S.mixRatio>=30&&S.mixRatio<=40 },
+      { text:'FUEL INJ <10%',       check:()=>S.fuelInject<=10,               cont:true },
+      { text:'MIX RATIO 30-40%',    check:()=>S.mixRatio>=30&&S.mixRatio<=40, cont:true },
       { text:'FUEL PUMPS ON',       check:()=>S.fuelPumps }
     ]
   },
   {
-    id:'turbine_vib', title:'⚠ TURBINE VIBRATION', time:25,
+    id:'turbine_vib', title:'⚠ TURBINE VIBRATION', time:EVT_TIME_TURBINE_VIB,
     desc:'Dangerous harmonic vibration in turbine.',
     viz:`<div style="text-align:center;color:var(--amber)"><div style="display:flex;justify-content:center;gap:2px;margin:6px 0">${Array.from({length:24},()=>`<div style="width:5px;height:${Math.floor(Math.random()*45+8)}px;background:var(--amber);border-radius:1px"></div>`).join('')}</div><div style="font-size:9px;color:#5a5f66">847 Hz</div></div>`,
     steps:[
-      { text:'THROTTLE <30%',          check:()=>S.mainThrottle<=30 },
+      { text:'THROTTLE <30%',          check:()=>S.mainThrottle<=30,                        cont:true },
       { text:'TURBINE OFF',            check:()=>!S.turbineEngage },
-      { text:'PRESS RELIEF 60-80%',    check:()=>S.pressureRelief>=60&&S.pressureRelief<=80 },
+      { text:'PRESS RELIEF 60-80%',    check:()=>S.pressureRelief>=60&&S.pressureRelief<=80, cont:true },
       { text:'TURBINE ON',             check:()=>S.turbineEngage }
     ]
   },
   {
-    id:'sensor_fault', title:'⚠ SENSOR FAULT', time:25,
+    id:'sensor_fault', title:'⚠ SENSOR FAULT', time:EVT_TIME_SENSOR_FAULT,
     desc:'Sensor array offline. Restart from Systems tab.',
     viz:`<div style="text-align:center;font-size:42px;color:var(--red);animation:blink .3s step-end infinite">NO SIGNAL</div>`,
     steps:[
@@ -140,75 +140,75 @@ const EVENTS = [
     ]
   },
   {
-    id:'plasma_instab', title:'⚠ PLASMA INSTABILITY', time:45,
+    id:'plasma_instab', title:'⚠ PLASMA INSTABILITY', time:EVT_TIME_PLASMA_INSTAB,
     desc:'Edge-localized mode. Boundary oscillating.',
     viz:`<div style="text-align:center"><div style="width:70px;height:70px;margin:0 auto;border-radius:50%;background:radial-gradient(circle,var(--cyan),transparent 70%);animation:coreGlow .3s ease-in-out infinite"></div><div style="font-size:10px;color:var(--red);margin-top:6px;animation:blink .5s step-end infinite">UNSTABLE</div></div>`,
     steps:[
-      { text:'FIELD TUNE 80-95%',  check:()=>S.fieldTune>=80&&S.fieldTune<=95 },
-      { text:'CONTAIN >90%',       check:()=>S.containPower>=90 },
+      { text:'FIELD TUNE 80-95%',  check:()=>S.fieldTune>=80&&S.fieldTune<=95, cont:true },
+      { text:'CONTAIN >90%',       check:()=>S.containPower>=90,               cont:true },
       { text:'FIELD A ON (Backup)',check:()=>S.backupContA },
       { text:'FIELD B ON (Backup)',check:()=>S.backupContB },
-      { text:'FIELD >50% (Backup)',check:()=>S.backupContPow>=50 }
+      { text:'FIELD >50% (Backup)',check:()=>S.backupContPow>=50,              cont:true }
     ]
   },
   {
-    id:'grid_drift', title:'⚠ GRID FREQ DRIFT', time:30,
+    id:'grid_drift', title:'⚠ GRID FREQ DRIFT', time:EVT_TIME_GRID_DRIFT,
     desc:'60Hz sync lost.',
     viz:`<div style="text-align:center;color:var(--amber)"><div style="font-size:32px;font-family:Share Tech Mono">${(57+Math.random()*6).toFixed(1)} Hz</div><div style="font-size:9px;color:var(--red)">TARGET: 60.0</div></div>`,
     steps:[
       { text:'GRID SYNC OFF',      check:()=>!S.gridSync },
-      { text:'THROTTLE 40-60%',    check:()=>S.mainThrottle>=40&&S.mainThrottle<=60 },
+      { text:'THROTTLE 40-60%',    check:()=>S.mainThrottle>=40&&S.mainThrottle<=60, cont:true },
       { text:'GRID SYNC ON',       check:()=>S.gridSync }
     ]
   },
   {
-    id:'rad_spike', title:'☢ RADIATION SPIKE', time:50,
+    id:'rad_spike', title:'☢ RADIATION SPIKE', time:EVT_TIME_RAD_SPIKE,
     desc:'Neutron flux exceeding shielding.',
     viz:`<div style="text-align:center"><div style="font-size:56px;animation:blink .4s step-end infinite">☢</div><div style="color:var(--red);font-size:13px;letter-spacing:2px">ALERT</div></div>`,
     steps:[
       { text:'RAD SHIELD ON',    check:()=>S.radShield },
       { text:'FIELD A ON (Backup)',   check:()=>S.backupContA },
       { text:'FIELD A ON (Backup)',   check:()=>S.backupContB },
-      { text:'THROTTLE <20%',    check:()=>S.mainThrottle<=20 },
-      { text:'ROD A >50% (Backup)',       check:()=>S.rodA>=50 },
-      { text:'ROD B >50% (Backup)',       check:()=>S.rodB>=50 },
-      { text:'ROD C >50% (Backup)',       check:()=>S.rodC>=50 }
+      { text:'THROTTLE <20%',    check:()=>S.mainThrottle<=20, cont:true },
+      { text:'ROD A >50% (Backup)',       check:()=>S.rodA>=50,  cont:true },
+      { text:'ROD B >50% (Backup)',       check:()=>S.rodB>=50,  cont:true },
+      { text:'ROD C >50% (Backup)',       check:()=>S.rodC>=50,  cont:true }
     ]
   },
   {
-    id:'vacuum_breach', title:'⚠ VACUUM BREACH', time:35,
+    id:'vacuum_breach', title:'⚠ VACUUM BREACH', time:EVT_TIME_VACUUM_BREACH,
     desc:'Primary vacuum boundary compromised. Pressure rising in vessel.',
     viz:`<div style="text-align:center;color:var(--red)"><div style="font-size:13px;letter-spacing:2px;margin-bottom:6px">VESSEL PRESSURE</div><div style="font-size:40px;font-family:Share Tech Mono;animation:blink .4s step-end infinite">${(1.8+Math.random()*2.2).toFixed(2)} mbar</div><div style="font-size:9px;color:#5a5f66">NOMINAL: &lt;0.001 mbar</div></div>`,
     steps:[
       { text:'VENT SYSTEM ON',         check:()=>S.ventSystem },
-      { text:'THROTTLE <25%',          check:()=>S.mainThrottle<=25 },
-      { text:'PRESS RELIEF >70%',      check:()=>S.pressureRelief>=70 },
-      { text:'FUEL INJ <15%',          check:()=>S.fuelInject<=15 }
+      { text:'THROTTLE <25%',          check:()=>S.mainThrottle<=25,  cont:true },
+      { text:'PRESS RELIEF >70%',      check:()=>S.pressureRelief>=70, cont:true },
+      { text:'FUEL INJ <15%',          check:()=>S.fuelInject<=15,     cont:true }
     ]
   },
   {
-    id:'coolant_overheat', title:'⚠ COOLANT OVERHEAT', time:40,
+    id:'coolant_overheat', title:'⚠ COOLANT OVERHEAT', time:EVT_TIME_COOLANT_OVERHEAT,
     desc:'Secondary coolant loop temperature critical. Heat exchanger at limit.',
     viz:`<div style="text-align:center"><div style="font-size:11px;color:var(--amber);margin-bottom:4px">SECONDARY LOOP TEMP</div><div style="font-size:44px;font-family:Share Tech Mono;color:var(--red)">${Math.floor(Math.random()*80+310)}°C</div><div style="font-size:9px;color:#5a5f66">MAX SAFE: 280°C</div></div>`,
     steps:[
       { text:'AUX PUMP ON (Backup)',   check:()=>S.auxCoolPump },
       { text:'AUX LOOP ON (Backup)',   check:()=>S.auxCoolLoop },
-      { text:'AUX RATE >70%',         check:()=>S.auxCoolRate>=70 },
-      { text:'COOLANT FLOW >70%',     check:()=>S.coolantFlow>=70 }
+      { text:'AUX RATE >70%',         check:()=>S.auxCoolRate>=70, cont:true },
+      { text:'COOLANT FLOW >70%',     check:()=>S.coolantFlow>=70, cont:true }
     ]
   },
   {
-    id:'power_surge', title:'⚠ GRID POWER SURGE', time:25,
+    id:'power_surge', title:'⚠ GRID POWER SURGE', time:EVT_TIME_POWER_SURGE,
     desc:'Output frequency drifting. Resonance detected in transformer bank.',
     viz:`<div style="text-align:center;color:var(--amber)"><div style="font-size:32px;font-family:Share Tech Mono">${(61.5+Math.random()*4).toFixed(1)} Hz</div><div style="font-size:9px;color:var(--red)">RESONANCE THRESHOLD: 63.0 Hz</div><div style="font-size:10px;margin-top:6px;animation:blink .3s step-end infinite">TRANSFORMER OVERLOAD</div></div>`,
     steps:[
       { text:'GRID SYNC OFF',          check:()=>!S.gridSync },
-      { text:'THROTTLE 40-60%',        check:()=>S.mainThrottle>=40&&S.mainThrottle<=60 },
+      { text:'THROTTLE 40-60%',        check:()=>S.mainThrottle>=40&&S.mainThrottle<=60, cont:true },
       { text:'GRID SYNC ON',           check:()=>S.gridSync }
     ]
   },
   {
-    id:'tritium_leak', title:'☢ TRITIUM LEAK', time:50,
+    id:'tritium_leak', title:'☢ TRITIUM LEAK', time:EVT_TIME_TRITIUM_LEAK,
     desc:'Radioactive fuel detected in secondary circuit. Isolate and vent.',
     viz:`<div style="text-align:center"><div style="font-size:42px;animation:blink .5s step-end infinite">☢</div><div style="color:var(--green);font-size:11px;letter-spacing:2px;margin-top:4px">TRITIUM DETECTED</div><div style="font-size:9px;color:#5a5f66;margin-top:3px">${(0.3+Math.random()*2.7).toFixed(2)} GBq/m³ — LIMIT: 0.1</div></div>`,
     steps:[
@@ -220,43 +220,43 @@ const EVENTS = [
     ]
   },
   {
-    id:'mag_quench', title:'⚠ MAGNET QUENCH', time:30,
+    id:'mag_quench', title:'⚠ MAGNET QUENCH', time:EVT_TIME_MAG_QUENCH,
     desc:'Superconducting coils losing critical temp. Quench imminent.',
     viz:`<div style="text-align:center"><div style="font-size:11px;color:var(--magenta);margin-bottom:4px;letter-spacing:2px">COIL TEMP</div><div style="font-size:40px;font-family:Share Tech Mono;color:var(--red);animation:blink .4s step-end infinite">${(4.6+Math.random()*1.8).toFixed(1)} K</div><div style="font-size:9px;color:#5a5f66">CRITICAL THRESHOLD: 4.2 K</div></div>`,
     steps:[
-      { text:'CONTAIN PWR <20%',       check:()=>S.containPower<=20 },
+      { text:'CONTAIN PWR <20%',       check:()=>S.containPower<=20,  cont:true },
       { text:'MAG COILS OFF',          check:()=>!S.magCoils },
       { text:'FIELD A ON (Backup)',    check:()=>S.backupContA },
       { text:'FIELD B ON (Backup)',    check:()=>S.backupContB },
-      { text:'BACKUP FIELD >60%',      check:()=>S.backupContPow>=60 },
+      { text:'BACKUP FIELD >60%',      check:()=>S.backupContPow>=60, cont:true },
       { text:'MAG COILS ON',           check:()=>S.magCoils }
     ]
   },
   {
-    id:'steam_hammer', title:'⚠ STEAM HAMMER', time:35,
+    id:'steam_hammer', title:'⚠ STEAM HAMMER', time:EVT_TIME_STEAM_HAMMER,
     desc:'Water hammer detected in secondary loop. Pipe stress critical.',
     viz:`<div style="text-align:center;color:var(--amber)"><div style="display:flex;justify-content:center;gap:3px;margin:4px 0">${Array.from({length:18},(_,i)=>`<div style="width:6px;height:${20+Math.abs(Math.sin(i*1.3)*40)}px;background:var(--cyan);border-radius:1px;margin-top:${40-Math.abs(Math.sin(i*1.3)*40)}px"></div>`).join('')}</div><div style="font-size:9px;color:var(--red);margin-top:4px;animation:blink .3s step-end infinite">PIPE STRESS ${Math.floor(Math.random()*120+280)}%</div></div>`,
     steps:[
       { text:'TURBINE OFF',            check:()=>!S.turbineEngage },
-      { text:'PRESS RELIEF 50-70%',    check:()=>S.pressureRelief>=50&&S.pressureRelief<=70 },
-      { text:'COOLANT FLOW <30%',      check:()=>S.coolantFlow<=30 },
+      { text:'PRESS RELIEF 50-70%',    check:()=>S.pressureRelief>=50&&S.pressureRelief<=70, cont:true },
+      { text:'COOLANT FLOW <30%',      check:()=>S.coolantFlow<=30,                           cont:true },
       { text:'TURBINE ON',             check:()=>S.turbineEngage }
     ]
   },
   {
-    id:'divertor_overload', title:'⚠ DIVERTOR OVERLOAD', time:40,
+    id:'divertor_overload', title:'⚠ DIVERTOR OVERLOAD', time:EVT_TIME_DIVERTOR_OVERLOAD,
     desc:'Plasma exhaust load exceeding tile thermal limit. Divertor at risk.',
     viz:`<div style="text-align:center"><div style="font-size:11px;color:var(--amber);margin-bottom:4px">EXHAUST HEAT FLUX</div><div style="font-size:38px;font-family:Share Tech Mono;color:var(--red)">${(10.2+Math.random()*8).toFixed(1)} MW/m²</div><div style="font-size:9px;color:#5a5f66">TILE LIMIT: 10.0 MW/m²</div></div>`,
     steps:[
-      { text:'THROTTLE <35%',          check:()=>S.mainThrottle<=35 },
+      { text:'THROTTLE <35%',          check:()=>S.mainThrottle<=35, cont:true },
       { text:'ROD SAFETY OFF (Backup)',check:()=>S.rodSafetyOff },
-      { text:'ROD A >40% (Backup)',    check:()=>S.rodA>=40 },
-      { text:'ROD B >40% (Backup)',    check:()=>S.rodB>=40 },
-      { text:'ROD C >40% (Backup)',    check:()=>S.rodC>=40 }
+      { text:'ROD A >40% (Backup)',    check:()=>S.rodA>=40,         cont:true },
+      { text:'ROD B >40% (Backup)',    check:()=>S.rodB>=40,         cont:true },
+      { text:'ROD C >40% (Backup)',    check:()=>S.rodC>=40,         cont:true }
     ]
   },
   {
-    id:'aux_power_fault', title:'⚠ AUX POWER FAULT', time:30,
+    id:'aux_power_fault', title:'⚠ AUX POWER FAULT', time:EVT_TIME_AUX_POWER_FAULT,
     desc:'Auxiliary bus voltage collapse. Control systems losing power.',
     viz:`<div style="text-align:center;color:var(--red)"><div style="font-size:13px;letter-spacing:3px;margin-bottom:6px">BUS VOLTAGE</div><div style="font-size:48px;font-family:Share Tech Mono;animation:blink .3s step-end infinite">${(180+Math.random()*40).toFixed(0)}V</div><div style="font-size:9px;color:#5a5f66">NOMINAL: 480V</div></div>`,
     steps:[
@@ -268,4 +268,4 @@ const EVENTS = [
   }
 ];
 
-nextEventTime = 60 + Math.random() * 240;
+nextEventTime = EVT_FIRST_DELAY_MIN + Math.random() * EVT_FIRST_DELAY_RANGE;

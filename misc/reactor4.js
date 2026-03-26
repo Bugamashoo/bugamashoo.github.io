@@ -324,7 +324,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   });
 
   document.getElementById('purgeBtn').addEventListener('click', () => {
-    S.corePressure = Math.max(1, S.corePressure * 0.6);
+    S.corePressure = Math.max(PRESSURE_BASE, S.corePressure * EMERG_PURGE_PRES_MULT);
     addLog('LINE PURGE', 'sys');
     doFlash('rgba(0,229,255,0.1)');
   });
@@ -340,15 +340,30 @@ document.addEventListener('contextmenu', e => e.preventDefault());
     b.querySelector('.push-btn').addEventListener('click', () => {
       if (i === 0) {
         S.igniting = 0;
-        S.coreTemp *= 0.5;
+        S.coreTemp *= EMERG_PLASMA_DUMP_TEMP;
         S.plasmaStability = 0;
         addLog('PLASMA DUMPED', 'err');
         doShake();
       }
       if (i === 1) {
-        S.coolantFlow   = 100;
-        S.auxCoolRate   = 100;
-        S.coreTemp     *= 0.3;
+        S.coolantFlow   = EMERG_COOL_FLOOD_COOLANT;
+        S.auxCoolRate   = EMERG_COOL_FLOOD_AUX;
+        S.coreTemp     *= EMERG_COOL_FLOOD_TEMP;
+        // Engage all coolant switches and max all coolant levers
+        S.coolantPumps = 1;
+        S.auxCoolPump  = 1;
+        S.auxCoolLoop  = 1;
+        syncKnifeSwitches();
+        ['coolantFlow', 'auxCoolRate'].forEach(id => {
+          const tr = document.querySelector(`.lever-track[data-lever="${id}"]`);
+          if (!tr) return;
+          const ht = tr.getBoundingClientRect().height - 28;
+          const h  = tr.querySelector('.lever-handle');
+          h.style.bottom = 'auto';
+          h.style.top    = '0px';
+          const ro = document.getElementById('readout_' + id);
+          if (ro) ro.textContent = '100%';
+        });
         addLog('COOLANT FLOOD', 'sys');
       }
       if (i === 2) hardReset();

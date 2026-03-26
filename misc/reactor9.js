@@ -30,7 +30,7 @@ function doScram() {
   });
   syncKnifeSwitches();
 
-  setTimeout(() => { S.scramActive = 0; addLog('SCRAM reset', 'ok'); }, 5000);
+  setTimeout(() => { S.scramActive = 0; addLog('SCRAM reset', 'ok'); }, SCRAM_LOCKOUT_MS);
 }
 
 // ── HARD RESET ────────────────────────────────────────────────
@@ -39,7 +39,7 @@ function hardReset() {
   doShake();
   Object.keys(S.modules).forEach(k => {
     S.modules[k].status = 'offline';
-    S.modules[k].health = Math.max(50, S.modules[k].health);
+    S.modules[k].health = Math.max(HARD_RESET_MIN_HEALTH, S.modules[k].health);
     S.modules[k].sysError = false;
     S.modules[k].sysErrorVisible = false;
     S.modules[k].errorPenalty = 1;
@@ -57,7 +57,7 @@ function hardReset() {
   setTimeout(() => {
     Object.keys(S.modules).forEach(k => { S.modules[k].status = 'online'; S.modules[k].mode = 'normal'; });
     addLog('Modules restarted', 'ok');
-  }, 4000);
+  }, HARD_RESET_OFFLINE_MS);
 }
 
 // ── IGNITION hold logic ───────────────────────────────────────
@@ -71,7 +71,7 @@ function sI() {
 function eI() {
   S.ignitionHeld = 0;
   if (S.igniting) return;
-  if (ignHoldStart > 0 && Date.now() - ignHoldStart < 3000) addLog('IGN ABORT', 'err');
+  if (ignHoldStart > 0 && Date.now() - ignHoldStart < IGN_HOLD_MS) addLog('IGN ABORT', 'err');
   ignHoldStart = 0;
 }
 
@@ -100,26 +100,26 @@ function checkSeq() {
 // When a gauge is in danger, a timer arms (15–60s). On expiry the module
 // takes 4–13% damage and the timer rearms. Timer disarms when safe again.
 const GAUGE_DANGERS = [
-  { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > 7000,                     mod: 'thermal'  },
-  { id: 'corePres',     label: 'CORE PRESSURE',     check: () => S.corePressure > 35,                   mod: 'fuel'     },
-  { id: 'plasma',       label: 'PLASMA STABILITY',  check: () => S.igniting && S.plasmaStability < 20,  mod: 'magnetic' },
-  { id: 'coolTemp',     label: 'COOLANT TEMP',       check: () => S.coolantTemp > 150,                   mod: 'coolant'  },
-  { id: 'coolFlow',     label: 'COOLANT FLOW',       check: () => S.igniting && S.coolantFlowRate < 100, mod: 'coolant'  },
-  { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < 15,               mod: 'magnetic' },
-  { id: 'radiation',    label: 'RADIATION LEVEL',    check: () => S.radiationLevel > 60,                 mod: 'sensor'   },
-  { id: 'turbineRPM',   label: 'TURBINE RPM',        check: () => S.turbineRPM > 13000,                  mod: 'grid'     },
-  { id: 'heatSink',     label: 'HEAT SINK TEMP',     check: () => S.heatSinkTemp > 150,                  mod: 'coolant'  },
-  { id: 'auxCoolTemp',  label: 'AUX COOL TEMP',      check: () => S.auxCoolTemp > 70,                    mod: 'backup'   },
+  { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > GAUGE_TEMP_DANGER,                          mod: 'thermal'  },
+  { id: 'corePres',     label: 'CORE PRESSURE',     check: () => S.corePressure > GAUGE_PRES_DANGER,                      mod: 'fuel'     },
+  { id: 'plasma',       label: 'PLASMA STABILITY',  check: () => S.igniting && S.plasmaStability < GAUGE_PLASMA_DANGER,   mod: 'magnetic' },
+  { id: 'coolTemp',     label: 'COOLANT TEMP',       check: () => S.coolantTemp > GAUGE_COOLANT_TEMP_DANGER,               mod: 'coolant'  },
+  { id: 'coolFlow',     label: 'COOLANT FLOW',       check: () => S.igniting && S.coolantFlowRate < GAUGE_COOLANT_FLOW_DANGER, mod: 'coolant'  },
+  { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < GAUGE_CONTAIN_DANGER,               mod: 'magnetic' },
+  { id: 'radiation',    label: 'RADIATION LEVEL',    check: () => S.radiationLevel > GAUGE_RADIATION_DANGER,               mod: 'sensor'   },
+  { id: 'turbineRPM',   label: 'TURBINE RPM',        check: () => S.turbineRPM > GAUGE_TURBINE_DANGER,                    mod: 'grid'     },
+  { id: 'heatSink',     label: 'HEAT SINK TEMP',     check: () => S.heatSinkTemp > GAUGE_HEATSINK_DANGER,                 mod: 'coolant'  },
+  { id: 'auxCoolTemp',  label: 'AUX COOL TEMP',      check: () => S.auxCoolTemp > GAUGE_AUXCOOL_DANGER,                   mod: 'backup'   },
 ];
 
 // ── SIMULATION LOOP ───────────────────────────────────────────
 function simulate() {
   if (S.gameOver) return;
   tick++;
-  const dt = 1 / 20;
+  const dt = SIM_DT;
 
   // Ignition hold timer
-  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= 3000) {
+  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= IGN_HOLD_MS) {
     S.igniting = 1;
     addLog('PLASMA IGNITION', 'ok');
     doShake(); doFlash();
@@ -139,30 +139,30 @@ function simulate() {
       if (S.igniting) addLog('WARN: Fuel pumps offline — shutdown in 8s', 'warn');
     }
   }
-  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < 8000;
+  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < FUEL_PUMP_GRACE_MS;
   const fM = (S.fuelPumps || fuelPumpGrace) ? 1 : 0;
 
   const fP = modPerf('fuel');   const cP = modPerf('coolant');
   const bP = modPerf('backup'); const mP = modPerf('magnetic');
   const gP = modPerf('grid');   // sP = modPerf('sensor') — reserved
   // Backup effectiveness: 2x when overclocked; degrades/zeroes with module health
-  const bEff = bP * (S.modules.backup.mode === 'overclock' ? 2 : 1);
+  const bEff = bP * (S.modules.backup.mode === 'overclock' ? BACKUP_OVERCLOCK_MULT : 1);
 
   const fH = modHeat('fuel');   const cH = modHeat('coolant');
   const tH = modHeat('thermal');const mH = modHeat('magnetic');
 
   // ── Fuel consumption ──
   if (S.igniting && fM) {
-    S.fuelRemaining = Math.max(0, S.fuelRemaining - (S.fuelInject / 100) * 0.005 * fP * dt);
-    S.fuelConsump   = S.fuelInject * 0.3 * fM * fP;
+    S.fuelRemaining = Math.max(0, S.fuelRemaining - (S.fuelInject / 100) * FUEL_CONSUME_RATE * fP * dt);
+    S.fuelConsump   = S.fuelInject * FUEL_CONSUME_DISPLAY * fM * fP;
   } else {
-    S.fuelConsump  *= 0.9;
+    S.fuelConsump  *= FUEL_CONSUME_DECAY;
   }
-  if (S.emergDump) { S.fuelRemaining = Math.max(0, S.fuelRemaining - 0.1 * dt); S.fuelConsump += 6; }
+  if (S.emergDump) { S.fuelRemaining = Math.max(0, S.fuelRemaining - FUEL_DUMP_DRAIN * dt); S.fuelConsump += 6; }
 
   const eF = S.fuelInject * fM * aM * fP * (S.fuelRemaining > 0 ? 1 : 0);
 
-  if (S.igniting && eF < 1 && S.plasmaStability < 5) {
+  if (S.igniting && eF < PLASMA_EXTINGUISH_EF && S.plasmaStability < PLASMA_EXTINGUISH_STABILITY) {
     S.igniting = 0;
     addLog('PLASMA EXTINGUISHED: No fuel flow', 'err');
     doShake();
@@ -172,152 +172,152 @@ function simulate() {
   // ── Core temperature ──
   // Heat generation: sqrt-compressed so fuel/throttle contribute meaningfully
   // without runaway. Typical operation: 2000–5000°C. Danger above 7000.
-  let tT = 20;
+  let tT = TEMP_IDLE;
   if (S.igniting) {
-    const rawHeat = eF * 120 + S.mainThrottle * 50;
+    const rawHeat = eF * TEMP_HEAT_FUEL + S.mainThrottle * TEMP_HEAT_THROTTLE;
     // Diminishing returns — sqrt compresses high values while preserving low-end feel
-    tT += Math.sqrt(rawHeat) * 70;
-    tT *= (0.5 + S.mixRatio / 200);
-    tT *= (1 - rE * 0.7);
+    tT += Math.sqrt(rawHeat) * TEMP_HEAT_SCALE;
+    tT *= (TEMP_MIX_BASE + S.mixRatio / TEMP_MIX_SCALE);
+    tT *= (1 - rE * TEMP_ROD_REDUCTION);
     tT += fH + tH + mH;
   }
   // Cooling: scales proportionally to current heat (percentage-based removal)
   // so it stays relevant at high temps instead of being a fixed subtraction
-  const cE_flat = S.coolantFlow * cM * aM * 3.0 * cP
-                + (S.auxCoolPump && S.auxCoolLoop ? S.auxCoolRate * 1.5 * bEff : 0);
-  const cE_pct  = (S.coolantFlow / 100) * cM * aM * 0.12 * cP
-                + (S.auxCoolPump && S.auxCoolLoop ? (S.auxCoolRate / 100) * 0.05 * bEff : 0);
+  const cE_flat = S.coolantFlow * cM * aM * COOL_FLAT_RATE * cP
+                + (S.auxCoolPump && S.auxCoolLoop ? S.auxCoolRate * COOL_AUX_FLAT * bEff : 0);
+  const cE_pct  = (S.coolantFlow / 100) * cM * aM * COOL_PCT_RATE * cP
+                + (S.auxCoolPump && S.auxCoolLoop ? (S.auxCoolRate / 100) * COOL_AUX_PCT * bEff : 0);
   tT = tT * (1 - cE_pct) - cE_flat;
-  if (S.emergVent) tT = tT * 0.85 - 100;
-  tT = Math.max(20, tT);
+  if (S.emergVent) tT = tT * EMERG_VENT_TEMP_MULT - EMERG_VENT_TEMP_OFFSET;
+  tT = Math.max(TEMP_IDLE, tT);
   // Thermal runaway: with no active cooling, heat cannot escape — temperature climbs continuously
   const noActiveCooling = cM === 0 && !(S.auxCoolPump && S.auxCoolLoop && S.auxCoolRate > 0);
-  if (S.igniting && noActiveCooling) tT = Math.max(tT, S.coreTemp + 200);
-  S.coreTemp += (tT - S.coreTemp) * 0.02;
+  if (S.igniting && noActiveCooling) tT = Math.max(tT, S.coreTemp + TEMP_RUNAWAY_STEP);
+  S.coreTemp += (tT - S.coreTemp) * TEMP_LERP;
 
   // ── Core pressure ──
   // Pressure rises from temp and throttle, relieved by the knob and coolant flow.
   // Target range: 8–18 ATM normal, amber >20, red >35. Gauge max 50.
-  let tPr = 1;
+  let tPr = PRESSURE_BASE;
   if (S.igniting) {
     // Temp contribution: sqrt-compressed but scaled for meaningful range
     // ~3000°C → 8.2, ~5000°C → 10.6, ~7000°C → 12.5
-    tPr += Math.sqrt(S.coreTemp) * 0.15;
+    tPr += Math.sqrt(S.coreTemp) * PRES_TEMP_SCALE;
     // Throttle adds direct pressure (plasma confinement stress)
-    tPr += S.mainThrottle / 12;
+    tPr += S.mainThrottle / PRES_THROTTLE_DIV;
     // Fuel injection adds moderate pressure
-    tPr += eF / 50;
-    // Pressure relief knob: now removes up to 40% of generated pressure
-    tPr *= (1 - S.pressureRelief / 100 * 0.4);
+    tPr += eF / PRES_FUEL_DIV;
+    // Pressure relief knob: removes up to PRES_RELIEF_EFFECT of generated pressure
+    tPr *= (1 - S.pressureRelief / 100 * PRES_RELIEF_EFFECT);
     // Coolant flow relieves pressure (thermal contraction)
-    tPr *= (1 - (S.coolantFlow / 100) * cM * aM * 0.15 * cP);
+    tPr *= (1 - (S.coolantFlow / 100) * cM * aM * PRES_COOLANT_RELIEF * cP);
     // Rod insertion dampens pressure
-    tPr *= (1 - rE * 0.5);
+    tPr *= (1 - rE * PRES_ROD_DAMPENING);
   }
-  if (S.emergVent) tPr *= 0.7;
-  S.corePressure += (Math.max(0.5, tPr) - S.corePressure) * 0.03;
+  if (S.emergVent) tPr *= EMERG_VENT_PRES_MULT;
+  S.corePressure += (Math.max(PRES_FLOOR, tPr) - S.corePressure) * PRES_LERP;
 
-  S.secondaryPressure = S.corePressure * 0.6 + S.backupContPow * 0.05;
+  S.secondaryPressure = S.corePressure * SECONDARY_PRES_CORE_SCALE + S.backupContPow * SECONDARY_PRES_BACKUP_SCALE;
 
   // ── Coolant ──
-  let tC = 15;
-  if (S.igniting) tC += S.coreTemp * 0.02;
-  if (cM) tC -= S.coolantFlow * 0.5 * cP;
-  S.coolantTemp    += (Math.max(10, tC) - S.coolantTemp) * 0.05;
-  S.coolantFlowRate = S.coolantFlow * cM * aM * 12 * cP;
-  S.auxCoolTemp     = 12 + (S.igniting ? S.coreTemp * 0.01 : 0) - (S.auxCoolPump && S.auxCoolLoop ? S.auxCoolRate * 0.2 * bEff : 0);
-  S.auxCoolFlow     = (S.auxCoolPump && S.auxCoolLoop) ? S.auxCoolRate * 8 * bEff : 0;
+  let tC = COOLANT_IDLE;
+  if (S.igniting) tC += S.coreTemp * COOLANT_CORE_TRANSFER;
+  if (cM) tC -= S.coolantFlow * COOLANT_FLOW_COOLING * cP;
+  S.coolantTemp    += (Math.max(COOLANT_FLOOR, tC) - S.coolantTemp) * COOLANT_LERP;
+  S.coolantFlowRate = S.coolantFlow * cM * aM * COOLANT_FLOW_SCALE * cP;
+  S.auxCoolTemp     = AUX_COOL_IDLE + (S.igniting ? S.coreTemp * AUX_COOL_CORE_TRANSFER : 0) - (S.auxCoolPump && S.auxCoolLoop ? S.auxCoolRate * AUX_COOL_RATE_COOLING * bEff : 0);
+  S.auxCoolFlow     = (S.auxCoolPump && S.auxCoolLoop) ? S.auxCoolRate * AUX_COOL_FLOW_SCALE * bEff : 0;
 
   // ── Magnetic field ──
   let tF = 0;
-  if (S.magCoils && aM) tF = (S.containPower / 100) * 8 * (0.7 + S.fieldTune / 300) * mP;
-  S.magneticFlux     += (tF - S.magneticFlux) * 0.05;
+  if (S.magCoils && aM) tF = (S.containPower / 100) * MAG_FIELD_SCALE * (MAG_TUNE_OFFSET + S.fieldTune / MAG_TUNE_SCALE) * mP;
+  S.magneticFlux     += (tF - S.magneticFlux) * MAG_FLUX_LERP;
   S.backupFieldStr    = ((S.backupContA ? 1 : 0) + (S.backupContB ? 1 : 0))
-                      * (S.backupContPow / 100) * 4 * bEff;
+                      * (S.backupContPow / 100) * MAG_BACKUP_POWER_SCALE * bEff;
 
   // ── Plasma stability ──
   let tSt = 0;
   if (S.igniting) {
-    tSt  = 50 + S.magneticFlux * 5 + S.backupFieldStr * 2
-           - Math.max(0, S.coreTemp - 5000) / 100
-           - Math.abs(S.corePressure - 15) * 2;
-    tSt *= (0.8 + S.fieldTune / 500);
-    if (S.containField) tSt += 10;
+    tSt  = PLASMA_BASE + S.magneticFlux * PLASMA_FLUX_SCALE + S.backupFieldStr * PLASMA_BACKUP_SCALE
+           - Math.max(0, S.coreTemp - PLASMA_OVERTEMP_THRESHOLD) / PLASMA_OVERTEMP_SCALE
+           - Math.abs(S.corePressure - PLASMA_PRESSURE_TARGET) * PLASMA_PRESSURE_PENALTY;
+    tSt *= (PLASMA_TUNE_BASE + S.fieldTune / PLASMA_TUNE_SCALE);
+    if (S.containField) tSt += PLASMA_CONTAIN_FIELD_BOOST;
     // Low containment integrity destabilises plasma
-    if (S.containIntegrity < 60) tSt -= (60 - S.containIntegrity) * 0.4;
+    if (S.containIntegrity < PLASMA_LOW_CONTAIN_THRESHOLD) tSt -= (PLASMA_LOW_CONTAIN_THRESHOLD - S.containIntegrity) * PLASMA_LOW_CONTAIN_SCALE;
     // Fuel sustains and enriches plasma — too little destabilises, more adds stability
-    if (eF < 1) tSt -= 45; // No fuel flow — plasma cannot be sustained
-    else if (eF > 10) tSt += Math.min(12, (eF - 10) / 8); // up to +12 at eF≈100
-    tSt *= (1 - rE * 0.3);
+    if (eF < PLASMA_EXTINGUISH_EF) tSt -= PLASMA_NO_FUEL_PENALTY; // No fuel flow — plasma cannot be sustained
+    else if (eF > PLASMA_FUEL_BONUS_THRESHOLD) tSt += Math.min(PLASMA_FUEL_BONUS_MAX, (eF - PLASMA_FUEL_BONUS_THRESHOLD) / PLASMA_FUEL_BONUS_SCALE);
+    tSt *= (1 - rE * PLASMA_ROD_REDUCTION);
     tSt  = Math.max(0, Math.min(100, tSt));
   }
-  S.plasmaStability += (tSt - S.plasmaStability) * 0.04;
+  S.plasmaStability += (tSt - S.plasmaStability) * PLASMA_LERP;
 
   // ── Neutron density ──
   // Normalised so typical operation (eF~40, temp~3500, plasma~80%) ≈ 50–70
   let tN = 0;
   if (S.igniting) {
-    const tempFactor    = Math.sqrt(S.coreTemp) / 10;       // ~5.9 at 3500, ~7.7 at 6000
-    const plasmaFactor  = S.plasmaStability / 100;           // 0.7–0.9
-    const fuelFactor    = Math.sqrt(eF);                     // ~6.3 at 40, ~7.7 at 60
-    tN = tempFactor * plasmaFactor * fuelFactor * 1.5 * (1 - rE * 0.6);
+    const tempFactor    = Math.sqrt(S.coreTemp) / NEUTRON_TEMP_SCALE; // ~5.9 at 3500, ~7.7 at 6000
+    const plasmaFactor  = S.plasmaStability / 100;                     // 0.7–0.9
+    const fuelFactor    = Math.sqrt(eF);                               // ~6.3 at 40, ~7.7 at 60
+    tN = tempFactor * plasmaFactor * fuelFactor * NEUTRON_MULT * (1 - rE * NEUTRON_ROD_REDUCTION);
     // ≈ 5.9 × 0.8 × 6.3 × 1.5 ≈ 45 at moderate operation
   }
-  S.neutronDensity += (tN - S.neutronDensity) * 0.03;
+  S.neutronDensity += (tN - S.neutronDensity) * NEUTRON_LERP;
 
   // ── Radiation ──
   // Normal shielded operation: ~15–25 mSv. Warning at >30, danger at >60
-  S.radiationLevel = S.neutronDensity * 0.4
-                   + (S.igniting && !S.radShield ? 25 : 0)
-                   + (S.containIntegrity < 50 ? (50 - S.containIntegrity) * 0.5 : 0);
+  S.radiationLevel = S.neutronDensity * RAD_NEUTRON_MULT
+                   + (S.igniting && !S.radShield ? RAD_NO_SHIELD_BONUS : 0)
+                   + (S.containIntegrity < RAD_LOW_CONTAIN_THRESHOLD ? (RAD_LOW_CONTAIN_THRESHOLD - S.containIntegrity) * RAD_LOW_CONTAIN_SCALE : 0);
 
   // ── Containment integrity ──
   if (S.igniting) {
-    // Drain scales with how far containPower is below safe threshold (50)
-    if (S.containPower < 50) {
-      const deficit = (50 - S.containPower) / 50; // 1.0 at 0%, 0.0 at 50%
-      S.containIntegrity -= 0.02 + deficit * 0.04; // 0.02–0.06/tick
+    // Drain scales with how far containPower is below safe threshold
+    if (S.containPower < CONTAIN_POWER_THRESHOLD) {
+      const deficit = (CONTAIN_POWER_THRESHOLD - S.containPower) / CONTAIN_POWER_THRESHOLD; // 1.0 at 0%, 0.0 at threshold
+      S.containIntegrity -= CONTAIN_DRAIN_MIN + deficit * CONTAIN_DRAIN_MAX;
     }
-    // Regen when containPower > 50 with field on; scales with power level
-    if (S.containPower > 50 && S.containField) {
-      const surplus = (S.containPower - 50) / 50; // 0.0 at 50%, 1.0 at 100%
-      S.containIntegrity += 0.01 + surplus * 0.03; // 0.01–0.04/tick
+    // Regen when containPower > threshold with field on; scales with power level
+    if (S.containPower > CONTAIN_POWER_THRESHOLD && S.containField) {
+      const surplus = (S.containPower - CONTAIN_POWER_THRESHOLD) / CONTAIN_POWER_THRESHOLD; // 0.0 at threshold, 1.0 at 100%
+      S.containIntegrity += CONTAIN_REGEN_MIN + surplus * CONTAIN_REGEN_MAX;
     }
     // Overtemp drain scales with severity
-    if (S.coreTemp > 8000) {
-      S.containIntegrity -= 0.02 + (S.coreTemp - 8000) / 5000 * 0.06;
+    if (S.coreTemp > CONTAIN_OVERTEMP_THRESHOLD) {
+      S.containIntegrity -= CONTAIN_OVERTEMP_DRAIN_MIN + (S.coreTemp - CONTAIN_OVERTEMP_THRESHOLD) / 5000 * CONTAIN_OVERTEMP_DRAIN_MAX;
     }
   }
   // Backup field regen scales with strength (max ~8)
-  if (S.backupFieldStr > 0) S.containIntegrity += S.backupFieldStr * 0.003;
+  if (S.backupFieldStr > 0) S.containIntegrity += S.backupFieldStr * CONTAIN_BACKUP_REGEN_SCALE;
   S.containIntegrity = Math.max(0, Math.min(100, S.containIntegrity));
 
   // ── Turbine + grid ──
   // Fuel injection boosts RPM — hotter, denser plasma spins the turbine harder
-  const fuelRPMBoost = 0.7 + (eF / 100) * 0.6; // 0.7× at eF=0, 1.3× at eF=100
+  const fuelRPMBoost = TURB_FUEL_BOOST_BASE + (eF / 100) * TURB_FUEL_BOOST_RANGE;
   let tR = 0;
-  if (S.turbineEngage && S.igniting && aM) tR = S.mainThrottle * 150 * (S.plasmaStability / 100) * fuelRPMBoost;
-  S.turbineRPM += (tR - S.turbineRPM) * 0.02;
-  if (S.gridSync && S.turbineRPM > 1000) S.gridLoad += (80 - S.gridLoad) * 0.01 * gP;
-  else S.gridLoad *= 0.95;
+  if (S.turbineEngage && S.igniting && aM) tR = S.mainThrottle * TURB_RPM_SCALE * (S.plasmaStability / 100) * fuelRPMBoost;
+  S.turbineRPM += (tR - S.turbineRPM) * TURB_LERP;
+  if (S.gridSync && S.turbineRPM > 1000) S.gridLoad += (GRID_TARGET - S.gridLoad) * GRID_LERP * gP;
+  else S.gridLoad *= GRID_DECAY;
 
   // ── Power output ──
   // Fuel injection directly scales power — more fuel = denser plasma = more energy extraction
-  const fuelPowerMult = 0.6 + (eF / 100) * 0.8; // 0.6× at eF=0, 1.4× at eF=100
+  const fuelPowerMult = POWER_FUEL_MULT_BASE + (eF / 100) * POWER_FUEL_MULT_RANGE;
   let tW = 0;
   if (S.igniting && S.turbineEngage) {
-    tW = (S.turbineRPM / 15000) * S.mainThrottle * (S.plasmaStability / 100) * 8.5 * fuelPowerMult * (1 - rE * 0.4);
-    if (!S.ventSystem) tW *= 0.85;
-    if (S.backupGen)   tW += 0.5 * bEff;
+    tW = (S.turbineRPM / POWER_RPM_SCALE) * S.mainThrottle * (S.plasmaStability / 100) * POWER_OUTPUT_SCALE * fuelPowerMult * (1 - rE * POWER_ROD_REDUCTION);
+    if (!S.ventSystem) tW *= POWER_NO_VENT_MULT;
+    if (S.backupGen)   tW += POWER_BACKUP_GEN_BONUS * bEff;
   }
-  S.powerOutput += (Math.max(0, tW) - S.powerOutput) * 0.03;
+  S.powerOutput += (Math.max(0, tW) - S.powerOutput) * POWER_LERP;
   if (S.powerOutput > S.peakPower) S.peakPower = S.powerOutput;
 
-  S.heatSinkTemp = 20 + S.coreTemp * 0.005 - cE_flat * 0.02;
+  S.heatSinkTemp = HEATSINK_IDLE + S.coreTemp * HEATSINK_CORE_SCALE - cE_flat * HEATSINK_COOL_SCALE;
   S.rodPosition  = S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 3 : 100;
 
   // ── Module health + interconnection drain ──
-  if (S.igniting && tick % 60 === 0) {
+  if (S.igniting && tick % MOD_DRAIN_INTERVAL === 0) {
     // Slider load per module: 0→0.5x drain, 50→1.0x, 100→1.5x
     const sliderLoad = {
       fuel:     S.fuelInject,
@@ -328,30 +328,30 @@ function simulate() {
     };
     // Warning severity score: amber=+1, red=+2 (only operational warnings)
     let warnX = 0;
-    warnX += S.coreTemp > 7000 ? 2 : S.coreTemp > 4000 ? 1 : 0;
-    warnX += S.corePressure > 35 ? 2 : S.corePressure > 20 ? 1 : 0;
-    warnX += S.containIntegrity < 30 ? 2 : S.containIntegrity < 60 ? 1 : 0;
-    warnX += S.igniting ? (S.coolantTemp > 150 ? 2 : S.coolantFlowRate < 100 ? 1 : 0) : 0;
-    warnX += S.fuelRemaining < 10 ? 2 : S.fuelRemaining < 25 ? 1 : 0;
-    warnX += S.radiationLevel > 60 ? 2 : S.radiationLevel > 30 ? 1 : 0;
-    const warnMult = 1 + warnX / 10;
+    warnX += S.coreTemp > WARN_TEMP_RED ? 2 : S.coreTemp > WARN_TEMP_AMBER ? 1 : 0;
+    warnX += S.corePressure > WARN_PRES_RED ? 2 : S.corePressure > WARN_PRES_AMBER ? 1 : 0;
+    warnX += S.containIntegrity < WARN_CONTAIN_RED ? 2 : S.containIntegrity < WARN_CONTAIN_AMBER ? 1 : 0;
+    warnX += S.igniting ? (S.coolantTemp > WARN_COOLANT_TEMP_RED ? 2 : S.coolantFlowRate < WARN_COOLANT_FLOW_AMB ? 1 : 0) : 0;
+    warnX += S.fuelRemaining < WARN_FUEL_RED ? 2 : S.fuelRemaining < WARN_FUEL_AMBER ? 1 : 0;
+    warnX += S.radiationLevel > WARN_RAD_RED ? 2 : S.radiationLevel > WARN_RAD_AMBER ? 1 : 0;
+    const warnMult = 1 + warnX / WARN_SEVERITY_SCALE;
 
     let bypassStress = 0; // accumulated stress to apply to backup systems
     Object.entries(S.modules).forEach(([k, m]) => {
       if (m.status === 'offline' || k === 'backup') return; // backup has its own drain logic
       const md = MODES[m.mode];
-      const errMult = m.sysError ? 1.1 : 1;
-      const sliderMult = 0.5 + (sliderLoad[k] ?? 50) / 100;
-      // Bypass: no self-drain, redirect 2.5× stress to backup
+      const errMult = m.sysError ? MOD_ERROR_DRAIN_MULT : 1;
+      const sliderMult = MOD_SLIDER_BASE + (sliderLoad[k] ?? 50) / MOD_SLIDER_SCALE;
+      // Bypass: no self-drain, redirect bypass stress to backup
       if (m.mode === 'bypass') {
-        bypassStress += Math.random() * 0.2 * 2.5 * errMult * sliderMult * warnMult;
+        bypassStress += Math.random() * MOD_BASE_DRAIN_ROLL * MOD_BYPASS_STRESS_MULT * errMult * sliderMult * warnMult;
       } else {
-        m.health = Math.max(0, m.health - Math.random() * 0.2 * md.healthDrain * errMult * sliderMult * warnMult);
+        m.health = Math.max(0, m.health - Math.random() * MOD_BASE_DRAIN_ROLL * md.healthDrain * errMult * sliderMult * warnMult);
       }
-      if (m.health < 25 && m.status === 'online' && Math.random() < 0.03) {
+      if (m.health < MOD_DEGRADE_HEALTH && m.status === 'online' && Math.random() < MOD_DEGRADE_CHANCE) {
         m.status = 'degraded'; addLog(m.name + ' DEGRADED', 'warn');
       }
-      if (m.health < 5 && m.status !== 'offline') {
+      if (m.health < MOD_OFFLINE_HEALTH && m.status !== 'offline') {
         m.status = 'offline'; m.mode = 'normal';
         addLog(m.name + ' FAILED — restart required', 'err');
       }
@@ -364,20 +364,20 @@ function simulate() {
 
   // ── Backup systems health drain (usage-proportional, always active) ──
   if (S.modules.backup.status !== 'offline') {
-    // Each active system at max contributes 0.02%/tick → all four maxed = ~1 min to empty
-    const bLoad = (S.backupGen ? 0.02 : 0)
-      + (S.auxCoolPump && S.auxCoolLoop ? (S.auxCoolRate / 100) * 0.02 : 0)
-      + (S.backupContA ? (S.backupContPow / 100) * 0.02 : 0)
-      + (S.backupContB ? (S.backupContPow / 100) * 0.02 : 0);
+    // Each active system at max contributes BACKUP_*_DRAIN/tick → all four maxed = ~1 min to empty
+    const bLoad = (S.backupGen ? BACKUP_GEN_DRAIN : 0)
+      + (S.auxCoolPump && S.auxCoolLoop ? (S.auxCoolRate / 100) * BACKUP_AUX_DRAIN : 0)
+      + (S.backupContA ? (S.backupContPow / 100) * BACKUP_FIELD_A_DRAIN : 0)
+      + (S.backupContB ? (S.backupContPow / 100) * BACKUP_FIELD_B_DRAIN : 0);
     if (bLoad > 0) {
-      const bDrainMult = S.modules.backup.mode === 'overclock' ? 3 : 1;
+      const bDrainMult = S.modules.backup.mode === 'overclock' ? BACKUP_OVERCLOCK_DRAIN : 1;
       S.modules.backup.health = Math.max(0, S.modules.backup.health - bLoad * bDrainMult);
     }
-    if (tick % 60 === 0) {
-      if (S.modules.backup.health < 25 && S.modules.backup.status === 'online' && Math.random() < 0.03) {
+    if (tick % MOD_DRAIN_INTERVAL === 0) {
+      if (S.modules.backup.health < MOD_DEGRADE_HEALTH && S.modules.backup.status === 'online' && Math.random() < MOD_DEGRADE_CHANCE) {
         S.modules.backup.status = 'degraded'; addLog('BACKUP SYSTEMS DEGRADED', 'warn');
       }
-      if (S.modules.backup.health < 5) {
+      if (S.modules.backup.health < MOD_OFFLINE_HEALTH) {
         S.modules.backup.status = 'offline'; S.modules.backup.mode = 'normal';
         addLog('BACKUP SYSTEMS FAILED — restart required', 'err');
       }
@@ -389,16 +389,16 @@ function simulate() {
     if (gd.check()) {
       if (gaugeDamageTimes[gd.id] == null) {
         // Just entered danger — arm the timer
-        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 45;
+        gaugeDamageTimes[gd.id] = S.uptime + GAUGE_DANGER_ARM_MIN + Math.random() * GAUGE_DANGER_ARM_RANGE;
       } else if (S.uptime >= gaugeDamageTimes[gd.id]) {
         // Timer expired — deal damage and rearm
         const m = S.modules[gd.mod];
         if (m && m.status !== 'offline') {
-          const dmg = 4 + Math.random() * 9;
+          const dmg = GAUGE_DANGER_DMG_MIN + Math.random() * GAUGE_DANGER_DMG_RANGE;
           m.health = Math.max(0, m.health - dmg);
           addLog(gd.label + ' value critical, ' + m.name + ' system damaged', 'err');
         }
-        gaugeDamageTimes[gd.id] = S.uptime + 15 + Math.random() * 45;
+        gaugeDamageTimes[gd.id] = S.uptime + GAUGE_DANGER_ARM_MIN + Math.random() * GAUGE_DANGER_ARM_RANGE;
       }
     } else {
       gaugeDamageTimes[gd.id] = null; // safe — disarm
@@ -417,16 +417,16 @@ function simulate() {
       const m = S.modules[pick];
       m.sysError = true;
       m.sysErrorVisible = false;
-      m.errorPenalty = 0.85 + Math.random() * 0.05; // 85-90% efficiency
+      m.errorPenalty = ERR_PENALTY_INIT_MIN + Math.random() * ERR_PENALTY_INIT_RANGE;
       m.errorCount = 1;
       addLog('New non-critical system error detected', 'warn');
     } else {
-      if (Math.random() < 0.75) {
-        // 75%: worsen a random existing error (reduce penalty further)
+      if (Math.random() < ERR_WORSEN_CHANCE) {
+        // Worsen a random existing error (reduce penalty further)
         const affected = errCandidates.filter(k => S.modules[k].sysError);
         const pick = affected[Math.floor(Math.random() * affected.length)];
         const pm = S.modules[pick];
-        if (pm.errorCount >= 8) {
+        if (pm.errorCount >= ERR_SPREAD_THRESHOLD) {
           // At max compounded errors — spread to another module
           const unaffected = errCandidates.filter(k => !S.modules[k].sysError);
           if (unaffected.length > 0) {
@@ -434,29 +434,29 @@ function simulate() {
             const sm = S.modules[sp];
             sm.sysError = true;
             sm.sysErrorVisible = false;
-            sm.errorPenalty = 0.85 + Math.random() * 0.05;
+            sm.errorPenalty = ERR_PENALTY_INIT_MIN + Math.random() * ERR_PENALTY_INIT_RANGE;
             sm.errorCount = 1;
-            addLog('System error spread to ' + sm.name, 'warn');
+            addLog('Existing system error spread detected, please diagnose', 'warn');
           }
         } else {
-          pm.errorPenalty = Math.max(0.5, pm.errorPenalty - (0.05 + Math.random() * 0.05));
+          pm.errorPenalty = Math.max(ERR_PENALTY_FLOOR, pm.errorPenalty - (ERR_WORSEN_STEP + Math.random() * ERR_WORSEN_STEP_RANGE));
           pm.errorCount++;
         }
       } else {
-        // 25%: apply error to a new unaffected module if any
+        // Spread to a new unaffected module if any
         const unaffected = errCandidates.filter(k => !S.modules[k].sysError);
         if (unaffected.length > 0) {
           const pick = unaffected[Math.floor(Math.random() * unaffected.length)];
           const m = S.modules[pick];
           m.sysError = true;
           m.sysErrorVisible = false;
-          m.errorPenalty = 0.85 + Math.random() * 0.05;
+          m.errorPenalty = ERR_PENALTY_INIT_MIN + Math.random() * ERR_PENALTY_INIT_RANGE;
           m.errorCount = 1;
-          addLog('New non-critical system error detected', 'warn');
+          addLog('New non-critical system error detected, please diagnose', 'warn');
         }
       }
     }
-    nextErrorTime = S.uptime + 30 + Math.random() * 60;
+    nextErrorTime = S.uptime + ERR_SPAWN_NEXT_MIN + Math.random() * ERR_SPAWN_NEXT_RANGE;
   }
 
   // ── Diagnosis completion ──
@@ -479,7 +479,7 @@ function simulate() {
     if (rm) {
       if (rm.health < 100) {
         // Online: 1/30; bypass: 3/30; offline: 4.8/30
-        const rate = (rm.status === 'offline' ? 4.8 : rm.mode === 'bypass' ? 3 : 1) / 30;
+        const rate = rm.status === 'offline' ? REPAIR_OFFLINE_RATE : (rm.mode === 'bypass' ? REPAIR_BYPASS_RATE : REPAIR_ONLINE_RATE);
         rm.health = Math.min(100, rm.health + rate);
       } else {
         addLog(rm.name + ' repair complete', 'ok');
@@ -496,7 +496,7 @@ function simulate() {
     // Score accumulation: +1 every floor(3000/MW) ticks
     if (S.powerOutput > 0) {
       S.scoreTicks++;
-      const interval = Math.floor(3000 / S.powerOutput);
+      const interval = Math.floor(SCORE_DIVISOR / S.powerOutput);
       if (interval > 0 && S.scoreTicks >= interval) {
         S.score++;
         S.scoreTicks -= interval;
@@ -504,7 +504,7 @@ function simulate() {
     }
   }
   if (S.scramActive)                              S.reactorState = 'SCRAM';
-  else if (S.startupComplete && S.powerOutput>1)  S.reactorState = (S.coreTemp>9000||S.containIntegrity<20) ? 'CRITICAL' : 'ONLINE';
+  else if (S.startupComplete && S.powerOutput>1)  S.reactorState = (S.coreTemp>STATE_CRITICAL_TEMP||S.containIntegrity<STATE_CRITICAL_CONTAIN) ? 'CRITICAL' : 'ONLINE';
   else if (S.auxPower && !S.startupComplete)       S.reactorState = 'STARTUP';
   else if (!S.auxPower) {
     S.reactorState = 'OFFLINE';
@@ -516,14 +516,14 @@ function simulate() {
     plasmaOffTime = 0;
   } else {
     plasmaOffTime += dt;
-    if (plasmaOffTime >= 10 && S.uptime > 0) {
+    if (plasmaOffTime >= PLASMA_OFF_RESET_SECS && S.uptime > 0) {
       S.uptime = 0;
       plasmaOffTime = 0;
     }
   }
 
   // ── Auto-scram on containment loss ──
-  if (S.containIntegrity <= 5 && !S.scramActive && S.igniting) {
+  if (S.containIntegrity <= AUTO_SCRAM_CONTAIN && !S.scramActive && S.igniting) {
     doScram(); addLog('AUTO-SCRAM: Containment', 'err');
   }
 
@@ -532,7 +532,7 @@ function simulate() {
   else if (S.startupComplete && S.uptime > nextEventTime) triggerEvent();
 
   // ── Monitor history ──
-  if (tick % 3 === 0) {
+  if (tick % MONITOR_SAMPLE_TICKS === 0) {
     monHist.temp.push(S.coreTemp);
     monHist.pressure.push(S.corePressure);
     monHist.plasma.push(S.plasmaStability);
@@ -542,10 +542,10 @@ function simulate() {
     Object.values(monHist).forEach(h => { if (h.length > MH) h.shift(); });
   }
 
-  // ── 5-min avg power history (every 60 ticks = 3s, 100 entries = 5 min) ──
-  if (tick % 60 === 0) {
+  // ── 5-min avg power history ──
+  if (tick % POWER_HIST_TICKS === 0) {
     powerHist5m.push(S.powerOutput);
-    if (powerHist5m.length > 100) powerHist5m.shift();
+    if (powerHist5m.length > POWER_HIST_MAX) powerHist5m.shift();
     if (powerHist5m.length > 0) {
       const avg = powerHist5m.reduce((a, b) => a + b, 0) / powerHist5m.length;
       if (avg > S.bestAvg5m) S.bestAvg5m = avg;
@@ -554,7 +554,7 @@ function simulate() {
 
   // ── Module health threshold alerts ──
   {
-    const THRESHOLDS = [75, 50, 25, 10];
+    const THRESHOLDS = HEALTH_ALERT_THRESHOLDS;
     Object.entries(S.modules).forEach(([k, m]) => {
       const prev = moduleHealthPrev[k] ?? 100;
       THRESHOLDS.forEach(t => {
@@ -568,9 +568,9 @@ function simulate() {
   }
 
   // ── Periodic warnings ──
-  if (tick % 80 === 0 && S.igniting) {
-    if (S.coreTemp > 7000)           addLog('WARN: Temp', 'warn');
-    if (S.containIntegrity < 40)     addLog('WARN: Containment', 'err');
+  if (tick % PERIODIC_WARN_TICKS === 0 && S.igniting) {
+    if (S.coreTemp > SAFE_TEMP_RED)           addLog('WARN: Temp', 'warn');
+    if (S.containIntegrity < WARN_CONTAIN_AMBER) addLog('WARN: Containment', 'err');
   }
 
   updateUI();
@@ -606,35 +606,35 @@ function updateUI() {
   const lo = (d, active) => (v) => (!active || active()) ? (v < d ? 'red' : v < d * 1.15 ? 'amber' : 'green') : 'green';
 
   // Core readings
-  updD('coreTemp',         S.coreTemp.toFixed(0),          10000, hi(7000));
-  updD('corePressure',     S.corePressure.toFixed(1),       50,    hi(35));
-  updD('plasmaStability',  S.plasmaStability.toFixed(1),    100,   lo(20, () => !!S.igniting));
-  updD('neutronDensity',   S.neutronDensity.toFixed(1),     100);
-  updD('coolantTemp',      S.coolantTemp.toFixed(0),        200,   hi(150));
-  updD('coolantFlowRate',  S.coolantFlowRate.toFixed(0),    1200,  lo(100, () => !!S.igniting));
-  updD('turbineRPM',       S.turbineRPM.toFixed(0),         15000, hi(13000));
-  updD('containIntegrity', S.containIntegrity.toFixed(1),   100,   lo(15));
-  updD('magneticFlux',     S.magneticFlux.toFixed(2),       8);
-  updD('radiationLevel',   S.radiationLevel.toFixed(1),     100,   hi(60));
-  updD('auxCoolTemp',      S.auxCoolTemp.toFixed(0),        100,   hi(70));
-  updD('auxCoolFlow',      S.auxCoolFlow.toFixed(0),        800);
-  updD('backupFieldStr',   S.backupFieldStr.toFixed(1),     8);
-  updD('secondaryPressure',S.secondaryPressure.toFixed(1),  30);
+  updD('coreTemp',         S.coreTemp.toFixed(0),          DISP_TEMP_MAX,         hi(SAFE_TEMP_RED));
+  updD('corePressure',     S.corePressure.toFixed(1),       DISP_PRES_MAX,         hi(SAFE_PRES_RED));
+  updD('plasmaStability',  S.plasmaStability.toFixed(1),    DISP_PLASMA_MAX,       lo(SAFE_PLASMA_LOW, () => !!S.igniting));
+  updD('neutronDensity',   S.neutronDensity.toFixed(1),     DISP_NEUTRON_MAX);
+  updD('coolantTemp',      S.coolantTemp.toFixed(0),        DISP_COOLANT_TEMP_MAX, hi(SAFE_COOLANT_RED));
+  updD('coolantFlowRate',  S.coolantFlowRate.toFixed(0),    DISP_COOLANT_FLOW_MAX, lo(SAFE_COOLFLOW_AMBER, () => !!S.igniting));
+  updD('turbineRPM',       S.turbineRPM.toFixed(0),         DISP_TURBINE_MAX,      hi(SAFE_TURBINE_RED));
+  updD('containIntegrity', S.containIntegrity.toFixed(1),   DISP_CONTAIN_MAX,      lo(SAFE_CONTAIN_DISP));
+  updD('magneticFlux',     S.magneticFlux.toFixed(2),       DISP_FLUX_MAX);
+  updD('radiationLevel',   S.radiationLevel.toFixed(1),     DISP_RAD_MAX,          hi(SAFE_RAD_RED));
+  updD('auxCoolTemp',      S.auxCoolTemp.toFixed(0),        DISP_AUX_TEMP_MAX,     hi(SAFE_AUXCOOL_RED));
+  updD('auxCoolFlow',      S.auxCoolFlow.toFixed(0),        DISP_AUX_FLOW_MAX);
+  updD('backupFieldStr',   S.backupFieldStr.toFixed(1),     DISP_BACKUP_FIELD_MAX);
+  updD('secondaryPressure',S.secondaryPressure.toFixed(1),  DISP_SECONDARY_PRES_MAX);
   updD('rodPosition',      S.rodPosition.toFixed(0),        100);
-  updD('heatSinkTemp',     S.heatSinkTemp.toFixed(0),       200,   hi(150));
+  updD('heatSinkTemp',     S.heatSinkTemp.toFixed(0),       DISP_HEATSINK_MAX,     hi(SAFE_HEATSINK_RED));
 
   // Fuel
   const fe = document.getElementById('disp_fuelRemaining');
   if (fe) fe.textContent = S.fuelRemaining.toFixed(1);
   const fb = document.getElementById('bar_fuelRemaining');
-  if (fb) { fb.style.width = S.fuelRemaining + '%'; fb.className = 'bar-fill ' + (S.fuelRemaining < 20 ? 'red' : S.fuelRemaining < 50 ? 'amber' : 'green'); }
+  if (fb) { fb.style.width = S.fuelRemaining + '%'; fb.className = 'bar-fill ' + (S.fuelRemaining < DISP_FUEL_RED ? 'red' : S.fuelRemaining < DISP_FUEL_AMBER ? 'amber' : 'green'); }
   const fc = document.getElementById('disp_fuelConsump');
   if (fc) fc.textContent = S.fuelConsump.toFixed(1);
 
   // Net power output display
   const po = document.getElementById('netOutput');
   po.textContent = S.powerOutput.toFixed(2);
-  po.style.color = S.powerOutput > 500 ? 'var(--red)' : S.powerOutput > 100 ? 'var(--amber)' : 'var(--green)';
+  po.style.color = S.powerOutput > DISP_POWER_RED ? 'var(--red)' : S.powerOutput > DISP_POWER_AMBER ? 'var(--amber)' : 'var(--green)';
 
   // ── Reactor core SVG visual ──
   const rvCX = 70, rvCY = 62.5;
@@ -763,12 +763,12 @@ function updateUI() {
   }
 
   // Warning lights
-  setW('warnOvertemp',    S.coreTemp > 7000       ? 'red'   : S.coreTemp > 4000     ? 'amber' : '');
-  setW('warnOverpressure',S.corePressure > 35      ? 'red'   : S.corePressure > 20   ? 'amber' : '');
-  setW('warnContainment', S.containIntegrity < 30  ? 'red'   : S.containIntegrity < 60 ? 'amber' : '');
-  setW('warnCoolant',     S.igniting ? (S.coolantTemp > 150 ? 'red' : S.coolantFlowRate < 100 ? 'amber' : '') : '');
-  setW('warnFuel',        S.fuelRemaining < 10     ? 'red'   : S.fuelRemaining < 25  ? 'amber' : '');
-  setW('warnRadiation',   S.radiationLevel > 60    ? 'red'   : S.radiationLevel > 30  ? 'amber' : '');
+  setW('warnOvertemp',    S.coreTemp > SAFE_TEMP_RED        ? 'red'   : S.coreTemp > SAFE_TEMP_AMBER      ? 'amber' : '');
+  setW('warnOverpressure',S.corePressure > SAFE_PRES_RED    ? 'red'   : S.corePressure > SAFE_PRES_AMBER   ? 'amber' : '');
+  setW('warnContainment', S.containIntegrity < SAFE_CONTAIN_RED ? 'red' : S.containIntegrity < SAFE_CONTAIN_AMBER ? 'amber' : '');
+  setW('warnCoolant',     S.igniting ? (S.coolantTemp > SAFE_COOLANT_RED ? 'red' : S.coolantFlowRate < SAFE_COOLFLOW_AMBER ? 'amber' : '') : '');
+  setW('warnFuel',        S.fuelRemaining < SAFE_FUEL_RED   ? 'red'   : S.fuelRemaining < SAFE_FUEL_AMBER  ? 'amber' : '');
+  setW('warnRadiation',   S.radiationLevel > SAFE_RAD_RED   ? 'red'   : S.radiationLevel > SAFE_RAD_AMBER   ? 'amber' : '');
   setW('warnScram',       S.scramActive            ? 'red'   : '');
   setW('warnOnline',      S.reactorState === 'ONLINE' ? 'green' : '');
   setW('warnModFault',    Object.values(S.modules).some(m => m.status !== 'online') ? 'amber' : '');
@@ -828,13 +828,13 @@ function updateUI() {
                              : 'inset 0 1px 6px rgba(0,0,0,.8)';
 
   // Monitor graphs (only when tab is visible, throttled)
-  if (document.getElementById('tab-monitors').classList.contains('active') && tick % 3 === 0) {
-    drawG('mon_temp',      monHist.temp,      'rgb(255,159,28)',  10000, '°C');
-    drawG('mon_pressure',  monHist.pressure,  'rgb(0,229,255)',   50,    'ATM');
-    drawG('mon_plasma',    monHist.plasma,    'rgb(57,255,20)',   100,   '%');
-    drawG('mon_power',     monHist.power,     'rgb(57,255,20)',   600,   'MW');
-    drawG('mon_coolant',   monHist.coolant,   'rgb(0,229,255)',   1200,  'L/m');
-    drawG('mon_radiation', monHist.radiation, 'rgb(255,46,46)',   100,   'mSv');
+  if (document.getElementById('tab-monitors').classList.contains('active') && tick % MONITOR_SAMPLE_TICKS === 0) {
+    drawG('mon_temp',      monHist.temp,      'rgb(255,159,28)',  DISP_TEMP_MAX,         '°C');
+    drawG('mon_pressure',  monHist.pressure,  'rgb(0,229,255)',   DISP_PRES_MAX,         'ATM');
+    drawG('mon_plasma',    monHist.plasma,    'rgb(57,255,20)',   DISP_PLASMA_MAX,       '%');
+    drawG('mon_power',     monHist.power,     'rgb(57,255,20)',   600,                   'MW');
+    drawG('mon_coolant',   monHist.coolant,   'rgb(0,229,255)',   DISP_COOLANT_FLOW_MAX, 'L/m');
+    drawG('mon_radiation', monHist.radiation, 'rgb(255,46,46)',   DISP_RAD_MAX,          'mSv');
   }
 
   // Systems tab (throttled rebuild)
@@ -847,4 +847,4 @@ addLog('Manual: MANUAL tab', '');
 addLog('Module modes: SYSTEMS tab', 'sys');
 addLog('All systems nominal', 'ok');
 
-setInterval(simulate, 50);
+setInterval(simulate, SIM_INTERVAL_MS);

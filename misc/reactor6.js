@@ -37,8 +37,9 @@ function buildSys() {
     const isPoweringOn  = modPowerTimers[k]?.dir === 'on';
     const isPoweringOff = modPowerTimers[k]?.dir === 'off';
     const isBypassRestarting = bypassRestartTarget === k;
+    const isRestarting = rstTargets.has(k);
     const sc = isPoweringOn || isPoweringOff ? 'degraded' : (m.mode !== 'normal' && m.status !== 'offline') ? m.mode : m.status;
-    const hColor = m.health > 70 ? 'green' : m.health > 40 ? 'amber' : 'red';
+    const hColor = m.health > MOD_HEALTH_GREEN ? 'green' : m.health > MOD_HEALTH_AMBER ? 'amber' : 'red';
     const isRepairing = repairTarget === k;
     const isDiagnosing = diagTarget === k;
     const isOff = m.status === 'offline';
@@ -76,8 +77,8 @@ function buildSys() {
            <button class="mod-btn ${m.mode==='bypass'   ?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="setMode('${k}','bypass')">BYPASS</button>
          </div>
          <div class="btn-group" style="flex:1;display:flex;flex-direction:column;gap:2px">
-           <button class="mod-btn" ${isOff?'disabled':''} onclick="rstMod('${k}')">RESTART</button>
-           <button class="mod-btn" onclick="powerMod('${k}')">${modPowerTimers[k]?'CANCEL':(isOff?'POWER ON':'POWER OFF')}</button>
+           <button class="mod-btn ${isRestarting?'active-mode':''}" ${isOff&&!isRestarting?'disabled':''} onclick="rstMod('${k}')">RESTART</button>
+           <button class="mod-btn ${(isPoweringOn||isPoweringOff)?'active-mode':''}" onclick="powerMod('${k}')">${modPowerTimers[k]?'CANCEL':(isOff?'POWER ON':'POWER OFF')}</button>
          </div>
          <div class="btn-group" style="flex:1;display:flex;flex-direction:column;gap:2px">
            <button class="mod-btn ${isDiagnosing?'active-mode':''}" ${isOff?'disabled':''} onclick="diagMod('${k}')">${isDiagnosing?'DIAGNOSING':'DIAGNOSE'}</button>
@@ -112,7 +113,7 @@ window.powerAllMods = function() {
         m.errorPenalty = 1; m.errorCount = 0;
         delete modPowerTimers[k];
         buildSys();
-      }, 5000) };
+      }, MODULE_POWER_TRANSITION_MS) };
     });
   } else {
     addLog('ALL MODULES POWERING ON...', 'ok');
@@ -122,7 +123,7 @@ window.powerAllMods = function() {
           m.status = 'online';
           delete modPowerTimers[k];
           buildSys();
-        }, 5000) };
+        }, MODULE_POWER_TRANSITION_MS) };
       }
     });
   }
@@ -134,6 +135,7 @@ window.rstAllMods = function() {
   Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
   if (diagTarget) { diagTarget = null; diagStart = 0; }
   bypassRestartTarget = null;
+  rstTargets.clear();
   Object.entries(S.modules).forEach(([k, m]) => {
     m.status = 'offline'; m.mode = 'normal';
     m.sysError = false; m.sysErrorVisible = false;
@@ -144,7 +146,7 @@ window.rstAllMods = function() {
     Object.entries(S.modules).forEach(([, m]) => { m.status = 'online'; });
     addLog('ALL MODULES ONLINE', 'ok');
     buildSys();
-  }, 5000);
+  }, MODULE_RESTART_MS);
 };
 
 window.setAllMode = function(mode) {
@@ -180,7 +182,7 @@ window.powerMod = function(k) {
       delete modPowerTimers[k];
       addLog(m.name + ' POWERED OFF', 'warn');
       buildSys();
-    }, 5000) };
+    }, MODULE_POWER_TRANSITION_MS) };
   } else {
     addLog(m.name + ' powering on...', 'ok');
     modPowerTimers[k] = { dir: 'on', id: setTimeout(() => {
@@ -188,7 +190,7 @@ window.powerMod = function(k) {
       delete modPowerTimers[k];
       addLog(m.name + ' POWERED ON', 'ok');
       buildSys();
-    }, 5000) };
+    }, MODULE_POWER_TRANSITION_MS) };
   }
   buildSys();
 };
@@ -200,6 +202,7 @@ window.rstMod = function(k) {
   // Cancel power transition and diagnosis if targeting this module
   if (modPowerTimers[k]) { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; }
   if (diagTarget === k) { diagTarget = null; diagStart = 0; }
+  rstTargets.add(k);
   if (wasBypassed) {
     // Bypass restart: stays online in bypass mode, errors cleared after 5s
     bypassRestartTarget = k;
@@ -210,9 +213,10 @@ window.rstMod = function(k) {
       m.errorPenalty = 1;
       m.errorCount = 0;
       bypassRestartTarget = null;
+      rstTargets.delete(k);
       addLog(m.name + ' errors cleared (bypass)', 'ok');
       buildSys();
-    }, 5000);
+    }, MODULE_RESTART_MS);
   } else {
     m.status = 'offline';
     m.mode = 'normal';
@@ -223,9 +227,10 @@ window.rstMod = function(k) {
     buildSys();
     setTimeout(() => {
       m.status = 'online';
+      rstTargets.delete(k);
       addLog(m.name + ' ONLINE', 'ok');
       buildSys();
-    }, 5000);
+    }, MODULE_RESTART_MS);
   }
 };
 
@@ -255,7 +260,7 @@ window.diagMod = function(k) {
   }
   diagTarget = k;
   diagStart = Date.now();
-  diagDuration = (1 + Math.random() * 4) * (m.mode === 'bypass' ? 500 : 1000); // 1-5s normal; 0.5-2.5s in bypass
+  diagDuration = (DIAG_DURATION_BASE_MS + Math.random() * DIAG_DURATION_RANGE_MS) * (m.mode === 'bypass' ? DIAG_BYPASS_MULT : 1); // 1-5s normal; 0.5-2.5s in bypass
   addLog('Diagnosing ' + m.name + '...', 'sys');
   buildSys();
 };
