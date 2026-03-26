@@ -1,0 +1,12 @@
+/* ============================================================
+   backup.css — BACKUP SYS tab size overrides
+   ============================================================ */
+/* Backup Systems tab: all text +4px (panel-label header excluded) */
+#tab-backup .sub-panel-title{font-size:13px}
+#tab-backup .switch-name{font-size:12px;min-height:29px;display:flex;align-items:flex-end;justify-content:center}
+#tab-backup .lever-name{font-size:12px}
+#tab-backup .lever-readout{font-size:16px}
+#tab-backup .display-label{font-size:11px}
+#tab-backup .display-value{font-size:20px}
+#tab-backup .push-btn{font-size:12px!important;text-align:center}
+#tab-backup .warning-light{font-size:12px}

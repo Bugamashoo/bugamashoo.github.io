@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="./misc/reactor.css">
+<link rel="stylesheet" href="./misc/global.css">
+<link rel="stylesheet" href="./misc/controls.css">
+<link rel="stylesheet" href="./misc/manual.css">
+<link rel="stylesheet" href="./misc/monitors.css">
+<link rel="stylesheet" href="./misc/systems.css">
+<link rel="stylesheet" href="./misc/backup.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MKIV REACTOR CONTROL</title>
@@ -32,8 +37,17 @@
       <div class="hdr-box-value" id="hdrAvg5m">—</div>
     </div>
   </div>
-  <div class="header-status"><span id="headerStatus" class="blink">■ STANDBY</span></div>
+  <div class="header-status">
+    <span id="headerStatus" class="blink">■ STANDBY</span>
+    <div class="hdr-box hdr-box-help" id="helpBtn" onclick="toggleHelp()">
+      <div class="hdr-box-label">MODE</div>
+      <div class="hdr-box-value" id="helpBtnVal">? HELP</div>
+    </div>
+  </div>
 </div>
+<div id="helpOverlay"></div>
+<div id="helpTooltip"></div>
+<div id="helpModeNotice">HELP MODE &mdash; HOVER ANY INSTRUMENT FOR INFO</div>
 <div class="ticker-bar"><div class="ticker-text">MKIV TOKAMAK v4.7.2 ◆ CLEARANCE: LEVEL 7 ◆ FUEL NOMINAL ◆ CONTAINMENT 4/4 ◆ OVERCLOCK AT OWN RISK ◆ MODULE BYPASS VOIDS WARRANTY ◆</div></div>
 <div class="tabs-bar">
   <button class="tab-btn active" data-tab="controls">CONTROLS</button>
@@ -46,7 +60,7 @@
 <div class="main-grid">
   <div class="panel" style="grid-column:1;grid-row:1/3"><div class="panel-label">Startup Sequence</div><div class="panel-body"><div id="seqSteps"></div>
     <div class="sub-panel mt-6"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz">
-  <svg id="reactorSVG" viewBox="-16 0 172 125" xmlns="http://www.w3.org/2000/svg" width="172" height="125" style="display:block">
+  <svg id="reactorSVG" viewBox="-16 0 172 125" xmlns="http://www.w3.org/2000/svg" width="172" height="125" style="display:block;overflow:visible">
     <defs>
       <filter id="rGlow" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="3.5" result="b"/>
@@ -55,6 +69,9 @@
       <filter id="rGlowStr" x="-120%" y="-120%" width="340%" height="340%">
         <feGaussianBlur stdDeviation="8" result="b"/>
         <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="radBlur" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="14"/>
       </filter>
       <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
         <stop id="cgS0" offset="15%" stop-color="#ffffff" stop-opacity="1"/>
@@ -68,16 +85,26 @@
     </defs>
     <!-- Background hex fill -->
     <polygon points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="url(#bgGrad)"/>
+    <!-- Heat background — hex tints orange/red with heat sink temp -->
+    <polygon id="heatBg" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="#ff5500" opacity="0" filter="url(#radBlur)"/>
+    <!-- Radiation aura — large blurred halo (green→amber→red) -->
+    <circle id="radAura" cx="70" cy="62.5" r="72" fill="#39ff14" opacity="0" filter="url(#radBlur)"/>
     <!-- Outer border hex -->
     <polygon id="hexBorder" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
+    <!-- Fuel arc ring — progress ring showing remaining fuel, starts at top (rotate -90) -->
+    <circle id="fuelArc" cx="70" cy="62.5" r="58" fill="none" stroke="#ff9f1c" stroke-width="2.5" stroke-dasharray="364 365" stroke-linecap="round" transform="rotate(-90 70 62.5)" opacity="0"/>
     <!-- Fuel injection indicator (orange, bottom-left) -->
     <polygon id="fuelIndicator" points="-13.1,110.5 28.5,110.5 7.7,74.5" fill="url(#bgGrad)" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Coolant flow indicator (blue, bottom-right) -->
     <polygon id="coolantIndicator" points="111.5,110.5 153.1,110.5 132.3,74.5" fill="url(#bgGrad)" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Ring 3 — containment field -->
     <polygon id="ring3" class="rviz-ring" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="none" stroke="#1e2830" stroke-width="1.5"/>
+    <!-- Turbine spin ring — dashed circle, animation speed driven by turbineRPM -->
+    <circle id="turbineSpin" cx="70" cy="62.5" r="44" fill="none" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 7" opacity="0"/>
     <!-- Ring 2 — magnetic -->
     <polygon id="ring2" class="rviz-ring" points="108,62.5 89,95.4 51,95.4 32,62.5 51,29.6 89,29.6" fill="none" stroke="#1e2830" stroke-width="2"/>
+    <!-- Pressure pulse indicator — pulsing ring, frequency driven by core pressure -->
+    <circle id="pressPulse" cx="70" cy="62.5" r="16" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
     <!-- Ring 1 — plasma -->
     <polygon id="ring1" class="rviz-ring" points="94,62.5 82,83.3 58,83.3 46,62.5 58,41.7 82,41.7" fill="none" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Electrical arc paths -->
@@ -89,17 +116,32 @@
       <path id="arc4" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
       <path id="arc5" d="" stroke="#00e5ff" stroke-width="1" fill="none" opacity="0" filter="url(#rGlow)"/>
     </g>
+    <!-- Neutron density cloud (8 orbiting dots, flicker with neutron density) -->
+    <g id="neutronCloud">
+      <circle id="nDot0" cx="70"   cy="44.5" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot1" cx="82.7" cy="49.8" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot2" cx="88"   cy="62.5" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot3" cx="82.7" cy="75.2" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot4" cx="70"   cy="80.5" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot5" cx="57.3" cy="75.2" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot6" cx="52"   cy="62.5" r="1.8" fill="#00e5ff" opacity="0"/>
+      <circle id="nDot7" cx="57.3" cy="49.8" r="1.8" fill="#00e5ff" opacity="0"/>
+    </g>
     <!-- Core glow halo -->
     <circle id="coreGlowCirc" cx="70" cy="62.5" r="22" fill="url(#coreGrad)" opacity="0"/>
     <!-- Core hex -->
     <polygon id="reactorCore" points="83,62.5 76.5,73.8 63.5,73.8 57,62.5 63.5,51.2 76.5,51.2" fill="#0d1418" stroke="#1e2830" stroke-width="1.5"/>
+    <!-- Control rod insertion indicators (visible when rod safety off) -->
+    <line id="rodLineA" x1="70" y1="41.7" x2="70"  y2="41.7" stroke="#ff2e2e" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+    <line id="rodLineB" x1="88" y1="72.9" x2="88"  y2="72.9" stroke="#ff2e2e" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+    <line id="rodLineC" x1="52" y1="72.9" x2="52"  y2="72.9" stroke="#ff2e2e" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
     <!-- Corner accent nodes -->
-    <circle id="rDot0" cx="130" cy="62.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot0" cx="130" cy="62.5"  r="2.5" fill="#1e2830"/>
     <circle id="rDot1" cx="100" cy="114.5" r="2.5" fill="#1e2830"/>
-    <circle id="rDot2" cx="40" cy="114.5" r="2.5" fill="#1e2830"/>
-    <circle id="rDot3" cx="10" cy="62.5" r="2.5" fill="#1e2830"/>
-    <circle id="rDot4" cx="40" cy="10.5" r="2.5" fill="#1e2830"/>
-    <circle id="rDot5" cx="100" cy="10.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot2" cx="40"  cy="114.5" r="2.5" fill="#1e2830"/>
+    <circle id="rDot3" cx="10"  cy="62.5"  r="2.5" fill="#1e2830"/>
+    <circle id="rDot4" cx="40"  cy="10.5"  r="2.5" fill="#1e2830"/>
+    <circle id="rDot5" cx="100" cy="10.5"  r="2.5" fill="#1e2830"/>
   </svg>
 </div>
     <div class="power-display mt-4"><div class="display-label" style="text-align:center">NET OUTPUT</div><div class="power-value" id="netOutput">0.00</div><div class="power-unit">MEGAWATTS</div></div></div>
@@ -151,5 +193,8 @@
 <script src="./misc/reactor6.js"></script>  <!-- Systems tab: buildSys, setMode, rstMod, diagMod -->
 <script src="./misc/reactor7.js"></script>  <!-- Manual tab: MP content object + nav wiring -->
 <script src="./misc/reactor8.js"></script>  <!-- Event system: triggerEvent, updateEvt, closeEvt, triggerCatastrophe -->
-<script src="./misc/reactor9.js"></script>  <!-- Simulation loop, UI update, doScram, hardReset, ignition, init -->
+<script src="./misc/reactor9.js"></script>  <!-- Helpers: doScram, hardReset, ignition, checkSeq, GAUGE_DANGERS, updD/setW, init -->
+<script src="./misc/ui.js"></script>       <!-- UI update: updateUI() -->
+<script src="./misc/sim.js"></script>      <!-- Simulation loop: simulate() -->
+<script src="./misc/help.js"></script>     <!-- Help mode: tooltips and graying -->
 </body></html>

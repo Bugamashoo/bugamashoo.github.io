@@ -1,0 +1,23 @@
+/* ============================================================
+   systems.css — SYSTEMS tab module cards and buttons
+   ============================================================ */
+.systems-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:6px;flex:1;min-height:0}
+.module-card{background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:4px;padding:10px;display:flex;flex-direction:column}
+.module-title{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px;color:#b07830;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.module-status{font-size:12px;padding:2px 6px;border-radius:2px;letter-spacing:1px}
+.module-status.online{background:rgba(57,255,20,.1);color:var(--green);border:1px solid var(--green-dim)}
+.module-status.offline{background:rgba(255,46,46,.1);color:var(--red);border:1px solid var(--red-dim)}
+.module-status.degraded{background:rgba(255,159,28,.1);color:var(--amber);border:1px solid var(--amber-dim)}
+.module-status.overclock{background:rgba(255,46,170,.1);color:var(--magenta);border:1px solid #6b1250}
+.module-status.eco{background:rgba(0,229,255,.1);color:var(--cyan);border:1px solid var(--cyan-dim)}
+.module-status.locked{background:rgba(90,95,102,.2);color:#8a8f96;border:1px solid #5a5f66}
+.module-status.bypass{background:rgba(255,224,71,.1);color:#ffe047;border:1px solid #6b5f1e}
+.mod-btn{padding:4px 2px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;background:var(--panel-bg);border:1px solid var(--panel-border);color:var(--amber);cursor:pointer;border-radius:2px;text-transform:uppercase;transition:all .2s;text-align:center;width:100%}
+.mod-btn:hover{border-color:var(--amber);color:var(--amber);text-shadow:0 0 6px rgba(255,159,28,.5)}
+.mod-btn.danger:hover{color:var(--red);border-color:var(--red)}
+.mod-btn.active-mode{border-color:var(--magenta);color:var(--magenta);background:rgba(255,46,170,.05)}
+.mod-btn:disabled{opacity:0.2;cursor:not-allowed;pointer-events:none}
+.btn-group{border:1px solid var(--panel-border);border-radius:3px;padding:3px}
+.btn-group .mod-btn{flex:1}
+.mode-effect{font-size:11px;color:#a0a6ae;margin-top:4px;line-height:1.4;font-family:'Rajdhani',sans-serif}
+.mode-effect .pos{color:#3aaa20}.mode-effect .neg{color:#b03030}.mode-effect .link{color:#2899a8}

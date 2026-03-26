@@ -27,6 +27,12 @@ const KS = {
   HR_X: 35            // handle right attachment X (just inside red edge)
 };
 
+// Switch IDs that live on the main controls panel (blocked when comms offline)
+const MAIN_PANEL_SWITCH_IDS = new Set([
+  'auxPower','radShield','fuelPumps','coolantPumps','magCoils',
+  'ignPrime','turbineEngage','gridSync','ventSystem','backupGen','containField'
+]);
+
 // ── Switch banks ─────────────────────────────────────────────
 function buildSB(cid, defs) {
   const c = document.getElementById(cid);
@@ -83,6 +89,10 @@ function syncKnifeSwitches() {
 }
 
 function togSw(id, el) {
+  if (S.modules.comms.status === 'offline' && MAIN_PANEL_SWITCH_IDS.has(id)) {
+    if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
+    return;
+  }
   if (S.scramActive && !['auxPower','backupGen','emergVent','emergDump','rodSafetyOff'].includes(id)) return;
   const mm = { fuelPumps:'fuel', coolantPumps:'coolant', gridSync:'grid', magCoils:'magnetic' };
   if (mm[id]) {
@@ -201,6 +211,10 @@ function setupLev(tr, id) {
   let drag = 0;
 
   function setL(cy) {
+    if (S.modules.comms.status === 'offline' && tr.closest('#tab-controls')) {
+      if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
+      return;
+    }
     const r  = tr.getBoundingClientRect();
     const ht = r.height - 28;
     let y    = Math.max(0, Math.min(ht, cy - r.top - 14));
@@ -256,6 +270,10 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
     let dragging = false, startX = 0, startVal = 0;
 
     function updateKnob(val) {
+      if (S.modules.comms.status === 'offline') {
+        if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
+        return;
+      }
       S[d.id] = Math.round(Math.max(5, Math.min(95, val)) / 5) * 5;
       knobEl.style.transform = `rotate(${(S[d.id]/100)*270-135}deg)`;
       document.getElementById('readout_' + d.id).textContent = S[d.id] + '%';
@@ -309,13 +327,15 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   const ib = document.getElementById('ignBtn');
 
   // Delegates to global sI/eI defined in reactor9.js (loaded later)
-  ib.addEventListener('mousedown',  () => { ib.classList.add('active-amber'); window.sI(); });
-  ib.addEventListener('touchstart', (e) => { e.preventDefault(); ib.classList.add('active-amber'); window.sI(); }, { passive: false });
+  const commsGuard = () => { if (S.modules.comms.status === 'offline') { if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; } return true; } return false; };
+  ib.addEventListener('mousedown',  () => { if (commsGuard()) return; ib.classList.add('active-amber'); window.sI(); });
+  ib.addEventListener('touchstart', (e) => { e.preventDefault(); if (commsGuard()) return; ib.classList.add('active-amber'); window.sI(); }, { passive: false });
   ib.addEventListener('mouseup',    () => { ib.classList.remove('active-amber'); window.eI(); });
   ib.addEventListener('touchend',   () => { ib.classList.remove('active-amber'); window.eI(); });
   ib.addEventListener('mouseleave', () => { ib.classList.remove('active-amber'); window.eI(); });
 
   document.getElementById('testBtn').addEventListener('click', () => {
+    if (commsGuard()) return;
     document.querySelectorAll('.warning-light').forEach(w => {
       w.classList.add('active-amber');
       setTimeout(() => w.classList.remove('active-amber'), 1000);
@@ -324,6 +344,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   });
 
   document.getElementById('purgeBtn').addEventListener('click', () => {
+    if (commsGuard()) return;
     S.corePressure = Math.max(PRESSURE_BASE, S.corePressure * EMERG_PURGE_PRES_MULT);
     addLog('LINE PURGE', 'sys');
     doFlash('rgba(0,229,255,0.1)');

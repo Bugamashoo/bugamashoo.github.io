@@ -83,5 +83,7 @@ let nextErrorTime  = ERR_SPAWN_INIT_MIN + Math.random() * ERR_SPAWN_INIT_RANGE; 
 let recentEventIds = []; // last 3 triggered event IDs — prevents same event repeating until 3 others have fired
 let fuelPumpOffStart = 0; // Date.now() when fuel pumps went off; 0 = pumps are on or grace expired
 let powerHist5m = []; // power samples every 60 ticks (3s), max 100 entries = 5 min rolling window
+let sensorNoise       = {};   // randomised display strings shown when sensor array is offline
+let lastCommsWarnTick = -100; // throttle "comms offline" log spam (1 message per 20 ticks)
 let moduleHealthPrev = {}; // previous-tick health per module key, for threshold crossing detection
 let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets uptime at 10s

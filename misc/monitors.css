@@ -1,0 +1,7 @@
+/* ============================================================
+   monitors.css — MONITORS tab graph panel styles
+   ============================================================ */
+.monitors-grid{display:flex;flex-direction:column;width:100%}
+.monitor-panel{background:#0a0c0e;border-bottom:1px solid var(--panel-border);overflow:hidden;padding:6px 10px;height:120px;flex-shrink:0;position:relative}
+.monitor-panel::before{content:'';position:absolute;top:-4px;left:0;right:0;height:4px;background:var(--cyan);opacity:.06;animation:scanline 4s linear infinite;pointer-events:none}
+.monitor-title{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--cyan-dim);margin-bottom:4px}
