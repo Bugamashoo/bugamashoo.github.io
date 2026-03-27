@@ -1,7 +1,7 @@
-/* ============================================================
-   controls.css — CONTROLS tab layout, switches, levers,
+/*
+   controls.css - CONTROLS tab layout, switches, levers,
                   knobs, reactor visual, sequence steps
-   ============================================================ */
+*/
 .main-grid{display:grid;grid-template-columns:250px 1fr 500px;grid-template-rows:auto auto;gap:0;flex:1;min-height:0}
 .scram-btn{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ff1744,#b71c1c);border:4px solid #d32f2f;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:900;font-size:14px;color:#fff;box-shadow:0 6px 12px rgba(0,0,0,.6),inset 0 2px 3px rgba(255,255,255,.2),0 0 40px rgba(255,23,68,.6);transition:all .1s;letter-spacing:2px}
 .scram-btn:active{transform:translateY(3px);box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 3px 8px rgba(0,0,0,.4)}
@@ -28,7 +28,7 @@
 .seq-step.active .seq-dot{background:var(--amber);animation:pulse 1s ease-in-out infinite}
 .seq-dot{width:6px;height:6px;border-radius:50%;background:var(--panel-border);flex-shrink:0}
 .seq-label{color:#7a7f86;font-size:9px}.seq-step.complete .seq-label{color:var(--green)}.seq-step.active .seq-label{color:var(--amber)}
-/* Controls tab: all text +2px (header excluded — it lives outside #tab-controls) */
+/* Controls tab: all text +2px (header excluded - it lives outside #tab-controls) */
 #tab-controls .panel-label{font-size:11px}
 #tab-controls .sub-panel-title{font-size:11px}
 #tab-controls .switch-name{font-size:10px}

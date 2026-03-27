@@ -1,26 +1,20 @@
-// ============================================================
-// vars.js — GAME BALANCE CONSTANTS
+// vars.js - GAME BALANCE CONSTANTS
 // Load order: 0th (before all reactor scripts)
-//
-// Edit values here to tune gameplay difficulty and feel.
+
+// Tuning for gameplay difficulty and feel.
 // Changes take effect on the next page load.
-// ============================================================
 
-
-// ── SIMULATION TIMING ────────────────────────────────────────
+// SIMULATION TIMING
 // How fast the simulation runs and how much history is kept.
-
 const SIM_INTERVAL_MS      = 50;     // Milliseconds between simulation ticks (20 Hz at 50ms)
-const SIM_DT               = 1 / 20; // Seconds per tick — must match 1000/SIM_INTERVAL_MS
+const SIM_DT               = 1 / 20; // Seconds per tick - must match 1000/SIM_INTERVAL_MS
 const MONITOR_HISTORY_LEN  = 1200;   // Points kept in monitor graphs (~9 min at 20 Hz, sampled every 3 ticks)
 const MONITOR_SAMPLE_TICKS = 3;      // Sample monitor history every N ticks
 const POWER_HIST_TICKS     = 60;     // Sample 5-min avg power history every N ticks (3s at 20 Hz)
 const POWER_HIST_MAX       = 100;    // Max power history entries (100 × 3s = 5-min rolling window)
 
-
-// ── INITIAL STATE ────────────────────────────────────────────
+// INITIAL STATE
 // Starting values when the game loads.
-
 const FUEL_START      = 100;  // Starting fuel level (%)
 const KNOB_DEFAULT    = 50;   // Default value for pressureRelief, mixRatio, fieldTune knobs (%)
 const TEMP_IDLE       = 20;   // Ambient/idle core temperature (°C)
@@ -29,11 +23,9 @@ const HEATSINK_IDLE   = 20;   // Idle heat sink temperature (°C)
 const COOLANT_IDLE    = 15;   // Idle coolant temperature (°C)
 const AUX_COOL_IDLE   = 12;   // Idle aux coolant temperature (°C)
 
-
-// ── MODULE MODES ─────────────────────────────────────────────
+// MODULE MODES
 // Performance multiplier, health drain rate, and heat modifier for each mode.
 // healthDrain is a multiplier applied to the per-interval drain roll (MOD_BASE_DRAIN_ROLL).
-
 const MODE_OVERCLOCK_PERF  = 1.5;   // Performance multiplier in overclock (+50%)
 const MODE_OVERCLOCK_DRAIN = 3;     // Health drain multiplier in overclock (3× normal)
 const MODE_OVERCLOCK_HEAT  = 110;    // Extra °C added to core temp target in overclock
@@ -42,33 +34,26 @@ const MODE_ECO_DRAIN       = 0.3;   // Health drain multiplier in eco mode (0.3�
 const MODE_ECO_HEAT        = -40;    // Heat reduction in eco mode (°C)
 const MODE_BYPASS_PERF     = 0.9;   // Performance multiplier in bypass mode (-10%)
 
-
-// ── STARTUP SEQUENCE THRESHOLDS ──────────────────────────────
+// STARTUP SEQUENCE THRESHOLDS
 // Minimum lever positions required to advance the startup checklist.
-
-const SEQ_CONTAIN_MIN   = 60;  // Containment power must be ≥ this % (step 6)
-const SEQ_FUEL_INJ_MIN  = 10;  // Fuel injection must be ≥ this % (step 7)
-const SEQ_THROTTLE_MIN  = 20;  // Main throttle must be ≥ this % (step 10)
+const SEQ_CONTAIN_MIN   = 60;  // Containment power must be >= this % (step 6)
+const SEQ_FUEL_INJ_MIN  = 10;  // Fuel injection must be >= this % (step 7)
+const SEQ_THROTTLE_MIN  = 20;  // Main throttle must be >= this % (step 10)
 const IGN_HOLD_MS       = 3000; // Milliseconds the ignition button must be held to fire plasma
 
-
-// ── FUEL SYSTEM ───────────────────────────────────────────────
+// FUEL SYSTEM
 // Fuel consumption rates and plasma extinction thresholds.
-
 const FUEL_CONSUME_RATE    = 0.005;  // Fuel drained per 1% injection per dt (base rate)
 const FUEL_CONSUME_DISPLAY = 0.3;    // Scale factor for the fuelConsump readout (visual only)
 const FUEL_CONSUME_DECAY   = 0.9;    // Per-tick decay of fuelConsump when not igniting (fraction)
 const FUEL_DUMP_DRAIN      = 0.5;    // Fuel drained per second when emergency dump is active (%)
 const FUEL_PUMP_GRACE_MS   = 10000;   // Milliseconds fuel continues flowing after pumps go offline
-
 const PLASMA_EXTINGUISH_EF         = 1;  // Plasma extinguishes if effective fuel drops below this
 const PLASMA_EXTINGUISH_STABILITY  = 5;  // ...and plasma stability drops below this (%)
 
-
-// ── CORE TEMPERATURE ─────────────────────────────────────────
+// CORE TEMPERATURE
 // Heat generation, cooling, and lerp tuning.
 // Normal operation: 2000–5000°C. Warning above 4000. Danger above 7000.
-
 // Heat generation
 const TEMP_HEAT_FUEL      = 120;   // Fuel injection contribution to raw heat (per 1% inject)
 const TEMP_HEAT_THROTTLE  = 50;    // Throttle contribution to raw heat (per 1% throttle)
@@ -89,11 +74,9 @@ const EMERG_VENT_TEMP_OFFSET = 100;  // Additional °C subtracted when emergency
 const TEMP_LERP           = 0.02;  // Temperature lerp rate toward target per tick (higher = snappier)
 const TEMP_RUNAWAY_STEP   = 200;   // °C/tick forced rise when no active cooling is running
 
-
-// ── CORE PRESSURE ────────────────────────────────────────────
+// CORE PRESSURE
 // Pressure formula constants.
 // Normal range: 8–18 ATM. Amber above 18. Red/danger above 24.
-
 const PRES_TEMP_SCALE        = 0.25;  // sqrt(coreTemp) × this = temperature contribution to pressure
 const PRES_THROTTLE_DIV      = 12;    // Throttle divided by this = direct throttle contribution
 const PRES_FUEL_DIV          = 50;    // Effective fuel divided by this = fuel contribution
@@ -103,41 +86,32 @@ const PRES_ROD_DAMPENING     = 0.5;   // Fraction of pressure removed by full ro
 const EMERG_VENT_PRES_MULT   = 0.5;   // Pressure multiplied by this when emergency vent is active
 const PRES_FLOOR             = 1;   // Minimum possible core pressure (ATM)
 const PRES_LERP              = 0.03;  // Pressure lerp rate toward target per tick
-
 const SECONDARY_PRES_CORE_SCALE   = 0.6;   // Secondary pressure = corePressure × this + backup contribution
 const SECONDARY_PRES_BACKUP_SCALE = 0.05;  // + backupContPow × this
 
-
-// ── COOLANT ───────────────────────────────────────────────────
+// COOLANT
 // Coolant temperature and flow rate calculation.
-
 const COOLANT_CORE_TRANSFER   = 0.04;  // Fraction of coreTemp transferred to coolant per tick
 const COOLANT_FLOW_COOLING    = 1;   // °C removed per % coolantFlow × coolant perf
 const COOLANT_FLOOR           = 10;    // Minimum coolant temperature (°C)
 const COOLANT_LERP            = 0.05;  // Coolant temp lerp rate per tick
 const COOLANT_FLOW_SCALE      = 12;    // coolantFlowRate = coolantFlow × switches × perf × this
-
 const AUX_COOL_CORE_TRANSFER  = 0.01;  // Fraction of coreTemp transferred to aux coolant
 const AUX_COOL_RATE_COOLING   = 0.3;   // °C removed per % auxCoolRate × backup effectiveness
 const AUX_COOL_FLOW_SCALE     = 8;     // auxCoolFlow = auxCoolRate × perf × this
 
-
-// ── MAGNETIC FIELD ────────────────────────────────────────────
+// MAGNETIC FIELD
 // Containment field and backup field strength.
-
 const MAG_FIELD_SCALE        = 8;     // (containPower/100) × this × tune factor = target flux
 const MAG_TUNE_OFFSET        = 0.7;   // Base tune factor before fieldTune contribution
 const MAG_TUNE_SCALE         = 300;   // fieldTune / this = added to MAG_TUNE_OFFSET
 const MAG_FLUX_LERP          = 0.05;  // Magnetic flux lerp rate per tick
-
 const MAG_BACKUP_POWER_SCALE = 4;     // Backup field: (switches × backupContPow/100) × this × bEff
 const BACKUP_OVERCLOCK_MULT  = 4;     // Backup system effectiveness multiplied by this when overclocked
 
-
-// ── PLASMA STABILITY ─────────────────────────────────────────
+// PLASMA STABILITY
 // Plasma stability formula.
 // Target range: >60% for safe operation. Critical below 20%.
-
 const PLASMA_BASE                  = 50;    // Starting stability when igniting (%)
 const PLASMA_FLUX_SCALE            = 5;     // Magnetic flux contribution per unit flux
 const PLASMA_BACKUP_SCALE          = 2;     // Backup field contribution per unit strength
@@ -157,27 +131,21 @@ const PLASMA_FUEL_BONUS_MAX        = 12;    // Maximum stability bonus from fuel
 const PLASMA_ROD_REDUCTION         = 0.3;   // Fraction of stability removed by full rod insertion (rE=1)
 const PLASMA_LERP                  = 0.04;  // Plasma stability lerp rate per tick
 
-
-// ── NEUTRON DENSITY ───────────────────────────────────────────
-
+// NEUTRON DENSITY
 const NEUTRON_TEMP_SCALE      = 10;   // sqrt(coreTemp) / this = temperature factor
 const NEUTRON_MULT            = 1.5;  // Overall neutron density multiplier
 const NEUTRON_ROD_REDUCTION   = 0.6;  // Fraction of neutrons absorbed by full rod insertion (rE=1)
 const NEUTRON_LERP            = 0.03; // Neutron density lerp rate per tick
 
-
-// ── RADIATION ─────────────────────────────────────────────────
+// RADIATION
 // Normal shielded operation: ~15–25 mSv. Warning above 30. Danger above 60.
-
 const RAD_NEUTRON_MULT             = 0.4;  // neutronDensity × this = baseline radiation
 const RAD_NO_SHIELD_BONUS          = 25;   // Extra mSv when radiation shielding is off
 const RAD_LOW_CONTAIN_THRESHOLD    = 50;   // Containment % below which radiation leaks
 const RAD_LOW_CONTAIN_SCALE        = 0.5;  // (threshold - containIntegrity) × this = leak bonus
 
-
-// ── CONTAINMENT INTEGRITY ─────────────────────────────────────
+// CONTAINMENT INTEGRITY
 // Drain when under-powered; regen when powered with field on.
-
 const CONTAIN_POWER_THRESHOLD    = 50;    // % containPower; below this integrity drains, above it regens
 const CONTAIN_DRAIN_MIN          = 0.02;  // Integrity drained/tick at containPower = 0%
 const CONTAIN_DRAIN_MAX          = 0.06;  // Additional drain at maximum power deficit (total 0.02–0.06/tick)
@@ -188,23 +156,18 @@ const CONTAIN_OVERTEMP_DRAIN_MIN = 0.02;  // Extra drain/tick at CONTAIN_OVERTEM
 const CONTAIN_OVERTEMP_DRAIN_MAX = 0.06;  // Max additional drain at extreme temperatures
 const CONTAIN_BACKUP_REGEN_SCALE = 0.003; // backupFieldStr × this = extra regen per tick
 
-
-// ── TURBINE & GRID ────────────────────────────────────────────
+// TURBINE & GRID
 // Safe RPM range: 3,000–12,000. Warning above 13,000.
-
 const TURB_FUEL_BOOST_BASE  = 0.7;   // RPM multiplier at zero effective fuel
 const TURB_FUEL_BOOST_RANGE = 0.6;   // Added to base at full fuel (max: base + range = 1.3×)
 const TURB_RPM_SCALE        = 150;   // throttle × plasma% × fuelBoost × this = target RPM
 const TURB_LERP             = 0.02;  // Turbine RPM lerp rate per tick
-
 const GRID_TARGET           = 80;    // Target grid load when synced (%)
 const GRID_LERP             = 0.01;  // Grid load lerp rate toward target per tick
 const GRID_DECAY            = 0.95;  // Grid load multiplied by this per tick when not synced
 
-
-// ── POWER OUTPUT ──────────────────────────────────────────────
+// POWER OUTPUT
 // Typical operating range: 50–400 MW.
-
 const POWER_FUEL_MULT_BASE   = 0.6;   // Power multiplier at zero effective fuel
 const POWER_FUEL_MULT_RANGE  = 0.8;   // Added at full fuel (max: base + range = 1.4×)
 const POWER_RPM_SCALE        = 15000; // turbineRPM / this = RPM contribution (fraction of max)
@@ -214,16 +177,12 @@ const POWER_NO_VENT_MULT     = 0.85;  // Power multiplied by this when ventSyste
 const POWER_BACKUP_GEN_BONUS = 2;     // MW added to output when backup generator is active
 const POWER_LERP             = 0.03;  // Power output lerp rate per tick
 
-
-// ── HEAT SINK ─────────────────────────────────────────────────
-
+// HEAT SINK
 const HEATSINK_CORE_SCALE = 0.005;  // coreTemp × this = heat sink heating contribution
 const HEATSINK_COOL_SCALE = 0.025;   // cE_flat (coolant effect) × this = heat sink cooling
 
-
-// ── MODULE HEALTH & DEGRADATION ──────────────────────────────
+// MODULE HEALTH & DEGRADATION 
 // Raise DRAIN_INTERVAL or lower BASE_DRAIN_ROLL to make modules last longer.
-
 const MOD_DRAIN_INTERVAL    = 60;   // Ticks between module health drain calculations (every 3s at 20Hz)
 const MOD_BASE_DRAIN_ROLL   = 0.2;  // Max random health drained per interval (before multipliers)
 const MOD_SLIDER_BASE       = 0.5;  // Slider load multiplier at 0% lever position
@@ -253,19 +212,16 @@ const WARN_FUEL_AMBER       = 25;   // Fuel remaining (%) below which amber seve
 const WARN_RAD_RED          = 60;   // Radiation (mSv) above which red severity score
 const WARN_RAD_AMBER        = 30;   // Radiation (mSv) above which amber severity score
 
-
-// ── BACKUP SYSTEMS HEALTH DRAIN ──────────────────────────────
+// BACKUP SYSTEMS HEALTH DRAIN
 // Each active backup load drains backup health per tick.
 // All four maxed out = ~1 minute to deplete from full.
-
 const BACKUP_GEN_DRAIN        = 0.005;  // Health drained/tick when backupGen is on
 const BACKUP_AUX_DRAIN        = 0.02;  // Health drained/tick per % auxCoolRate / 100 when aux loop active
 const BACKUP_FIELD_A_DRAIN    = 0.02;  // Health drained/tick per % backupContPow / 100 when Field A on
 const BACKUP_FIELD_B_DRAIN    = 0.02;  // Health drained/tick per % backupContPow / 100 when Field B on
 const BACKUP_OVERCLOCK_DRAIN  = 3;     // Backup drain multiplied by this when backup is in overclock mode
 
-
-// ── GAUGE DANGER → MODULE DAMAGE ─────────────────────────────
+// GAUGE DANGER -> MODULE DAMAGE
 // When a gauge stays in danger, a timer arms. On expiry, the linked module takes damage.
 // Lower ARM_MIN / ARM_RANGE for faster punishment; lower DMG values for softer consequences.
 
@@ -274,10 +230,8 @@ const GAUGE_DANGER_ARM_RANGE = 45;  // Random seconds added to the arm timer (to
 const GAUGE_DANGER_DMG_MIN   = 6;   // Minimum health % damage per trigger
 const GAUGE_DANGER_DMG_RANGE = 9;   // Random health % added to minimum damage (total: 6–15%)
 
-
-// ── GAUGE DANGER THRESHOLDS ───────────────────────────────────
+// GAUGE DANGER THRESHOLDS
 // Conditions that arm the gauge danger timer and deal module damage.
-
 const GAUGE_TEMP_DANGER       = 6000;  // Core temp (°C) above which thermal damage accrues
 const GAUGE_PRES_DANGER       = 24;    // Core pressure (ATM) above which fuel module takes damage
 const GAUGE_PLASMA_DANGER     = 20;    // Plasma stability (%) below which magnetic module takes damage
@@ -289,16 +243,13 @@ const GAUGE_TURBINE_DANGER    = 16000; // Turbine RPM above which grid module ta
 const GAUGE_HEATSINK_DANGER   = 150;   // Heat sink temp (°C) above which coolant module takes damage
 const GAUGE_AUXCOOL_DANGER    = 70;    // Aux cool temp (°C) above which backup module takes damage
 
-
-// ── SYSTEM ERRORS ─────────────────────────────────────────────
+// SYSTEM ERRORS 
 // Hidden faults that silently reduce module efficiency until diagnosed.
 // Raise SPAWN_NEXT_MIN to give players more breathing room between errors.
-
 const ERR_SPAWN_INIT_MIN    = 30;   // Seconds after reactor start before first error can spawn
 const ERR_SPAWN_INIT_RANGE  = 270;  // Random seconds added to initial spawn time (total: 30–300s)
 const ERR_SPAWN_NEXT_MIN    = 30;   // Seconds between subsequent error events
 const ERR_SPAWN_NEXT_RANGE  = 270;  // Random seconds added (total: 30–300s per error cycle)
-
 const ERR_PENALTY_INIT_MIN  = 0.85; // Initial efficiency when an error is applied (85%)
 const ERR_PENALTY_INIT_RANGE = 0.05;// Random range on top of min (initial: 85–90% efficiency)
 const ERR_PENALTY_FLOOR     = 0.40; // Efficiency cannot drop below this, even with many worsening events
@@ -307,29 +258,27 @@ const ERR_WORSEN_STEP_RANGE = 0.05; // Random amount added to worsen step (total
 const ERR_WORSEN_CHANCE     = 0.75; // Probability that a new error event worsens an existing error vs spreading
 const ERR_SPREAD_THRESHOLD  = 8;    // errorCount at which a maxed error starts spreading to new modules
 
-
-// ── SAFE OPERATING RANGES ─────────────────────────────────────
+// SAFE OPERATING RANGES ─
 // Thresholds that drive warning lights and gauge color coding.
 // These match the values referenced in the Operations Manual tab.
-
 // Warning light triggers (also used as gauge color thresholds)
-const SAFE_TEMP_RED       = 6000;  // Core temp (°C) → red warning light
-const SAFE_TEMP_AMBER     = 4000;  // Core temp (°C) → amber warning light
-const SAFE_PRES_RED       = 24;    // Core pressure (ATM) → red warning light
-const SAFE_PRES_AMBER     = 18;    // Core pressure (ATM) → amber warning light
-const SAFE_CONTAIN_RED    = 30;    // Containment (%) → red warning light
-const SAFE_CONTAIN_AMBER  = 60;    // Containment (%) → amber warning light
-const SAFE_COOLANT_RED    = 150;   // Coolant temp (°C) → red warning light
-const SAFE_COOLFLOW_AMBER = 100;   // Coolant flow (L/min) below this → amber warning light
-const SAFE_FUEL_RED       = 10;    // Fuel remaining (%) → red warning light
-const SAFE_FUEL_AMBER     = 25;    // Fuel remaining (%) → amber warning light
-const SAFE_RAD_RED        = 60;    // Radiation (mSv) → red warning light
-const SAFE_RAD_AMBER      = 30;    // Radiation (mSv) → amber warning light
-const SAFE_HEATSINK_RED   = 150;   // Heat sink temp (°C) → red gauge
-const SAFE_AUXCOOL_RED    = 70;    // Aux cool temp (°C) → red gauge
-const SAFE_TURBINE_RED    = 16000; // Turbine RPM → red gauge
-const SAFE_CONTAIN_DISP   = 15;    // Containment (%) → red gauge (display threshold, slightly tighter than light)
-const SAFE_PLASMA_LOW     = 20;    // Plasma stability (%) → red gauge (when igniting)
+const SAFE_TEMP_RED       = 6000;  // Core temp (°C) -> red warning light
+const SAFE_TEMP_AMBER     = 4000;  // Core temp (°C) -> amber warning light
+const SAFE_PRES_RED       = 24;    // Core pressure (ATM) -> red warning light
+const SAFE_PRES_AMBER     = 18;    // Core pressure (ATM) -> amber warning light
+const SAFE_CONTAIN_RED    = 30;    // Containment (%) -> red warning light
+const SAFE_CONTAIN_AMBER  = 60;    // Containment (%) -> amber warning light
+const SAFE_COOLANT_RED    = 150;   // Coolant temp (°C) -> red warning light
+const SAFE_COOLFLOW_AMBER = 100;   // Coolant flow (L/min) below this -> amber warning light
+const SAFE_FUEL_RED       = 10;    // Fuel remaining (%) -> red warning light
+const SAFE_FUEL_AMBER     = 25;    // Fuel remaining (%) -> amber warning light
+const SAFE_RAD_RED        = 60;    // Radiation (mSv) -> red warning light
+const SAFE_RAD_AMBER      = 30;    // Radiation (mSv) -> amber warning light
+const SAFE_HEATSINK_RED   = 150;   // Heat sink temp (°C) -> red gauge
+const SAFE_AUXCOOL_RED    = 70;    // Aux cool temp (°C) -> red gauge
+const SAFE_TURBINE_RED    = 16000; // Turbine RPM -> red gauge
+const SAFE_CONTAIN_DISP   = 15;    // Containment (%) -> red gauge (display threshold, slightly tighter than light)
+const SAFE_PLASMA_LOW     = 20;    // Plasma stability (%) -> red gauge (when igniting)
 
 // Gauge display max values (upper limit of the fill bar, not a danger threshold)
 const DISP_TEMP_MAX       = 10000;
@@ -361,12 +310,10 @@ const STATE_CRITICAL_TEMP     = 8000; // Core temp (°C) above which state becom
 const STATE_CRITICAL_CONTAIN  = 20;   // Containment (%) below which state becomes CRITICAL
 const AUTO_SCRAM_CONTAIN      = 5;    // Containment (%) at or below which auto-scram triggers
 
-
-// ── EVENT SYSTEM ──────────────────────────────────────────────
+// EVENT SYSTEM
 // Controls how often and how urgently events fire.
 // Raise delays to make the game easier; lower timers to increase pressure.
-
-const EVT_FIRST_DELAY_MIN   = 120;   // Seconds after startup before the first event can trigger
+const EVT_FIRST_DELAY_MIN   = 120;  // Seconds after startup before the first event can trigger
 const EVT_FIRST_DELAY_RANGE = 240;  // Random seconds added to first delay (total: 60–300s)
 const EVT_POST_CLOSE_MIN    = 60;   // Seconds of quiet time after resolving an event
 const EVT_POST_CLOSE_RANGE  = 240;  // Random seconds added (total: 60–300s)
@@ -393,48 +340,37 @@ const EVT_TIME_AUX_POWER_FAULT  = 30;
 
 // De-escalation phase (after all steps complete, hold controls steady to resolve)
 const DEESC_HOLD_MS   = 15000; // Milliseconds of stable controls required to resolve the event
-const DEESC_TOLERANCE = 2;     // ± units of change allowed in a tracked control before timer resets
+const DEESC_TOLERANCE = 2;     // +- units of change allowed in a tracked control before timer resets
 
 // Game-over screen
 const GAME_OVER_DELAY_MS = 4500; // Milliseconds after catastrophe animation before showing game over
 
-
-// ── REPAIR & DIAGNOSIS ────────────────────────────────────────
+// REPAIR & DIAGNOSIS
 // Repair rates are in health % per tick.
-
 const REPAIR_ONLINE_RATE    = 1 / 30;    // Health regained per tick when online (normal repair)
 const REPAIR_BYPASS_RATE    = 3 / 30;    // Health regained per tick in bypass mode
 const REPAIR_OFFLINE_RATE   = 5 / 30;  // Health regained per tick when offline (fast repair)
-
 const DIAG_DURATION_BASE_MS  = 1000;  // Minimum diagnosis duration (ms)
 const DIAG_DURATION_RANGE_MS = 4000;  // Random extra duration added (total: 1–5s)
 const DIAG_BYPASS_MULT       = 0.4;   // Duration multiplied by this when module is in bypass mode (0.5–2.5s)
 
-
-// ── MODULE MANAGEMENT TIMERS ──────────────────────────────────
-
+// MODULE MANAGEMENT TIMERS
 const MODULE_POWER_TRANSITION_MS = 3000;  // Milliseconds for a module to power on or off
 const MODULE_RESTART_MS          = 5000;  // Milliseconds for a module restart to complete
 
-
-// ── EMERGENCY ACTIONS ─────────────────────────────────────────
-
+// EMERGENCY ACTIONS
 const EMERG_PURGE_PRES_MULT    = 0.6;   // Core pressure multiplied by this on line purge
 const EMERG_PLASMA_DUMP_TEMP   = 0.5;   // Core temp multiplied by this on plasma dump
 const EMERG_COOL_FLOOD_COOLANT = 100;   // coolantFlow set to this % on cool flood
 const EMERG_COOL_FLOOD_AUX     = 100;   // auxCoolRate set to this % on cool flood
 const EMERG_COOL_FLOOD_TEMP    = 0.3;   // Core temp multiplied by this on cool flood
 
-
-// ── SCRAM & HARD RESET ────────────────────────────────────────
-
+// SCRAM & HARD RESET
 const SCRAM_LOCKOUT_MS        = 10000;  // Milliseconds controls stay locked after a SCRAM
 const HARD_RESET_OFFLINE_MS   = 4000;  // Milliseconds modules stay offline during hard reset
 const HARD_RESET_MIN_HEALTH   = 60;    // Module health floored to this % during hard reset (not zeroed)
 
-
-// ── UPTIME & SCORING ─────────────────────────────────────────
-
+// UPTIME & SCORING
 const PLASMA_OFF_RESET_SECS   = 10;   // Seconds plasma must be off before uptime resets to 0
 const SCORE_DIVISOR           = 3000; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
 const HEALTH_ALERT_THRESHOLDS = [75, 50, 25, 10, 5]; // Health % levels that trigger log alerts

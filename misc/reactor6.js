@@ -1,14 +1,12 @@
-// ============================================================
-// reactor6.js — SYSTEMS TAB (module management)
+// reactor6.js - SYSTEMS TAB (module management)
 // Load order: 6th (after reactor1, reactor3)
 // Exports: buildSys (called on init + every 40 ticks)
-// ============================================================
 
 function buildSys() {
   const c = document.getElementById('systemsGrid');
   c.innerHTML = '';
 
-  // ── Bulk control card (top-left cell) ──
+  // Bulk control card (top-left cell) ──
   const allOnline = Object.values(S.modules).every(m => m.status !== 'offline');
   const ctrl = document.createElement('div');
   ctrl.className = 'module-card';
@@ -96,7 +94,7 @@ window.setMode = function(k, mode) {
   if (m.status === 'offline') { addLog(m.name + ' is OFFLINE', 'err'); return; }
   if (mode === 'bypass' && k === 'backup') { addLog('BACKUP SYSTEMS cannot be bypassed', 'err'); return; }
   m.mode = mode;
-  addLog(m.name + ' → ' + MODES[mode].label, 'sys');
+  addLog(m.name + ' > ' + MODES[mode].label, 'sys');
   buildSys();
 };
 
@@ -159,7 +157,7 @@ window.setAllMode = function(mode) {
     m.mode = mode;
     count++;
   });
-  addLog('ALL MODULES → ' + MODES[mode].label + ' (' + count + ' updated)', 'sys');
+  addLog('ALL MODULES > ' + MODES[mode].label + ' (' + count + ' updated)', 'sys');
   buildSys();
 };
 

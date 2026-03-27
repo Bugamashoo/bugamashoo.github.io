@@ -1,10 +1,8 @@
-// ============================================================
-// reactor4.js — CONTROL UI BUILDERS
+// reactor4.js - CONTROL UI BUILDERS
 // Load order: 4th (after reactor1, reactor3)
 // Builds: tabs, switch banks, lever rows, knobs, push buttons
-// ============================================================
 
-// ── Tab navigation ───────────────────────────────────────────
+// Tab navigation ───────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(b => {
   b.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
@@ -16,7 +14,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   });
 });
 
-// ── Knife switch geometry constants ──────────────────────────
+// Knife switch geometry constants ──────────────────────────
 const KS = {
   HINGE_Y: 42,       // pivot Y in switch coords
   UP_Y: 14,           // handle center Y when OFF (up)
@@ -34,7 +32,7 @@ const MAIN_PANEL_SWITCH_IDS = new Set([
   'ignPrime','turbineEngage','gridSync','ventSystem','containField'
 ]);
 
-// ── Switch banks ─────────────────────────────────────────────
+// Switch banks ─────────────────────────────────────────────
 function buildSB(cid, defs) {
   const c = document.getElementById(cid);
   if (!c) return;
@@ -67,13 +65,13 @@ function positionKnifeSwitch(el, isOn, centerY) {
   const arms   = el.querySelectorAll('.ks-arm');
   handle.style.top = (centerY - KS.H_H / 2) + 'px';
 
-  // Left arm: hinge (PL_X, HINGE_Y) → handle left (HL_X, centerY)
+  // Left arm: hinge (PL_X, HINGE_Y) > handle left (HL_X, centerY)
   const ldx = KS.HL_X - KS.PL_X, ldy = centerY - KS.HINGE_Y;
   const lLen = Math.sqrt(ldx * ldx + ldy * ldy);
   arms[0].style.height = lLen + 'px';
   arms[0].style.transform = `rotate(${Math.atan2(ldx, ldy) * 180 / Math.PI}deg)`;
 
-  // Right arm: hinge (PR_X, HINGE_Y) → handle right (HR_X, centerY)
+  // Right arm: hinge (PR_X, HINGE_Y) > handle right (HR_X, centerY)
   const rdx = KS.HR_X - KS.PR_X, rdy = centerY - KS.HINGE_Y;
   const rLen = Math.sqrt(rdx * rdx + rdy * rdy);
   arms[1].style.height = rLen + 'px';
@@ -91,7 +89,7 @@ function syncKnifeSwitches() {
 
 function togSw(id, el) {
   if (S.modules.comms.status === 'offline' && MAIN_PANEL_SWITCH_IDS.has(id)) {
-    if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
+    if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
     return;
   }
   if (S.scramActive && !['auxPower','backupGen','emergVent','emergDump','rodSafetyOff'].includes(id)) return;
@@ -111,7 +109,7 @@ function togSw(id, el) {
       if (ro) ro.textContent = '0%';
     });
   }
-  addLog(id.replace(/([A-Z])/g,' $1').toUpperCase() + ' → ' + (S[id] ? 'ON' : 'OFF'), S[id] ? 'ok' : 'warn');
+  addLog(id.replace(/([A-Z])/g,' $1').toUpperCase() + ' > ' + (S[id] ? 'ON' : 'OFF'), S[id] ? 'ok' : 'warn');
   doFlash();
   checkSeq();
 }
@@ -196,7 +194,7 @@ buildSB('auxCoolSwitches',   [{ id:'auxCoolPump', label:'AUX PUMP' }, { id:'auxC
 buildSB('backupContSwitches',[{ id:'backupContA', label:'FIELD A'  }, { id:'backupContB', label:'FIELD B'  }]);
 buildSB('emergSwitches',     [{ id:'emergVent',   label:'EMRG VENT'}, { id:'emergDump', label:'FUEL DUMP' }, { id:'rodSafetyOff', label:'ROD SAFETY' }]);
 
-// ── Lever rows ────────────────────────────────────────────────
+// Lever rows ────────────────────────────────────────────────
 function buildLev(cid, defs) {
   const c = document.getElementById(cid);
   if (!c) return;
@@ -222,11 +220,11 @@ function setupLev(tr, id) {
 
   function setL(cy) {
     if (S.modules.comms.status === 'offline' && tr.closest('#tab-controls')) {
-      if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
+      if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
       return;
     }
     if (['rodA','rodB','rodC'].includes(id) && S.rodSafetyOff) {
-      addLog('ROD SAFETY ON — disengage to move rods', 'warn'); return;
+      addLog('ROD SAFETY ON - disengage to move rods', 'warn'); return;
     }
     const r  = tr.getBoundingClientRect();
     const ht = r.height - 28;
@@ -259,7 +257,7 @@ buildLev('auxCoolLevers',    [{ id:'auxCoolRate',   label:'AUX RATE'  }]);
 buildLev('backupContLevers', [{ id:'backupContPow', label:'FIELD PWR' }]);
 buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'ROD B' }, { id:'rodC', label:'ROD C' }]);
 
-// ── Knob panel ────────────────────────────────────────────────
+// Knob panel ────────────────────────────────────────────────
 (function() {
   [
     { id:'pressureRelief', label:'PRESS RELIEF' },
@@ -284,7 +282,7 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
 
     function updateKnob(val) {
       if (S.modules.comms.status === 'offline') {
-        if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
+        if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
         return;
       }
       S[d.id] = Math.round(Math.max(5, Math.min(95, val)) / 5) * 5;
@@ -317,10 +315,10 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
   });
 })();
 
-// ── Disable right-click on entire page ───────────────────────
+// Disable right-click on entire page ───────────────────────
 document.addEventListener('contextmenu', e => e.preventDefault());
 
-// ── Push button panel (Ignite, Lamp Test, Line Purge) ─────────
+// Push button panel (Ignite, Lamp Test, Line Purge) ─────────
 (function() {
   const c = document.getElementById('buttonPanel');
   c.innerHTML =
@@ -336,7 +334,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   const ib = document.getElementById('ignBtn');
 
   // Delegates to global sI/eI defined in reactor9.js (loaded later)
-  const commsGuard = () => { if (S.modules.comms.status === 'offline') { if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; } return true; } return false; };
+  const commsGuard = () => { if (S.modules.comms.status === 'offline') { if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; } return true; } return false; };
   ib.addEventListener('mousedown',  () => { if (commsGuard()) return; ib.classList.add('active-amber'); window.sI(); });
   ib.addEventListener('touchstart', (e) => { e.preventDefault(); if (commsGuard()) return; ib.classList.add('active-amber'); window.sI(); }, { passive: false });
   ib.addEventListener('mouseup',    () => { ib.classList.remove('active-amber'); window.eI(); });
@@ -370,7 +368,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   });
 })();
 
-// ── Emergency button panel (Plasma Dump, Cool Flood, Hard Reset) ─
+// Emergency button panel (Plasma Dump, Cool Flood, Hard Reset) ─
 (function() {
   const c = document.getElementById('emergButtons');
   ['PLASMA DUMP', 'COOL FLOOD', 'HARD RESET'].forEach((l, i) => {

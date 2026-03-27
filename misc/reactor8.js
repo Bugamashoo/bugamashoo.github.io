@@ -1,8 +1,6 @@
-// ============================================================
-// reactor8.js — EVENT SYSTEM
+// reactor8.js - EVENT SYSTEM
 // Load order: 8th (after reactor1, reactor2, reactor3)
 // Exports: triggerEvent, updateEvt, closeEvt, triggerCatastrophe
-// ============================================================
 
 function triggerEvent() {
   if (S.activeEvent || !S.startupComplete) return;
@@ -45,7 +43,7 @@ function updateEvt() {
   if (!S.activeEvent) return;
   const ev = S.activeEvent;
 
-  // Check each step (sequential — must complete in order)
+  // Check each step (sequential - must complete in order)
   ev.steps.forEach((s, i) => {
     if (!S.eventStepsComplete[i]) {
       const prev = i === 0 || S.eventStepsComplete[i - 1];
@@ -58,7 +56,7 @@ function updateEvt() {
 
   const allDone = S.eventStepsComplete.every(Boolean);
 
-  // ── De-escalation phase ──────────────────────────────────────
+  // De-escalation phase
   if (allDone) {
     const panel = document.querySelector('.event-panel');
 
@@ -70,7 +68,7 @@ function updateEvt() {
       DEESC_TRACKED.forEach(k => { ev.deescSnapshot[k] = S[k]; });
       document.getElementById('eventTitle').textContent = 'Deescalating...';
       if (panel) panel.classList.add('deescalating');
-      addLog('HOLD CONTROLS — deescalating', 'ok');
+      addLog('HOLD CONTROLS - deescalating', 'ok');
     } else {
       // If any slider/dial step moved out of its required range, exit de-escalation
       const violated = ev.steps.findIndex(s => s.cont && !s.check());
@@ -79,7 +77,7 @@ function updateEvt() {
         ev.startTime = Date.now() - ev.deescPauseElapsed * 1000;
         for (let i = violated; i < S.eventStepsComplete.length; i++) S.eventStepsComplete[i] = 0;
         if (panel) panel.classList.remove('deescalating');
-        addLog('HOLD BROKEN — control out of range', 'warn');
+        addLog('HOLD BROKEN - control out of range', 'warn');
         renderEvt();
         return;
       }
@@ -100,7 +98,7 @@ function updateEvt() {
       }
     }
 
-    // Hold-progress bar (0→100% over DEESC_DURATION)
+    // Hold-progress bar (0>100% over DEESC_DURATION)
     renderEvt();
     const holdPct = Math.min(100, (Date.now() - ev.deescStart) / DEESC_DURATION * 100);
     document.getElementById('eventProgress').style.width = holdPct + '%';
@@ -113,7 +111,7 @@ function updateEvt() {
     return;
   }
 
-  // ── Normal countdown ─────────────────────────────────────────
+  // Normal countdown
   const elapsed = (Date.now() - ev.startTime) / 1000;
   const rem     = Math.max(0, ev.time - elapsed);
   const td      = document.getElementById('eventTimer');
@@ -137,7 +135,7 @@ function closeEvt() {
   nextEventTime = S.uptime + EVT_POST_CLOSE_MIN + Math.random() * EVT_POST_CLOSE_RANGE;
 }
 
-// ── Hover passthrough for event overlay ───────────────────────
+// Hover passthrough for event overlay
 // Tracks mouse position via document so pointer-events:none doesn't break it
 document.addEventListener('mousemove', function(e) {
   const overlay = document.getElementById('eventOverlay');

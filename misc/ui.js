@@ -1,15 +1,13 @@
-// ============================================================
-// ui.js — UI UPDATE FUNCTION
+// ui.js - UI UPDATE FUNCTION
 // Load order: 10th (after reactor9.js, before sim.js)
 // Contains: updateUI()
-// ============================================================
 
 function updateUI() {
   // Threshold color helpers: hi(d) = danger when above d; lo(d) = danger when below d
   const hi = (d) => (v) => v > d ? 'red' : v > d * 0.85 ? 'amber' : 'green';
   const lo = (d, active) => (v) => (!active || active()) ? (v < d ? 'red' : v < d * 1.15 ? 'amber' : 'green') : 'green';
 
-  // No-power mode: aux off, backup gen off, output < 1 MW → gauges/status invisible
+  // No-power mode: aux off, backup gen off, output < 1 MW > gauges/status invisible
   const noPower = !S.auxPower && !S.backupGen && S.powerOutput < 1;
 
   // Core readings
@@ -39,7 +37,7 @@ function updateUI() {
   const fc = document.getElementById('disp_fuelConsump');
   if (fc) fc.textContent = sensorOff && sensorNoise.fuelConsump !== undefined ? sensorNoise.fuelConsump : S.fuelConsump.toFixed(1);
 
-  // Toggle no-power CSS class — hides display values, zeros bars, hides warning row + seq steps
+  // Toggle no-power CSS class - hides display values, zeros bars, hides warning row + seq steps
   document.body.classList.toggle('no-power', noPower);
 
   // Net power output display
@@ -49,7 +47,7 @@ function updateUI() {
   po.textContent = poVal;
   po.style.color = parseFloat(poVal) > DISP_POWER_RED ? 'var(--red)' : parseFloat(poVal) > DISP_POWER_AMBER ? 'var(--amber)' : 'var(--green)';
 
-  // ── Reactor core SVG visual ──
+  // Reactor core SVG visual
   const rvCX = 70, rvCY = 62.5;
   const rvOn       = !!S.igniting;
   const rvIntens   = Math.min(1, S.powerOutput / 200);
@@ -91,7 +89,7 @@ function updateUI() {
     else rvGlow.removeAttribute('filter');
   }
 
-  // Ring 1 — plasma (inner, spins fast with plasma stability)
+  // Ring 1 - plasma (inner, spins fast with plasma stability)
   const rvR1 = document.getElementById('ring1');
   if (rvR1) {
     rvR1.setAttribute('stroke', rvOn ? rvCoreClr : '#1e2830');
@@ -101,7 +99,7 @@ function updateUI() {
     rvR1.setAttribute('class', 'rviz-ring' + r1Spin);
   }
 
-  // Ring 2 — magnetic (counter-spins when flux is active)
+  // Ring 2 - magnetic (counter-spins when flux is active)
   const rvR2 = document.getElementById('ring2');
   if (rvR2) {
     const magActive = S.magCoils && S.auxPower;
@@ -112,7 +110,7 @@ function updateUI() {
     rvR2.setAttribute('class', 'rviz-ring' + r2Spin);
   }
 
-  // Ring 3 — containment field (outermost, slow spin)
+  // Ring 3 - containment field (outermost, slow spin)
   const rvR3 = document.getElementById('ring3');
   if (rvR3) {
     const contActive = S.containPower > 30;
@@ -153,7 +151,7 @@ function updateUI() {
     }
   }
 
-  // Coolant flow indicator (blue triangle, lower-right) — color shifts with coolant temp
+  // Coolant flow indicator (blue triangle, lower-right) - color shifts with coolant temp
   const coolInd = document.getElementById('coolantIndicator');
   const coolFillEl = document.getElementById('coolFill');
   const coolFillRect = document.getElementById('coolFillRect');
@@ -176,16 +174,15 @@ function updateUI() {
     }
   }
 
-  // ── Additional reactor visual elements ──
-
-  // Heat background — hex tints orange/red with heat sink temp
+  // Additional reactor visual elements
+  // Heat background - hex tints orange/red with heat sink temp
   const heatBg = document.getElementById('heatBg');
   if (heatBg) {
     heatBg.setAttribute('fill', rvHeat > 0.7 ? '#ff2e2e' : '#ff5500');
     heatBg.setAttribute('opacity', (rvHeat * 0.2).toFixed(3));
   }
 
-  // Radiation aura — large blurred halo, color = green→amber→red with radiation level
+  // Radiation aura - large blurred halo, color = green>amber>red with radiation level
   const radAura = document.getElementById('radAura');
   if (radAura) {
     const radColor = rvRad > 0.67 ? '#ff2e2e' : rvRad > 0.33 ? '#ff9f1c' : '#39ff14';
@@ -193,7 +190,7 @@ function updateUI() {
     radAura.setAttribute('opacity', (rvRad * 0.25).toFixed(3));
   }
 
-  // Fuel arc — stroke-dasharray progress ring showing remaining fuel
+  // Fuel arc - stroke-dasharray progress ring showing remaining fuel
   const fuelArc = document.getElementById('fuelArc');
   if (fuelArc) {
     const circ = 314.2; // 2π × 50
@@ -202,7 +199,7 @@ function updateUI() {
     fuelArc.setAttribute('opacity', rvOn && rvFuel > 0.01 ? '0.55' : '0');
   }
 
-  // Turbine spin ring — dashed ring spins at speed proportional to turbineRPM
+  // Turbine spin ring - dashed ring spins at speed proportional to turbineRPM
   const turbEl = document.getElementById('turbineSpin');
   if (turbEl) {
     if (S.turbineRPM > 80) {
@@ -216,7 +213,7 @@ function updateUI() {
     }
   }
 
-  // Pressure pulse — pulsing ring, frequency and intensity driven by core pressure
+  // Pressure pulse - pulsing ring, frequency and intensity driven by core pressure
   const pressPulse = document.getElementById('pressPulse');
   if (pressPulse) {
     const pOp = rvPres > 0.1 ? (0.2 + rvPres * 0.55) * Math.abs(Math.sin(tick * (0.04 + rvPres * 0.18))) : 0;
@@ -224,7 +221,7 @@ function updateUI() {
     pressPulse.setAttribute('stroke', rvPres > 0.83 ? '#ff2e2e' : rvPres > 0.67 ? '#ff9f1c' : '#00e5ff');
   }
 
-  // Neutron cloud dots — 8 dots flicker with neutron density (updated every 2 ticks)
+  // Neutron cloud dots - 8 dots flicker with neutron density (updated every 2 ticks)
   if (tick % 2 === 0) {
     const nColor = rvNeutron > 0.7 ? '#ff9f1c' : S.coreTemp > 6000 ? '#ff6644' : '#00e5ff';
     for (let i = 0; i < 8; i++) {
@@ -238,7 +235,7 @@ function updateUI() {
     }
   }
 
-  // Control rod lines — show insertion depth pointing toward center when rod safety is off
+  // Control rod lines - show insertion depth pointing toward center when rod safety is off
   [
     { id:'rodLineA', x1:70, y1:41.7, dx:0,   dy: 20.8 },
     { id:'rodLineB', x1:88, y1:72.9, dx:-18, dy:-10.4 },
@@ -252,7 +249,7 @@ function updateUI() {
     el.setAttribute('opacity', pct > 0 ? (0.5 + pct * 0.5).toFixed(2) : '0');
   });
 
-  // ── Electrical arcs (updated every 3 ticks ≈ 0.15s) ──
+  // Electrical arcs (updated every 3 ticks ~ 0.15s)
   if (tick % 3 === 0) {
     const instab   = rvOn ? Math.max(0, (100 - S.plasmaStability) / 100) : 0;
     const baseArcs = rvOn && rvIntens > 0.15 ? 2 : 0;             // 2 arcs always when running
@@ -331,7 +328,7 @@ function updateUI() {
   switch (S.reactorState) {
     case 'OFFLINE':  hs.textContent = '■ OFFLINE';                              hs.style.color = '#5a5f66';       break;
     case 'STARTUP':  hs.textContent = '■ STARTUP';                              hs.style.color = 'var(--amber)';  break;
-    case 'ONLINE':   hs.textContent = '■ ONLINE — ' + (S.powerOutput + S.backupGenOutput).toFixed(1) + ' MW'; hs.style.color = 'var(--green)'; break;
+    case 'ONLINE':   hs.textContent = '■ ONLINE - ' + (S.powerOutput + S.backupGenOutput).toFixed(1) + ' MW'; hs.style.color = 'var(--green)'; break;
     case 'CRITICAL': hs.textContent = '■ CRITICAL';                             hs.style.color = 'var(--red)';    break;
     case 'SCRAM':    hs.textContent = '■ SCRAM';                                hs.style.color = 'var(--red)';    break;
   }
@@ -350,7 +347,7 @@ function updateUI() {
     : 0;
   document.getElementById('hdrAvg5m').textContent = powerHist5m.length >= 5
     ? cur5mAvg.toFixed(2)
-    : '—';
+    : '-';
 
   // Warning indicator box
   const warnInd = document.getElementById('warnIndicator');

@@ -1,14 +1,12 @@
-// ============================================================
-// help.js — HELP MODE
+// help.js - HELP MODE
 // Load order: last (after helpdata.js)
-// Contains: toggleHelp(), tooltip logic, element→data lookup
+// Contains: toggleHelp(), tooltip logic, element>data lookup
 // Help text data lives in helpdata.js
-// ============================================================
 
 let helpMode = false;
 let helpEverClicked = false;
 
-// ── Tooltip DOM helpers ───────────────────────────────────────
+// Tooltip DOM helpers
 function fmtLine(text) {
   // Wrap leading + or - in a bold oversized span
   return text.replace(/^([+\-])/, '<span class="help-sym">$1</span>');
@@ -42,7 +40,7 @@ function hideHelpTooltip() {
   document.getElementById('helpTooltip').style.display = 'none';
 }
 
-// ── Element → help info lookup ────────────────────────────────
+// Element > help info lookup
 function getHelpInfo(el) {
   if (!el) return null;
 
@@ -134,7 +132,7 @@ function getHelpInfo(el) {
   return null;
 }
 
-// ── Overlay mouse handling ────────────────────────────────────
+// Overlay mouse handling
 (function () {
   const overlay = document.getElementById('helpOverlay');
   let lastX = 0, lastY = 0;
@@ -155,7 +153,7 @@ function getHelpInfo(el) {
   overlay.addEventListener('click', e => e.stopPropagation());
 })();
 
-// ── Toggle ────────────────────────────────────────────────────
+// Toggle
 function toggleHelp() {
   if (!helpEverClicked) {
     helpEverClicked = true;

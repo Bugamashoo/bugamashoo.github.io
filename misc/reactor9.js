@@ -1,11 +1,9 @@
-// ============================================================
-// reactor9.js — HELPERS + INIT
+// reactor9.js - HELPERS + INIT
 // Load order: 9th
 // Contains: doScram, hardReset, sI/eI (ignition), checkSeq,
 //           GAUGE_DANGERS, updD, updDN, setW, init log + interval
-// ============================================================
 
-// ── SCRAM ─────────────────────────────────────────────────────
+// SCRAM
 document.getElementById('scramBtn').addEventListener('click', doScram);
 
 function doScram() {
@@ -33,7 +31,7 @@ function doScram() {
   setTimeout(() => { S.scramActive = 0; addLog('SCRAM reset', 'ok'); }, SCRAM_LOCKOUT_MS);
 }
 
-// ── HARD RESET ────────────────────────────────────────────────
+// HARD RESET
 function hardReset() {
   addLog('*** HARD RESET ***', 'err');
   doShake();
@@ -60,7 +58,7 @@ function hardReset() {
   }, HARD_RESET_OFFLINE_MS);
 }
 
-// ── IGNITION hold logic ───────────────────────────────────────
+// IGNITION hold logic
 function sI() {
   if (!S.ignPrime || !S.auxPower) { addLog('IGN FAIL', 'err'); return; }
   S.ignitionHeld = 1;
@@ -75,7 +73,7 @@ function eI() {
   ignHoldStart = 0;
 }
 
-// ── SEQUENCE check ────────────────────────────────────────────
+// SEQUENCE check
 function checkSeq() {
   if (S.startupComplete) return;
   let step = 0;
@@ -97,10 +95,10 @@ function checkSeq() {
   }
 }
 
-// ── GAUGE DANGER → MODULE DAMAGE ──────────────────────────────
+// GAUGE DANGER > MODULE DAMAGE
 // Each entry: gauge display name, danger condition, target module key.
 // When a gauge is in danger, a timer arms (15–60s). On expiry the module
-// takes 4–13% damage and the timer rearms. Timer disarms when safe again.
+// takes 6–15% damage and the timer rearms. Timer disarms when safe again.
 const GAUGE_DANGERS = [
   { id: 'coreTemp',     label: 'CORE TEMP',        check: () => S.coreTemp > GAUGE_TEMP_DANGER,                          mod: 'thermal'  },
   { id: 'corePres',     label: 'CORE PRESSURE',     check: () => S.corePressure > GAUGE_PRES_DANGER,                      mod: 'fuel'     },
@@ -114,10 +112,9 @@ const GAUGE_DANGERS = [
   { id: 'auxCoolTemp',  label: 'AUX COOL TEMP',      check: () => S.auxCoolTemp > GAUGE_AUXCOOL_DANGER,                   mod: 'backup'   },
 ];
 
-// ── UI UPDATERS ───────────────────────────────────────────────
-
+// UI UPDATERS
 // Update a display value + bar gauge.
-// Optional colorFn(value) → 'red'|'amber'|'green' overrides the default %-based coloring.
+// Optional colorFn(value) > 'red'|'amber'|'green' overrides the default %-based coloring.
 function updD(id, t, mx, colorFn) {
   const e = document.getElementById('disp_' + id);
   const b = document.getElementById('bar_'  + id);
@@ -145,7 +142,7 @@ function setW(id, t) {
   if (t) e.classList.add('active-' + t);
 }
 
-// ── INIT ──────────────────────────────────────────────────────
+// Init console sequence
 addLog('MKIV TOKAMAK v4.7.2', 'sys');
 addLog('Manual: MANUAL tab', '');
 addLog('Module modes: SYSTEMS tab', 'sys');

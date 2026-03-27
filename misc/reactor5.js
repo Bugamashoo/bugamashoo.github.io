@@ -1,11 +1,9 @@
-// ============================================================
-// reactor5.js — DISPLAY & MONITOR BUILDERS
+// reactor5.js - DISPLAY & MONITOR BUILDERS
 // Load order: 5th (after reactor1)
 // Builds: display gauge groups, warning lights, sequence steps,
 //         monitor canvas grid, drawG()
-// ============================================================
 
-// ── Numeric gauge groups ──────────────────────────────────────
+// Numeric gauge groups
 function buildDG(cid, defs) {
   const c = document.getElementById(cid);
   if (!c) return;
@@ -38,7 +36,7 @@ buildDG('auxCoolReadings',   [{ id:'auxCoolTemp',    label:'AUX COOL',     color
 buildDG('backupContReadings',[{ id:'backupFieldStr', label:'BACKUP FIELD', color:'green' }, { id:'secondaryPressure', label:'SEC PRESS', color:'cyan' }]);
 buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD INS',      color:'amber' }, { id:'heatSinkTemp',  label:'HEAT SINK',   color:'cyan'  }]);
 
-// ── Warning lights row ────────────────────────────────────────
+// Warning lights row
 (function() {
   const labels = ['OVERTEMP','OVERPRESSURE','CONTAINMENT','COOLANT','FUEL LOW','RADIATION','SCRAM','ONLINE','MOD FAULT','SYS FAULT','EVENT'];
   const ids    = ['warnOvertemp','warnOverpressure','warnContainment','warnCoolant','warnFuel','warnRadiation','warnScram','warnOnline','warnModFault','warnSysFault','warnEvent'];
@@ -51,7 +49,7 @@ buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD INS',      color
   });
 })();
 
-// ── Startup sequence steps ────────────────────────────────────
+// Startup sequence steps
 (function() {
   SEQUENCE.forEach((s, i) => {
     const e = document.createElement('div');
@@ -62,7 +60,7 @@ buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD INS',      color
   });
 })();
 
-// ── Monitor canvas grid ───────────────────────────────────────
+// Monitor canvas grid
 (function() {
   [
     { id:'mon_temp',      t:'CORE TEMPERATURE' },
@@ -81,7 +79,7 @@ buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD INS',      color
   });
 })();
 
-// ── Graph renderer ────────────────────────────────────────────
+// Graph renderer
 // Draws a line graph with glowing stroke + filled area onto a canvas element.
 function drawG(cid, data, col, max, unit) {
   const cv = document.getElementById(cid);
@@ -103,7 +101,7 @@ function drawG(cid, data, col, max, unit) {
   }
 
   if (data.length > 1) {
-    // Line — thinner stroke for dense 1200-point history
+    // Line - thinner stroke for dense 1200-point history
     ctx.beginPath();
     ctx.strokeStyle = col;
     ctx.lineWidth   = 2;
@@ -126,7 +124,7 @@ function drawG(cid, data, col, max, unit) {
     ctx.fill();
   }
 
-  // Current value label — position proportional to canvas height
+  // Current value label - position proportional to canvas height
   if (data.length) {
     ctx.shadowBlur = 0;
     ctx.font       = 'bold 20px Share Tech Mono';

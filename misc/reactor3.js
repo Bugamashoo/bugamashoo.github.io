@@ -1,8 +1,7 @@
-// ============================================================
-// reactor3.js — CORE UTILITIES
+// reactor3.js - CORE UTILITIES
 // Load order: 3rd (after reactor1)
 // Exports: addLog, doShake, doFlash, modPerf, modHeat, fmtTime
-// ============================================================
+
 
 function addLog(m, t='') {
   const ts = new Date().toTimeString().slice(0,8);
@@ -34,7 +33,7 @@ function doFlash(c) {
 function modPerf(key) {
   const m = S.modules[key];
   if (!m || m.status === 'offline') return 0;
-  // Bypass routes all module stress to backup systems — if backup is offline, the module cannot function
+  // Bypass routes all module stress to backup systems - if backup is offline, the module cannot function
   if (m.mode === 'bypass' && key !== 'backup' && S.modules.backup.status === 'offline') return 0;
   const md = MODES[m.mode] || MODES.normal;
   let p = m.status === 'degraded' ? md.perfMult * 0.5 : md.perfMult;

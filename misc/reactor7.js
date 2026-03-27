@@ -1,8 +1,6 @@
-// ============================================================
-// reactor7.js — MANUAL TAB (static content + nav)
+// reactor7.js - MANUAL TAB (static content + nav)
 // Load order: 7th (after reactor1)
 // Self-contained: no simulation deps, only SEQUENCE reference
-// ============================================================
 
 const MP = {
   startup:
@@ -20,31 +18,31 @@ const MP = {
     `<div class="manual-header">II. CONTROLLED SHUTDOWN</div>
      <div class="manual-step">
        <div class="manual-step-num">01</div>
-       <div class="manual-step-text"><b>GRID SYNC OFF</b> — Decouple from grid before reducing output.</div>
+       <div class="manual-step-text"><b>GRID SYNC OFF</b> - Decouple from grid before reducing output.</div>
      </div>
      <div class="manual-step">
        <div class="manual-step-num">02</div>
-       <div class="manual-step-text"><b>THROTTLE → 20%</b> — Reduce main throttle gradually to avoid thermal shock.</div>
+       <div class="manual-step-text"><b>THROTTLE > 20%</b> - Reduce main throttle gradually to avoid thermal shock.</div>
      </div>
      <div class="manual-step">
        <div class="manual-step-num">03</div>
-       <div class="manual-step-text"><b>TURBINE OFF</b> — Disengage turbine once RPM can drop safely.</div>
+       <div class="manual-step-text"><b>TURBINE OFF</b> - Disengage turbine once RPM can drop safely.</div>
      </div>
      <div class="manual-step">
        <div class="manual-step-num">04</div>
-       <div class="manual-step-text"><b>FUEL INJ → 0%</b>, then <b>IGN PRIME OFF</b> — Terminate plasma. Coolant pumps must remain on during cooldown.</div>
+       <div class="manual-step-text"><b>FUEL INJ > 0%</b>, then <b>IGN PRIME OFF</b> - Terminate plasma. Coolant pumps must remain on during cooldown.</div>
      </div>
      <div class="manual-step">
        <div class="manual-step-num">05</div>
-       <div class="manual-step-text"><b>CONTAIN PWR → 0%</b> once core temp drops below 500°C. Then <b>MAG COILS OFF</b>.</div>
+       <div class="manual-step-text"><b>CONTAIN PWR > 0%</b> once core temp drops below 500°C. Then <b>MAG COILS OFF</b>.</div>
      </div>
      <div class="manual-step">
        <div class="manual-step-num">06</div>
-       <div class="manual-step-text"><b>FUEL PUMPS OFF</b> — 8-second fuel flow grace period applies. Plasma will extinguish automatically if flow drops with low stability.</div>
+       <div class="manual-step-text"><b>FUEL PUMPS OFF</b> - 8-second fuel flow grace period applies. Plasma will extinguish automatically if flow drops with low stability.</div>
      </div>
      <div class="manual-step">
        <div class="manual-step-num">07</div>
-       <div class="manual-step-text"><b>COOLANT PUMPS OFF → RAD SHIELD OFF → AUX POWER OFF</b> — In that order, after temperatures are nominal.</div>
+       <div class="manual-step-text"><b>COOLANT PUMPS OFF > RAD SHIELD OFF > AUX POWER OFF</b> - In that order, after temperatures are nominal.</div>
      </div>
      <div class="manual-note">⚠ Do not shut off coolant pumps while core temp exceeds 500°C. Thermal runaway is possible without active cooling.</div>
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
@@ -57,7 +55,7 @@ const MP = {
      <div style="margin-bottom:10px">
        Immediately kills: FUEL PUMPS, COOLANT PUMPS, CONTAIN FIELD, IGN PRIME, TURBINE, GRID SYNC, MAG COILS, RAD SHIELD, VENT SYSTEM. Zeroes THROTTLE, FUEL INJ, CONTAIN PWR.<br>
        <b>Does NOT kill:</b> AUX POWER, BACKUP GEN, EMERG VENT, EMERG DUMP, ROD SAFETY.<br>
-       5-second lockout: all non-whitelisted switches are blocked. During lockout, only AUX POWER, BACKUP GEN, EMERG VENT, EMERG DUMP, and ROD SAFETY OFF may be toggled. Startup sequence resets — full restart required afterward.
+       5-second lockout: all non-whitelisted switches are blocked. During lockout, only AUX POWER, BACKUP GEN, EMERG VENT, EMERG DUMP, and ROD SAFETY OFF may be toggled. Startup sequence resets - full restart required afterward.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">PLASMA DUMP (Emergency tab)</div>
@@ -67,7 +65,7 @@ const MP = {
 
      <div class="manual-note" style="margin-bottom:6px">COOLANT FLOOD (Emergency tab)</div>
      <div style="margin-bottom:10px">
-       Forces coolant flow to maximum. Use when primary coolant is critically low or coolant temp is climbing toward failure. Does not engage auxiliary cooling — activate AUX PUMP and AUX LOOP separately if primary loop is compromised.
+       Forces coolant flow to maximum. Use when primary coolant is critically low or coolant temp is climbing toward failure. Does not engage auxiliary cooling - activate AUX PUMP and AUX LOOP separately if primary loop is compromised.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">EMERG VENT (Emergency switches)</div>
@@ -77,19 +75,19 @@ const MP = {
 
      <div class="manual-note" style="margin-bottom:6px">HARD RESET (Emergency tab)</div>
      <div style="margin-bottom:10px">
-       4-second full blackout. All modules go offline, then restart online in NORMAL mode. Health floored at 50% for each module — will not restore a module below 50% health. <b>Clears all system errors across all modules.</b> Clears any active diagnosis. All controls zeroed. Use as a last resort to eliminate cascading system faults when diagnosis and targeted restart are no longer viable.
+       4-second full blackout. All modules go offline, then restart online in NORMAL mode. Health floored at 50% for each module - will not restore a module below 50% health. <b>Clears all system errors across all modules.</b> Clears any active diagnosis. All controls zeroed. Use as a last resort to eliminate cascading system faults when diagnosis and targeted restart are no longer viable.
      </div>
 
-     <div class="manual-warning">Backup systems (AUX COOLING, BACKUP CONTAINMENT, BACKUP GEN, CONTROL RODS) remain active through SCRAM. They are your primary mitigation tools during emergencies — engage them before or immediately after SCRAM.</div>
+     <div class="manual-warning">Backup systems (AUX COOLING, BACKUP CONTAINMENT, BACKUP GEN, CONTROL RODS) remain active through SCRAM. They are your primary mitigation tools during emergencies - engage them before or immediately after SCRAM.</div>
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
   malfunctions:
     `<div class="manual-header">IV. MALFUNCTIONS</div>
 
-     <div class="manual-note" style="margin-bottom:8px">§ A — LATENT SYSTEM FAULTS</div>
+     <div class="manual-note" style="margin-bottom:8px">§ A - LATENT SYSTEM FAULTS</div>
      <div style="margin-bottom:12px">
        During sustained operation, hidden faults develop in subsystem firmware and mechanical assemblies. These faults are <b>not immediately observable</b> and do not appear in the module status readout until a formal diagnostic is completed.<br><br>
-       The event log will emit a non-specific advisory — <i>"New non-critical system error detected"</i> — with no indication of which subsystem is affected. The first fault typically appears within 30–90 seconds of ONLINE status. Subsequent intervals are also 30–90 seconds each.<br><br>
+       The event log will emit a non-specific advisory - <i>"New non-critical system error detected"</i> - with no indication of which subsystem is affected. The first fault typically appears within 30–90 seconds of ONLINE status. Subsequent intervals are also 30–90 seconds each.<br><br>
        <b>Effects of an unresolved fault:</b><br>
        &nbsp;• Module efficiency silently reduced to 85–90% on first occurrence.<br>
        &nbsp;• Health drain rate increases by 10% per tick while faulty.<br>
@@ -97,32 +95,32 @@ const MP = {
        <b>Diagnosis procedure:</b><br>
        Navigate to the SYSTEMS tab. Select DIAGNOSE on the suspect module. Only one module may be diagnosed at a time (1–5 seconds). Do not cancel prematurely. Upon completion, the module card will display SYSTEM ERROR if a fault is found. Diagnosing a healthy module is not harmful.<br><br>
        <b>Remediation options:</b><br>
-       &nbsp;• <b>RESTART</b> — Takes module offline, clears the fault, returns online after 5 seconds. Temporary service interruption.<br>
-       &nbsp;• <b>BYPASS + RESTART</b> — If the module is in BYPASS mode when RESTART is selected, the module remains online at ~90% capacity while the fault is cleared over 5 seconds. No service interruption, but BACKUP SYSTEMS absorbs the stress. The log entry confirms success: <i>"errors cleared (bypass)"</i>.<br>
-       &nbsp;• <b>HARD RESET</b> — Clears all faults on all modules simultaneously. 4-second full outage. See Section III.<br><br>
+       &nbsp;• <b>RESTART</b> - Takes module offline, clears the fault, returns online after 5 seconds. Temporary service interruption.<br>
+       &nbsp;• <b>BYPASS + RESTART</b> - If the module is in BYPASS mode when RESTART is selected, the module remains online at ~90% capacity while the fault is cleared over 5 seconds. No service interruption, but BACKUP SYSTEMS absorbs the stress. The log entry confirms success: <i>"errors cleared (bypass)"</i>.<br>
+       &nbsp;• <b>HARD RESET</b> - Clears all faults on all modules simultaneously. 4-second full outage. See Section III.<br><br>
        The REPAIR function does not clear system faults. Repairing a module with an active fault will restore health but efficiency and health-drain penalty will persist until a restart is performed.
      </div>
 
-     <div class="manual-note" style="margin-bottom:8px">§ B — GAUGE DANGER / MODULE DAMAGE</div>
+     <div class="manual-note" style="margin-bottom:8px">§ B - GAUGE DANGER / MODULE DAMAGE</div>
      <div style="margin-bottom:12px">
        Sustained out-of-range gauge readings cause direct hardware damage independent of event timers. When a critical threshold is crossed, a damage timer arms (15–60 seconds). On expiry, the linked module takes 4–13% health damage and the timer rearms. The timer disarms only when the reading returns to safe range.<br><br>
        <b>Danger conditions and affected modules:</b><br>
-       &nbsp;• Core Temp &gt;7000°C → THERMAL MGMT<br>
-       &nbsp;• Core Pressure &gt;35 ATM → FUEL DELIVERY<br>
-       &nbsp;• Plasma Stability &lt;20% (while igniting) → MAGNETIC CTRL<br>
-       &nbsp;• Coolant Temp &gt;150°C → PRIMARY COOLANT<br>
-       &nbsp;• Coolant Flow &lt;100 L/min (while igniting) → PRIMARY COOLANT<br>
-       &nbsp;• Containment Integrity &lt;15% → MAGNETIC CTRL<br>
-       &nbsp;• Radiation Level &gt;60 mSv → SENSOR ARRAY<br>
-       &nbsp;• Turbine RPM &gt;13,000 → GRID INTERFACE<br>
-       &nbsp;• Heat Sink Temp &gt;150°C → PRIMARY COOLANT<br>
-       &nbsp;• Aux Cool Temp &gt;70°C → BACKUP SYSTEMS<br><br>
+       &nbsp;• Core Temp &gt;7000°C > THERMAL MGMT<br>
+       &nbsp;• Core Pressure &gt;35 ATM > FUEL DELIVERY<br>
+       &nbsp;• Plasma Stability &lt;20% (while igniting) > MAGNETIC CTRL<br>
+       &nbsp;• Coolant Temp &gt;150°C > PRIMARY COOLANT<br>
+       &nbsp;• Coolant Flow &lt;100 L/min (while igniting) > PRIMARY COOLANT<br>
+       &nbsp;• Containment Integrity &lt;15% > MAGNETIC CTRL<br>
+       &nbsp;• Radiation Level &gt;60 mSv > SENSOR ARRAY<br>
+       &nbsp;• Turbine RPM &gt;13,000 > GRID INTERFACE<br>
+       &nbsp;• Heat Sink Temp &gt;150°C > PRIMARY COOLANT<br>
+       &nbsp;• Aux Cool Temp &gt;70°C > BACKUP SYSTEMS<br><br>
        Multiple simultaneous danger conditions deal damage to multiple modules concurrently. There is no warning before the timer expires.
      </div>
 
-     <div class="manual-note" style="margin-bottom:8px">§ C — CRITICAL EVENTS</div>
+     <div class="manual-note" style="margin-bottom:8px">§ C - CRITICAL EVENTS</div>
      <div style="margin-bottom:12px">
-       Events trigger randomly after reactor goes ONLINE (first event: 60–300 seconds after startup; subsequent events: 30–120 seconds after the previous one closes). The same event will not repeat until at least 3 other events have fired. Steps must be completed in sequence — each unlocks only after the previous is done.<br><br>
+       Events trigger randomly after reactor goes ONLINE (first event: 60–300 seconds after startup; subsequent events: 30–120 seconds after the previous one closes). The same event will not repeat until at least 3 other events have fired. Steps must be completed in sequence - each unlocks only after the previous is done.<br><br>
        <table style="width:100%;font-size:11px;border-collapse:collapse">
          <tr style="color:#5a5f66"><td style="padding:2px 6px 2px 0">EVENT</td><td style="padding:2px 6px">TIMER</td><td style="padding:2px 0">FAILURE</td></tr>
          <tr><td style="padding:2px 6px 2px 0;color:var(--cyan)">COOLANT LEAK</td><td style="padding:2px 6px">40s</td><td>MELTDOWN</td></tr>
@@ -150,24 +148,24 @@ const MP = {
     `<div class="manual-header">V. MODULE MODES &amp; SYSTEMS</div>
      <div style="margin-bottom:12px">
        Each subsystem may be set to one of four operating modes governing output capacity, wear rate, and thermal contribution. Changes take effect immediately.<br><br>
-       <b style="color:var(--green)">NORMAL</b> — 100% performance, standard wear rate, no heat modifier. Certified operating envelope. No stress on interconnected modules.<br><br>
-       <b style="color:var(--magenta)">OVERCLOCK</b> — 150% performance, 3× wear rate, +15°C heat contribution. Also deals ~0.4% health damage per minute to the interconnected module. Use only in short bursts when maximum output is required regardless of equipment cost. Not available on BACKUP SYSTEMS.<br><br>
-       <b style="color:var(--cyan)">ECO</b> — 60% performance, 0.3× wear rate, −5°C heat contribution. Does not stress interconnected modules. Use to relieve thermal load or protect a degrading module without restarting it. Not available on BACKUP SYSTEMS or SENSOR ARRAY or COMMS UPLINK.<br><br>
-       <b style="color:#ffe047">BYPASS</b> — 90% performance, no self-wear, no heat modifier. The module's own health drain is suspended. Repair rate increases to 4× (same as offline). All mechanical stress is redirected at 2× intensity to BACKUP SYSTEMS instead of the interconnected module. BACKUP SYSTEMS cannot be bypassed. Sustained use across multiple modules will rapidly degrade backup capacity.<br><br>
-       &nbsp;&nbsp;→ If RESTART is triggered while a module is in BYPASS mode, the module stays online and clears its system error over 5 seconds (bypass restart). No service interruption.
+       <b style="color:var(--green)">NORMAL</b> - 100% performance, standard wear rate, no heat modifier. Certified operating envelope. No stress on interconnected modules.<br><br>
+       <b style="color:var(--magenta)">OVERCLOCK</b> - 150% performance, 3× wear rate, +15°C heat contribution. Also deals ~0.4% health damage per minute to the interconnected module. Use only in short bursts when maximum output is required regardless of equipment cost. Not available on BACKUP SYSTEMS.<br><br>
+       <b style="color:var(--cyan)">ECO</b> - 60% performance, 0.3× wear rate, −5°C heat contribution. Does not stress interconnected modules. Use to relieve thermal load or protect a degrading module without restarting it. Not available on BACKUP SYSTEMS or SENSOR ARRAY or COMMS UPLINK.<br><br>
+       <b style="color:#ffe047">BYPASS</b> - 90% performance, no self-wear, no heat modifier. The module's own health drain is suspended. Repair rate increases to 4× (same as offline). All mechanical stress is redirected at 2× intensity to BACKUP SYSTEMS instead of the interconnected module. BACKUP SYSTEMS cannot be bypassed. Sustained use across multiple modules will rapidly degrade backup capacity.<br><br>
+       &nbsp;&nbsp;> If RESTART is triggered while a module is in BYPASS mode, the module stays online and clears its system error over 5 seconds (bypass restart). No service interruption.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">MODULE INTERCONNECTIONS</div>
      <div style="margin-bottom:10px">
        Each module affects one adjacent subsystem. OVERCLOCK stress is applied to the listed target each minute of operation. BYPASS redirects this stress to BACKUP SYSTEMS instead.<br><br>
-       &nbsp;• FUEL DELIVERY → THERMAL MGMT<br>
-       &nbsp;• THERMAL MGMT → PRIMARY COOLANT<br>
-       &nbsp;• PRIMARY COOLANT → THERMAL MGMT<br>
-       &nbsp;• MAGNETIC CTRL → SENSOR ARRAY<br>
-       &nbsp;• SENSOR ARRAY → MAGNETIC CTRL<br>
-       &nbsp;• GRID INTERFACE → COMMS UPLINK<br>
-       &nbsp;• COMMS UPLINK → SENSOR ARRAY<br>
-       &nbsp;• BACKUP SYSTEMS — no interconnection
+       &nbsp;• FUEL DELIVERY > THERMAL MGMT<br>
+       &nbsp;• THERMAL MGMT > PRIMARY COOLANT<br>
+       &nbsp;• PRIMARY COOLANT > THERMAL MGMT<br>
+       &nbsp;• MAGNETIC CTRL > SENSOR ARRAY<br>
+       &nbsp;• SENSOR ARRAY > MAGNETIC CTRL<br>
+       &nbsp;• GRID INTERFACE > COMMS UPLINK<br>
+       &nbsp;• COMMS UPLINK > SENSOR ARRAY<br>
+       &nbsp;• BACKUP SYSTEMS - no interconnection
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">HEALTH &amp; WEAR</div>
@@ -179,8 +177,8 @@ const MP = {
 
      <div class="manual-note" style="margin-bottom:6px">DIAGNOSTICS &amp; REPAIR</div>
      <div style="margin-bottom:6px">
-       DIAGNOSE: 1–5 second timed scan. Only one module at a time. Cancel by clicking DIAGNOSE again on the same module — but do not cancel prematurely or the result is lost.<br>
-       REPAIR: Continuous health restoration at ~1% per 1.5 seconds while online; 4× faster if module is offline or in BYPASS. Cannot clear system faults — restart is required for fault clearance.
+       DIAGNOSE: 1–5 second timed scan. Only one module at a time. Cancel by clicking DIAGNOSE again on the same module - but do not cancel prematurely or the result is lost.<br>
+       REPAIR: Continuous health restoration at ~1% per 1.5 seconds while online; 4× faster if module is offline or in BYPASS. Cannot clear system faults - restart is required for fault clearance.
      </div>
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
@@ -198,8 +196,8 @@ const MP = {
 
      <div class="manual-note" style="margin-bottom:6px">WARNING THRESHOLDS (amber / red)</div>
      <div style="margin-bottom:10px;font-size:12px">
-       Core Temp: &gt;5,950°C amber / &gt;7,000°C red → module damage begins<br>
-       Core Pressure: &gt;20 ATM amber / &gt;35 ATM red → module damage begins<br>
+       Core Temp: &gt;5,950°C amber / &gt;7,000°C red > module damage begins<br>
+       Core Pressure: &gt;20 ATM amber / &gt;35 ATM red > module damage begins<br>
        Plasma Stability: &lt;23% amber / &lt;20% red (while igniting)<br>
        Containment: &lt;60% amber / &lt;30% red<br>
        Coolant Flow: &lt;115 L/min amber / &lt;100 L/min red (while igniting)<br>
@@ -211,17 +209,17 @@ const MP = {
 
      <div class="manual-note" style="margin-bottom:6px">AUTO-SCRAM</div>
      <div style="margin-bottom:10px;font-size:12px">
-       Automatic SCRAM triggers at <b>Containment Integrity ≤ 5%</b> while igniting. No other condition triggers auto-scram — all other dangerous readings require manual SCRAM judgment. A manual SCRAM can be initiated at any time via the red SCRAM button.
+       Automatic SCRAM triggers at <b>Containment Integrity ≤ 5%</b> while igniting. No other condition triggers auto-scram - all other dangerous readings require manual SCRAM judgment. A manual SCRAM can be initiated at any time via the red SCRAM button.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">WARNING LIGHTS</div>
      <div style="margin-bottom:10px;font-size:12px">
-       OVERTEMP / OVERPRES / CONTAINMENT / COOLANT / FUEL / RADIATION — gauge alerts<br>
-       SCRAM — active during 5s lockout<br>
-       ONLINE — green when reactor state is ONLINE<br>
-       MOD FAULT — any module not fully online<br>
-       SYS FAULT — amber: ≥2 hidden system errors; red: ≥6 errors<br>
-       EVENT — active critical event in progress
+       OVERTEMP / OVERPRES / CONTAINMENT / COOLANT / FUEL / RADIATION - gauge alerts<br>
+       SCRAM - active during 5s lockout<br>
+       ONLINE - green when reactor state is ONLINE<br>
+       MOD FAULT - any module not fully online<br>
+       SYS FAULT - amber: >=2 hidden system errors; red: >=6 errors<br>
+       EVENT - active critical event in progress
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">SCORE</div>

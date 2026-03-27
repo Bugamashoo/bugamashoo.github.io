@@ -1,11 +1,10 @@
-// ============================================================
-// reactor2.js — EVENTS & CATASTROPHES
+// reactor2.js - EVENTS & CATASTROPHES
 // Load order: 2nd (after reactor1)
-// ============================================================
+
 
 const CATASTROPHES = {
   coolant_leak: {
-    anim:'meltdown', title:'MELTDOWN', subtitle:'CORE BREACH — TOTAL LOSS',
+    anim:'meltdown', title:'MELTDOWN', subtitle:'CORE BREACH - TOTAL LOSS',
     color:'var(--red)',
     narrative:`The coolant leak you failed to address cascaded into a full thermal runaway. Without adequate cooling, the plasma-facing components exceeded 15,000°C in under forty seconds. The tungsten divertor plates liquefied. Molten material breached the vacuum vessel, burning through three meters of biological shielding before emergency concrete injection halted its descent. The facility is a total loss. A 2-kilometer exclusion zone has been established. No personnel casualties thanks to automated evacuation, but the reactor will take eleven years and $47 billion to decommission. Your operating license has been permanently revoked.`
   },
@@ -27,7 +26,7 @@ const CATASTROPHES = {
   sensor_fault: {
     anim:'meltdown', title:'BLIND CASCADE', subtitle:'UNDETECTED FAILURES COMPOUND',
     color:'var(--amber)',
-    narrative:`With the sensor array offline, you were flying blind. What you couldn't see was the coolant flow rate dropping, the containment field weakening, and the core temperature climbing — all simultaneously. By the time secondary indicators made the situation obvious, seven independent safety thresholds had been exceeded. The automated safety systems, receiving no sensor data, did not trigger. The reactor entered an uncontrolled state for 47 seconds before manual intervention was possible. By then, the damage was done. Partial fuel melt, containment degradation, and a significant radiological release within the building. The facility will require two years of decontamination before anyone can enter the reactor hall without a hazmat suit.`
+    narrative:`With the sensor array offline, you were flying blind. What you couldn't see was the coolant flow rate dropping, the containment field weakening, and the core temperature climbing - all simultaneously. By the time secondary indicators made the situation obvious, seven independent safety thresholds had been exceeded. The automated safety systems, receiving no sensor data, did not trigger. The reactor entered an uncontrolled state for 47 seconds before manual intervention was possible. By then, the damage was done. Partial fuel melt, containment degradation, and a significant radiological release within the building. The facility will require two years of decontamination before anyone can enter the reactor hall without a hazmat suit.`
   },
   plasma_instab: {
     anim:'implode', title:'MAGNETIC IMPLOSION', subtitle:'FIELD COLLAPSE CRUSHES CORE',
@@ -47,7 +46,7 @@ const CATASTROPHES = {
   vacuum_breach: {
     anim:'meltdown', title:'VACUUM VESSEL BREACH', subtitle:'PLASMA WALL CONTACT',
     color:'var(--red)',
-    narrative:`The pressure excursion you failed to vent breached the primary vacuum boundary. Atmospheric gases flooded the reaction chamber in milliseconds, quenching the plasma in a violent thermal event. The rapid pressure equalization shattered three viewing ports and ruptured the cooling manifold along the outer wall. The resulting steam explosion tore through two equipment bays. Four maintenance drones were destroyed. The vacuum vessel requires full replacement — a 30-month procurement process. The facility license has been suspended pending a root-cause investigation that everyone already knows the answer to.`
+    narrative:`The pressure excursion you failed to vent breached the primary vacuum boundary. Atmospheric gases flooded the reaction chamber in milliseconds, quenching the plasma in a violent thermal event. The rapid pressure equalization shattered three viewing ports and ruptured the cooling manifold along the outer wall. The resulting steam explosion tore through two equipment bays. Four maintenance drones were destroyed. The vacuum vessel requires full replacement - a 30-month procurement process. The facility license has been suspended pending a root-cause investigation that everyone already knows the answer to.`
   },
   coolant_overheat: {
     anim:'meltdown', title:'SECONDARY LOOP FAILURE', subtitle:'THERMAL RUNAWAY IN COOLING CIRCUIT',
@@ -62,7 +61,7 @@ const CATASTROPHES = {
   tritium_leak: {
     anim:'nukeFlash', title:'TRITIUM RELEASE', subtitle:'RADIOACTIVE FUEL BREACH',
     color:'var(--green)',
-    narrative:`The tritium inventory breached containment while the ventilation system was inadequate to manage the release. 14 grams of tritium — enough to contaminate a watershed — dispersed through the facility HVAC and into the surrounding environment. The isotope's low energy makes it invisible to standard radiation surveys, which is exactly why the evacuation took eleven hours longer than it should have. Three nearby municipalities issued boil-water advisories. The NRC was notified. The IAEA was notified. Your investors were notified by the IAEA. Environmental remediation will continue for two decades. The facility's operating permit has been revoked and the site reclassified as a legacy waste disposal problem.`
+    narrative:`The tritium inventory breached containment while the ventilation system was inadequate to manage the release. 14 grams of tritium - enough to contaminate a watershed - dispersed through the facility HVAC and into the surrounding environment. The isotope's low energy makes it invisible to standard radiation surveys, which is exactly why the evacuation took eleven hours longer than it should have. Three nearby municipalities issued boil-water advisories. The NRC was notified. The IAEA was notified. Your investors were notified by the IAEA. Environmental remediation will continue for two decades. The facility's operating permit has been revoked and the site reclassified as a legacy waste disposal problem.`
   },
   mag_quench: {
     anim:'implode', title:'SUPERCONDUCTOR QUENCH', subtitle:'MAGNETIC CONFINEMENT LOST',
@@ -82,7 +81,7 @@ const CATASTROPHES = {
   aux_power_fault: {
     anim:'meltdown', title:'POWER SYSTEM COLLAPSE', subtitle:'LOSS OF CONTROL AUTHORITY',
     color:'var(--red)',
-    narrative:`The auxiliary power fault cascaded into a complete loss of facility electrical control. Safety systems, instrumentation, and actuators all lost power simultaneously. The reactor, now without any control signals, continued operating at its last commanded state — full throttle, no adjustments, no oversight. For 94 seconds, a fusion reaction ran without human control in a facility with no working instruments. When emergency power restored, operators found the core temperature at 11,400°C, coolant flow at zero, and containment integrity at 12%. The reactor had been 8 seconds from automatic scram when control was recovered. That 8 seconds is now the subject of a congressional safety review. The review will take four years. The facility will not reopen.`
+    narrative:`The auxiliary power fault cascaded into a complete loss of facility electrical control. Safety systems, instrumentation, and actuators all lost power simultaneously. The reactor, now without any control signals, continued operating at its last commanded state - full throttle, no adjustments, no oversight. For 94 seconds, a fusion reaction ran without human control in a facility with no working instruments. When emergency power restored, operators found the core temperature at 11,400°C, coolant flow at zero, and containment integrity at 12%. The reactor had been 8 seconds from automatic scram when control was recovered. That 8 seconds is now the subject of a congressional safety review. The review will take four years. The facility will not reopen.`
   }
 };
 
@@ -94,7 +93,7 @@ const EVENTS = [
     steps:[
       { text:'AUX PUMP ON (Backup)',  check:()=>S.auxCoolPump },
       { text:'AUX LOOP ON (Backup)',  check:()=>S.auxCoolLoop },
-      { text:'AUX RATE >50%',         check:()=>S.auxCoolRate>=50,  cont:true },
+      { text:'AUX RATE >50% (Backup)',         check:()=>S.auxCoolRate>=50,  cont:true },
       { text:'LINE PURGE',            check:()=>S.corePressure<15||!S.ing }
     ]
   },
@@ -136,7 +135,7 @@ const EVENTS = [
     viz:`<div style="text-align:center;font-size:42px;color:var(--red);animation:blink .3s step-end infinite">NO SIGNAL</div>`,
     steps:[
       { text:'CHECK SYSTEMS TAB',         check:()=>document.querySelector('[data-tab="systems"]').classList.contains('active') },
-      { text:'SENSOR ARRAY ONLINE?',      check:()=>S.modules.sensor.status==='online'&&S.modules.sensor.health>20 }
+      { text:'SENSOR ARRAY HEALTHY?',      check:()=>S.modules.sensor.status==='online'&&S.modules.sensor.health>20 }
     ]
   },
   {
@@ -194,7 +193,7 @@ const EVENTS = [
     steps:[
       { text:'AUX PUMP ON (Backup)',   check:()=>S.auxCoolPump },
       { text:'AUX LOOP ON (Backup)',   check:()=>S.auxCoolLoop },
-      { text:'AUX RATE >70%',         check:()=>S.auxCoolRate>=70, cont:true },
+      { text:'AUX RATE >70% (Backup)',         check:()=>S.auxCoolRate>=70, cont:true },
       { text:'COOLANT FLOW >70%',     check:()=>S.coolantFlow>=70, cont:true }
     ]
   },
@@ -211,12 +210,12 @@ const EVENTS = [
   {
     id:'tritium_leak', title:'☢ TRITIUM LEAK', time:EVT_TIME_TRITIUM_LEAK,
     desc:'Radioactive fuel detected in secondary circuit. Isolate and vent.',
-    viz:`<div style="text-align:center"><div style="font-size:42px;animation:blink .5s step-end infinite">☢</div><div style="color:var(--green);font-size:11px;letter-spacing:2px;margin-top:4px">TRITIUM DETECTED</div><div style="font-size:9px;color:#5a5f66;margin-top:3px">${(0.3+Math.random()*2.7).toFixed(2)} GBq/m³ — LIMIT: 0.1</div></div>`,
+    viz:`<div style="text-align:center"><div style="font-size:42px;animation:blink .5s step-end infinite">☢</div><div style="color:var(--green);font-size:11px;letter-spacing:2px;margin-top:4px">TRITIUM DETECTED</div><div style="font-size:9px;color:#5a5f66;margin-top:3px">${(0.3+Math.random()*2.7).toFixed(2)} GBq/m³ - LIMIT: 0.1</div></div>`,
     steps:[
       { text:'FUEL PUMPS OFF',         check:()=>!S.fuelPumps },
       { text:'RAD SHIELD ON',          check:()=>S.radShield },
       { text:'VENT SYSTEM ON',         check:()=>S.ventSystem },
-      { text:'EMERG VENT ON',          check:()=>S.emergVent },
+      { text:'EMERG VENT ON (Backup)',          check:()=>S.emergVent },
       { text:'FUEL PUMPS ON',          check:()=>S.fuelPumps }
     ]
   },
@@ -229,7 +228,7 @@ const EVENTS = [
       { text:'MAG COILS OFF',          check:()=>!S.magCoils },
       { text:'FIELD A ON (Backup)',    check:()=>S.backupContA },
       { text:'FIELD B ON (Backup)',    check:()=>S.backupContB },
-      { text:'BACKUP FIELD >60%',      check:()=>S.backupContPow>=60, cont:true },
+      { text:'BACKUP FIELD >60% (Backup)',      check:()=>S.backupContPow>=60, cont:true },
       { text:'MAG COILS ON',           check:()=>S.magCoils }
     ]
   },
@@ -264,7 +263,7 @@ const EVENTS = [
       { text:'BACKUP GEN ON',          check:()=>S.backupGen },
       { text:'AUX POWER OFF',          check:()=>!S.auxPower },
       { text:'AUX POWER ON',           check:()=>S.auxPower },
-      { text:'AUX COOL PUMP ON',       check:()=>S.auxCoolPump }
+      { text:'AUX COOL PUMP ON (Backup)',       check:()=>S.auxCoolPump }
     ]
   }
 ];

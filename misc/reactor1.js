@@ -1,7 +1,5 @@
-// ============================================================
-// reactor1.js — STATE, MODES, SEQUENCE, SHARED VARS
+// reactor1.js - STATE, MODES, SEQUENCE, SHARED VARS
 // Load order: 1st
-// ============================================================
 
 const S = {
   // Switches
@@ -46,7 +44,7 @@ const MODES = {
   normal:   { label:'NORMAL',    perfMult:1.0,                    healthDrain:1,                      heatMod:0,                   desc:'+0% perf, normal drain'        },
   overclock:{ label:'OVERCLOCK', perfMult:MODE_OVERCLOCK_PERF,    healthDrain:MODE_OVERCLOCK_DRAIN,   heatMod:MODE_OVERCLOCK_HEAT, desc:'+50% perf, 3x drain, +heat'   },
   eco:      { label:'ECO',       perfMult:MODE_ECO_PERF,          healthDrain:MODE_ECO_DRAIN,         heatMod:MODE_ECO_HEAT,       desc:'-40% perf, slow drain, -heat' },
-  bypass:   { label:'USING BACKUP SYSTEMS', perfMult:MODE_BYPASS_PERF, healthDrain:0,                heatMod:0,                   desc:'~90% perf, no self-drain, stress→backup' }
+  bypass:   { label:'USING BACKUP SYSTEMS', perfMult:MODE_BYPASS_PERF, healthDrain:0,                heatMod:0,                   desc:'~90% perf, no self-drain, stress>backup' }
 };
 
 const SEQUENCE = [
@@ -80,7 +78,7 @@ let gaugeDamageTimes = {};     // { [gaugeId]: next S.uptime to deal damage, or 
 let diagStart     = 0;    // Date.now() when diagnosis started
 let diagDuration  = 0;    // random 1-5s duration for current diagnosis
 let nextErrorTime  = ERR_SPAWN_INIT_MIN + Math.random() * ERR_SPAWN_INIT_RANGE; // uptime threshold for next system error
-let recentEventIds = []; // last 3 triggered event IDs — prevents same event repeating until 3 others have fired
+let recentEventIds = []; // last 3 triggered event IDs - prevents same event repeating until 3 others have fired
 let fuelPumpOffStart = 0; // Date.now() when fuel pumps went off; 0 = pumps are on or grace expired
 let powerHist5m = []; // power samples every 60 ticks (3s), max 100 entries = 5 min rolling window
 let sensorNoise       = {};   // randomised display strings shown when sensor array is offline
