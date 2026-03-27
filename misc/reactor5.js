@@ -36,7 +36,7 @@ buildDG('systemVitals', [
 ]);
 buildDG('auxCoolReadings',   [{ id:'auxCoolTemp',    label:'AUX COOL',     color:'cyan'  }, { id:'auxCoolFlow',   label:'AUX FLOW',    color:'cyan'  }]);
 buildDG('backupContReadings',[{ id:'backupFieldStr', label:'BACKUP FIELD', color:'green' }, { id:'secondaryPressure', label:'SEC PRESS', color:'cyan' }]);
-buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD POS',      color:'amber' }, { id:'heatSinkTemp',  label:'HEAT SINK',   color:'cyan'  }]);
+buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD INS',      color:'amber' }, { id:'heatSinkTemp',  label:'HEAT SINK',   color:'cyan'  }]);
 
 // ── Warning lights row ────────────────────────────────────────
 (function() {

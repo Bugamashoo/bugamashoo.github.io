@@ -92,6 +92,8 @@ function checkSeq() {
     S.reactorState = 'ONLINE';
     addLog('*** REACTOR ONLINE ***', 'ok');
     doShake(); doFlash();
+    document.querySelector('[data-tab="systems"]').classList.add('tab-pulse');
+    document.querySelector('[data-tab="backup"]').classList.add('tab-pulse');
   }
 }
 
@@ -134,7 +136,9 @@ function updDN(id, t, mx, colorFn) {
 }
 
 // Set a warning light colour class
+let lampTestActive = false;
 function setW(id, t) {
+  if (lampTestActive) return;
   const e = document.getElementById(id);
   if (!e) return;
   e.classList.remove('active-amber','active-red','active-green');

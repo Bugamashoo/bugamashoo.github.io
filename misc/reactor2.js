@@ -170,6 +170,7 @@ const EVENTS = [
       { text:'FIELD A ON (Backup)',   check:()=>S.backupContA },
       { text:'FIELD A ON (Backup)',   check:()=>S.backupContB },
       { text:'THROTTLE <20%',    check:()=>S.mainThrottle<=20, cont:true },
+      { text:'ROD SAFETY OFF (Backup)',   check:()=>!S.rodSafetyOff },
       { text:'ROD A >50% (Backup)',       check:()=>S.rodA>=50,  cont:true },
       { text:'ROD B >50% (Backup)',       check:()=>S.rodB>=50,  cont:true },
       { text:'ROD C >50% (Backup)',       check:()=>S.rodC>=50,  cont:true }
@@ -249,7 +250,7 @@ const EVENTS = [
     viz:`<div style="text-align:center"><div style="font-size:11px;color:var(--amber);margin-bottom:4px">EXHAUST HEAT FLUX</div><div style="font-size:38px;font-family:Share Tech Mono;color:var(--red)">${(10.2+Math.random()*8).toFixed(1)} MW/m²</div><div style="font-size:9px;color:#5a5f66">TILE LIMIT: 10.0 MW/m²</div></div>`,
     steps:[
       { text:'THROTTLE <35%',          check:()=>S.mainThrottle<=35, cont:true },
-      { text:'ROD SAFETY OFF (Backup)',check:()=>S.rodSafetyOff },
+      { text:'ROD SAFETY OFF (Backup)',check:()=>!S.rodSafetyOff },
       { text:'ROD A >40% (Backup)',    check:()=>S.rodA>=40,         cont:true },
       { text:'ROD B >40% (Backup)',    check:()=>S.rodB>=40,         cont:true },
       { text:'ROD C >40% (Backup)',    check:()=>S.rodC>=40,         cont:true }

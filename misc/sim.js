@@ -59,7 +59,7 @@ function simulate() {
     addLog('PLASMA EXTINGUISHED: No fuel flow', 'err');
     doShake();
   }
-  const rE = S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 300 : 0;
+  const rE = !S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 300 : 0;
 
   // ── Core temperature ──
   // Heat generation: sqrt-compressed so fuel/throttle contribute meaningfully
@@ -202,14 +202,15 @@ function simulate() {
   if (S.igniting && S.turbineEngage) {
     tW = (S.turbineRPM / POWER_RPM_SCALE) * S.mainThrottle * (S.plasmaStability / 100) * POWER_OUTPUT_SCALE * fuelPowerMult * (1 - rE * POWER_ROD_REDUCTION);
     if (!S.ventSystem) tW *= POWER_NO_VENT_MULT;
-    if (S.backupGen)   tW += POWER_BACKUP_GEN_BONUS * bEff;
     tW *= gP; // Grid interface module — degraded/offline grid cuts power delivery
   }
   S.powerOutput += (Math.max(0, tW) - S.powerOutput) * POWER_LERP;
+  // Backup generator: always 2 MW, independent of reactor state — excluded from score/uptime
+  S.backupGenOutput += ((S.backupGen ? POWER_BACKUP_GEN_BONUS : 0) - S.backupGenOutput) * POWER_LERP;
   if (S.powerOutput > S.peakPower) S.peakPower = S.powerOutput;
 
   S.heatSinkTemp = HEATSINK_IDLE + S.coreTemp * HEATSINK_CORE_SCALE - cE_flat * HEATSINK_COOL_SCALE;
-  S.rodPosition  = S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 3 : 100;
+  S.rodPosition  = !S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 3 : 0;
 
   // ── Module health + interconnection drain ──
   if (S.igniting && tick % MOD_DRAIN_INTERVAL === 0) {

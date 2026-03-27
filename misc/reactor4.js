@@ -10,6 +10,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
     document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
+    b.classList.remove('tab-pulse');
     document.getElementById('tab-' + b.dataset.tab).classList.add('active');
     if (b.dataset.tab === 'systems') buildSys();
   });
@@ -30,7 +31,7 @@ const KS = {
 // Switch IDs that live on the main controls panel (blocked when comms offline)
 const MAIN_PANEL_SWITCH_IDS = new Set([
   'auxPower','radShield','fuelPumps','coolantPumps','magCoils',
-  'ignPrime','turbineEngage','gridSync','ventSystem','backupGen','containField'
+  'ignPrime','turbineEngage','gridSync','ventSystem','containField'
 ]);
 
 // ── Switch banks ─────────────────────────────────────────────
@@ -101,6 +102,15 @@ function togSw(id, el) {
   }
   S[id] = S[id] ? 0 : 1;
   el.classList.toggle('on', !!S[id]);
+  if (id === 'rodSafetyOff' && S.rodSafetyOff) {
+    S.rodA = S.rodB = S.rodC = 0;
+    document.querySelectorAll('[data-lever="rodA"],[data-lever="rodB"],[data-lever="rodC"]').forEach(tr => {
+      const h = tr.querySelector('.lever-handle');
+      h.style.top = ''; h.style.bottom = '4px';
+      const ro = document.getElementById('readout_' + tr.dataset.lever);
+      if (ro) ro.textContent = '0%';
+    });
+  }
   addLog(id.replace(/([A-Z])/g,' $1').toUpperCase() + ' → ' + (S[id] ? 'ON' : 'OFF'), S[id] ? 'ok' : 'warn');
   doFlash();
   checkSeq();
@@ -184,7 +194,7 @@ buildSB('switchBank2', [
 ]);
 buildSB('auxCoolSwitches',   [{ id:'auxCoolPump', label:'AUX PUMP' }, { id:'auxCoolLoop', label:'AUX LOOP' }]);
 buildSB('backupContSwitches',[{ id:'backupContA', label:'FIELD A'  }, { id:'backupContB', label:'FIELD B'  }]);
-buildSB('emergSwitches',     [{ id:'emergVent',   label:'EMRG VENT'}, { id:'emergDump', label:'FUEL DUMP' }, { id:'rodSafetyOff', label:'ROD SAFE' }]);
+buildSB('emergSwitches',     [{ id:'emergVent',   label:'EMRG VENT'}, { id:'emergDump', label:'FUEL DUMP' }, { id:'rodSafetyOff', label:'ROD SAFETY' }]);
 
 // ── Lever rows ────────────────────────────────────────────────
 function buildLev(cid, defs) {
@@ -214,6 +224,9 @@ function setupLev(tr, id) {
     if (S.modules.comms.status === 'offline' && tr.closest('#tab-controls')) {
       if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE — controls locked', 'err'); lastCommsWarnTick = tick; }
       return;
+    }
+    if (['rodA','rodB','rodC'].includes(id) && S.rodSafetyOff) {
+      addLog('ROD SAFETY ON — disengage to move rods', 'warn'); return;
     }
     const r  = tr.getBoundingClientRect();
     const ht = r.height - 28;
@@ -312,16 +325,12 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   const c = document.getElementById('buttonPanel');
   c.innerHTML =
     `<div class="flex-col gap-4" style="align-items:center">
-       <div class="push-btn amber-btn" id="ignBtn" style="width:64px;height:64px;font-size:8px">IGNITE</div>
+       <div class="push-btn amber-btn" id="ignBtn" style="width:80px;height:80px">IGNITE</div>
        <div class="switch-name">HOLD 3s</div>
      </div>
      <div class="flex-col gap-4" style="align-items:center">
-       <div class="push-btn green-btn" id="testBtn" style="width:50px;height:50px;font-size:7px">LAMP<br>TEST</div>
+       <div class="push-btn amber-btn" id="testBtn" style="width:80px;height:80px">LAMP<br>TEST</div>
        <div class="switch-name">TEST</div>
-     </div>
-     <div class="flex-col gap-4" style="align-items:center">
-       <div class="push-btn cyan-btn" id="purgeBtn" style="width:50px;height:50px;font-size:7px">LINE<br>PURGE</div>
-       <div class="switch-name">PURGE</div>
      </div>`;
 
   const ib = document.getElementById('ignBtn');
@@ -336,11 +345,21 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 
   document.getElementById('testBtn').addEventListener('click', () => {
     if (commsGuard()) return;
-    document.querySelectorAll('.warning-light').forEach(w => {
-      w.classList.add('active-amber');
-      setTimeout(() => w.classList.remove('active-amber'), 1000);
+    if (lampTestActive) return;
+    lampTestActive = true;
+    const lights = document.querySelectorAll('.warning-light');
+    const setAll = (cls) => lights.forEach(w => {
+      w.classList.remove('active-amber', 'active-red', 'active-green');
+      if (cls) w.classList.add(cls);
     });
-    addLog('LAMP TEST OK', 'ok');
+    setAll('active-amber');
+    setTimeout(() => setAll(''),             1000);
+    setTimeout(() => setAll('active-red'),   1250);
+    setTimeout(() => {
+      lights.forEach(w => w.classList.remove('active-amber', 'active-red', 'active-green'));
+      lampTestActive = false;
+      addLog('LAMP TEST OK', 'ok');
+    }, 2250);
   });
 
   document.getElementById('purgeBtn').addEventListener('click', () => {
@@ -356,7 +375,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   const c = document.getElementById('emergButtons');
   ['PLASMA DUMP', 'COOL FLOOD', 'HARD RESET'].forEach((l, i) => {
     const b = document.createElement('div');
-    b.innerHTML = `<div class="push-btn ${['red-btn','cyan-btn','amber-btn'][i]}" style="width:52px;height:52px;font-size:7px">${l}</div>`;
+    b.innerHTML = `<div class="push-btn ${['red-btn','amber-btn','red-btn'][i]}" style="width:80px;height:80px">${l}</div>`;
     c.appendChild(b);
     b.querySelector('.push-btn').addEventListener('click', () => {
       if (i === 0) {

@@ -211,7 +211,7 @@ const POWER_RPM_SCALE        = 15000; // turbineRPM / this = RPM contribution (f
 const POWER_OUTPUT_SCALE     = 8.5;   // Core power multiplier (tunes overall MW output level)
 const POWER_ROD_REDUCTION    = 0.4;   // Fraction of power removed by full rod insertion (rE=1)
 const POWER_NO_VENT_MULT     = 0.85;  // Power multiplied by this when ventSystem switch is off
-const POWER_BACKUP_GEN_BONUS = 0.5;   // MW added to output when backup generator is active
+const POWER_BACKUP_GEN_BONUS = 2;     // MW added to output when backup generator is active
 const POWER_LERP             = 0.03;  // Power output lerp rate per tick
 
 
@@ -295,9 +295,9 @@ const GAUGE_AUXCOOL_DANGER    = 70;    // Aux cool temp (°C) above which backup
 // Raise SPAWN_NEXT_MIN to give players more breathing room between errors.
 
 const ERR_SPAWN_INIT_MIN    = 30;   // Seconds after reactor start before first error can spawn
-const ERR_SPAWN_INIT_RANGE  = 60;   // Random seconds added to initial spawn time (total: 30–90s)
+const ERR_SPAWN_INIT_RANGE  = 270;  // Random seconds added to initial spawn time (total: 30–300s)
 const ERR_SPAWN_NEXT_MIN    = 30;   // Seconds between subsequent error events
-const ERR_SPAWN_NEXT_RANGE  = 60;   // Random seconds added (total: 30–90s per error cycle)
+const ERR_SPAWN_NEXT_RANGE  = 270;  // Random seconds added (total: 30–300s per error cycle)
 
 const ERR_PENALTY_INIT_MIN  = 0.85; // Initial efficiency when an error is applied (85%)
 const ERR_PENALTY_INIT_RANGE = 0.05;// Random range on top of min (initial: 85–90% efficiency)

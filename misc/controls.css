@@ -5,8 +5,9 @@
 .main-grid{display:grid;grid-template-columns:250px 1fr 500px;grid-template-rows:auto auto;gap:0;flex:1;min-height:0}
 .scram-btn{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ff1744,#b71c1c);border:4px solid #d32f2f;cursor:pointer;font-family:'Orbitron',sans-serif;font-weight:900;font-size:14px;color:#fff;box-shadow:0 6px 12px rgba(0,0,0,.6),inset 0 2px 3px rgba(255,255,255,.2),0 0 40px rgba(255,23,68,.6);transition:all .1s;letter-spacing:2px}
 .scram-btn:active{transform:translateY(3px);box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 3px 8px rgba(0,0,0,.4)}
-.reactor-viz{width:172px;height:125px;margin:4px auto;position:relative;background:transparent}
+.reactor-viz{width:172px;height:125px;margin:4px auto;position:relative;background:transparent;overflow:visible}
 .rviz-ring{transform-box:fill-box;transform-origin:center;transition:stroke .6s,stroke-opacity .6s,filter .6s}
+#turbineSpin{transform-box:fill-box;transform-origin:center;animation:rvizSpin linear infinite;animation-play-state:paused;animation-duration:2s}
 .rviz-spin-fast{animation:rvizSpin 1.8s linear infinite}
 .rviz-spin-med{animation:rvizSpinRev 4s linear infinite}
 .rviz-spin-slow{animation:rvizSpin 9s linear infinite}
@@ -35,7 +36,9 @@
 #tab-controls .lever-readout{font-size:14px}
 #tab-controls .display-label{font-size:9px}
 #tab-controls .display-value{font-size:18px}
-#tab-controls .push-btn{font-size:10px}
+#tab-controls .push-btn{font-size:14px}
+#buttonPanel{align-items:flex-start!important}
+#tab-controls .panel:has(#scramBtn) .panel-body{align-items:flex-start!important}
 #tab-controls .seq-label{font-size:11px}
 #tab-controls .warning-light{font-size:10px}
 #tab-controls .log-box{font-size:13px}

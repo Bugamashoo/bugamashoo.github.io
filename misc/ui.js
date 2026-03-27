@@ -9,6 +9,9 @@ function updateUI() {
   const hi = (d) => (v) => v > d ? 'red' : v > d * 0.85 ? 'amber' : 'green';
   const lo = (d, active) => (v) => (!active || active()) ? (v < d ? 'red' : v < d * 1.15 ? 'amber' : 'green') : 'green';
 
+  // No-power mode: aux off, backup gen off, output < 1 MW → gauges/status invisible
+  const noPower = !S.auxPower && !S.backupGen && S.powerOutput < 1;
+
   // Core readings
   updDN('coreTemp',         S.coreTemp.toFixed(0),          DISP_TEMP_MAX,         hi(SAFE_TEMP_RED));
   updDN('corePressure',     S.corePressure.toFixed(1),       DISP_PRES_MAX,         hi(SAFE_PRES_RED));
@@ -36,9 +39,13 @@ function updateUI() {
   const fc = document.getElementById('disp_fuelConsump');
   if (fc) fc.textContent = sensorOff && sensorNoise.fuelConsump !== undefined ? sensorNoise.fuelConsump : S.fuelConsump.toFixed(1);
 
+  // Toggle no-power CSS class — hides display values, zeros bars, hides warning row + seq steps
+  document.body.classList.toggle('no-power', noPower);
+
   // Net power output display
   const po = document.getElementById('netOutput');
-  const poVal = sensorOff && sensorNoise.powerOutput !== undefined ? sensorNoise.powerOutput : S.powerOutput.toFixed(2);
+  const totalPower = S.powerOutput + S.backupGenOutput;
+  const poVal = sensorOff && sensorNoise.powerOutput !== undefined ? sensorNoise.powerOutput : totalPower.toFixed(2);
   po.textContent = poVal;
   po.style.color = parseFloat(poVal) > DISP_POWER_RED ? 'var(--red)' : parseFloat(poVal) > DISP_POWER_AMBER ? 'var(--amber)' : 'var(--green)';
 
@@ -50,6 +57,12 @@ function updateUI() {
   const rvFlux     = Math.min(1, S.magneticFlux / 8);
   const rvContain  = S.containIntegrity / 100;
   const rvTempPct  = Math.min(1, S.coreTemp / 10000);
+  const rvRad     = Math.min(1, S.radiationLevel / 60);
+  const rvPres    = Math.min(1, S.corePressure / SAFE_PRES_RED);
+  const rvFuel    = S.fuelRemaining / 100;
+  const rvRPM     = Math.min(1, S.turbineRPM / 15000);
+  const rvNeutron = Math.min(1, S.neutronDensity / 80);
+  const rvHeat    = Math.min(1, Math.max(0, (S.heatSinkTemp - 40) / 160));
 
   // Derive glow colors from current readings
   const rvCoreClr  = S.coreTemp > 7000 ? '#ff2e2e' : S.coreTemp > 5950 ? '#ff9f1c' : '#00e5ff';
@@ -120,48 +133,171 @@ function updateUI() {
 
   // Fuel injection indicator (orange triangle, lower-left)
   const fuelInd = document.getElementById('fuelIndicator');
-  if (fuelInd) {
+  const fuelFillEl = document.getElementById('fuelFill');
+  const fuelFillRect = document.getElementById('fuelFillRect');
+  {
     const fp = S.fuelInject / 100;
     const fuelActive = rvOn && fp > 0;
     const borderClr = rvOn ? rvCoreClr + '50' : '#1e2830';
-    fuelInd.setAttribute('fill',   fuelActive ? '#ff9f1c' : 'url(#bgGrad)');
-    fuelInd.setAttribute('stroke', borderClr);
-    fuelInd.setAttribute('opacity', fuelActive ? (0.15 + fp * 0.7).toFixed(2) : '1');
-    if (fuelActive) fuelInd.setAttribute('filter', 'url(#rGlow)'); else fuelInd.removeAttribute('filter');
+    const triH = 36; // triangle height in SVG units (110.5 − 74.5)
+    if (fuelInd) fuelInd.setAttribute('stroke', borderClr);
+    if (fuelFillRect) {
+      const fh = fp * triH;
+      fuelFillRect.setAttribute('y', (110.5 - fh).toFixed(2));
+      fuelFillRect.setAttribute('height', fh.toFixed(2));
+    }
+    if (fuelFillEl) {
+      fuelFillEl.setAttribute('fill', '#ff9f1c');
+      fuelFillEl.setAttribute('opacity', fuelActive ? (0.15 + fp * 0.7).toFixed(2) : '0');
+      if (fuelActive) fuelFillEl.setAttribute('filter', 'url(#rGlow)'); else fuelFillEl.removeAttribute('filter');
+    }
   }
 
-  // Coolant flow indicator (blue triangle, lower-right)
+  // Coolant flow indicator (blue triangle, lower-right) — color shifts with coolant temp
   const coolInd = document.getElementById('coolantIndicator');
-  if (coolInd) {
+  const coolFillEl = document.getElementById('coolFill');
+  const coolFillRect = document.getElementById('coolFillRect');
+  {
     const cp = S.coolantFlow / 100;
     const coolActive = rvOn && cp > 0;
     const borderClr2 = rvOn ? rvCoreClr + '50' : '#1e2830';
-    coolInd.setAttribute('fill',   coolActive ? '#00e5ff' : 'url(#bgGrad)');
-    coolInd.setAttribute('stroke', borderClr2);
-    coolInd.setAttribute('opacity', coolActive ? (0.15 + cp * 0.7).toFixed(2) : '1');
-    if (coolActive) coolInd.setAttribute('filter', 'url(#rGlow)'); else coolInd.removeAttribute('filter');
+    const coolClr = S.coolantTemp > SAFE_COOLANT_RED ? '#ff2e2e' : S.coolantTemp > SAFE_COOLANT_RED * 0.75 ? '#ff9f1c' : '#00e5ff';
+    const triH = 36;
+    if (coolInd) coolInd.setAttribute('stroke', borderClr2);
+    if (coolFillRect) {
+      const ch = cp * triH;
+      coolFillRect.setAttribute('y', (110.5 - ch).toFixed(2));
+      coolFillRect.setAttribute('height', ch.toFixed(2));
+    }
+    if (coolFillEl) {
+      coolFillEl.setAttribute('fill', coolClr);
+      coolFillEl.setAttribute('opacity', coolActive ? (0.15 + cp * 0.7).toFixed(2) : '0');
+      if (coolActive) coolFillEl.setAttribute('filter', 'url(#rGlow)'); else coolFillEl.removeAttribute('filter');
+    }
   }
+
+  // ── Additional reactor visual elements ──
+
+  // Heat background — hex tints orange/red with heat sink temp
+  const heatBg = document.getElementById('heatBg');
+  if (heatBg) {
+    heatBg.setAttribute('fill', rvHeat > 0.7 ? '#ff2e2e' : '#ff5500');
+    heatBg.setAttribute('opacity', (rvHeat * 0.2).toFixed(3));
+  }
+
+  // Radiation aura — large blurred halo, color = green→amber→red with radiation level
+  const radAura = document.getElementById('radAura');
+  if (radAura) {
+    const radColor = rvRad > 0.67 ? '#ff2e2e' : rvRad > 0.33 ? '#ff9f1c' : '#39ff14';
+    radAura.setAttribute('fill', radColor);
+    radAura.setAttribute('opacity', (rvRad * 0.25).toFixed(3));
+  }
+
+  // Fuel arc — stroke-dasharray progress ring showing remaining fuel
+  const fuelArc = document.getElementById('fuelArc');
+  if (fuelArc) {
+    const circ = 314.2; // 2π × 50
+    fuelArc.setAttribute('stroke-dasharray', (rvFuel * circ).toFixed(1) + ' ' + circ.toFixed(1));
+    fuelArc.setAttribute('stroke', rvFuel < 0.15 ? '#ff2e2e' : '#ff9f1c');
+    fuelArc.setAttribute('opacity', rvOn && rvFuel > 0.01 ? '0.55' : '0');
+  }
+
+  // Turbine spin ring — dashed ring spins at speed proportional to turbineRPM
+  const turbEl = document.getElementById('turbineSpin');
+  if (turbEl) {
+    if (S.turbineRPM > 80) {
+      turbEl.style.animationDuration = Math.max(0.25, 3600 / Math.max(1, S.turbineRPM)).toFixed(2) + 's';
+      turbEl.style.animationPlayState = 'running';
+      turbEl.setAttribute('opacity', (0.15 + rvRPM * 0.55).toFixed(2));
+      turbEl.setAttribute('stroke', rvRPM > 0.87 ? '#ff9f1c' : '#00e5ff');
+    } else {
+      turbEl.style.animationPlayState = 'paused';
+      turbEl.setAttribute('opacity', '0');
+    }
+  }
+
+  // Pressure pulse — pulsing ring, frequency and intensity driven by core pressure
+  const pressPulse = document.getElementById('pressPulse');
+  if (pressPulse) {
+    const pOp = rvPres > 0.1 ? (0.2 + rvPres * 0.55) * Math.abs(Math.sin(tick * (0.04 + rvPres * 0.18))) : 0;
+    pressPulse.setAttribute('opacity', pOp.toFixed(3));
+    pressPulse.setAttribute('stroke', rvPres > 0.83 ? '#ff2e2e' : rvPres > 0.67 ? '#ff9f1c' : '#00e5ff');
+  }
+
+  // Neutron cloud dots — 8 dots flicker with neutron density (updated every 2 ticks)
+  if (tick % 2 === 0) {
+    const nColor = rvNeutron > 0.7 ? '#ff9f1c' : S.coreTemp > 6000 ? '#ff6644' : '#00e5ff';
+    for (let i = 0; i < 8; i++) {
+      const nd = document.getElementById('nDot' + i);
+      if (!nd) continue;
+      const lit = rvNeutron > i / 8;
+      const op  = lit ? (0.4 + Math.random() * 0.6) : (Math.random() < rvNeutron * 2 ? Math.random() * 0.3 : 0);
+      nd.setAttribute('opacity', op.toFixed(2));
+      nd.setAttribute('fill', nColor);
+      if (lit) nd.setAttribute('filter', 'url(#rGlow)'); else nd.removeAttribute('filter');
+    }
+  }
+
+  // Control rod lines — show insertion depth pointing toward center when rod safety is off
+  [
+    { id:'rodLineA', x1:70, y1:41.7, dx:0,   dy: 20.8 },
+    { id:'rodLineB', x1:88, y1:72.9, dx:-18, dy:-10.4 },
+    { id:'rodLineC', x1:52, y1:72.9, dx: 18, dy:-10.4 },
+  ].forEach((r, i) => {
+    const el = document.getElementById(r.id);
+    if (!el) return;
+    const pct = !S.rodSafetyOff ? [S.rodA, S.rodB, S.rodC][i] / 100 : 0;
+    el.setAttribute('x2', (r.x1 + r.dx * pct).toFixed(1));
+    el.setAttribute('y2', (r.y1 + r.dy * pct).toFixed(1));
+    el.setAttribute('opacity', pct > 0 ? (0.5 + pct * 0.5).toFixed(2) : '0');
+  });
 
   // ── Electrical arcs (updated every 3 ticks ≈ 0.15s) ──
   if (tick % 3 === 0) {
     const instab   = rvOn ? Math.max(0, (100 - S.plasmaStability) / 100) : 0;
-    const baseArcs = rvOn && rvIntens > 0.15 ? 1 : 0;           // always 1 arc when running
-    const numArcs  = Math.min(6, baseArcs + Math.round(instab * 5)); // up to 5 extra from instability
-    for (let i = 0; i < 6; i++) {
+    const baseArcs = rvOn && rvIntens > 0.15 ? 2 : 0;             // 2 arcs always when running
+    const numArcs  = Math.min(12, baseArcs + Math.round(instab * 10)); // up to 10 extra from instability
+    for (let i = 0; i < 12; i++) {
       const arc = document.getElementById('arc' + i);
       if (!arc) continue;
       if (i < numArcs) {
         const angle  = Math.random() * Math.PI * 2;
-        const reach  = 14 + Math.random() * 34;                 // 14–48 px from center
+        const reach  = (14 + rvNeutron * 8) + Math.random() * (28 + instab * 18);
         const ex     = rvCX + reach * Math.cos(angle);
         const ey     = rvCY + reach * Math.sin(angle);
-        // Two-segment jagged arc: center → jag → endpoint
-        const jx     = rvCX + (ex - rvCX) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 22;
-        const jy     = rvCY + (ey - rvCY) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 22;
-        arc.setAttribute('d', `M${rvCX} ${rvCY} L${jx.toFixed(1)} ${jy.toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)}`);
-        arc.setAttribute('opacity', (0.35 + Math.random() * 0.65).toFixed(2));
+        let d;
+        const arcType = i % 3; // 0=2-seg thin, 1=3-seg jagged, 2=off-center branch
+        if (arcType === 0) {
+          // Two-segment arc from center
+          const jx = rvCX + (ex - rvCX) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 20;
+          const jy = rvCY + (ey - rvCY) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 20;
+          d = `M${rvCX} ${rvCY} L${jx.toFixed(1)} ${jy.toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)}`;
+        } else if (arcType === 1) {
+          // Three-segment jagged arc from center
+          const t1 = 0.25 + Math.random() * 0.25;
+          const t2 = 0.55 + Math.random() * 0.25;
+          const j1x = rvCX + (ex - rvCX) * t1 + (Math.random() - 0.5) * 26;
+          const j1y = rvCY + (ey - rvCY) * t1 + (Math.random() - 0.5) * 26;
+          const j2x = rvCX + (ex - rvCX) * t2 + (Math.random() - 0.5) * 16;
+          const j2y = rvCY + (ey - rvCY) * t2 + (Math.random() - 0.5) * 16;
+          d = `M${rvCX} ${rvCY} L${j1x.toFixed(1)} ${j1y.toFixed(1)} L${j2x.toFixed(1)} ${j2y.toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)}`;
+        } else {
+          // Branch arc: starts offset from center, shorter reach
+          const bAngle = Math.random() * Math.PI * 2;
+          const bOff   = 6 + Math.random() * 10;
+          const ox     = rvCX + bOff * Math.cos(bAngle);
+          const oy     = rvCY + bOff * Math.sin(bAngle);
+          const bReach = 10 + Math.random() * (18 + instab * 14);
+          const bex    = ox + bReach * Math.cos(angle);
+          const bey    = oy + bReach * Math.sin(angle);
+          const jx     = ox + (bex - ox) * (0.4 + Math.random() * 0.3) + (Math.random() - 0.5) * 14;
+          const jy     = oy + (bey - oy) * (0.4 + Math.random() * 0.3) + (Math.random() - 0.5) * 14;
+          d = `M${ox.toFixed(1)} ${oy.toFixed(1)} L${jx.toFixed(1)} ${jy.toFixed(1)} L${bex.toFixed(1)} ${bey.toFixed(1)}`;
+        }
+        arc.setAttribute('d', d);
+        arc.setAttribute('opacity', (0.25 + Math.random() * 0.75).toFixed(2));
         arc.setAttribute('stroke', rvArcClr);
-        arc.setAttribute('stroke-width', (0.4 + Math.random() * 1.4).toFixed(1));
+        arc.setAttribute('stroke-width', (arcType === 1 ? 0.6 + Math.random() * 1.6 : 0.3 + Math.random() * 1.2).toFixed(1));
       } else {
         arc.setAttribute('opacity', '0');
       }
@@ -181,13 +317,12 @@ function updateUI() {
   const activeErrors = Object.values(S.modules).filter(m => m.sysError).length;
   setW('warnSysFault',    activeErrors >= 6 ? 'red' : activeErrors >= 2 ? 'amber' : '');
   setW('warnEvent',       S.activeEvent            ? 'red'   : '');
-
   // Sequence steps
   for (let i = 0; i < SEQUENCE.length; i++) {
     const e = document.getElementById('seq_' + i);
     if (!e) continue;
     e.classList.remove('active','complete');
-    if (i < S.seqStep)      e.classList.add('complete');
+    if (i < S.seqStep)        e.classList.add('complete');
     else if (i === S.seqStep) e.classList.add('active');
   }
 
@@ -196,7 +331,7 @@ function updateUI() {
   switch (S.reactorState) {
     case 'OFFLINE':  hs.textContent = '■ OFFLINE';                              hs.style.color = '#5a5f66';       break;
     case 'STARTUP':  hs.textContent = '■ STARTUP';                              hs.style.color = 'var(--amber)';  break;
-    case 'ONLINE':   hs.textContent = '■ ONLINE — ' + S.powerOutput.toFixed(1) + ' MW'; hs.style.color = 'var(--green)'; break;
+    case 'ONLINE':   hs.textContent = '■ ONLINE — ' + (S.powerOutput + S.backupGenOutput).toFixed(1) + ' MW'; hs.style.color = 'var(--green)'; break;
     case 'CRITICAL': hs.textContent = '■ CRITICAL';                             hs.style.color = 'var(--red)';    break;
     case 'SCRAM':    hs.textContent = '■ SCRAM';                                hs.style.color = 'var(--red)';    break;
   }
@@ -209,7 +344,7 @@ function updateUI() {
   document.getElementById('scoreDisp').textContent   = Math.round(S.score);
 
   // Header power output + 5-min avg
-  document.getElementById('hdrOutput').textContent = S.powerOutput.toFixed(2);
+  document.getElementById('hdrOutput').textContent = (S.powerOutput + S.backupGenOutput).toFixed(2);
   const cur5mAvg = powerHist5m.length
     ? powerHist5m.reduce((a, b) => a + b, 0) / powerHist5m.length
     : 0;

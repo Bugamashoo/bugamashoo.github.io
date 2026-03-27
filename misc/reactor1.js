@@ -8,7 +8,7 @@ const S = {
   auxPower:0, fuelPumps:0, coolantPumps:0, containField:0, ignPrime:0,
   turbineEngage:0, gridSync:0, radShield:0, magCoils:0, ventSystem:0,
   backupGen:0, auxCoolPump:0, auxCoolLoop:0, backupContA:0, backupContB:0,
-  emergVent:0, emergDump:0, rodSafetyOff:0,
+  emergVent:0, emergDump:0, rodSafetyOff:1,
   // Levers
   mainThrottle:0, fuelInject:0, coolantFlow:0, containPower:0,
   auxCoolRate:0, backupContPow:0, rodA:0, rodB:0, rodC:0,
@@ -18,9 +18,9 @@ const S = {
   igniting:0, ignitionHeld:0,
   // Core readings
   coreTemp:TEMP_IDLE, corePressure:PRESSURE_BASE, coolantTemp:COOLANT_IDLE, fuelRemaining:FUEL_START,
-  plasmaStability:0, magneticFlux:0, neutronDensity:0, powerOutput:0,
+  plasmaStability:0, magneticFlux:0, neutronDensity:0, powerOutput:0, backupGenOutput:0,
   turbineRPM:0, gridLoad:0, containIntegrity:100, coolantFlowRate:0,
-  auxCoolTemp:AUX_COOL_IDLE, auxCoolFlow:0, backupFieldStr:0, rodPosition:100,
+  auxCoolTemp:AUX_COOL_IDLE, auxCoolFlow:0, backupFieldStr:0, rodPosition:0,
   // Reactor lifecycle
   reactorState:'OFFLINE', seqStep:0, startupComplete:0,
   scramActive:0, uptime:0, bestUptime:0, score:0, scoreTicks:0, fuelConsump:0,
