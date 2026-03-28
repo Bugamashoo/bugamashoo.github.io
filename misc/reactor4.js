@@ -14,6 +14,50 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   });
 });
 
+// Hamburger menu for mobile ────────────────────────────────
+(function() {
+  const menuBtn = document.getElementById('tabMenuBtn');
+  const dropdown = document.getElementById('tabMenuDropdown');
+  if (!menuBtn || !dropdown) return;
+
+  menuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    dropdown.classList.toggle('active');
+    menuBtn.classList.toggle('active', dropdown.classList.contains('active'));
+  });
+
+  document.addEventListener('click', () => {
+    dropdown.classList.remove('active');
+    menuBtn.classList.remove('active');
+  });
+
+  dropdown.querySelectorAll('.tab-menu-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      const tab = item.dataset.tab;
+      // Deactivate all main tab buttons
+      document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+      // Deactivate other menu items
+      dropdown.querySelectorAll('.tab-menu-item').forEach(x => x.classList.remove('active'));
+      // Activate selected
+      item.classList.add('active');
+      menuBtn.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+      dropdown.classList.remove('active');
+      if (tab === 'systems') buildSys();
+    });
+  });
+
+  // When a main tab button is clicked, clear menu item active states
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      dropdown.querySelectorAll('.tab-menu-item').forEach(x => x.classList.remove('active'));
+      menuBtn.classList.remove('active');
+    });
+  });
+})();
+
 // Knife switch geometry constants ──────────────────────────
 const KS = {
   HINGE_Y: 42,       // pivot Y in switch coords
@@ -54,7 +98,9 @@ function buildSB(cid, defs) {
       `<div class="switch-indicator"></div>`;
     c.appendChild(g);
     const ks = g.querySelector('.knife-switch');
-    positionKnifeSwitch(ks, false);
+    const initOn = !!S[d.id];
+    ks.classList.toggle('on', initOn);
+    positionKnifeSwitch(ks, initOn);
     setupKnifeSwitch(ks, d.id);
   });
 }
@@ -239,7 +285,7 @@ function setupLev(tr, id) {
   }
 
   h.addEventListener('mousedown',  e => { drag = 1; document.body.style.cursor = 'ns-resize'; e.preventDefault(); });
-  h.addEventListener('touchstart', ()  => { drag = 1; }, { passive:1 });
+  h.addEventListener('touchstart', e  => { drag = 1; e.preventDefault(); }, { passive: false });
   tr.addEventListener('click',     e   => setL(e.clientY));
   document.addEventListener('mousemove', e => { if (drag) { e.preventDefault(); setL(e.clientY); } });
   document.addEventListener('touchmove', e => { if (drag) { e.preventDefault(); setL(e.touches[0].clientY); } }, { passive:0 });
@@ -258,6 +304,9 @@ buildLev('backupContLevers', [{ id:'backupContPow', label:'FIELD PWR' }]);
 buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'ROD B' }, { id:'rodC', label:'ROD C' }]);
 
 // Knob panel ────────────────────────────────────────────────
+// Knobs point toward the cursor/touch position (calculated from
+// center of dial, snapped to 5% increments within angular limits).
+// Angular range: -135° (5%) to +135° (95%), 0° = pointer up.
 (function() {
   [
     { id:'pressureRelief', label:'PRESS RELIEF' },
@@ -278,39 +327,67 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
 
     const housing = g.querySelector('.knob-housing');
     const knobEl  = g.querySelector('.knob');
-    let dragging = false, startX = 0, startVal = 0;
+    let tracking = false;
 
-    function updateKnob(val) {
+    function updateKnobFromPosition(clientX, clientY) {
       if (S.modules.comms.status === 'offline') {
         if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
         return;
       }
-      S[d.id] = Math.round(Math.max(5, Math.min(95, val)) / 5) * 5;
+      const rect = housing.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = clientX - cx;
+      const dy = cy - clientY; // inverted: screen Y down, we want Y up
+      // Angle: 0° = up, positive = clockwise (matches CSS rotation)
+      let angle = Math.atan2(dx, dy) * 180 / Math.PI;
+      // Clamp to [-135, 135] — dead zone at bottom
+      angle = Math.max(-135, Math.min(135, angle));
+      // Map angle to value: -135° → 0%, 0° → 50%, +135° → 100%
+      let val = (angle + 135) / 270 * 100;
+      // Snap to 5% increments, clamp to [5, 95]
+      val = Math.round(val / 5) * 5;
+      S[d.id] = Math.max(5, Math.min(95, val));
       knobEl.style.transform = `rotate(${(S[d.id]/100)*270-135}deg)`;
       document.getElementById('readout_' + d.id).textContent = S[d.id] + '%';
     }
 
+    // Mouse events
     housing.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
-      dragging = true;
-      startX = e.clientX;
-      startVal = S[d.id];
+      tracking = true;
       housing.classList.add('dragging');
       document.body.style.cursor = 'ew-resize';
+      updateKnobFromPosition(e.clientX, e.clientY);
       e.preventDefault();
     });
-
     document.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      const delta = Math.round((e.clientX - startX) / 2);
-      updateKnob(startVal + delta);
+      if (!tracking) return;
+      updateKnobFromPosition(e.clientX, e.clientY);
     });
-
-    document.addEventListener('mouseup', e => {
-      if (!dragging) return;
-      dragging = false;
+    document.addEventListener('mouseup', () => {
+      if (!tracking) return;
+      tracking = false;
       housing.classList.remove('dragging');
       document.body.style.cursor = '';
+    });
+
+    // Touch events
+    housing.addEventListener('touchstart', e => {
+      tracking = true;
+      housing.classList.add('dragging');
+      updateKnobFromPosition(e.touches[0].clientX, e.touches[0].clientY);
+      e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('touchmove', e => {
+      if (!tracking) return;
+      e.preventDefault();
+      updateKnobFromPosition(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+    document.addEventListener('touchend', () => {
+      if (!tracking) return;
+      tracking = false;
+      housing.classList.remove('dragging');
     });
   });
 })();

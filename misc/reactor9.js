@@ -82,7 +82,11 @@ function checkSeq() {
     else break;
   }
   if (step !== S.seqStep) {
-    if (step > S.seqStep) { addLog('SEQ ' + step + '/' + SEQUENCE.length, 'ok'); doFlash(); }
+    if (step > S.seqStep) {
+      const next = step < SEQUENCE.length ? ' — next: ' + SEQUENCE[step].label : '';
+      addLog('SEQ ' + step + '/' + SEQUENCE.length + next, 'ok');
+      doFlash();
+    }
     S.seqStep = step;
   }
   if (step >= SEQUENCE.length && !S.startupComplete) {
@@ -146,4 +150,4 @@ function setW(id, t) {
 addLog('MKIV TOKAMAK v4.7.2', 'sys');
 addLog('Manual: MANUAL tab', '');
 addLog('Module modes: SYSTEMS tab', 'sys');
-addLog('All systems nominal', 'ok');
+addLog('All systems nominal — flip AUX PWR to begin startup sequence', 'ok');

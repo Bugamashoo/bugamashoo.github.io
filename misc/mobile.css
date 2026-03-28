@@ -1,0 +1,368 @@
+/* ============================================================
+   mobile.css — Responsive layout for portrait mobile devices
+   Triggers: portrait orientation + max-width 1024px
+   (excludes vertical desktop monitors which are typically 1080px+)
+   ============================================================ */
+
+/* Touch-action for interactive elements (all devices) */
+.knife-switch,
+.lever-handle,
+.lever-track,
+.knob-housing,
+.push-btn,
+.scram-btn {
+  touch-action: none;
+}
+
+/* Hamburger menu — hidden on desktop */
+.tab-menu-wrap {
+  display: none;
+  position: relative;
+  margin-left: auto;
+}
+.tab-menu-btn {
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  color: #8a8f96;
+  font-size: 18px;
+  width: 38px;
+  height: 100%;
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  transition: all .2s;
+}
+.tab-menu-btn:hover,
+.tab-menu-btn.active {
+  color: var(--amber);
+  border-color: var(--amber);
+  background: rgba(255,159,28,.05);
+}
+.tab-menu-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-top: none;
+  z-index: 100;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.5);
+}
+.tab-menu-dropdown.active {
+  display: flex;
+  flex-direction: column;
+}
+.tab-menu-item {
+  padding: 10px 16px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #8a8f96;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--panel-border);
+  cursor: pointer;
+  text-align: left;
+  text-transform: uppercase;
+  transition: all .2s;
+}
+.tab-menu-item:last-child { border-bottom: none; }
+.tab-menu-item:hover,
+.tab-menu-item.active {
+  color: var(--amber);
+  background: rgba(255,159,28,.05);
+}
+
+/* ── PORTRAIT MOBILE LAYOUT ──────────────────────────────── */
+@media (orientation: portrait) and (max-width: 1024px) {
+
+  /* Body: keep flex column, allow content scroll */
+  body {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* ── HEADER ──────────────────────────────────────────── */
+  .header {
+    flex-wrap: wrap;
+    padding: 4px 8px;
+    gap: 2px;
+  }
+  .header-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    width: 100%;
+    text-align: center;
+    padding: 2px 0;
+  }
+  .header-displays {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+  }
+  .hdr-box {
+    height: 36px;
+    padding: 2px 6px;
+    min-width: 40px;
+  }
+  .hdr-box-value { font-size: 13px; }
+  .hdr-box-label { font-size: 6px; letter-spacing: 2px; }
+  .uptime-display {
+    height: 36px;
+    padding: 2px 8px;
+  }
+  .uptime-value { font-size: 14px; }
+  .uptime-label { font-size: 6px; }
+  .best-label { font-size: 6px; }
+  .header-status {
+    width: 100%;
+    justify-content: center;
+    font-size: 9px;
+    gap: 8px;
+  }
+  .hdr-box-help {
+    min-width: 56px;
+  }
+  .hdr-box-help .hdr-box-value { font-size: 11px; }
+
+  /* ── TAB BAR ─────────────────────────────────────────── */
+  .tab-btn-desktop { display: none !important; }
+  .tab-menu-wrap { display: flex; }
+  .tabs-bar {
+    gap: 0;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 4px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    min-width: 0;
+  }
+
+  /* ── CONTROLS TAB: SINGLE-COLUMN REFLOW ──────────────── */
+  .main-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: auto;
+  }
+
+  /* Dissolve center controls wrapper — children become flex items */
+  #panelControlsWrap {
+    display: contents !important;
+  }
+
+  /* Dissolve diagnostics panel — children become flex items */
+  #panelDiag {
+    display: contents !important;
+  }
+  #panelDiag > .panel-label { display: none; }
+  #panelDiag > .panel-body { display: contents !important; }
+
+  /* Reorder sections: startup → visuals(in panelSeq) → log → warnings → controls → gauges */
+  #panelSeq       { order: 1; }
+  #diagLog        { order: 2; }
+  #diagWarnings   { order: 3; }
+  #ctrlSwitches   { order: 4; }
+  #ctrlLevers     { order: 5; }
+  #ctrlKnobs      { order: 6; }
+  #ctrlSubsys     { order: 7; }
+  #ctrlIgnition   { order: 8; }
+  #ctrlEmergency  { order: 9; }
+  #diagCore       { order: 10; }
+  #diagSystems    { order: 11; }
+
+  /* Dissolved sub-panels need panel-like styling on mobile */
+  #diagWarnings,
+  #diagCore,
+  #diagSystems,
+  #diagLog {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    margin: 0;
+    padding: 8px;
+  }
+
+  /* ── PANEL SIZING ────────────────────────────────────── */
+  #panelSeq {
+    width: 100%;
+  }
+
+  /* Reactor viz: center and scale up slightly for mobile */
+  .reactor-viz {
+    width: 200px;
+    height: 145px;
+    margin: 8px auto;
+  }
+  .reactor-viz svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Power display */
+  .power-display {
+    margin: 4px 8px;
+  }
+
+  /* Switch rows: allow wrapping */
+  .switch-row {
+    gap: 2px;
+  }
+
+  /* Lever rows: wrap on narrow screens */
+  .lever-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px;
+    flex: none;
+  }
+
+  /* Knob panel: horizontal on mobile */
+  #ctrlKnobs .panel-body,
+  #knobPanel {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px !important;
+  }
+
+  /* Controls bottom row: merge subsys/ignition/emergency into wrapping layout */
+  #ctrlSubsys,
+  #ctrlIgnition,
+  #ctrlEmergency {
+    width: 100%;
+  }
+
+  /* Display grids: keep 2-col for readings */
+  .display-grid.cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Log box */
+  #diagLog .log-box {
+    height: 100px;
+  }
+
+  /* Sequence steps: compact */
+  .seq-step {
+    padding: 3px 5px;
+    margin: 1px 0;
+  }
+
+  /* ── BACKUP SYS TAB ──────────────────────────────────── */
+  #tab-backup .main-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: unset !important;
+  }
+  #backupEmerg { order: -1; }
+  #backupAux   { order: 1; }
+  #backupCont  { order: 2; }
+
+  /* ── SYSTEMS TAB ─────────────────────────────────────── */
+  .systems-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+  }
+
+  /* ── MONITORS TAB ────────────────────────────────────── */
+  .monitor-panel {
+    height: 100px;
+  }
+
+  /* ── MANUAL TAB ──────────────────────────────────────── */
+  .manual-container {
+    flex-direction: column !important;
+  }
+  .manual-nav {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--panel-border);
+    padding: 8px !important;
+  }
+  .manual-nav .stamp { display: none; }
+  .manual-nav > div:first-child { width: 100%; }
+  .manual-nav-btn {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+  }
+
+  /* ── EVENT OVERLAY ───────────────────────────────────── */
+  .event-overlay {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+  .event-panel {
+    width: 100%;
+  }
+
+  /* ── GAME OVER SCREEN ────────────────────────────────── */
+  #gameOverInner {
+    padding: 20px 16px;
+  }
+  .go-title { font-size: 22px; letter-spacing: 4px; }
+  .go-uptime { font-size: 32px; }
+  .go-stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .go-narrative {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  /* ── HELP MODE ───────────────────────────────────────── */
+  #helpModeNotice {
+    font-size: 11px;
+    letter-spacing: 2px;
+    height: 50px;
+  }
+}
+
+/* ── EXTRA-SMALL PHONES (≤400px) ─────────────────────────── */
+@media (orientation: portrait) and (max-width: 400px) {
+  .header-title {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .hdr-box {
+    height: 32px;
+    padding: 1px 4px;
+    min-width: 36px;
+  }
+  .hdr-box-value { font-size: 11px; }
+  .uptime-display {
+    height: 32px;
+    padding: 1px 6px;
+  }
+  .uptime-value { font-size: 12px; }
+
+  /* Hide 5-min avg on very small screens */
+  .hdr-box-avg5m { display: none; }
+
+  .tab-btn {
+    font-size: 8px;
+    padding: 6px 2px;
+    letter-spacing: 0;
+  }
+
+  .switch-group {
+    margin: 4px 1px;
+  }
+  .knife-switch {
+    width: 44px;
+    height: 78px;
+  }
+
+}

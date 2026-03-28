@@ -62,18 +62,36 @@ function updateUI() {
   const rvNeutron = Math.min(1, S.neutronDensity / 80);
   const rvHeat    = Math.min(1, Math.max(0, (S.heatSinkTemp - 40) / 160));
 
+  // Startup sequence progress (0–12): subtle visual cues before ignition
+  const sq = S.seqStep || 0;
+  const sqProg = sq / SEQUENCE.length; // 0–1
+
   // Derive glow colors from current readings
   const rvCoreClr  = S.coreTemp > 7000 ? '#ff2e2e' : S.coreTemp > 5950 ? '#ff9f1c' : '#00e5ff';
   const rvRingClr  = S.containIntegrity < 15 ? '#ff2e2e' : S.containIntegrity < 17.25 ? '#ff9f1c' : '#00e5ff';
   const rvArcClr   = S.plasmaStability < 20  ? '#ff2e2e' : S.plasmaStability < 23    ? '#ff9f1c' : '#00e5ff';
 
-  // Core hex
+  // Core hex — during startup, gradually brighten border and tint fill
   const rvCore = document.getElementById('reactorCore');
   if (rvCore) {
-    rvCore.setAttribute('fill', rvOn ? (rvTempPct > 0.7 ? '#2a0808' : '#0a1520') : '#0d1418');
-    rvCore.setAttribute('stroke', rvOn ? rvCoreClr : '#1e2830');
-    rvCore.setAttribute('stroke-width', rvOn ? (1 + rvIntens * 2.5).toFixed(1) : '1.5');
-    if (rvOn) rvCore.setAttribute('filter', 'url(#rGlow)'); else rvCore.removeAttribute('filter');
+    if (rvOn) {
+      rvCore.setAttribute('fill', rvTempPct > 0.7 ? '#2a0808' : '#0a1520');
+      rvCore.setAttribute('stroke', rvCoreClr);
+      rvCore.setAttribute('stroke-width', (1 + rvIntens * 2.5).toFixed(1));
+      rvCore.setAttribute('filter', 'url(#rGlow)');
+    } else if (sq > 0) {
+      // Pre-ignition: core gradually wakes up
+      const startupClr = sq >= 8 ? '#00e5ff' : '#1e4860';
+      rvCore.setAttribute('fill', sq >= 5 ? '#0a1218' : '#0d1418');
+      rvCore.setAttribute('stroke', startupClr);
+      rvCore.setAttribute('stroke-width', (1.5 + sqProg * 1).toFixed(1));
+      if (sq >= 8) rvCore.setAttribute('filter', 'url(#rGlow)'); else rvCore.removeAttribute('filter');
+    } else {
+      rvCore.setAttribute('fill', '#0d1418');
+      rvCore.setAttribute('stroke', '#1e2830');
+      rvCore.setAttribute('stroke-width', '1.5');
+      rvCore.removeAttribute('filter');
+    }
   }
 
   // Core glow halo (radial gradient circle, scales with power)
@@ -120,13 +138,24 @@ function updateUI() {
     rvR3.setAttribute('class', 'rviz-ring' + r3Spin);
   }
 
-  // Hex border + corner dots react to state
+  // Hex border + corner dots react to state + startup progress
   const rvBorder = document.getElementById('hexBorder');
-  if (rvBorder) rvBorder.setAttribute('stroke', rvOn ? rvCoreClr + '50' : '#1e2830');
-  const rvDotClr = rvOn ? rvCoreClr : '#1e2830';
+  if (rvBorder) {
+    if (rvOn) rvBorder.setAttribute('stroke', rvCoreClr + '50');
+    else if (sq > 0) rvBorder.setAttribute('stroke', sq >= 5 ? '#1e486040' : '#1e384030');
+    else rvBorder.setAttribute('stroke', '#1e2830');
+  }
+  // Corner dots: light up progressively during startup (1 per 2 steps)
   for (let d = 0; d < 6; d++) {
     const dot = document.getElementById('rDot' + d);
-    if (dot) { dot.setAttribute('fill', rvDotClr); if (rvOn) dot.setAttribute('filter', 'url(#rGlow)'); else dot.removeAttribute('filter'); }
+    if (!dot) continue;
+    if (rvOn) {
+      dot.setAttribute('fill', rvCoreClr); dot.setAttribute('filter', 'url(#rGlow)');
+    } else if (sq > 0 && d < Math.ceil(sq / 2)) {
+      dot.setAttribute('fill', sq >= 8 ? '#00e5ff' : '#1e5870'); dot.removeAttribute('filter');
+    } else {
+      dot.setAttribute('fill', '#1e2830'); dot.removeAttribute('filter');
+    }
   }
 
   // Fuel injection indicator (orange triangle, lower-left)

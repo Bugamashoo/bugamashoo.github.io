@@ -10,3 +10,7 @@
 #tab-backup .display-value{font-size:20px}
 #tab-backup .push-btn{font-size:12px!important;text-align:center}
 #tab-backup .warning-light{font-size:12px}
+/* Inline switches + levers side by side */
+.controls-inline{display:flex;align-items:flex-end;justify-content:center;gap:8px}
+.controls-inline .switch-row{flex:none;gap:4px}
+.controls-inline .lever-row{flex:none;padding:0;gap:10px;min-height:0}

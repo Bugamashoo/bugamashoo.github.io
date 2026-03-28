@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="./misc/monitors.css">
 <link rel="stylesheet" href="./misc/systems.css">
 <link rel="stylesheet" href="./misc/backup.css">
+<link rel="stylesheet" href="./misc/mobile.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MKIV REACTOR CONTROL</title>
@@ -48,17 +49,23 @@
 <div id="helpOverlay"></div>
 <div id="helpTooltip"></div>
 <div id="helpModeNotice">HELP MODE &mdash; HOVER ANY INSTRUMENT FOR INFO</div>
-<div class="ticker-bar"><div class="ticker-text">MKIV TOKAMAK v4.7.2 ◆ CLEARANCE: LEVEL 7 ◆ FUEL NOMINAL ◆ CONTAINMENT 4/4 ◆ OVERCLOCK AT OWN RISK ◆ MODULE BYPASS VOIDS WARRANTY ◆</div></div>
 <div class="tabs-bar">
   <button class="tab-btn active" data-tab="controls">CONTROLS</button>
-  <button class="tab-btn" data-tab="manual">MANUAL</button>
-  <button class="tab-btn" data-tab="monitors">MONITORS</button>
+  <button class="tab-btn tab-btn-desktop" data-tab="manual">MANUAL</button>
+  <button class="tab-btn tab-btn-desktop" data-tab="monitors">MONITORS</button>
   <button class="tab-btn" data-tab="systems">SYSTEMS</button>
   <button class="tab-btn" data-tab="backup">BACKUP SYS</button>
+  <div class="tab-menu-wrap" id="tabMenuWrap">
+    <button class="tab-menu-btn" id="tabMenuBtn">&#9776;</button>
+    <div class="tab-menu-dropdown" id="tabMenuDropdown">
+      <button class="tab-menu-item" data-tab="manual">MANUAL</button>
+      <button class="tab-menu-item" data-tab="monitors">MONITORS</button>
+    </div>
+  </div>
 </div>
 <div class="tab-content active" id="tab-controls">
 <div class="main-grid">
-  <div class="panel" style="grid-column:1;grid-row:1/3"><div class="panel-label">Startup Sequence</div><div class="panel-body"><div id="seqSteps"></div>
+  <div class="panel" id="panelSeq" style="grid-column:1;grid-row:1/3"><div class="panel-label">Startup Sequence</div><div class="panel-body"><div id="seqSteps"></div>
     <div class="sub-panel mt-6"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz">
   <svg id="reactorSVG" viewBox="-16 0 172 125" xmlns="http://www.w3.org/2000/svg" width="172" height="125" style="display:block;overflow:visible">
     <defs>
@@ -160,19 +167,19 @@
     <div class="sub-panel mt-4"><div class="sub-panel-title">Fuel</div><div class="display-box"><div class="display-label">REMAINING</div><div class="display-value amber" id="disp_fuelRemaining">100.0</div><div class="bar-gauge"><div class="bar-fill green" id="bar_fuelRemaining" style="width:100%"></div></div></div>
     <div class="display-box mt-4"><div class="display-label">CONSUMPTION KG/MIN</div><div class="display-value cyan" id="disp_fuelConsump">0.0</div></div></div>
   </div></div>
-  <div style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto 1fr auto;gap:0;height:100%">
-    <div class="panel" style="grid-column:1/4"><div class="panel-label">Primary Switch Bank</div><div class="panel-body"><div class="switch-row" id="switchBank1"></div></div></div>
-    <div class="panel" style="grid-column:1/3;grid-row:2;display:flex;flex-direction:column"><div class="panel-label">Throttle &amp; Flow</div><div class="lever-row" id="leverRow"></div></div>
-    <div class="panel" style="grid-column:3;grid-row:2"><div class="panel-label">Tuning</div><div class="panel-body flex-col gap-8" id="knobPanel" style="align-items:center"></div></div>
-    <div class="panel" style="grid-column:1;grid-row:3"><div class="panel-label">Subsystems</div><div class="panel-body"><div class="switch-row" id="switchBank2"></div></div></div>
-    <div class="panel" style="grid-column:2;grid-row:3"><div class="panel-label">Ignition</div><div class="panel-body flex-center gap-12" id="buttonPanel"></div></div>
-    <div class="panel" style="grid-column:3;grid-row:3"><div class="panel-label">Emergency</div><div class="panel-body flex-center gap-12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="push-btn amber-btn" id="purgeBtn" style="width:80px;height:80px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><button class="scram-btn" id="scramBtn">SCRAM</button><div class="switch-name">Emergency Shutdown</div></div></div></div>
+  <div id="panelControlsWrap" style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto 1fr auto;gap:0;height:100%">
+    <div class="panel" id="ctrlSwitches" style="grid-column:1/4"><div class="panel-label">Primary Switch Bank</div><div class="panel-body"><div class="switch-row" id="switchBank1"></div></div></div>
+    <div class="panel" id="ctrlLevers" style="grid-column:1/3;grid-row:2;display:flex;flex-direction:column"><div class="panel-label">Throttle &amp; Flow</div><div class="lever-row" id="leverRow"></div></div>
+    <div class="panel" id="ctrlKnobs" style="grid-column:3;grid-row:2"><div class="panel-label">Tuning</div><div class="panel-body flex-col gap-8" id="knobPanel" style="align-items:center"></div></div>
+    <div class="panel" id="ctrlSubsys" style="grid-column:1;grid-row:3"><div class="panel-label">Subsystems</div><div class="panel-body"><div class="switch-row" id="switchBank2"></div></div></div>
+    <div class="panel" id="ctrlIgnition" style="grid-column:2;grid-row:3"><div class="panel-label">Ignition</div><div class="panel-body flex-center gap-12" id="buttonPanel"></div></div>
+    <div class="panel" id="ctrlEmergency" style="grid-column:3;grid-row:3"><div class="panel-label">Emergency</div><div class="panel-body flex-center gap-12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="push-btn amber-btn" id="purgeBtn" style="width:80px;height:80px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><button class="scram-btn" id="scramBtn">SCRAM</button><div class="switch-name">Emergency Shutdown</div></div></div></div>
   </div>
-  <div class="panel" style="grid-column:3;grid-row:1/3"><div class="panel-label">Diagnostics</div><div class="panel-body flex-col gap-6">
-    <div class="sub-panel"><div class="sub-panel-title">Core</div><div class="display-grid cols-2" id="coreReadings"></div></div>
-    <div class="sub-panel"><div class="sub-panel-title">Systems</div><div class="display-grid cols-2" id="systemVitals"></div></div>
-    <div class="sub-panel"><div class="sub-panel-title">Warnings</div><div class="warning-row" id="warningRow"></div></div>
-    <div class="sub-panel"><div class="sub-panel-title">Log</div><div class="log-box" id="logBox"></div></div>
+  <div class="panel" id="panelDiag" style="grid-column:3;grid-row:1/3"><div class="panel-label">Diagnostics</div><div class="panel-body flex-col gap-6">
+    <div class="sub-panel" id="diagCore"><div class="sub-panel-title">Core</div><div class="display-grid cols-2" id="coreReadings"></div></div>
+    <div class="sub-panel" id="diagSystems"><div class="sub-panel-title">Systems</div><div class="display-grid cols-2" id="systemVitals"></div></div>
+    <div class="sub-panel" id="diagWarnings"><div class="sub-panel-title">Warnings</div><div class="warning-row" id="warningRow"></div></div>
+    <div class="sub-panel" id="diagLog"><div class="sub-panel-title">Log</div><div class="log-box" id="logBox"></div></div>
   </div></div>
 </div></div>
 <div class="tab-content" id="tab-manual"><div class="manual-container"><div class="manual-nav">
@@ -182,9 +189,9 @@
 <div class="tab-content" id="tab-monitors"><div class="monitors-grid" id="monitorsGrid"></div></div>
 <div class="tab-content" id="tab-systems"><div class="panel" style="border:none;flex:1;display:flex;flex-direction:column;min-height:0"><div class="panel-label">Control Module Management</div><div class="panel-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:6px"><div class="systems-grid" id="systemsGrid"></div></div></div></div>
 <div class="tab-content" id="tab-backup"><div class="main-grid" style="grid-template-columns:1fr 1fr 1fr">
-  <div class="panel"><div class="panel-label">Aux Coolant</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Controls</div><div class="switch-row" id="auxCoolSwitches"></div><div class="lever-row" id="auxCoolLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Readings</div><div class="display-grid cols-2" id="auxCoolReadings"></div></div></div></div>
-  <div class="panel"><div class="panel-label">Backup Containment</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Secondary Fields</div><div class="switch-row" id="backupContSwitches"></div><div class="lever-row" id="backupContLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="backupContReadings"></div></div></div></div>
-  <div class="panel"><div class="panel-label">Emergency Override</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Vent &amp; Dump</div><div class="switch-row" id="emergSwitches"></div><div style="display:flex;justify-content:center;gap:10px;margin-top:10px" id="emergButtons"></div></div><div class="sub-panel"><div class="sub-panel-title">Control Rods</div><div class="lever-row" id="rodLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="emergReadings"></div></div></div></div>
+  <div class="panel" id="backupAux"><div class="panel-label">Aux Coolant</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Controls</div><div class="controls-inline"><div class="switch-row" id="auxCoolSwitches"></div><div class="lever-row" id="auxCoolLevers"></div></div></div><div class="sub-panel"><div class="sub-panel-title">Readings</div><div class="display-grid cols-2" id="auxCoolReadings"></div></div></div></div>
+  <div class="panel" id="backupCont"><div class="panel-label">Backup Containment</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Secondary Fields</div><div class="controls-inline"><div class="switch-row" id="backupContSwitches"></div><div class="lever-row" id="backupContLevers"></div></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="backupContReadings"></div></div></div></div>
+  <div class="panel" id="backupEmerg"><div class="panel-label">Emergency Override</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Vent &amp; Dump</div><div class="switch-row" id="emergSwitches"></div><div style="display:flex;justify-content:center;gap:10px;margin-top:10px" id="emergButtons"></div></div><div class="sub-panel"><div class="sub-panel-title">Control Rods</div><div class="lever-row" id="rodLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="emergReadings"></div></div></div></div>
 </div></div>
 <div class="event-overlay" id="eventOverlay"><div class="event-panel"><div class="event-header"><div class="event-title" id="eventTitle">⚠ ALERT</div><div class="event-timer" id="eventTimer">00:00</div></div><div class="event-body"><div class="event-desc" id="eventDesc"></div><div class="event-viz" id="eventViz"></div><div id="eventSteps"></div><div class="event-progress"><div class="event-progress-fill" id="eventProgress" style="width:0%"></div></div></div></div></div>
 <div id="gameOverScreen"><div id="gameOverInner">
