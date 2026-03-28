@@ -149,11 +149,10 @@ function togSw(id, el) {
   if (id === 'rodSafetyOff' && S.rodSafetyOff) {
     S.rodA = S.rodB = S.rodC = 0;
     document.querySelectorAll('[data-lever="rodA"],[data-lever="rodB"],[data-lever="rodC"]').forEach(tr => {
-      const h = tr.querySelector('.lever-handle');
-      h.style.top = ''; h.style.bottom = '4px';
       const ro = document.getElementById('readout_' + tr.dataset.lever);
       if (ro) ro.textContent = '0%';
     });
+    syncLeverPositions();
   }
   addLog(id.replace(/([A-Z])/g,' $1').toUpperCase() + ' > ' + (S[id] ? 'ON' : 'OFF'), S[id] ? 'ok' : 'warn');
   doFlash();
@@ -273,8 +272,9 @@ function setupLev(tr, id) {
       addLog('ROD SAFETY ON - disengage to move rods', 'warn'); return;
     }
     const r  = tr.getBoundingClientRect();
-    const ht = r.height - 28;
-    let y    = Math.max(0, Math.min(ht, cy - r.top - 14));
+    const hH = h.offsetHeight;
+    const ht = r.height - hH;
+    let y    = Math.max(0, Math.min(ht, cy - r.top - hH / 2));
     S[id]    = Math.round(Math.round((1 - y / ht) * 100 / 5) * 5);
     y        = (1 - S[id] / 100) * ht;
     h.style.bottom = 'auto';
@@ -292,6 +292,23 @@ function setupLev(tr, id) {
   document.addEventListener('mouseup',  () => { drag = 0; document.body.style.cursor = ''; });
   document.addEventListener('touchend', () => drag = 0);
 }
+
+// Reposition all lever handles to match their current state values.
+// Called on viewport resize so handles stay correct after layout changes.
+function syncLeverPositions() {
+  document.querySelectorAll('.lever-track').forEach(tr => {
+    const id = tr.dataset.lever;
+    if (!id) return;
+    const h  = tr.querySelector('.lever-handle');
+    const hH = h.offsetHeight;
+    const ht = tr.offsetHeight - hH;
+    if (ht <= 0) return;
+    const y  = (1 - S[id] / 100) * ht;
+    h.style.bottom = 'auto';
+    h.style.top    = y + 'px';
+  });
+}
+window.addEventListener('resize', syncLeverPositions);
 
 buildLev('leverRow', [
   { id:'containPower', label:'CONTAIN'  },
@@ -469,13 +486,8 @@ document.addEventListener('contextmenu', e => e.preventDefault());
         S.auxCoolPump  = 1;
         S.auxCoolLoop  = 1;
         syncKnifeSwitches();
+        syncLeverPositions();
         ['coolantFlow', 'auxCoolRate'].forEach(id => {
-          const tr = document.querySelector(`.lever-track[data-lever="${id}"]`);
-          if (!tr) return;
-          const ht = tr.getBoundingClientRect().height - 28;
-          const h  = tr.querySelector('.lever-handle');
-          h.style.bottom = 'auto';
-          h.style.top    = '0px';
           const ro = document.getElementById('readout_' + id);
           if (ro) ro.textContent = '100%';
         });

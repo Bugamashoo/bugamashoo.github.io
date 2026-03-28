@@ -19,13 +19,13 @@ function doScram() {
   S.igniting = 0; S.ignitionHeld = 0; S.startupComplete = 0; S.seqStep = 0;
   S.mainThrottle = 0; S.fuelInject = 0; S.containPower = 0;
 
-  document.querySelectorAll('.lever-handle').forEach(h => { h.style.top = ''; h.style.bottom = '4px'; });
   document.querySelectorAll('[data-lever]').forEach(t => {
     const id = t.dataset.lever;
     const r  = document.getElementById('readout_' + id);
     if (r && !['pressureRelief','mixRatio','fieldTune','auxCoolRate','backupContPow','rodA','rodB','rodC'].includes(id))
       r.textContent = '0%';
   });
+  syncLeverPositions();
   syncKnifeSwitches();
 
   setTimeout(() => { S.scramActive = 0; addLog('SCRAM reset', 'ok'); }, SCRAM_LOCKOUT_MS);
@@ -49,7 +49,7 @@ function hardReset() {
   ['fuelPumps','coolantPumps','containField','ignPrime','turbineEngage','gridSync','magCoils','radShield','ventSystem']
     .forEach(k => S[k] = 0);
   S.mainThrottle = 0; S.fuelInject = 0; S.containPower = 0; S.coolantFlow = 0;
-  document.querySelectorAll('.lever-handle').forEach(h => { h.style.top = ''; h.style.bottom = '4px'; });
+  syncLeverPositions();
   syncKnifeSwitches();
 
   setTimeout(() => {

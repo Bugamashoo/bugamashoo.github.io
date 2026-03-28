@@ -121,7 +121,7 @@
   .best-label { font-size: 6px; }
   .header-status {
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
     font-size: 9px;
     gap: 8px;
   }
@@ -139,9 +139,12 @@
   .tab-btn {
     flex: 1;
     padding: 8px 4px;
-    font-size: 9px;
+    font-size: 12px;
     letter-spacing: 1px;
     min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* ── CONTROLS TAB: SINGLE-COLUMN REFLOW ──────────────── */
@@ -324,9 +327,16 @@
 
   /* ── HELP MODE ───────────────────────────────────────── */
   #helpModeNotice {
-    font-size: 11px;
+    font-size: 0;
     letter-spacing: 2px;
     height: 50px;
+  }
+  #helpModeNotice::after {
+    content: 'HELP MODE \2014  TAP ANY INSTRUMENT FOR INFO';
+    font-size: 11px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    letter-spacing: 2px;
   }
 }
 
@@ -352,7 +362,7 @@
   .hdr-box-avg5m { display: none; }
 
   .tab-btn {
-    font-size: 8px;
+    font-size: 10px;
     padding: 6px 2px;
     letter-spacing: 0;
   }

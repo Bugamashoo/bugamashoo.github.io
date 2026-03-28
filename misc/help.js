@@ -151,6 +151,17 @@ function getHelpInfo(el) {
 
   overlay.addEventListener('mouseleave', () => hideHelpTooltip());
   overlay.addEventListener('click', e => e.stopPropagation());
+
+  // Touch support for mobile help mode
+  overlay.addEventListener('touchstart', function (e) {
+    const t = e.touches[0];
+    this.style.pointerEvents = 'none';
+    const under = document.elementFromPoint(t.clientX, t.clientY);
+    this.style.pointerEvents = '';
+    const info = getHelpInfo(under);
+    if (info) { e.preventDefault(); showHelpTooltip(t.clientX, t.clientY, info); }
+    else hideHelpTooltip();
+  }, { passive: false });
 })();
 
 // Toggle

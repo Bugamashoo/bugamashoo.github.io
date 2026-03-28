@@ -28,7 +28,7 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:r
 @keyframes nukeFlash{0%{filter:none;opacity:1}5%{filter:brightness(20) saturate(0)}20%{filter:brightness(8) sepia(1)}50%{filter:brightness(2) hue-rotate(20deg)}100%{filter:brightness(0);opacity:0}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .header{background:linear-gradient(180deg,#2a2d31,var(--panel-bg));border-bottom:3px solid var(--panel-border);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:10}
-.header::after{content:'';position:absolute;bottom:-6px;left:0;right:0;height:3px;background:var(--amber-dim);box-shadow:0 0 20px rgba(255,159,28,.6)}
+.header::after{display:none}
 .header-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:15px;letter-spacing:4px;text-shadow:0 0 10px rgba(255,159,28,.5);flex:1;min-width:0}
 .header-status{font-size:11px;letter-spacing:2px;flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
 .header-displays{display:flex;align-items:center;gap:8px}
@@ -147,7 +147,7 @@ body.no-power .display-value{opacity:0}body.no-power .bar-fill{width:0%!importan
 .hdr-box-help .hdr-box-value{color:var(--amber-dim);font-size:13px;letter-spacing:2px}
 .hdr-box-help:hover{border-color:var(--amber);box-shadow:inset 0 1px 6px rgba(0,0,0,.8),0 0 12px rgba(255,159,28,.25)}
 .hdr-box-help:hover .hdr-box-value{color:var(--amber);text-shadow:0 0 8px rgba(255,159,28,.5)}
-body.help-mode .hdr-box-help{border-color:var(--amber);background:rgba(255,159,28,.08);box-shadow:inset 0 1px 6px rgba(0,0,0,.8),0 0 16px rgba(255,159,28,.35)}
+body.help-mode .hdr-box-help{border-color:var(--amber);background:rgba(255,159,28,.08);box-shadow:inset 0 1px 6px rgba(0,0,0,.8),0 0 16px rgba(255,159,28,.35);position:relative;z-index:16}
 body.help-mode .hdr-box-help .hdr-box-value{color:var(--amber);text-shadow:0 0 8px rgba(255,159,28,.7)}
 
 .hdr-box-help.help-pulse{animation:helpBtnPulse 1.4s ease-in-out infinite}
