@@ -171,9 +171,12 @@ function triggerCatastrophe(evtId) {
     document.getElementById('goResolved').textContent = S.eventsResolved;
     document.getElementById('goPeak').textContent     = S.peakPower.toFixed(1) + ' MW';
     document.getElementById('goAvg5m').textContent    = S.bestAvg5m.toFixed(1) + ' MW';
-    document.getElementById('goFailed').textContent   = S.eventsFailed + 1;
+    document.getElementById('goFailed').textContent   = S.eventsFailed + (evtId === 'fuel_exhaustion' ? 0 : 1);
     document.getElementById('goScore').textContent     = Math.round(S.score);
     document.getElementById('goNarrative').textContent= cat.narrative;
+    document.getElementById('goMoney').textContent     = fmtMoney(S.money);
+    document.getElementById('goEarned').textContent    = fmtMoney(S.totalEarned);
+    document.getElementById('goSpent').textContent     = fmtMoney(S.totalSpent);
     document.body.style.animation = 'none';
   }, GAME_OVER_DELAY_MS);
 }

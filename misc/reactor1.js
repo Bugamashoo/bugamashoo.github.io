@@ -37,7 +37,16 @@ const S = {
   // Event tracking
   activeEvent:null, eventStepsComplete:[], eventsResolved:0, eventsFailed:0, gameOver:0,
   // Power averages
-  bestAvg5m: 0
+  bestAvg5m: 0,
+  // Money system
+  money: MONEY_START,
+  totalEarned: 0,
+  totalSpent: 0,
+  fuelPriceMult: 1.0,         // current fuel price noise multiplier (lerps toward target)
+  fuelPriceTarget: 1.0,       // target price multiplier (set by noise function)
+  fuelFirstPurchase: false,   // price doesn't fluctuate until first buy
+  fuelPriceNextChange: 0,     // tick when next price target change occurs
+  fuelMoneyDeadTicks: 0       // ticks with fuel=0 AND money=0 (triggers game over after grace)
 };
 
 const MODES = {
@@ -85,3 +94,10 @@ let sensorNoise       = {};   // randomised display strings shown when sensor ar
 let lastCommsWarnTick = -100; // throttle "comms offline" log spam (1 message per 20 ticks)
 let moduleHealthPrev = {}; // previous-tick health per module key, for threshold crossing detection
 let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets uptime at 10s
+
+// Money & resupply globals
+let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0 } } — tier purchased (0=none)
+let overclockBoostEnd = 0;  // tick when overclock boost expires (0 = inactive)
+let resupplyPulseDone = false; // true once resupply tab pulse has been clicked — never pulses again
+// Initialize upgrade tracking for each module
+Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0 }; });

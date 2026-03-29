@@ -369,21 +369,16 @@ function updateUI() {
   document.getElementById('evtFail').textContent     = S.eventsFailed;
   document.getElementById('scoreDisp').textContent   = Math.round(S.score);
 
-  // Header power output + 5-min avg
+  // Header power output + money
   document.getElementById('hdrOutput').textContent = (S.powerOutput + S.backupGenOutput).toFixed(2);
-  const cur5mAvg = powerHist5m.length
-    ? powerHist5m.reduce((a, b) => a + b, 0) / powerHist5m.length
-    : 0;
-  document.getElementById('hdrAvg5m').textContent = powerHist5m.length >= 5
-    ? cur5mAvg.toFixed(2)
-    : '-';
+  document.getElementById('hdrMoney').textContent = fmtMoney(S.money);
 
   // Warning indicator box
   const warnInd = document.getElementById('warnIndicator');
   const warnBox = document.getElementById('warnBox');
   const wLights = document.querySelectorAll('.warning-light');
   let hasRed = false, hasAmber = false;
-  wLights.forEach(l => { if (l.classList.contains('active-red')) hasRed = true; if (l.classList.contains('active-amber')) hasAmber = true; });
+  wLights.forEach(l => { if (l.id === 'warnFuel') return; if (l.classList.contains('active-red')) hasRed = true; if (l.classList.contains('active-amber')) hasAmber = true; });
   const wColor = hasRed ? 'var(--red)' : hasAmber ? 'var(--amber)' : '#2a2e35';
   warnInd.style.color = wColor;
   warnInd.style.textShadow = hasRed   ? '0 0 20px rgba(255,46,46,1),0 0 40px rgba(255,46,46,0.6)'
@@ -406,4 +401,7 @@ function updateUI() {
 
   // Systems tab (throttled rebuild)
   if (document.getElementById('tab-systems').classList.contains('active') && tick % 40 === 0) buildSys();
+
+  // Resupply tab (patch values only — no DOM rebuild)
+  if (document.getElementById('tab-resupply').classList.contains('active') && tick % 20 === 0) updateResupplyValues();
 }

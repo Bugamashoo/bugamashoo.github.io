@@ -195,9 +195,13 @@ function simulate() {
   // Power output
   // Fuel injection directly scales power - more fuel = denser plasma = more energy extraction
   const fuelPowerMult = POWER_FUEL_MULT_BASE + (eF / 100) * POWER_FUEL_MULT_RANGE;
+  // Mix ratio power factor: MIX_POWER_MIN at 0% → 1.0 at 50% → MIX_POWER_MAX at 100%
+  const mixPowerMult = S.mixRatio <= 50
+    ? MIX_POWER_MIN + (S.mixRatio / 50) * (1 - MIX_POWER_MIN)
+    : 1 + ((S.mixRatio - 50) / 50) * (MIX_POWER_MAX - 1);
   let tW = 0;
   if (S.igniting && S.turbineEngage) {
-    tW = (S.turbineRPM / POWER_RPM_SCALE) * S.mainThrottle * (S.plasmaStability / 100) * POWER_OUTPUT_SCALE * fuelPowerMult * (1 - rE * POWER_ROD_REDUCTION);
+    tW = (S.turbineRPM / POWER_RPM_SCALE) * S.mainThrottle * (S.plasmaStability / 100) * POWER_OUTPUT_SCALE * fuelPowerMult * mixPowerMult * (1 - rE * POWER_ROD_REDUCTION);
     if (!S.ventSystem) tW *= POWER_NO_VENT_MULT;
     tW *= gP; // Grid interface module - degraded/offline grid cuts power delivery
   }
@@ -236,10 +240,13 @@ function simulate() {
       const errMult = m.sysError ? MOD_ERROR_DRAIN_MULT : 1;
       const sliderMult = MOD_SLIDER_BASE + (sliderLoad[k] ?? 50) / MOD_SLIDER_SCALE;
       // Bypass: no self-drain, redirect bypass stress to backup
+      const drainUpg = getUpgradeDrainMult(k);
       if (m.mode === 'bypass') {
         bypassStress += Math.random() * MOD_BASE_DRAIN_ROLL * MOD_BYPASS_STRESS_MULT * errMult * sliderMult * warnMult;
       } else {
-        m.health = Math.max(0, m.health - Math.random() * MOD_BASE_DRAIN_ROLL * md.healthDrain * errMult * sliderMult * warnMult);
+        // Overclock boost: normal drain rate even in overclock mode
+        const effectiveDrain = (overclockBoostEnd > tick && m.mode === 'overclock') ? 1 : md.healthDrain;
+        m.health = Math.max(0, m.health - Math.random() * MOD_BASE_DRAIN_ROLL * effectiveDrain * errMult * sliderMult * warnMult * drainUpg);
       }
       if (m.health < MOD_DEGRADE_HEALTH && m.status === 'online' && Math.random() < MOD_DEGRADE_CHANCE) {
         m.status = 'degraded'; addLog(m.name + ' DEGRADED', 'warn');
@@ -365,14 +372,23 @@ function simulate() {
     buildSys();
   }
 
-  // Active repair
+  // Active repair (costs money each tick)
   if (repairTarget) {
     const rm = S.modules[repairTarget];
     if (rm) {
-      if (rm.health < 100) {
-        // Online: 1/30; bypass: 3/30; offline: 5/30
-        const rate = rm.status === 'offline' ? REPAIR_OFFLINE_RATE : (rm.mode === 'bypass' ? REPAIR_BYPASS_RATE : REPAIR_ONLINE_RATE);
-        rm.health = Math.min(100, rm.health + rate);
+      const maxH = getUpgradeMaxHealth(repairTarget);
+      if (rm.health < maxH) {
+        // Check if player can afford repair cost
+        if (S.money >= REPAIR_COST_PER_TICK * dt) {
+          S.money -= REPAIR_COST_PER_TICK * dt;
+          S.totalSpent += REPAIR_COST_PER_TICK * dt;
+          const rate = rm.status === 'offline' ? REPAIR_OFFLINE_RATE : (rm.mode === 'bypass' ? REPAIR_BYPASS_RATE : REPAIR_ONLINE_RATE);
+          rm.health = Math.min(maxH, rm.health + rate);
+        } else {
+          addLog('Repair halted: insufficient funds', 'warn');
+          repairTarget = null;
+          buildSys();
+        }
       } else {
         addLog(rm.name + ' repair complete', 'ok');
         repairTarget = null;
@@ -395,6 +411,23 @@ function simulate() {
       }
     }
   }
+  // Money earning (scales linearly with power, plus scaling multiplier up to 1.5x at high MW)
+  if (S.reactorState === 'ONLINE' && S.powerOutput > 0) {
+    const scaleMult = 1 + (Math.min(S.powerOutput, MONEY_EARN_SCALE_MW) / MONEY_EARN_SCALE_MW) * (MONEY_EARN_SCALE_MAX - 1);
+    const earn = S.powerOutput * MONEY_EARN_BASE * scaleMult * dt;
+    S.money += earn;
+    S.totalEarned += earn;
+  }
+
+  // Fuel price tick
+  updateFuelPrice();
+
+  // Overclock boost expiration
+  if (overclockBoostEnd > 0 && tick >= overclockBoostEnd) {
+    overclockBoostEnd = 0;
+    addLog('Overclock boost expired', 'warn');
+  }
+
   if (S.scramActive)                              S.reactorState = 'SCRAM';
   else if (S.startupComplete && S.powerOutput>1)  S.reactorState = (S.coreTemp>STATE_CRITICAL_TEMP||S.containIntegrity<STATE_CRITICAL_CONTAIN) ? 'CRITICAL' : 'ONLINE';
   else if (S.auxPower && !S.startupComplete)       S.reactorState = 'STARTUP';
@@ -412,6 +445,17 @@ function simulate() {
       S.uptime = 0;
       plasmaOffTime = 0;
     }
+  }
+
+  // Fuel + money exhaustion game over
+  if (S.fuelRemaining <= 0 && S.money < getFuelBuyPrice() * 0.01 && S.startupComplete) {
+    S.fuelMoneyDeadTicks++;
+    if (S.fuelMoneyDeadTicks >= FUEL_MONEY_GAMEOVER_DELAY) {
+      triggerCatastrophe('fuel_exhaustion');
+      return;
+    }
+  } else {
+    S.fuelMoneyDeadTicks = 0;
   }
 
   // Auto-scram on containment loss
@@ -490,6 +534,14 @@ function simulate() {
     };
   } else if (S.modules.sensor.status === 'online') {
     sensorNoise = {};
+  }
+
+  // Resupply tab pulse: fuel < 1% or can afford cheapest upgrade (one-time)
+  if (!resupplyPulseDone && !S.gameOver) {
+    const cheapest = Math.min(...Object.keys(UPGRADE_MODULE_COST_MULT).map(k => getUpgradeCost(k, 'health', 0)));
+    if (S.fuelRemaining < 1 || S.money >= cheapest) {
+      document.querySelector('[data-tab="resupply"]').classList.add('tab-pulse');
+    }
   }
 
   updateUI();

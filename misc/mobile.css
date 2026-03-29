@@ -135,6 +135,7 @@
   .tab-menu-wrap { display: flex; }
   .tabs-bar {
     gap: 0;
+    overflow-x: visible;
   }
   .tab-btn {
     flex: 1;
@@ -325,6 +326,27 @@
     padding: 12px;
   }
 
+  /* ── RESUPPLY TAB ────────────────────────────────────── */
+  .resupply-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .upgrade-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .resupply-panel-title { font-size: 14px; }
+  .fuel-price-label { font-size: 14px; }
+  .fuel-status { font-size: 15px; }
+  .resupply-btn { font-size: 16px; }
+  .btn-price { font-size: 14px; }
+  .upgrade-card-title { font-size: 14px; }
+  .upgrade-card-health { font-size: 14px; }
+  .upgrade-track-label { font-size: 12px; }
+  .upgrade-tier { font-size: 14px; }
+  .tier-cost { font-size: 13px; }
+  .item-name { font-size: 15px; }
+  .item-desc { font-size: 14px; }
+  .item-cost { font-size: 16px; }
+
   /* ── HELP MODE ───────────────────────────────────────── */
   #helpModeNotice {
     font-size: 0;
@@ -358,8 +380,8 @@
   }
   .uptime-value { font-size: 12px; }
 
-  /* Hide 5-min avg on very small screens */
-  .hdr-box-avg5m { display: none; }
+  /* Hide money on very small screens */
+  .hdr-box-money { display: none; }
 
   .tab-btn {
     font-size: 10px;
@@ -374,5 +396,7 @@
     width: 44px;
     height: 78px;
   }
-
+  .upgrade-grid {
+    grid-template-columns: 1fr !important;
+  }
 }

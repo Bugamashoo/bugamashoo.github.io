@@ -37,7 +37,19 @@ function modPerf(key) {
   if (m.mode === 'bypass' && key !== 'backup' && S.modules.backup.status === 'offline') return 0;
   const md = MODES[m.mode] || MODES.normal;
   let p = m.status === 'degraded' ? md.perfMult * 0.5 : md.perfMult;
-  if (m.sysError) p *= m.errorPenalty;
+  if (m.sysError) {
+    // Efficiency upgrade raises the error penalty floor
+    const effBonus = typeof getUpgradeEfficiencyBonus === 'function' ? getUpgradeEfficiencyBonus(key) : 0;
+    p *= Math.min(1, m.errorPenalty + effBonus);
+  }
+  // Overclock boost: 2x perf when active
+  if (typeof overclockBoostEnd !== 'undefined' && overclockBoostEnd > tick && m.mode === 'overclock') {
+    p = (m.status === 'degraded' ? 0.5 : 1) * MODE_OVERCLOCK_PERF * 2;
+    if (m.sysError) {
+      const effBonus2 = typeof getUpgradeEfficiencyBonus === 'function' ? getUpgradeEfficiencyBonus(key) : 0;
+      p *= Math.min(1, m.errorPenalty + effBonus2);
+    }
+  }
   return p;
 }
 

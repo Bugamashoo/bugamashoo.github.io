@@ -37,6 +37,8 @@ function buildSys() {
     const isBypassRestarting = bypassRestartTarget === k;
     const isRestarting = rstTargets.has(k);
     const sc = isPoweringOn || isPoweringOff ? 'degraded' : (m.mode !== 'normal' && m.status !== 'offline') ? m.mode : m.status;
+    const maxH = typeof getUpgradeMaxHealth === 'function' ? getUpgradeMaxHealth(k) : 100;
+    const hPct = m.health / maxH * 100;
     const hColor = m.health > MOD_HEALTH_GREEN ? 'green' : m.health > MOD_HEALTH_AMBER ? 'amber' : 'red';
     const isRepairing = repairTarget === k;
     const isDiagnosing = diagTarget === k;
@@ -58,10 +60,10 @@ function buildSys() {
          </span>
        </div>
        <div class="display-box">
-         <div class="display-label">HEALTH</div>
-         <div class="display-value ${hColor}">${m.health.toFixed(0)}%</div>
+         <div class="display-label">HEALTH${maxH > 100 ? ' (MAX ' + maxH + ')' : ''}</div>
+         <div class="display-value ${hColor}">${m.health.toFixed(0)}/${maxH}</div>
          <div class="bar-gauge">
-           <div class="bar-fill ${hColor}" style="width:${m.health}%"></div>
+           <div class="bar-fill ${hColor}" style="width:${hPct.toFixed(1)}%"></div>
          </div>
        </div>
        <div class="mode-effect" style="flex:1">

@@ -15,7 +15,7 @@ const POWER_HIST_MAX       = 100;    // Max power history entries (100 × 3s = 5
 
 // INITIAL STATE
 // Starting values when the game loads.
-const FUEL_START      = 100;  // Starting fuel level (%)
+const FUEL_START      = 5;    // Starting fuel level (%) — 1/20th of capacity, buy more via RESUPPLY tab
 const KNOB_DEFAULT    = 50;   // Default value for pressureRelief, mixRatio, fieldTune knobs (%)
 const TEMP_IDLE       = 20;   // Ambient/idle core temperature (°C)
 const PRESSURE_BASE   = 1;    // Idle core pressure (ATM)
@@ -60,6 +60,8 @@ const TEMP_HEAT_THROTTLE  = 50;    // Throttle contribution to raw heat (per 1% 
 const TEMP_HEAT_SCALE     = 70;    // Multiplier applied after sqrt-compressing raw heat
 const TEMP_MIX_BASE       = 0.5;   // Mix ratio modifier base (result: 0.5 + mixRatio/TEMP_MIX_SCALE)
 const TEMP_MIX_SCALE      = 200;   // Denominator for mix ratio modifier (see above)
+const MIX_POWER_MIN       = 0.85;  // Power multiplier at 0% mix ratio (scales linearly to 1.0 at 50%)
+const MIX_POWER_MAX       = 1.08;  // Power multiplier at 100% mix ratio (slight buff above 50%)
 const TEMP_ROD_REDUCTION  = 0.7;   // Fraction of heat removed by full rod insertion (rE=1)
 
 // Cooling
@@ -375,3 +377,65 @@ const PLASMA_OFF_RESET_SECS   = 10;   // Seconds plasma must be off before uptim
 const SCORE_DIVISOR           = 3000; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
 const HEALTH_ALERT_THRESHOLDS = [75, 50, 25, 10, 5]; // Health % levels that trigger log alerts
 const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning log messages
+
+// MONEY SYSTEM
+const MONEY_START             = 0;       // Starting funds ($)
+const MONEY_EARN_BASE         = 2.5;     // Base $/tick earned per MW of power output (at 20Hz)
+const MONEY_EARN_SCALE_MW     = 400;     // MW threshold for maximum earning multiplier
+const MONEY_EARN_SCALE_MAX    = 1.5;     // Maximum earning multiplier at high MW output
+const MONEY_FORMAT_K          = 1000;    // Threshold to display as $X.XXk
+const MONEY_FORMAT_M          = 1000000; // Threshold to display as $X.XXm
+const MONEY_FORMAT_B          = 1000000000; // Threshold to display as $X.XXb
+
+// FUEL MARKET
+const FUEL_PRICE_BASE_PER_PCT = 5000;    // Base price ($) for 1% fuel
+const FUEL_PRICE_LERP         = 0.005;   // Per-tick lerp rate toward target price multiplier
+const FUEL_PRICE_CHANGE_MIN   = 6000;    // Min ticks between price target changes (~5 min at 20Hz)
+const FUEL_PRICE_CHANGE_RANGE = 6000;    // Random ticks added (total 5–10 min between changes)
+const FUEL_PRICE_NORMAL_RANGE = 0.25;    // Normal fluctuation ±25% around base
+const FUEL_PRICE_EXTREME_CHANCE = 0.08;  // 8% chance of extreme price swing per change
+const FUEL_PRICE_EXTREME_LOW  = 0.50;    // Extreme discount: price drops to 50% of base
+const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% of base
+const FUEL_SELL_RATIO         = 0.60;    // Sell price = 60% of current buy price
+
+// REPAIR COSTS
+const REPAIR_COST_PER_TICK    = 15;      // $/tick cost while actively repairing a module
+
+// SYSTEM UPGRADES (per-module, 3 tiers each)
+// Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
+// Total all upgrades ≈ $9.6m (roughly 2 hours of max-output play).
+const UPGRADE_HEALTH_COST     = [15000, 50000, 160000];    // Base cost per tier: +max health
+const UPGRADE_HEALTH_BONUS    = [10, 15, 20];              // +max health per tier (cumulative: +10, +25, +45)
+const UPGRADE_EFFICIENCY_COST = [25000, 80000, 260000];    // Base cost per tier: error penalty floor improvement
+const UPGRADE_EFFICIENCY_BONUS= [0.05, 0.08, 0.10];       // Error penalty floor raised per tier
+const UPGRADE_DRAIN_COST      = [18000, 60000, 200000];    // Base cost per tier: reduce health drain rate
+const UPGRADE_DRAIN_MULT      = [0.85, 0.72, 0.55];       // Health drain multiplied by this (lower = better)
+
+// Per-module cost multiplier — scales all upgrade costs for that module.
+// Ranked by how directly the module contributes to reactor output.
+const UPGRADE_MODULE_COST_MULT = {
+  grid:     3.0,   // Grid Interface — power delivery, most expensive ($2.6m total)
+  backup:   2.5,   // Backup Power — emergency stability ($2.2m total)
+  fuel:     1.5,   // Fuel Processing — fuel efficiency ($1.3m total)
+  thermal:  1.3,   // Thermal Control — heat management ($1.1m total)
+  magnetic: 1.1,   // Magnetic Containment — plasma stability ($955k total)
+  coolant:  0.9,   // Coolant System — overheat prevention ($781k total)
+  sensor:   0.5,   // Sensor Array — readout accuracy ($434k total)
+  comms:    0.3    // Comms Relay — control access ($260k total)
+};
+
+// SPECIAL ITEMS (one-time-use, repeatable purchase)
+const ITEM_EMERGENCY_FUEL_COST   = 8000;   // Instant +3% fuel
+const ITEM_EMERGENCY_FUEL_AMOUNT = 3;
+const ITEM_QUICK_REPAIR_COST     = 50000;  // Instant +30 health to target module
+const ITEM_QUICK_REPAIR_AMOUNT   = 30;
+const ITEM_DIAGNOSTIC_SWEEP_COST = 75000;  // Reveals ALL hidden system errors
+const ITEM_OVERCLOCK_BOOST_COST  = 40000;  // 60s enhanced overclock (2x perf, normal drain)
+const ITEM_OVERCLOCK_BOOST_TICKS = 1200;   // Duration in ticks (60s at 20Hz)
+const ITEM_CONTAINMENT_PATCH_COST  = 30000; // Instant +25% containment integrity
+const ITEM_CONTAINMENT_PATCH_AMOUNT= 25;
+const ITEM_EVENT_EXTENDER_COST   = 100000; // Adds 15s to active event timer
+const ITEM_EVENT_EXTENDER_BONUS  = 15;     // Seconds added to event countdown
+
+// FUEL+MONEY EXHAUSTION
+const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)

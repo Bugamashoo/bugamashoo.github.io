@@ -1,0 +1,348 @@
+/* resupply.css — Resupply tab: fuel market, upgrades, items */
+
+#tab-resupply {
+  padding: 6px;
+}
+
+.resupply-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+}
+
+.resupply-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 8px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.resupply-panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #b07830;
+  text-align: center;
+  padding: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--panel-border);
+  text-transform: uppercase;
+}
+
+/* ── FUEL MARKET ─────────────────────────────────── */
+.fuel-price-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 8px;
+  background: #0a0c0e;
+  border: 2px solid var(--panel-border);
+  border-radius: 3px;
+}
+
+.fuel-price-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #5a5f66;
+}
+
+.fuel-price-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 24px;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.fuel-price-trend {
+  font-size: 20px;
+  text-shadow: 0 0 6px currentColor;
+}
+
+.fuel-status {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #8a8f96;
+  margin: 8px 2px;
+  letter-spacing: 1px;
+}
+
+/* ── FUEL CONTROLS (switch + buttons side by side) ── */
+.fuel-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: stretch;
+}
+
+.fuel-mode-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  padding: 4px 2px;
+}
+.fuel-mode-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #3a3f44;
+  transition: color .2s;
+}
+.fuel-mode-label.active { color: var(--green); text-shadow: 0 0 6px rgba(57,255,20,.4); }
+.fuel-mode-switch.sell .fuel-mode-label.active { color: var(--red); text-shadow: 0 0 6px rgba(255,46,46,.4); }
+.fuel-mode-track {
+  width: 30px;
+  height: 50px;
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  background: #0a0c0e;
+  position: relative;
+  transition: border-color .2s;
+}
+.fuel-mode-switch:hover .fuel-mode-track { border-color: var(--amber-dim); }
+.fuel-mode-thumb {
+  width: 26px;
+  height: 22px;
+  background: var(--green);
+  border-radius: 2px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .2s;
+  box-shadow: 0 0 8px rgba(57,255,20,.3);
+}
+.fuel-mode-switch.sell .fuel-mode-thumb {
+  top: calc(100% - 22px);
+  background: var(--red);
+  box-shadow: 0 0 8px rgba(255,46,46,.3);
+}
+
+.resupply-btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.resupply-btn {
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 10px 6px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--amber);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+  text-transform: uppercase;
+}
+
+.resupply-btn.buy {
+  border-color: var(--green-dim);
+  color: var(--green);
+}
+.resupply-btn.buy:hover:not(:disabled) {
+  background: rgba(57,255,20,.08);
+  border-color: var(--green);
+  box-shadow: 0 0 12px rgba(57,255,20,.2);
+}
+
+.resupply-btn.sell {
+  border-color: var(--red-dim);
+  color: var(--red);
+}
+.resupply-btn.sell:hover:not(:disabled) {
+  background: rgba(255,46,46,.08);
+  border-color: var(--red);
+  box-shadow: 0 0 12px rgba(255,46,46,.2);
+}
+
+.resupply-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-price {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: #8a8f96;
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── SYSTEM UPGRADES ─────────────────────────────── */
+.upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+}
+
+.upgrade-card {
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 8px;
+}
+
+.upgrade-card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.upgrade-card-health {
+  font-size: 13px;
+  color: #8a8f96;
+  margin-bottom: 5px;
+}
+
+.upgrade-track {
+  margin: 3px 0;
+}
+
+.upgrade-track-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #5a5f66;
+  text-transform: uppercase;
+}
+
+.upgrade-tiers {
+  display: flex;
+  gap: 2px;
+}
+
+.upgrade-tier {
+  flex: 1;
+  text-align: center;
+  padding: 5px 3px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  border-radius: 2px;
+  border: 1px solid var(--panel-border);
+}
+
+.upgrade-tier.purchased {
+  background: rgba(57,255,20,.1);
+  border-color: var(--green-dim);
+  color: var(--green);
+}
+
+.upgrade-tier.available {
+  background: var(--panel-surface);
+  border-color: var(--amber-dim);
+  color: var(--amber);
+  cursor: pointer;
+  transition: all .2s;
+}
+.upgrade-tier.available:hover:not(:disabled) {
+  border-color: var(--amber);
+  background: rgba(255,159,28,.08);
+  box-shadow: 0 0 8px rgba(255,159,28,.2);
+}
+.upgrade-tier.available:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.upgrade-tier.locked {
+  color: #3a3f44;
+  background: rgba(0,0,0,.2);
+}
+
+.tier-cost {
+  font-size: 12px;
+  color: #8a8f96;
+  display: block;
+}
+
+/* ── SPECIAL ITEMS ───────────────────────────────── */
+.items-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.item-btn {
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 10px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+}
+.item-btn:hover:not(:disabled) {
+  border-color: var(--cyan);
+  background: rgba(0,229,255,.05);
+  box-shadow: 0 0 10px rgba(0,229,255,.15);
+}
+.item-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.item-btn.active-mode {
+  border-color: var(--magenta);
+  box-shadow: 0 0 12px rgba(255,46,170,.3);
+}
+
+.item-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  text-transform: uppercase;
+}
+
+.item-desc {
+  font-size: 13px;
+  color: #8a8f96;
+  margin: 3px 0;
+}
+
+.item-cost {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px;
+  color: var(--amber);
+}
+
+/* ── QUICK REPAIR PICKER ─────────────────────────── */
+.quick-repair-picker {
+  margin-top: 8px;
+  padding: 6px;
+  border: 1px solid var(--magenta);
+  border-radius: 3px;
+  background: rgba(255,46,170,.03);
+}
+
+.repair-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  margin-top: 4px;
+}

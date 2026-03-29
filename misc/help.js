@@ -129,6 +129,34 @@ function getHelpInfo(el) {
     return [g[0], g[1]];
   }
 
+  // Money header box
+  if (el.closest('.hdr-box-money')) return HELP_MONEY;
+
+  // Resupply tab elements
+  const resBtn = el.closest('.resupply-btn');
+  if (resBtn) {
+    if (resBtn.classList.contains('sell')) return HELP_RESUPPLY.sellFuel;
+    if (resBtn.classList.contains('buy')) return HELP_RESUPPLY.buyFuel;
+  }
+  if (el.closest('.fuel-price-display')) return HELP_RESUPPLY.fuelPrice;
+  const itemBtn = el.closest('.item-btn');
+  if (itemBtn) {
+    const oc = itemBtn.getAttribute('onclick') || '';
+    if (oc.includes('EmergencyFuel'))    return HELP_RESUPPLY.itemFuel;
+    if (oc.includes('QuickRepair'))      return HELP_RESUPPLY.itemRepair;
+    if (oc.includes('DiagSweep'))        return HELP_RESUPPLY.itemDiag;
+    if (oc.includes('OverclockBoost'))   return HELP_RESUPPLY.itemOC;
+    if (oc.includes('ContainmentPatch')) return HELP_RESUPPLY.itemContain;
+    if (oc.includes('EventExtender'))    return HELP_RESUPPLY.itemEvent;
+  }
+  const upgTier = el.closest('.upgrade-tier.available');
+  if (upgTier) {
+    const oc = upgTier.getAttribute('onclick') || '';
+    if (oc.includes("'health'"))     return HELP_RESUPPLY.upgHealth;
+    if (oc.includes("'efficiency'")) return HELP_RESUPPLY.upgEfficiency;
+    if (oc.includes("'drain'"))      return HELP_RESUPPLY.upgDrain;
+  }
+
   return null;
 }
 

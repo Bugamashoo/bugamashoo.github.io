@@ -151,3 +151,4 @@ addLog('MKIV TOKAMAK v4.7.2', 'sys');
 addLog('Manual: MANUAL tab', '');
 addLog('Module modes: SYSTEMS tab', 'sys');
 addLog('All systems nominal — flip AUX PWR to begin startup sequence', 'ok');
+addLog('Fuel low — visit RESUPPLY tab to purchase fuel', 'warn');

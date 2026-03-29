@@ -25,7 +25,7 @@ const HELP_CTRL = {
   backupContB:   ['BACKUP FIELD B',  'G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen'],
   emergVent:     ['EMERG VENT',      'G:- core temperature (significant)', 'G:- core pressure (significant)'],
   emergDump:     ['FUEL DUMP',       'R:Drains fuel reserves rapidly', 'Reduces heat generation at the cost of all fuel'],
-  rodSafetyOff:  ['ROD SAFETY',      'Engages the control rod safety interlock (ON by default)', 'Turn OFF to unlock rod insertion sliders - turning back ON resets all rods to 0%'],
+  rodSafetyOff:  ['ROD SAFETY',      'When ON, retracts all rods to 0% and locks the sliders', 'Turn OFF to unlock rod insertion controls'],
 
   // Ignition panel push buttons
   ignBtn:  ['IGNITE',    'Hold continuously for 3 seconds to fire plasma ignition', 'Requires IGN PRIME and AUX POWER to be active'],
@@ -41,15 +41,15 @@ const HELP_LEVER = {
   containPower:  ['CONTAIN POWER',   'G:+ magnetic flux', 'G:+ plasma stability', 'G:+ containment integrity regen when above threshold', 'R:- plasma stability and integrity if set too low'],
   auxCoolRate:   ['AUX COOL RATE',   'G:- core temperature (moderate)', 'G:- aux coolant temperature', 'G:+ aux coolant flow'],
   backupContPow: ['BACKUP FIELD PWR','G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen', 'G:+ secondary pressure'],
-  rodA:          ['CONTROL ROD A',   'G:- core temperature (significant)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
-  rodB:          ['CONTROL ROD B',   'G:- core temperature (significant)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
-  rodC:          ['CONTROL ROD C',   'G:- core temperature (significant)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
+  rodA:          ['CONTROL ROD A',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
+  rodB:          ['CONTROL ROD B',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
+  rodC:          ['CONTROL ROD C',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
 };
 
 // Descriptions: knobs
 const HELP_KNOB = {
   pressureRelief: ['PRESSURE RELIEF', 'G:- core pressure (moderate)', 'No direct effect on temperature or plasma'],
-  mixRatio:       ['MIX RATIO',        'R:+ core temperature (slight)', 'Adjusts fuel-plasma mixture for heat efficiency'],
+  mixRatio:       ['MIX RATIO',        'R:+ core temperature when turned up', 'R:- power output when turned down', 'Adjusts fuel-plasma mixture — higher runs hotter, lower reduces energy extraction'],
   fieldTune:      ['FIELD TUNE',       'G:+ magnetic flux efficiency', 'G:+ plasma stability', 'Fine-tunes the confinement field geometry'],
 };
 
@@ -98,6 +98,25 @@ const HELP_SYS_BTN = {
   diagnose:      ['DIAGNOSE',        'Runs a scan to reveal any hidden system errors', 'Takes a few seconds - only one module can be diagnosed at a time'],
   repair:        ['REPAIR',          'Gradually restores module health over time', 'Offline modules repair significantly faster than online ones'],
 };
+
+// Descriptions: resupply tab elements
+const HELP_RESUPPLY = {
+  buyFuel:       ['BUY FUEL',         'Purchase fuel at the current market price', 'Price fluctuates ±25% normally, with rare extreme swings'],
+  sellFuel:      ['SELL FUEL',        'Sell remaining fuel at 60% of current buy price', 'R:Fuel sold is lost — only sell excess'],
+  fuelPrice:     ['FUEL MARKET PRICE','Current cost per 1% fuel', 'Fluctuates over 5–10 minute intervals after first purchase'],
+  upgHealth:     ['MAX HEALTH UPGRADE','G:+ maximum module health capacity', 'Allows module to survive longer between maintenance'],
+  upgEfficiency: ['EFFICIENCY UPGRADE','G:+ minimum efficiency when system errors occur', 'Reduces the penalty from hidden faults'],
+  upgDrain:      ['DURABILITY UPGRADE','G:- health drain rate during operation', 'Module lasts longer before needing repair'],
+  itemFuel:      ['EMERGENCY FUEL',   'G:+ instantly adds 3% fuel to reserves', 'Use when fuel is critically low'],
+  itemRepair:    ['QUICK REPAIR KIT', 'G:+ instantly restores 30 health to one module', 'Select target module after purchase'],
+  itemDiag:      ['DIAGNOSTIC SWEEP', 'Reveals all hidden system errors simultaneously', 'Saves time vs diagnosing each module individually'],
+  itemOC:        ['OVERCLOCK BOOST',  'G:+ doubles overclock performance for 60 seconds', 'Normal health drain rate during boost period'],
+  itemContain:   ['CONTAINMENT PATCH','G:+ instantly restores 25% containment integrity', 'Use during containment emergencies'],
+  itemEvent:     ['EVENT EXTENDER',   'G:+ adds 15 seconds to current event countdown', 'Only available while an event is active'],
+};
+
+// Descriptions: money header
+const HELP_MONEY = ['FUNDS', 'Current available money earned from power output', 'Spend on fuel, repairs, upgrades, and items in the RESUPPLY tab'];
 
 // Descriptions: systems tab bulk control buttons
 const HELP_BULK_BTN = {

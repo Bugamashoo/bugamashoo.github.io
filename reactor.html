@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="./misc/monitors.css">
 <link rel="stylesheet" href="./misc/systems.css">
 <link rel="stylesheet" href="./misc/backup.css">
+<link rel="stylesheet" href="./misc/resupply.css">
 <link rel="stylesheet" href="./misc/mobile.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@
     <div class="uptime-display">
       <div class="uptime-label">MISSION UPTIME</div>
       <div class="uptime-value" id="uptimeDisp">00:00:00</div>
-      <div class="best-label">BEST: <span id="bestUptime">00:00:00</span> | RESOLVED: <span id="evtCount">0</span> FAILED: <span id="evtFail">0</span></div>
+      <div class="best-label" style="display:none">BEST: <span id="bestUptime">00:00:00</span> | RESOLVED: <span id="evtCount">0</span> FAILED: <span id="evtFail">0</span></div>
     </div>
     <div class="hdr-box hdr-box-score">
       <div class="hdr-box-label">SCORE</div>
@@ -33,9 +34,9 @@
       <div class="hdr-box-label">OUTPUT MW</div>
       <div class="hdr-box-value" id="hdrOutput">0.00</div>
     </div>
-    <div class="hdr-box hdr-box-avg5m">
-      <div class="hdr-box-label">5M AVG MW</div>
-      <div class="hdr-box-value" id="hdrAvg5m">—</div>
+    <div class="hdr-box hdr-box-money">
+      <div class="hdr-box-label">FUNDS</div>
+      <div class="hdr-box-value" id="hdrMoney">$0</div>
     </div>
   </div>
   <div class="header-status">
@@ -55,6 +56,7 @@
   <button class="tab-btn tab-btn-desktop" data-tab="monitors">MONITORS</button>
   <button class="tab-btn" data-tab="systems">SYSTEMS</button>
   <button class="tab-btn" data-tab="backup">BACKUP SYS</button>
+  <button class="tab-btn" data-tab="resupply">RESUPPLY</button>
   <div class="tab-menu-wrap" id="tabMenuWrap">
     <button class="tab-menu-btn" id="tabMenuBtn">&#9776;</button>
     <div class="tab-menu-dropdown" id="tabMenuDropdown">
@@ -184,7 +186,7 @@
 </div></div>
 <div class="tab-content" id="tab-manual"><div class="manual-container"><div class="manual-nav">
   <div style="font-family:Orbitron,sans-serif;font-size:10px;color:var(--amber-dim);letter-spacing:3px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #3a3528">OPERATOR MANUAL</div><div class="stamp">CLASSIFIED</div>
-  <button class="manual-nav-btn active" data-manual="startup">I. Startup</button><button class="manual-nav-btn" data-manual="shutdown">II. Shutdown</button><button class="manual-nav-btn" data-manual="emergency">III. Emergency</button><button class="manual-nav-btn" data-manual="malfunctions">IV. Malfunctions</button><button class="manual-nav-btn" data-manual="modes">V. Module Modes</button><button class="manual-nav-btn" data-manual="reference">VI. Reference</button>
+  <button class="manual-nav-btn active" data-manual="startup">I. Startup</button><button class="manual-nav-btn" data-manual="shutdown">II. Shutdown</button><button class="manual-nav-btn" data-manual="emergency">III. Emergency</button><button class="manual-nav-btn" data-manual="malfunctions">IV. Malfunctions</button><button class="manual-nav-btn" data-manual="modes">V. Module Modes</button><button class="manual-nav-btn" data-manual="reference">VI. Reference</button><button class="manual-nav-btn" data-manual="resupply">VII. Resupply</button>
 </div><div class="manual-body" id="manualBody"></div></div></div>
 <div class="tab-content" id="tab-monitors"><div class="monitors-grid" id="monitorsGrid"></div></div>
 <div class="tab-content" id="tab-systems"><div class="panel" style="border:none;flex:1;display:flex;flex-direction:column;min-height:0"><div class="panel-label">Control Module Management</div><div class="panel-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:6px"><div class="systems-grid" id="systemsGrid"></div></div></div></div>
@@ -193,6 +195,7 @@
   <div class="panel" id="backupCont"><div class="panel-label">Backup Containment</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Secondary Fields</div><div class="controls-inline"><div class="switch-row" id="backupContSwitches"></div><div class="lever-row" id="backupContLevers"></div></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="backupContReadings"></div></div></div></div>
   <div class="panel" id="backupEmerg"><div class="panel-label">Emergency Override</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Vent &amp; Dump</div><div class="switch-row" id="emergSwitches"></div><div style="display:flex;justify-content:center;gap:10px;margin-top:10px" id="emergButtons"></div></div><div class="sub-panel"><div class="sub-panel-title">Control Rods</div><div class="lever-row" id="rodLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="emergReadings"></div></div></div></div>
 </div></div>
+<div class="tab-content" id="tab-resupply"><div class="resupply-grid" id="resupplyGrid"></div></div>
 <div class="event-overlay" id="eventOverlay"><div class="event-panel"><div class="event-header"><div class="event-title" id="eventTitle">⚠ ALERT</div><div class="event-timer" id="eventTimer">00:00</div></div><div class="event-body"><div class="event-desc" id="eventDesc"></div><div class="event-viz" id="eventViz"></div><div id="eventSteps"></div><div class="event-progress"><div class="event-progress-fill" id="eventProgress" style="width:0%"></div></div></div></div></div>
 <div id="gameOverScreen"><div id="gameOverInner">
   <div class="go-title" id="goTitle">MELTDOWN</div>
@@ -200,6 +203,7 @@
   <div class="go-uptime-label">FINAL MISSION UPTIME</div>
   <div class="go-uptime" id="goUptime">00:00:00</div>
   <div class="go-stats"><div class="go-stat"><div class="go-stat-val cyan" id="goScore">0</div><div class="go-stat-label">FINAL SCORE</div></div><div class="go-stat"><div class="go-stat-val green" id="goResolved">0</div><div class="go-stat-label">EVENTS RESOLVED</div></div><div class="go-stat"><div class="go-stat-val amber" id="goPeak">0 MW</div><div class="go-stat-label">PEAK OUTPUT</div></div><div class="go-stat"><div class="go-stat-val green" id="goAvg5m">0 MW</div><div class="go-stat-label">BEST 5M AVG</div></div><div class="go-stat"><div class="go-stat-val red" id="goFailed">0</div><div class="go-stat-label">EVENTS FAILED</div></div></div>
+  <div class="go-stats" style="margin-top:-10px"><div class="go-stat"><div class="go-stat-val green" id="goMoney">$0</div><div class="go-stat-label">FINAL FUNDS</div></div><div class="go-stat"><div class="go-stat-val green" id="goEarned">$0</div><div class="go-stat-label">TOTAL EARNED</div></div><div class="go-stat"><div class="go-stat-val red" id="goSpent">$0</div><div class="go-stat-label">TOTAL SPENT</div></div></div>
   <div class="go-narrative" id="goNarrative"></div>
   <button class="go-restart" onclick="location.reload()">RESTART REACTOR</button>
 </div></div>
@@ -211,6 +215,7 @@
 <script src="./misc/reactor5.js"></script>  <!-- Display UI: gauges, warning lights, seq steps, monitor canvases, drawG() -->
 <script src="./misc/reactor6.js"></script>  <!-- Systems tab: buildSys, setMode, rstMod, diagMod -->
 <script src="./misc/reactor7.js"></script>  <!-- Manual tab: MP content object + nav wiring -->
+<script src="./misc/resupply.js"></script>  <!-- Resupply tab: fuel market, upgrades, items, fmtMoney -->
 <script src="./misc/reactor8.js"></script>  <!-- Event system: triggerEvent, updateEvt, closeEvt, triggerCatastrophe -->
 <script src="./misc/reactor9.js"></script>  <!-- Helpers: doScram, hardReset, ignition, checkSeq, GAUGE_DANGERS, updD/setW, init -->
 <script src="./misc/ui.js"></script>       <!-- UI update: updateUI() -->
