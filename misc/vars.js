@@ -374,12 +374,12 @@ const HARD_RESET_MIN_HEALTH   = 60;    // Module health floored to this % during
 
 // UPTIME & SCORING
 const PLASMA_OFF_RESET_SECS   = 10;   // Seconds plasma must be off before uptime resets to 0
-const SCORE_DIVISOR           = 5000; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
+const SCORE_DIVISOR           = 3500; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
 const HEALTH_ALERT_THRESHOLDS = [75, 50, 25, 10, 5]; // Health % levels that trigger log alerts
 const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning log messages
 
 // MONEY SYSTEM
-const MONEY_START             = 0;       // Starting funds ($)
+const MONEY_START             = 2000;       // Starting funds ($)
 const MONEY_EARN_BASE         = 3;     // Base $/tick earned per MW of power output (at 20Hz)
 const MONEY_EARN_SCALE_MW     = 2000;     // MW threshold for maximum earning multiplier
 const MONEY_EARN_SCALE_MAX    = 1.5;     // Maximum earning multiplier at high MW output
@@ -399,15 +399,15 @@ const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% o
 const FUEL_SELL_RATIO         = 0.65;    // Sell price = 65% of current buy price
 
 // REPAIR COSTS
-const REPAIR_COST_PER_TICK    = 2500;      // $/tick cost while actively repairing a module
+const REPAIR_COST_PER_TICK    = 2000;      // $/tick cost while actively repairing a module
 
 // SYSTEM UPGRADES (per-module, 3 tiers each)
 // Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
 // Total all upgrades ≈ $9.6m (roughly 2 hours of max-output play).
 const UPGRADE_HEALTH_COST     = [23000, 91000, 290000];    // Base cost per tier: +max health
 const UPGRADE_HEALTH_BONUS    = [10, 15, 25];              // +max health per tier (cumulative: +10, +25, +45)
-const UPGRADE_EFFICIENCY_COST = [34000, 79000, 122000];    // Base cost per tier: error penalty floor improvement
-const UPGRADE_EFFICIENCY_BONUS= [0.05, 0.08, 0.10];       // Error penalty floor raised per tier
+const UPGRADE_EFFICIENCY_COST = [94000, 379000, 1220000];    // Base cost per tier: error penalty floor improvement
+const UPGRADE_EFFICIENCY_BONUS= [0.1, 0.15, 0.25];       // Flat perf multiplier per tier (stacks: T3 = +50%)
 const UPGRADE_DRAIN_COST      = [23000, 187000, 650000];    // Base cost per tier: reduce health drain rate
 const UPGRADE_DRAIN_MULT      = [0.90, 0.70, 0.45];       // Health drain multiplied by this (lower = better)
 

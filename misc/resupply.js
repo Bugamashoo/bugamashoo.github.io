@@ -246,6 +246,10 @@ function buildResupply() {
   const c = document.getElementById('resupplyGrid');
   if (!c) return;
 
+  // Preserve scroll position across rebuilds
+  const tabEl = document.getElementById('tab-resupply');
+  const scrollTop = tabEl ? tabEl.scrollTop : 0;
+
   resupplyQRP = quickRepairPending;
 
   let html = '';
@@ -302,10 +306,8 @@ function buildResupply() {
     <div class="resupply-panel-title">SPECIAL ITEMS</div>
     <div class="items-grid">`;
 
-  html += buildItemBtn('rsItemFuel', 'FUEL (Placeholder)', '+' + ITEM_EMERGENCY_FUEL_AMOUNT + '% fuel', ITEM_EMERGENCY_FUEL_COST, 'buyEmergencyFuel()');
   html += buildItemBtn('rsItemRepair', 'QUICK REPAIR', '+' + ITEM_QUICK_REPAIR_AMOUNT + ' HP to module', ITEM_QUICK_REPAIR_COST, 'buyQuickRepair()', quickRepairPending);
   html += buildItemBtn('rsItemDiag', 'DIAG SWEEP', 'Reveal all errors', ITEM_DIAGNOSTIC_SWEEP_COST, 'buyDiagSweep()');
-  html += buildItemBtn('rsItemOC', 'OVERCLOCK BOOST', '60s 2x perf', ITEM_OVERCLOCK_BOOST_COST, 'buyOverclockBoost()', overclockBoostEnd > tick);
   html += buildItemBtn('rsItemCont', 'CONTAIN PATCH', '+' + ITEM_CONTAINMENT_PATCH_AMOUNT + '% integrity', ITEM_CONTAINMENT_PATCH_COST, 'buyContainmentPatch()');
   html += buildItemBtn('rsItemEvt', 'EVENT EXTENDER', '+' + ITEM_EVENT_EXTENDER_BONUS + 's timer', ITEM_EVENT_EXTENDER_COST, 'buyEventExtender()');
 
@@ -326,6 +328,7 @@ function buildResupply() {
 
   c.innerHTML = html;
   resupplyBuilt = true;
+  if (tabEl) tabEl.scrollTop = scrollTop;
   updateResupplyValues();
 }
 
@@ -422,10 +425,8 @@ function updateResupplyValues() {
 
   // Item buttons disabled states
   const itemMap = {
-    rsItemFuel:  { cost: ITEM_EMERGENCY_FUEL_COST, force: false },
     rsItemRepair:{ cost: ITEM_QUICK_REPAIR_COST, force: false },
     rsItemDiag:  { cost: ITEM_DIAGNOSTIC_SWEEP_COST, force: false },
-    rsItemOC:    { cost: ITEM_OVERCLOCK_BOOST_COST, force: false },
     rsItemCont:  { cost: ITEM_CONTAINMENT_PATCH_COST, force: false },
     rsItemEvt:   { cost: ITEM_EVENT_EXTENDER_COST, force: !S.activeEvent }
   };
@@ -433,10 +434,6 @@ function updateResupplyValues() {
     const el = document.getElementById(id);
     if (el) el.disabled = info.force || S.money < info.cost;
   });
-
-  // Overclock boost active state
-  const ocEl = document.getElementById('rsItemOC');
-  if (ocEl) ocEl.classList.toggle('active-mode', overclockBoostEnd > tick);
 
   // Quick repair picker HP values
   if (quickRepairPending) {

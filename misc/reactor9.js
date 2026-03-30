@@ -131,9 +131,22 @@ function updD(id, t, mx, colorFn) {
   }
 }
 
-// Like updD but substitutes a pre-generated noise string when sensor array is offline
+// Like updD but shows "Sensor ERR" text + randomised bar when sensor array is offline
 function updDN(id, t, mx, colorFn) {
-  updD(id, S.modules.sensor.status !== 'online' && sensorNoise[id] !== undefined ? sensorNoise[id] : t, mx, colorFn);
+  const off = S.modules.sensor.status !== 'online';
+  const e = document.getElementById('disp_' + id);
+  const b = document.getElementById('bar_'  + id);
+  if (off) {
+    if (e) e.textContent = 'Sensor ERR';
+    if (b && sensorNoise[id] !== undefined) {
+      const v = parseFloat(sensorNoise[id]);
+      const p = Math.min(100, Math.max(0, v / mx * 100));
+      b.style.width = p + '%';
+      b.className = 'bar-fill ' + (colorFn ? colorFn(v) : (p > 80 ? 'red' : p > 60 ? 'amber' : 'green'));
+    }
+  } else {
+    updD(id, t, mx, colorFn);
+  }
 }
 
 // Set a warning light colour class

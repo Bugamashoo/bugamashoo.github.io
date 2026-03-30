@@ -380,8 +380,7 @@
   }
   .uptime-value { font-size: 12px; }
 
-  /* Hide money on very small screens */
-  .hdr-box-money { display: none; }
+  /* Money counter always visible on mobile */
 
   .tab-btn {
     font-size: 10px;

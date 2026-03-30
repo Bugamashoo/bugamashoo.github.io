@@ -229,7 +229,6 @@ function simulate() {
     warnX += S.corePressure > WARN_PRES_RED ? 2 : S.corePressure > WARN_PRES_AMBER ? 1 : 0;
     warnX += S.containIntegrity < WARN_CONTAIN_RED ? 2 : S.containIntegrity < WARN_CONTAIN_AMBER ? 1 : 0;
     warnX += S.igniting ? (S.coolantTemp > WARN_COOLANT_TEMP_RED ? 2 : S.coolantFlowRate < WARN_COOLANT_FLOW_AMB ? 1 : 0) : 0;
-    warnX += S.fuelRemaining < WARN_FUEL_RED ? 2 : S.fuelRemaining < WARN_FUEL_AMBER ? 1 : 0;
     warnX += S.radiationLevel > WARN_RAD_RED ? 2 : S.radiationLevel > WARN_RAD_AMBER ? 1 : 0;
     const warnMult = 1 + warnX / WARN_SEVERITY_SCALE;
 
@@ -509,8 +508,8 @@ function simulate() {
     if (S.containIntegrity < WARN_CONTAIN_AMBER) addLog('WARN: Containment', 'err');
   }
 
-  // Sensor noise (randomise display values every 10 ticks when offline)
-  if (tick % 10 === 0 && S.modules.sensor.status !== 'online') {
+  // Sensor noise (randomise bar values every 5 ticks when offline)
+  if (tick % 5 === 0 && S.modules.sensor.status !== 'online') {
     sensorNoise = {
       coreTemp:         (Math.random() * DISP_TEMP_MAX).toFixed(0),
       corePressure:     (Math.random() * DISP_PRES_MAX).toFixed(1),

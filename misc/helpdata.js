@@ -81,7 +81,7 @@ const HELP_GAUGE = {
 const HELP_BIGBTN = {
   'PLASMA DUMP': ['PLASMA DUMP',  'G:- core temperature (significant)', 'Immediately terminates plasma ignition'],
   'COOL FLOOD':  ['COOL FLOOD',   'Maximizes all primary and backup coolant systems instantly', 'G:- core temperature (significant)'],
-  'HARD RESET':  ['HARD RESET',   'Takes all modules offline briefly and clears system errors', 'Zeros all controls and resets lever positions'],
+  'HARD RESET':  ['HARD RESET',   'Shuts everything down and takes all modules offline, then restores all module health to a minimum of 60% and clears system errors', 'Zeros all controls and resets lever positions — use as a last resort to recover heavily damaged systems'],
 };
 
 // Descriptions: SCRAM button

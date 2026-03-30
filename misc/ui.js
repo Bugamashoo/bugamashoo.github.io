@@ -31,11 +31,11 @@ function updateUI() {
   // Fuel
   const sensorOff = S.modules.sensor.status !== 'online';
   const fe = document.getElementById('disp_fuelRemaining');
-  if (fe) fe.textContent = sensorOff && sensorNoise.fuelRemaining !== undefined ? sensorNoise.fuelRemaining : S.fuelRemaining.toFixed(1);
+  if (fe) fe.textContent = sensorOff ? 'Sensor ERR' : S.fuelRemaining.toFixed(1);
   const fb = document.getElementById('bar_fuelRemaining');
   if (fb) { const fv = sensorOff && sensorNoise.fuelRemaining !== undefined ? parseFloat(sensorNoise.fuelRemaining) : S.fuelRemaining; fb.style.width = fv + '%'; fb.className = 'bar-fill ' + (fv < DISP_FUEL_RED ? 'red' : fv < DISP_FUEL_AMBER ? 'amber' : 'green'); }
   const fc = document.getElementById('disp_fuelConsump');
-  if (fc) fc.textContent = sensorOff && sensorNoise.fuelConsump !== undefined ? sensorNoise.fuelConsump : S.fuelConsump.toFixed(1);
+  if (fc) fc.textContent = sensorOff ? 'Sensor ERR' : S.fuelConsump.toFixed(1);
 
   // Toggle no-power CSS class - hides display values, zeros bars, hides warning row + seq steps
   document.body.classList.toggle('no-power', noPower);
@@ -43,9 +43,9 @@ function updateUI() {
   // Net power output display
   const po = document.getElementById('netOutput');
   const totalPower = S.powerOutput + S.backupGenOutput;
-  const poVal = sensorOff && sensorNoise.powerOutput !== undefined ? sensorNoise.powerOutput : totalPower.toFixed(2);
+  const poVal = sensorOff ? 'ERR' : totalPower.toFixed(2);
   po.textContent = poVal;
-  po.style.color = parseFloat(poVal) > DISP_POWER_RED ? 'var(--red)' : parseFloat(poVal) > DISP_POWER_AMBER ? 'var(--amber)' : 'var(--green)';
+  po.style.color = sensorOff ? 'var(--red)' : parseFloat(poVal) > DISP_POWER_RED ? 'var(--red)' : parseFloat(poVal) > DISP_POWER_AMBER ? 'var(--amber)' : 'var(--green)';
 
   // Reactor core SVG visual
   const rvCX = 70, rvCY = 62.5;
