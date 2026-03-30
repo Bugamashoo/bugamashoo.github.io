@@ -198,7 +198,7 @@ const MOD_OFFLINE_HEALTH    = 5;    // Health % below which a module automatical
 
 // Warning-severity multiplier applied to health drain
 // warnX: +1 per amber warning, +2 per red warning active
-const WARN_SEVERITY_SCALE   = 10;   // warnMult = 1 + warnX / this
+const WARN_SEVERITY_SCALE   = 8;   // warnMult = 1 + warnX / this, Lower means more impact!!
 
 // Warning thresholds used by the severity scoring in the drain loop
 const WARN_TEMP_RED         = 6000; // Core temp (°C) for red severity score
@@ -221,7 +221,7 @@ const BACKUP_GEN_DRAIN        = 0.005;  // Health drained/tick when backupGen is
 const BACKUP_AUX_DRAIN        = 0.02;  // Health drained/tick per % auxCoolRate / 100 when aux loop active
 const BACKUP_FIELD_A_DRAIN    = 0.02;  // Health drained/tick per % backupContPow / 100 when Field A on
 const BACKUP_FIELD_B_DRAIN    = 0.02;  // Health drained/tick per % backupContPow / 100 when Field B on
-const BACKUP_OVERCLOCK_DRAIN  = 3;     // Backup drain multiplied by this when backup is in overclock mode
+const BACKUP_OVERCLOCK_DRAIN  = 2;     // Backup drain multiplied by this when backup is in overclock mode
 
 // GAUGE DANGER -> MODULE DAMAGE
 // When a gauge stays in danger, a timer arms. On expiry, the linked module takes damage.
@@ -291,7 +291,7 @@ const DISP_COOLANT_TEMP_MAX = 200;
 const DISP_COOLANT_FLOW_MAX = 1200;
 const DISP_TURBINE_MAX    = 24000;
 const DISP_CONTAIN_MAX    = 100;
-const DISP_FLUX_MAX       = 8;
+const DISP_FLUX_MAX       = 12;
 const DISP_RAD_MAX        = 100;
 const DISP_AUX_TEMP_MAX   = 100;
 const DISP_AUX_FLOW_MAX   = 800;
@@ -300,8 +300,8 @@ const DISP_SECONDARY_PRES_MAX = 30;
 const DISP_HEATSINK_MAX   = 200;
 const DISP_FUEL_RED       = 20;    // Fuel bar turns red below this %
 const DISP_FUEL_AMBER     = 50;    // Fuel bar turns amber below this %
-const DISP_POWER_RED      = 1800;   // Power display turns red above this MW
-const DISP_POWER_AMBER    = 1200;   // Power display turns amber above this MW
+const DISP_POWER_RED      = 2000;   // Power display turns red above this MW
+const DISP_POWER_AMBER    = 1500;   // Power display turns amber above this MW
 
 // Module health card color thresholds
 const MOD_HEALTH_GREEN    = 75;    // Health (%) above which the bar is green
@@ -310,30 +310,30 @@ const MOD_HEALTH_AMBER    = 40;    // Health (%) above which the bar is amber (b
 // Reactor state transitions
 const STATE_CRITICAL_TEMP     = 8000; // Core temp (°C) above which state becomes CRITICAL
 const STATE_CRITICAL_CONTAIN  = 20;   // Containment (%) below which state becomes CRITICAL
-const AUTO_SCRAM_CONTAIN      = 5;    // Containment (%) at or below which auto-scram triggers
+const AUTO_SCRAM_CONTAIN      = 1;    // Containment (%) at or below which auto-scram triggers
 
 // EVENT SYSTEM
 // Controls how often and how urgently events fire.
 // Raise delays to make the game easier; lower timers to increase pressure.
-const EVT_FIRST_DELAY_MIN   = 120;  // Seconds after startup before the first event can trigger
+const EVT_FIRST_DELAY_MIN   = 300;  // Seconds after startup before the first event can trigger
 const EVT_FIRST_DELAY_RANGE = 240;  // Random seconds added to first delay (total: 60–300s)
 const EVT_POST_CLOSE_MIN    = 60;   // Seconds of quiet time after resolving an event
 const EVT_POST_CLOSE_RANGE  = 240;  // Random seconds added (total: 60–300s)
-const EVT_BLINK_THRESHOLD   = 10;   // Seconds remaining on event timer before it starts blinking red
-const EVT_RECENT_MEMORY     = 5;    // Number of recent event IDs kept to prevent immediate repeats
+const EVT_BLINK_THRESHOLD   = 15;   // Seconds remaining on event timer before it starts blinking red
+const EVT_RECENT_MEMORY     = 8;    // Number of recent event IDs kept to prevent immediate repeats
 
 // Per-event timers (seconds to resolve before catastrophe)
 const EVT_TIME_COOLANT_LEAK     = 40;
 const EVT_TIME_MAG_DRIFT        = 20;
 const EVT_TIME_FUEL_CONTAM      = 30;
-const EVT_TIME_TURBINE_VIB      = 25;
+const EVT_TIME_TURBINE_VIB      = 35;
 const EVT_TIME_SENSOR_FAULT     = 25;
 const EVT_TIME_PLASMA_INSTAB    = 45;
 const EVT_TIME_GRID_DRIFT       = 30;
 const EVT_TIME_RAD_SPIKE        = 50;
 const EVT_TIME_VACUUM_BREACH    = 35;
 const EVT_TIME_COOLANT_OVERHEAT = 40;
-const EVT_TIME_POWER_SURGE      = 25;
+const EVT_TIME_POWER_SURGE      = 35;
 const EVT_TIME_TRITIUM_LEAK     = 50;
 const EVT_TIME_MAG_QUENCH       = 30;
 const EVT_TIME_STEAM_HAMMER     = 35;
@@ -380,8 +380,8 @@ const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning l
 
 // MONEY SYSTEM
 const MONEY_START             = 0;       // Starting funds ($)
-const MONEY_EARN_BASE         = 2.5;     // Base $/tick earned per MW of power output (at 20Hz)
-const MONEY_EARN_SCALE_MW     = 400;     // MW threshold for maximum earning multiplier
+const MONEY_EARN_BASE         = 3;     // Base $/tick earned per MW of power output (at 20Hz)
+const MONEY_EARN_SCALE_MW     = 2000;     // MW threshold for maximum earning multiplier
 const MONEY_EARN_SCALE_MAX    = 1.5;     // Maximum earning multiplier at high MW output
 const MONEY_FORMAT_K          = 1000;    // Threshold to display as $X.XXk
 const MONEY_FORMAT_M          = 1000000; // Threshold to display as $X.XXm
@@ -390,52 +390,52 @@ const MONEY_FORMAT_B          = 1000000000; // Threshold to display as $X.XXb
 // FUEL MARKET
 const FUEL_PRICE_BASE_PER_PCT = 5000;    // Base price ($) for 1% fuel
 const FUEL_PRICE_LERP         = 0.005;   // Per-tick lerp rate toward target price multiplier
-const FUEL_PRICE_CHANGE_MIN   = 6000;    // Min ticks between price target changes (~5 min at 20Hz)
-const FUEL_PRICE_CHANGE_RANGE = 6000;    // Random ticks added (total 5–10 min between changes)
-const FUEL_PRICE_NORMAL_RANGE = 0.25;    // Normal fluctuation ±25% around base
+const FUEL_PRICE_CHANGE_MIN   = 3000;    // Min ticks between price target changes (~2.5 min at 20Hz)
+const FUEL_PRICE_CHANGE_RANGE = 6000;    // Random ticks added (total 2.5–7.5 min between changes)
+const FUEL_PRICE_NORMAL_RANGE = 0.35;    // Normal fluctuation +-35% around base
 const FUEL_PRICE_EXTREME_CHANCE = 0.08;  // 8% chance of extreme price swing per change
 const FUEL_PRICE_EXTREME_LOW  = 0.50;    // Extreme discount: price drops to 50% of base
 const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% of base
-const FUEL_SELL_RATIO         = 0.60;    // Sell price = 60% of current buy price
+const FUEL_SELL_RATIO         = 0.65;    // Sell price = 65% of current buy price
 
 // REPAIR COSTS
-const REPAIR_COST_PER_TICK    = 15;      // $/tick cost while actively repairing a module
+const REPAIR_COST_PER_TICK    = 200;      // $/tick cost while actively repairing a module
 
 // SYSTEM UPGRADES (per-module, 3 tiers each)
 // Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
 // Total all upgrades ≈ $9.6m (roughly 2 hours of max-output play).
-const UPGRADE_HEALTH_COST     = [15000, 50000, 160000];    // Base cost per tier: +max health
-const UPGRADE_HEALTH_BONUS    = [10, 15, 20];              // +max health per tier (cumulative: +10, +25, +45)
-const UPGRADE_EFFICIENCY_COST = [25000, 80000, 260000];    // Base cost per tier: error penalty floor improvement
+const UPGRADE_HEALTH_COST     = [23000, 91000, 290000];    // Base cost per tier: +max health
+const UPGRADE_HEALTH_BONUS    = [10, 15, 25];              // +max health per tier (cumulative: +10, +25, +45)
+const UPGRADE_EFFICIENCY_COST = [34000, 79000, 122000];    // Base cost per tier: error penalty floor improvement
 const UPGRADE_EFFICIENCY_BONUS= [0.05, 0.08, 0.10];       // Error penalty floor raised per tier
-const UPGRADE_DRAIN_COST      = [18000, 60000, 200000];    // Base cost per tier: reduce health drain rate
-const UPGRADE_DRAIN_MULT      = [0.85, 0.72, 0.55];       // Health drain multiplied by this (lower = better)
+const UPGRADE_DRAIN_COST      = [23000, 187000, 650000];    // Base cost per tier: reduce health drain rate
+const UPGRADE_DRAIN_MULT      = [0.90, 0.70, 0.45];       // Health drain multiplied by this (lower = better)
 
 // Per-module cost multiplier — scales all upgrade costs for that module.
 // Ranked by how directly the module contributes to reactor output.
 const UPGRADE_MODULE_COST_MULT = {
-  grid:     3.0,   // Grid Interface — power delivery, most expensive ($2.6m total)
-  backup:   2.5,   // Backup Power — emergency stability ($2.2m total)
-  fuel:     1.5,   // Fuel Processing — fuel efficiency ($1.3m total)
+  grid:     5.0,   // Grid Interface — power delivery, most expensive ($2.6m total)
+  backup:   3.0,   // Backup Power — emergency stability ($2.2m total)
+  fuel:     2.0,   // Fuel Processing — fuel efficiency ($1.3m total)
   thermal:  1.3,   // Thermal Control — heat management ($1.1m total)
-  magnetic: 1.1,   // Magnetic Containment — plasma stability ($955k total)
-  coolant:  0.9,   // Coolant System — overheat prevention ($781k total)
+  magnetic: 2.0,   // Magnetic Containment — plasma stability ($955k total)
+  coolant:  1.2,   // Coolant System — overheat prevention ($781k total)
   sensor:   0.5,   // Sensor Array — readout accuracy ($434k total)
   comms:    0.3    // Comms Relay — control access ($260k total)
 };
 
 // SPECIAL ITEMS (one-time-use, repeatable purchase)
-const ITEM_EMERGENCY_FUEL_COST   = 8000;   // Instant +3% fuel
-const ITEM_EMERGENCY_FUEL_AMOUNT = 3;
-const ITEM_QUICK_REPAIR_COST     = 50000;  // Instant +30 health to target module
-const ITEM_QUICK_REPAIR_AMOUNT   = 30;
-const ITEM_DIAGNOSTIC_SWEEP_COST = 75000;  // Reveals ALL hidden system errors
-const ITEM_OVERCLOCK_BOOST_COST  = 40000;  // 60s enhanced overclock (2x perf, normal drain)
+const ITEM_EMERGENCY_FUEL_COST   = 0;   // Instant +0% fuel (REMOVE BUTTON)
+const ITEM_EMERGENCY_FUEL_AMOUNT = 0;
+const ITEM_QUICK_REPAIR_COST     = 72000;  // Instant +30 health to target module
+const ITEM_QUICK_REPAIR_AMOUNT   = 25;
+const ITEM_DIAGNOSTIC_SWEEP_COST = 96000;  // Reveals ALL hidden system errors
+const ITEM_OVERCLOCK_BOOST_COST  = 1200000;  // 60s enhanced overclock (2x perf, normal drain)
 const ITEM_OVERCLOCK_BOOST_TICKS = 1200;   // Duration in ticks (60s at 20Hz)
-const ITEM_CONTAINMENT_PATCH_COST  = 30000; // Instant +25% containment integrity
+const ITEM_CONTAINMENT_PATCH_COST  = 40000; // Instant +25% containment integrity
 const ITEM_CONTAINMENT_PATCH_AMOUNT= 25;
-const ITEM_EVENT_EXTENDER_COST   = 100000; // Adds 15s to active event timer
-const ITEM_EVENT_EXTENDER_BONUS  = 15;     // Seconds added to event countdown
+const ITEM_EVENT_EXTENDER_COST   = 100000; // Adds 30s to active event timer
+const ITEM_EVENT_EXTENDER_BONUS  = 30;     // Seconds added to event countdown
 
 // FUEL+MONEY EXHAUSTION
 const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)
