@@ -21,19 +21,28 @@ function showHelpTooltip(x, y, lines) {
     else if (l.startsWith('R:')) { cls += ' bad';  l = l.slice(2); }
     return `<div class="${cls}">${fmtLine(l)}</div>`;
   }).join('');
+
+  // Render offscreen to measure true dimensions before positioning
+  tt.style.left = '-9999px';
+  tt.style.top  = '-9999px';
   tt.style.display = 'block';
 
-  // Position offset from cursor; flip if near viewport edge
   const margin = 14;
-  tt.style.left = (x + margin) + 'px';
-  tt.style.top  = (y + margin) + 'px';
+  const w  = tt.offsetWidth;
+  const h  = tt.offsetHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
 
-  // After paint, clamp to viewport
-  requestAnimationFrame(() => {
-    const r = tt.getBoundingClientRect();
-    if (r.right  > window.innerWidth  - 8) tt.style.left = (x - r.width  - margin) + 'px';
-    if (r.bottom > window.innerHeight - 8) tt.style.top  = (y - r.height - margin) + 'px';
-  });
+  let left = x + margin;
+  let top  = y + margin;
+  if (left + w > vw - 8) left = x - w - margin;
+  if (top  + h > vh - 8) top  = y - h - margin;
+  // Hard clamp so it never escapes the viewport
+  left = Math.max(8, Math.min(left, vw - w - 8));
+  top  = Math.max(8, Math.min(top,  vh - h - 8));
+
+  tt.style.left = left + 'px';
+  tt.style.top  = top  + 'px';
 }
 
 function hideHelpTooltip() {

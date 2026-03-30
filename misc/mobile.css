@@ -398,4 +398,10 @@
   .upgrade-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Events: hide visuals and flavor text on mobile to reduce intrusion */
+  #eventDesc,
+  #eventViz {
+    display: none !important;
+  }
 }

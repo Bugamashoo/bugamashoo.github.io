@@ -15,16 +15,16 @@ const HELP_CTRL = {
   magCoils:      ['MAG COILS',       'G:+ magnetic flux when containment power is set', 'Required for plasma confinement field generation'],
   containField:  ['CONTAINMENT FLD', 'G:+ plasma stability (moderate)', 'Active field reinforcement on top of coil flux'],
   ignPrime:      ['IGN PRIME',       'Arms the ignition sequence', 'Required before hold-ignition can start plasma'],
-  turbineEngage: ['TURBINE ENGAGE',  'Connects plasma heat to the turbine generator', 'Required for any power output'],
-  gridSync:      ['GRID SYNC',       'G:+ grid load when turbine is spinning', 'Required for electricity delivery to the grid'],
-  ventSystem:    ['VENT SYSTEM',     'G:+ power output efficiency (slight)'],
-  backupGen:     ['BACKUP GEN',      'G:+ power output (slight)'],
+  turbineEngage: ['TURBINE ENGAGE',  'Connects plasma heat to the turbine generator', 'Required for any power output or money generation'],
+  gridSync:      ['GRID SYNC',       'G:+ grid load when turbine is spinning', 'Required for electricity delivery and money generation'],
+  ventSystem:    ['VENT SYSTEM',     'G:+ power output efficiency (slight)', 'G:+ slightly increases money earned per second'],
+  backupGen:     ['BACKUP GEN',      'G:+ power output (slight)', 'G:+ slightly increases money earned per second'],
   auxCoolPump:   ['AUX COOL PUMP',   'Enables the auxiliary coolant pump', 'Required for the backup cooling loop to operate'],
   auxCoolLoop:   ['AUX COOL LOOP',   'G:- core temperature (moderate)', 'G:- aux coolant temperature', 'Requires aux pump to be on'],
   backupContA:   ['BACKUP FIELD A',  'G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen'],
   backupContB:   ['BACKUP FIELD B',  'G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen'],
   emergVent:     ['EMERG VENT',      'G:- core temperature (significant)', 'G:- core pressure (significant)'],
-  emergDump:     ['FUEL DUMP',       'R:Drains fuel reserves rapidly', 'Reduces heat generation at the cost of all fuel'],
+  emergDump:     ['FUEL DUMP',       'R:Drains fuel reserves rapidly', 'R:Losing all fuel requires costly refueling — use only as a last resort'],
   rodSafetyOff:  ['ROD SAFETY',      'When ON, retracts all rods to 0% and locks the sliders', 'Turn OFF to unlock rod insertion controls'],
 
   // Ignition panel push buttons
@@ -35,8 +35,8 @@ const HELP_CTRL = {
 
 // Descriptions: levers
 const HELP_LEVER = {
-  mainThrottle:  ['MAIN THROTTLE',   'G:+ power output (significant)', 'R:+ core temperature', 'R:+ core pressure', 'G:+ turbine RPM'],
-  fuelInject:    ['FUEL INJECTION',  'R:+ core temperature (significant)', 'R:+ core pressure (moderate)', 'G:+ plasma stability', 'G:+ power output', 'R:+ fuel consumption rate'],
+  mainThrottle:  ['MAIN THROTTLE',   'G:+ power output (significant)', 'G:+ money earned per second', 'R:+ core temperature', 'R:+ core pressure', 'G:+ turbine RPM'],
+  fuelInject:    ['FUEL INJECTION',  'R:+ core temperature (significant)', 'R:+ core pressure (moderate)', 'G:+ plasma stability', 'G:+ power output', 'G:+ money earned per second', 'R:+ fuel consumption rate — burns through reserves faster'],
   coolantFlow:   ['COOLANT FLOW',    'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- coolant temperature'],
   containPower:  ['CONTAIN POWER',   'G:+ magnetic flux', 'G:+ plasma stability', 'G:+ containment integrity regen when above threshold', 'R:- plasma stability and integrity if set too low'],
   auxCoolRate:   ['AUX COOL RATE',   'G:- core temperature (moderate)', 'G:- aux coolant temperature', 'G:+ aux coolant flow'],
@@ -49,7 +49,7 @@ const HELP_LEVER = {
 // Descriptions: knobs
 const HELP_KNOB = {
   pressureRelief: ['PRESSURE RELIEF', 'G:- core pressure (moderate)', 'No direct effect on temperature or plasma'],
-  mixRatio:       ['MIX RATIO',        'R:+ core temperature when turned up', 'R:- power output when turned down', 'Adjusts fuel-plasma mixture — higher runs hotter, lower reduces energy extraction'],
+  mixRatio:       ['MIX RATIO',        'R:+ core temperature when turned up', 'R:- power output and earnings when turned down', 'Adjusts fuel-plasma mixture — higher runs hotter, lower reduces energy extraction'],
   fieldTune:      ['FIELD TUNE',       'G:+ magnetic flux efficiency', 'G:+ plasma stability', 'Fine-tunes the confinement field geometry'],
 };
 
@@ -62,7 +62,7 @@ const HELP_GAUGE = {
   neutronDensity:   ['NEUTRON DENSITY',   'Density of neutrons produced by the reaction - indicates fusion intensity and is the primary source of radiation output.'],
   coolantTemp:      ['COOLANT TEMP',      'Temperature of the primary coolant circuit - overheating reduces cooling effectiveness and risks thermal damage to the loop.'],
   coolantFlowRate:  ['COOLANT FLOW',      'Volume of coolant moving through the primary loop per minute - insufficient flow allows core heat to build unchecked.'],
-  turbineRPM:       ['TURBINE RPM',       'Rotation speed of the turbine generator - drives all electrical power output; excessive speed risks mechanical disintegration.'],
+  turbineRPM:       ['TURBINE RPM',       'Rotation speed of the turbine generator — drives all electrical power output and money earned; excessive speed risks mechanical disintegration.'],
   containIntegrity: ['CONTAIN INTEGRITY', 'Structural health of the magnetic containment field - loss at critical levels allows plasma contact with vessel walls.'],
   magneticFlux:     ['MAGNETIC FLUX',     'Strength of the active magnetic confinement field - directly determines plasma stability and how well the plasma is held.'],
   radiationLevel:   ['RADIATION',         'Radiation escaping the reactor - elevated by high neutron flux, disabled shielding, or degraded containment integrity.'],
@@ -72,9 +72,9 @@ const HELP_GAUGE = {
   secondaryPressure:['SECONDARY PRES',    'Pressure in the secondary containment circuit - driven by core pressure levels and backup field power settings.'],
   rodPosition:      ['ROD INSERTION',     'Average insertion depth of all control rods - rods absorb neutrons to reduce core heat, neutron density, and power output.'],
   heatSinkTemp:     ['HEAT SINK TEMP',    'Temperature of the primary thermal heat sink - reflects the overall heat load being rejected from the cooling system.'],
-  fuelRemaining:    ['FUEL REMAINING',    'Current fuel reserve level - depleting fully shuts off plasma ignition and brings the reactor to a halt.'],
-  fuelConsump:      ['FUEL CONSUMPTION',  'Rate at which fuel is being consumed - rises with injection rate and reactor load.'],
-  netOutput:        ['NET OUTPUT (MW)',    'Total electrical power being generated - the primary measure of reactor performance and scoring.'],
+  fuelRemaining:    ['FUEL REMAINING',    'Current fuel reserve level — depleting fully shuts off plasma ignition and brings the reactor to a halt. Refueling costs money from the RESUPPLY tab.'],
+  fuelConsump:      ['FUEL CONSUMPTION',  'Rate at which fuel is being consumed — rises with injection rate and reactor load. Higher consumption means more money spent on refueling.'],
+  netOutput:        ['NET OUTPUT (MW)',    'Total electrical power being generated — directly determines money earned per second. Higher output earns money faster.'],
 };
 
 // Descriptions: emergency push buttons
@@ -90,13 +90,13 @@ const HELP_SCRAM = ['SCRAM', 'Emergency reactor shutdown - kills all main switch
 // Descriptions: systems tab per-module buttons
 const HELP_SYS_BTN = {
   modeNormal:    ['MODE: NORMAL',    'Standard operating mode', '+ balanced performance', '+ normal health drain rate'],
-  modeOverclock: ['MODE: OVERCLOCK', 'G:+ performance by 50%', 'R:- tripled health drain rate', 'R:- adds significant heat to the core'],
-  modeEco:       ['MODE: ECO',       'R:- performance reduced to 60%', 'G:+ very slow health drain', 'G:+ slight reduction in core heat'],
+  modeOverclock: ['MODE: OVERCLOCK', 'G:+ performance by 50%', 'R:- tripled health drain rate — significantly increases repair costs', 'R:- adds significant heat to the core'],
+  modeEco:       ['MODE: ECO',       'R:- performance reduced to 60%', 'G:+ very slow health drain — reduces repair costs', 'G:+ slight reduction in core heat'],
   modeBypass:    ['MODE: BYPASS',    'G:+ runs at 90% performance with no self-drain', 'R:- redirects all stress to backup systems instead'],
   restart:       ['RESTART',         'Takes the module fully offline to clear all system errors', 'Module is unavailable for several seconds during restart'],
   power:         ['POWER ON / OFF',  'Toggles the module offline or online without affecting health', 'Module is unavailable while transitioning'],
   diagnose:      ['DIAGNOSE',        'Runs a scan to reveal any hidden system errors', 'Takes a few seconds - only one module can be diagnosed at a time'],
-  repair:        ['REPAIR',          'Gradually restores module health over time', 'Offline modules repair significantly faster than online ones'],
+  repair:        ['REPAIR',          'Gradually restores module health over time', 'R:Costs money per second while active', 'Offline modules repair significantly faster than online ones'],
 };
 
 // Descriptions: resupply tab elements
@@ -105,7 +105,7 @@ const HELP_RESUPPLY = {
   sellFuel:      ['SELL FUEL',        'Sell remaining fuel at 60% of current buy price', 'R:Fuel sold is lost — only sell excess'],
   fuelPrice:     ['FUEL MARKET PRICE','Current cost per 1% fuel', 'Fluctuates over 5–10 minute intervals after first purchase'],
   upgHealth:     ['MAX HEALTH UPGRADE','G:+ maximum module health capacity', 'Allows module to survive longer between maintenance'],
-  upgEfficiency: ['EFFICIENCY UPGRADE','G:+ minimum efficiency when system errors occur', 'Reduces the penalty from hidden faults'],
+  upgEfficiency: ['EFFICIENCY UPGRADE','G:+ overall module performance multiplier', 'Boosts effective output regardless of system error state — T1/T2/T3 give +10%/+25%/+50% total'],
   upgDrain:      ['DURABILITY UPGRADE','G:- health drain rate during operation', 'Module lasts longer before needing repair'],
   itemFuel:      ['EMERGENCY FUEL',   'G:+ instantly adds 3% fuel to reserves', 'Use when fuel is critically low'],
   itemRepair:    ['QUICK REPAIR KIT', 'G:+ instantly restores 30 health to one module', 'Select target module after purchase'],

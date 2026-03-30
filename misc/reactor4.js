@@ -135,6 +135,107 @@ function syncKnifeSwitches() {
   });
 }
 
+function spawnSwitchSparks(el) {
+  const GRAVITY = 520;
+  // Inherit ~50% of the handle's average downward snap velocity (56px / 160ms)
+  const SNAP_VY = (KS.DOWN_Y - KS.UP_Y) / (160 / 1000) * 0.5;
+  const swRect = el.getBoundingClientRect();
+
+  const armDefs = [
+    { sel: '.ks-arm-left',  dir: -1 },
+    { sel: '.ks-arm-right', dir: +1 }
+  ];
+
+  for (const { sel, dir } of armDefs) {
+    const arm = el.querySelector(sel);
+    if (!arm) continue;
+    const armRect = arm.getBoundingClientRect();
+    const ox = armRect.left + armRect.width / 2;
+    const oy = armRect.bottom;
+
+    // --- Sparks (body-fixed, shoot in arm direction) ---
+    const count = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < count; i++) {
+      const spark = document.createElement('div');
+      spark.className = 'switch-spark';
+      const len = (5 + Math.random() * 6) * 1.5;
+      spark.style.width = len + 'px';
+      spark.style.height = '2px';
+      document.body.appendChild(spark);
+
+      let x = ox, y = oy;
+      const initVx = dir * (20 + Math.random() * 120);
+      let vy = SNAP_VY + (-5 + (Math.random() - 0.5) * 45);
+      const lifespan = 1100 + Math.random() * 700;
+      const startTime = performance.now() + Math.random() * 60;
+      let lastTime = null;
+
+      (function frame(now) {
+        if (now < startTime) { requestAnimationFrame(frame); return; }
+        const elapsed = now - startTime;
+        if (elapsed >= lifespan) { spark.remove(); return; }
+        const vx = initVx * (1 - elapsed / lifespan);
+        if (lastTime !== null) {
+          const dt = Math.min((now - lastTime) / 1000, 0.05);
+          vy += GRAVITY * dt;
+          x  += vx * dt;
+          y  += vy * dt;
+        }
+        lastTime = now;
+        const angle = Math.atan2(vy, vx) * 180 / Math.PI;
+        spark.style.left      = (x - len / 2) + 'px';
+        spark.style.top       = (y - 1) + 'px';
+        spark.style.transform = 'rotate(' + angle + 'deg)';
+        spark.style.opacity   = Math.max(0, 1 - (elapsed / lifespan) * 1.3);
+        requestAnimationFrame(frame);
+      })(performance.now());
+    }
+
+    // --- Electric arcs (appended into switch, below handle at z-index 4) ---
+    const lx = ox - swRect.left;
+    const ly = oy - swRect.top;
+    for (let a = 0; a < 2; a++) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible';
+
+      const arcLen = 18 + Math.random() * 24;
+      const baseAngle = dir === -1 ? Math.PI : 0;
+      const arcAngle = baseAngle + (Math.random() - 0.5) * (Math.PI / 2);
+      const endX = lx + Math.cos(arcAngle) * arcLen;
+      const endY = ly + Math.sin(arcAngle) * arcLen;
+      const segs = 3 + Math.floor(Math.random() * 3);
+      let d = `M ${lx.toFixed(1)} ${ly.toFixed(1)}`;
+      for (let s = 1; s < segs; s++) {
+        const t = s / segs;
+        const mx = lx + (endX - lx) * t + (Math.random() - 0.5) * 3;
+        const my = ly + (endY - ly) * t + (Math.random() - 0.5) * 5;
+        d += ` L ${mx.toFixed(1)} ${my.toFixed(1)}`;
+      }
+      d += ` L ${endX.toFixed(1)} ${endY.toFixed(1)}`;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', '#00e5ff');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-linejoin', 'round');
+      svg.appendChild(path);
+      el.appendChild(svg);
+
+      const dur = 100 + Math.random() * 160;
+      const arcStart = performance.now() + a * 40;
+      (function fade(now) {
+        if (now < arcStart) { requestAnimationFrame(fade); return; }
+        const t = (now - arcStart) / dur;
+        if (t >= 1) { svg.remove(); return; }
+        svg.style.opacity = (1 - t).toString();
+        requestAnimationFrame(fade);
+      })(performance.now());
+    }
+  }
+}
+
 function togSw(id, el) {
   if (S.modules.comms.status === 'offline' && MAIN_PANEL_SWITCH_IDS.has(id)) {
     if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
@@ -161,16 +262,22 @@ function togSw(id, el) {
   checkSeq();
 }
 
-function animateKnifeSwitch(el, isOn) {
+function animateKnifeSwitch(el, isOn, onContact) {
   const handle = el.querySelector('.ks-handle');
   const startCenterY = parseFloat(handle.style.top || 0) + KS.H_H / 2;
   const targetCenterY = isOn ? KS.DOWN_Y : KS.UP_Y;
   const t0 = performance.now();
   const DUR = 160;
+  let contactFired = false;
   function step(now) {
     const t = Math.min(1, (now - t0) / DUR);
     const e = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out quad
-    positionKnifeSwitch(el, null, startCenterY + (targetCenterY - startCenterY) * e);
+    const centerY = startCenterY + (targetCenterY - startCenterY) * e;
+    positionKnifeSwitch(el, null, centerY);
+    if (onContact && !contactFired && isOn && centerY >= KS.DOWN_Y - 10) {
+      contactFired = true;
+      onContact();
+    }
     if (t < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -200,6 +307,7 @@ function setupKnifeSwitch(el, id) {
     const wantOn = centerY >= ON_THRESHOLD ? 1 : 0;
     if (wantOn !== lastZone && wantOn !== (S[id] || 0)) {
       togSw(id, el);
+      if (S[id]) spawnSwitchSparks(el); // handle is at contact point
       lastZone = wantOn;
     }
   }
@@ -209,9 +317,12 @@ function setupKnifeSwitch(el, id) {
     dragging = false;
     document.body.style.cursor = '';
 
-    if (Math.abs(clientY - startY) < 8) togSw(id, el);
+    const isClick = Math.abs(clientY - startY) < 8;
+    if (isClick) togSw(id, el);
 
-    animateKnifeSwitch(el, !!S[id]);
+    // For a click that turned the switch ON, fire sparks when animation reaches contact point
+    const sparkCb = (isClick && S[id]) ? () => spawnSwitchSparks(el) : null;
+    animateKnifeSwitch(el, !!S[id], sparkCb);
   }
 
   el.addEventListener('mousedown',  e => { startDrag(e.clientY); e.preventDefault(); });
