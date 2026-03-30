@@ -415,20 +415,20 @@ const UPGRADE_DRAIN_MULT      = [0.90, 0.70, 0.45];       // Health drain multip
 // Ranked by how directly the module contributes to reactor output.
 const UPGRADE_MODULE_COST_MULT = {
   grid:     5.0,   // Grid Interface — power delivery, most expensive
-  backup:   3.0,   // Backup Power — emergency stability
-  fuel:     2.0,   // Fuel Processing — fuel efficiency
+  backup:   2.2,   // Backup Power — emergency stability
+  fuel:     3.7,   // Fuel Processing — fuel efficiency
   thermal:  1.3,   // Thermal Control — heat management
   magnetic: 2.0,   // Magnetic Containment — plasma stability
-  coolant:  1.2,   // Coolant System — overheat prevention
-  sensor:   0.5,   // Sensor Array — readout accuracy
-  comms:    0.3    // Comms Relay — control access
+  coolant:  1.5,   // Coolant System — overheat prevention
+  sensor:   0.3,   // Sensor Array — readout accuracy
+  comms:    0.6    // Comms Relay — control access
 };
 
 // SPECIAL ITEMS (one-time-use, repeatable purchase)
 const ITEM_EMERGENCY_FUEL_COST   = 0;   // Instant +0% fuel (REMOVE BUTTON)
 const ITEM_EMERGENCY_FUEL_AMOUNT = 0;
-const ITEM_QUICK_REPAIR_COST     = 72000;  // Instant +30 health to target module
-const ITEM_QUICK_REPAIR_AMOUNT   = 25;
+const ITEM_QUICK_REPAIR_COST     = 165000;  // Instant +30 health to target module
+const ITEM_QUICK_REPAIR_AMOUNT   = 30;
 const ITEM_DIAGNOSTIC_SWEEP_COST = 96000;  // Reveals ALL hidden system errors
 const ITEM_OVERCLOCK_BOOST_COST  = 1200000;  // 60s enhanced overclock (2x perf, normal drain)
 const ITEM_OVERCLOCK_BOOST_TICKS = 1200;   // Duration in ticks (60s at 20Hz)

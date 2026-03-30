@@ -369,7 +369,7 @@ function updateUI() {
   document.getElementById('scoreDisp').textContent   = Math.round(S.score);
 
   // Header power output + money
-  document.getElementById('hdrOutput').textContent = (S.powerOutput + S.backupGenOutput).toFixed(2);
+  document.getElementById('hdrOutput').textContent = Math.round(S.powerOutput + S.backupGenOutput);
   document.getElementById('hdrMoney').textContent = fmtMoney(S.money);
 
   // Warning indicator box
