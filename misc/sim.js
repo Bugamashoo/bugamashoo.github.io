@@ -447,7 +447,7 @@ function simulate() {
   }
 
   // Fuel + money exhaustion game over
-  if (S.fuelRemaining <= 0 && S.money < getFuelBuyPrice() * 0.01 && S.startupComplete) {
+  if (S.fuelRemaining <= 0 && S.money < 500 && S.startupComplete) {
     S.fuelMoneyDeadTicks++;
     if (S.fuelMoneyDeadTicks >= FUEL_MONEY_GAMEOVER_DELAY) {
       triggerCatastrophe('fuel_exhaustion');

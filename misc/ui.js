@@ -366,7 +366,6 @@ function updateUI() {
   document.getElementById('uptimeDisp').textContent  = fmtTime(S.uptime);
   document.getElementById('bestUptime').textContent  = fmtTime(S.bestUptime);
   document.getElementById('evtCount').textContent    = S.eventsResolved;
-  document.getElementById('evtFail').textContent     = S.eventsFailed;
   document.getElementById('scoreDisp').textContent   = Math.round(S.score);
 
   // Header power output + money
