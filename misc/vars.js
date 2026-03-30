@@ -358,7 +358,7 @@ const DIAG_BYPASS_MULT       = 0.4;   // Duration multiplied by this when module
 
 // MODULE MANAGEMENT TIMERS
 const MODULE_POWER_TRANSITION_MS = 3000;  // Milliseconds for a module to power on or off
-const MODULE_RESTART_MS          = 5000;  // Milliseconds for a module restart to complete
+const MODULE_RESTART_MS          = 6000;  // Milliseconds for a module restart to complete
 
 // EMERGENCY ACTIONS
 const EMERG_PURGE_PRES_MULT    = 0.6;   // Core pressure multiplied by this on line purge
@@ -374,7 +374,7 @@ const HARD_RESET_MIN_HEALTH   = 60;    // Module health floored to this % during
 
 // UPTIME & SCORING
 const PLASMA_OFF_RESET_SECS   = 10;   // Seconds plasma must be off before uptime resets to 0
-const SCORE_DIVISOR           = 3000; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
+const SCORE_DIVISOR           = 5000; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
 const HEALTH_ALERT_THRESHOLDS = [75, 50, 25, 10, 5]; // Health % levels that trigger log alerts
 const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning log messages
 
@@ -383,12 +383,12 @@ const MONEY_START             = 0;       // Starting funds ($)
 const MONEY_EARN_BASE         = 3;     // Base $/tick earned per MW of power output (at 20Hz)
 const MONEY_EARN_SCALE_MW     = 2000;     // MW threshold for maximum earning multiplier
 const MONEY_EARN_SCALE_MAX    = 1.5;     // Maximum earning multiplier at high MW output
-const MONEY_FORMAT_K          = 1000;    // Threshold to display as $X.XXk
-const MONEY_FORMAT_M          = 1000000; // Threshold to display as $X.XXm
-const MONEY_FORMAT_B          = 1000000000; // Threshold to display as $X.XXb
+const MONEY_FORMAT_K          = 1000;    // Threshold to display as $X.Xk
+const MONEY_FORMAT_M          = 1000000; // Threshold to display as $X.Xm
+const MONEY_FORMAT_B          = 1000000000; // Threshold to display as $X.Xb
 
 // FUEL MARKET
-const FUEL_PRICE_BASE_PER_PCT = 5000;    // Base price ($) for 1% fuel
+const FUEL_PRICE_BASE_PER_PCT = 20000;    // Base price ($) for 1% fuel
 const FUEL_PRICE_LERP         = 0.005;   // Per-tick lerp rate toward target price multiplier
 const FUEL_PRICE_CHANGE_MIN   = 3000;    // Min ticks between price target changes (~2.5 min at 20Hz)
 const FUEL_PRICE_CHANGE_RANGE = 6000;    // Random ticks added (total 2.5–7.5 min between changes)
@@ -399,7 +399,7 @@ const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% o
 const FUEL_SELL_RATIO         = 0.65;    // Sell price = 65% of current buy price
 
 // REPAIR COSTS
-const REPAIR_COST_PER_TICK    = 200;      // $/tick cost while actively repairing a module
+const REPAIR_COST_PER_TICK    = 2500;      // $/tick cost while actively repairing a module
 
 // SYSTEM UPGRADES (per-module, 3 tiers each)
 // Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
@@ -414,14 +414,14 @@ const UPGRADE_DRAIN_MULT      = [0.90, 0.70, 0.45];       // Health drain multip
 // Per-module cost multiplier — scales all upgrade costs for that module.
 // Ranked by how directly the module contributes to reactor output.
 const UPGRADE_MODULE_COST_MULT = {
-  grid:     5.0,   // Grid Interface — power delivery, most expensive ($2.6m total)
-  backup:   3.0,   // Backup Power — emergency stability ($2.2m total)
-  fuel:     2.0,   // Fuel Processing — fuel efficiency ($1.3m total)
-  thermal:  1.3,   // Thermal Control — heat management ($1.1m total)
-  magnetic: 2.0,   // Magnetic Containment — plasma stability ($955k total)
-  coolant:  1.2,   // Coolant System — overheat prevention ($781k total)
-  sensor:   0.5,   // Sensor Array — readout accuracy ($434k total)
-  comms:    0.3    // Comms Relay — control access ($260k total)
+  grid:     5.0,   // Grid Interface — power delivery, most expensive
+  backup:   3.0,   // Backup Power — emergency stability
+  fuel:     2.0,   // Fuel Processing — fuel efficiency
+  thermal:  1.3,   // Thermal Control — heat management
+  magnetic: 2.0,   // Magnetic Containment — plasma stability
+  coolant:  1.2,   // Coolant System — overheat prevention
+  sensor:   0.5,   // Sensor Array — readout accuracy
+  comms:    0.3    // Comms Relay — control access
 };
 
 // SPECIAL ITEMS (one-time-use, repeatable purchase)

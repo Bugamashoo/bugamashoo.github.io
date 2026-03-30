@@ -1,7 +1,7 @@
 // resupply.js - RESUPPLY TAB (fuel market, upgrades, items)
 // Load order: after reactor7.js, before reactor8.js
 
-// ── MONEY FORMATTING ─────────────────────────────────────────
+// MONEY FORMATTING
 function fmtMoney(v) {
   const abs = Math.abs(v);
   let num, suffix;
@@ -9,11 +9,11 @@ function fmtMoney(v) {
   else if (abs >= MONEY_FORMAT_M) { num = v / MONEY_FORMAT_M; suffix = 'm'; }
   else if (abs >= MONEY_FORMAT_K) { num = v / MONEY_FORMAT_K; suffix = 'k'; }
   else return '$' + v.toFixed(0);
-  const s = num.toFixed(2);
+  const s = num.toFixed(1);
   return '$' + (s.endsWith('.00') ? num.toFixed(0) : s) + suffix;
 }
 
-// ── FUEL PRICE HELPERS ───────────────────────────────────────
+// FUEL PRICE HELPERS
 function getFuelBuyPrice() {
   return FUEL_PRICE_BASE_PER_PCT * S.fuelPriceMult;
 }
@@ -21,11 +21,11 @@ function getFuelSellPrice() {
   return getFuelBuyPrice() * FUEL_SELL_RATIO;
 }
 function getFuelPricePerKg() {
-  // Display price: $/kg label (1% fuel ≈ 100 kg for display purposes)
+  // Display price: $/kg label (1% fuel = ~100 kg for display purposes)
   return getFuelBuyPrice() / 100;
 }
 
-// ── FUEL PRICE NOISE (called each tick from sim.js) ──────────
+// FUEL PRICE NOISE (called each tick from sim.js)
 function updateFuelPrice() {
   if (!S.fuelFirstPurchase) return;
   // Lerp current multiplier toward target
@@ -38,14 +38,14 @@ function updateFuelPrice() {
         ? FUEL_PRICE_EXTREME_LOW + Math.random() * 0.3  // 0.50–0.80
         : FUEL_PRICE_EXTREME_HIGH - Math.random() * 0.5; // 1.50–2.00
     } else {
-      // Normal fluctuation: ±25%
+      // Normal fluctuation: +-35%
       S.fuelPriceTarget = 1 + (Math.random() * 2 - 1) * FUEL_PRICE_NORMAL_RANGE;
     }
     S.fuelPriceNextChange = tick + FUEL_PRICE_CHANGE_MIN + Math.random() * FUEL_PRICE_CHANGE_RANGE;
   }
 }
 
-// ── PURCHASE FUNCTIONS ───────────────────────────────────────
+// PURCHASE FUNCTIONS
 function spendMoney(amount) {
   if (S.money < amount) return false;
   S.money -= amount;
@@ -113,7 +113,7 @@ window.toggleFuelMode = function() {
 
 function getMaxFuel() { return 100; } // fuel capacity is always 100%
 
-// ── UPGRADE FUNCTIONS ────────────────────────────────────────
+// UPGRADE FUNCTIONS
 function getUpgradeMaxHealth(key) {
   const tier = moduleUpgrades[key]?.health || 0;
   let bonus = 0;
@@ -158,7 +158,7 @@ window.buyUpgrade = function(key, type) {
   buildSys();
 };
 
-// ── SPECIAL ITEMS ────────────────────────────────────────────
+// SPECIAL ITEMS
 let quickRepairPending = false; // waiting for module selection
 
 window.buyEmergencyFuel = function() {
@@ -219,7 +219,7 @@ window.buyEventExtender = function() {
   buildResupply();
 };
 
-// ── FUEL ACTION DISPATCHERS (route through buy/sell mode) ──
+// FUEL ACTION DISPATCHERS (route through buy/sell mode)
 window.buyFuelFull = function() {
   const space = getMaxFuel() - S.fuelRemaining;
   if (space > 0) buyFuel(space);
@@ -238,7 +238,7 @@ window.fuelActionFull = function() {
   else sellFuelAll();
 };
 
-// ── BUILD RESUPPLY TAB (full DOM rebuild — structural changes only) ───
+// BUILD RESUPPLY TAB (full DOM rebuild - structural changes only)
 let resupplyBuilt = false;
 let resupplyQRP = false; // tracks quickRepairPending state at last build
 
@@ -250,7 +250,7 @@ function buildResupply() {
 
   let html = '';
 
-  // ── FUEL MARKET PANEL ──
+  // FUEL MARKET PANEL
   html += `<div class="resupply-panel">
     <div class="resupply-panel-title">FUEL MARKET</div>
     <div class="fuel-price-display">
@@ -278,7 +278,7 @@ function buildResupply() {
     </div>
   </div>`;
 
-  // ── SYSTEM UPGRADES PANEL ──
+  // SYSTEM UPGRADES PANEL
   html += `<div class="resupply-panel">
     <div class="resupply-panel-title">SYSTEM UPGRADES</div>
     <div class="upgrade-grid">`;
@@ -297,12 +297,12 @@ function buildResupply() {
 
   html += `</div></div>`;
 
-  // ── SPECIAL ITEMS PANEL ──
+  // SPECIAL ITEMS PANEL
   html += `<div class="resupply-panel">
     <div class="resupply-panel-title">SPECIAL ITEMS</div>
     <div class="items-grid">`;
 
-  html += buildItemBtn('rsItemFuel', 'EMERGENCY FUEL', '+' + ITEM_EMERGENCY_FUEL_AMOUNT + '% fuel', ITEM_EMERGENCY_FUEL_COST, 'buyEmergencyFuel()');
+  html += buildItemBtn('rsItemFuel', 'FUEL (Placeholder)', '+' + ITEM_EMERGENCY_FUEL_AMOUNT + '% fuel', ITEM_EMERGENCY_FUEL_COST, 'buyEmergencyFuel()');
   html += buildItemBtn('rsItemRepair', 'QUICK REPAIR', '+' + ITEM_QUICK_REPAIR_AMOUNT + ' HP to module', ITEM_QUICK_REPAIR_COST, 'buyQuickRepair()', quickRepairPending);
   html += buildItemBtn('rsItemDiag', 'DIAG SWEEP', 'Reveal all errors', ITEM_DIAGNOSTIC_SWEEP_COST, 'buyDiagSweep()');
   html += buildItemBtn('rsItemOC', 'OVERCLOCK BOOST', '60s 2x perf', ITEM_OVERCLOCK_BOOST_COST, 'buyOverclockBoost()', overclockBoostEnd > tick);
@@ -329,7 +329,7 @@ function buildResupply() {
   updateResupplyValues();
 }
 
-// ── UPDATE RESUPPLY VALUES (DOM patches only — no rebuild) ───────────
+// UPDATE RESUPPLY VALUES (DOM patches only - no rebuild)
 function updateResupplyValues() {
   if (!resupplyBuilt) return;
   // If structure changed (quick repair picker toggled), do a full rebuild
