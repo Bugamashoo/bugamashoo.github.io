@@ -8,95 +8,95 @@
 // First element = title (amber). Rest = effect lines (cyan, -> prefix).
 // Prefix G: = desirable effect (green). R: = undesirable (red). No prefix = neutral (cyan).
 const HELP_CTRL = {
-  auxPower:      ['AUX POWER',       'Enables auxiliary power to all reactor systems', 'Required before any other systems can be activated'],
-  radShield:     ['RAD SHIELDING',   'G:- radiation level (significant)', 'Prevents ambient neutron leakage through the hull'],
-  fuelPumps:     ['FUEL PUMPS',      'Pressurizes fuel delivery lines to the injector', 'Required for any fuel flow to the core'],
-  coolantPumps:  ['COOLANT PUMPS',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- coolant temperature'],
-  magCoils:      ['MAG COILS',       'G:+ magnetic flux when containment power is set', 'Required for plasma confinement field generation'],
-  containField:  ['CONTAINMENT FLD', 'G:+ plasma stability (moderate)', 'Active field reinforcement on top of coil flux'],
-  ignPrime:      ['IGN PRIME',       'Arms the ignition sequence', 'Required before hold-ignition can start plasma'],
-  turbineEngage: ['TURBINE ENGAGE',  'Connects plasma heat to the turbine generator', 'Required for any power output or money generation'],
-  gridSync:      ['GRID SYNC',       'G:+ grid load when turbine is spinning', 'Required for electricity delivery and money generation'],
-  ventSystem:    ['VENT SYSTEM',     'G:+ power output efficiency (slight)', 'G:+ slightly increases money earned per second'],
-  backupGen:     ['BACKUP GEN',      'G:+ power output (slight)', 'G:+ slightly increases money earned per second'],
-  auxCoolPump:   ['AUX COOL PUMP',   'Enables the auxiliary coolant pump', 'Required for the backup cooling loop to operate'],
-  auxCoolLoop:   ['AUX COOL LOOP',   'G:- core temperature (moderate)', 'G:- aux coolant temperature', 'Requires aux pump to be on'],
-  backupContA:   ['BACKUP FIELD A',  'G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen'],
-  backupContB:   ['BACKUP FIELD B',  'G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen'],
-  emergVent:     ['EMERG VENT',      'G:- core temperature (significant)', 'G:- core pressure (significant)'],
-  emergDump:     ['FUEL DUMP',       'R:Drains fuel reserves rapidly', 'R:Losing all fuel requires costly refueling — use only as a last resort'],
-  rodSafetyOff:  ['ROD SAFETY',      'When ON, retracts all rods to 0% and locks the sliders', 'Turn OFF to unlock rod insertion controls'],
+  auxPower:         ['AUX POWER',           'Enables power to all reactor control systems', 'Required to power controls and gauges'],
+  radShield:        ['RAD SHIELDING',       'G:- Radiation', 'Blocks most radiation leakage through the hull'],
+  fuelPumps:        ['FUEL PUMPS',          'Controls power to fuel pumping systems', 'Required for any fuel flow to the core'],
+  coolantPumps:     ['COOLANT PUMPS',       'Controls power to coolant pumping systems', 'Required for any coolant flow to the core'],
+  magCoils:         ['MAG COILS',           'G:+ Magnetic flux', 'Required for plasma confinement field generation'],
+  containField:     ['CONTAINMENT FLD',     'G:+ Plasma stability', 'G:+ Power output'],
+  ignPrime:         ['IGN PRIME',           'Arms the ignition', 'Required before hold-ignition can start reactor'],
+  turbineEngage:    ['TURBINE ENGAGE',      'Connects heat to the turbine for power', 'Required for any power output or money generation'],
+  gridSync:         ['GRID SYNC',           'Connects reactor to power grid', 'Required for electricity delivery and money generation'],
+  ventSystem:       ['VENT SYSTEM',         'G:+ Power output'],
+  backupGen:        ['BACKUP GEN',          'G:+ Power output', 'R:- Fuel', 'R:- Backup system health'],
+  auxCoolPump:      ['AUX COOL PUMP',       'G:- Core temp (when aux loop is enabled)', 'R:- Backup system health (when aux loop is enabled)', 'Required for the backup cooling system to operate'],
+  auxCoolLoop:      ['AUX COOL LOOP',       'G:- Core temp (when aux pump is enabled)', 'R:- Backup system health (when aux pump is enabled)', 'Required for the backup cooling system to operate'],
+  backupContA:      ['BACKUP FIELD A',      'G:+ Power output', 'G:+ Containment', 'G:+ Plasma stability', 'R:- Backup system health'],
+  backupContB:      ['BACKUP FIELD B',      'G:+ Power output', 'G:+ Containment', 'G:+ Plasma stability', 'R:- Backup system health'],
+  emergVent:        ['EMERG VENT',          'G:- Core temp', 'G:- Core pressure', 'R:- Backup system health'],
+  emergDump:        ['FUEL DUMP',           'R:- Fuel (significant)', 'Required to resolve some events'],
+  rodSafetyOff:     ['ROD SAFETY',          'Retracts all rods to 0% and locks the sliders', 'OFF unlocks control rod insertion controls'],
 
   // Ignition panel push buttons
-  ignBtn:  ['IGNITE',    'Hold continuously for 3 seconds to fire plasma ignition', 'Requires IGN PRIME and AUX POWER to be active'],
-  testBtn: ['LAMP TEST', 'Flashes all warning indicators amber for one second', 'Confirms every warning light in the system is functional'],
-  purgeBtn:['LINE PURGE','G:- core pressure (significant)', 'Vents the fuel delivery lines to relieve pressure buildup'],
+  ignBtn:           ['IGNITE',              'Hold continuously for 3 seconds to fire plasma ignition', 'Requires IGN PRIME and AUX POWER to be active', 'Ensure sufficient fuel flow to start'],
+  testBtn:          ['LAMP TEST',           'Flashes all warning indicators orange, then red, for one second each', 'Confirms every warning light in the system is functional'],
+  purgeBtn:         ['LINE PURGE',          'G:- Core pressure', 'Vents the fuel delivery lines to relieve pressure buildup', 'Temporarily drops core pressure'],
 };
 
 // Descriptions: levers
 const HELP_LEVER = {
-  mainThrottle:  ['MAIN THROTTLE',   'G:+ power output (significant)', 'G:+ money earned per second', 'R:+ core temperature', 'R:+ core pressure', 'G:+ turbine RPM'],
-  fuelInject:    ['FUEL INJECTION',  'R:+ core temperature (significant)', 'R:+ core pressure (moderate)', 'G:+ plasma stability', 'G:+ power output', 'G:+ money earned per second', 'R:+ fuel consumption rate — burns through reserves faster'],
-  coolantFlow:   ['COOLANT FLOW',    'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- coolant temperature'],
-  containPower:  ['CONTAIN POWER',   'G:+ magnetic flux', 'G:+ plasma stability', 'G:+ containment integrity regen when above threshold', 'R:- plasma stability and integrity if set too low'],
-  auxCoolRate:   ['AUX COOL RATE',   'G:- core temperature (moderate)', 'G:- aux coolant temperature', 'G:+ aux coolant flow'],
-  backupContPow: ['BACKUP FIELD PWR','G:+ backup field strength', 'G:+ plasma stability', 'G:+ containment integrity regen', 'G:+ secondary pressure'],
-  rodA:          ['CONTROL ROD A',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
-  rodB:          ['CONTROL ROD B',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
-  rodC:          ['CONTROL ROD C',   'G:- core temperature (significant)', 'G:- core pressure (moderate)', 'G:- neutron density', 'R:- plasma stability', 'R:- power output'],
+  mainThrottle:     ['MAIN THROTTLE',       'G:+ Power output', 'R:+ Core temp', 'R:+ Core pressure'],
+  fuelInject:       ['FUEL INJECTION',      'G:+ Power output', 'G:+ Plasma stability', 'R:- Fuel', 'R:+ Core temp', 'R:+ Radiation'],
+  coolantFlow:      ['COOLANT FLOW',        'G:- Core temp', 'G:- Core pressure', 'G:- Coolant temp'],
+  containPower:     ['CONTAIN POWER',       'G:+ Containment', 'G:+ Plasma stability', 'G:+ Magnetic flux'],
+  auxCoolRate:      ['AUX COOL RATE',       'G:- Core temp', 'G:- Aux coolant temp', 'G:+ Aux coolant flow', 'R:- Backup system health', 'Requires aux loop and aux pump to be enabled'],
+  backupContPow:    ['BACKUP FIELD PWR',    'G:+ Power output', 'G:+ Containment', 'G:+ Plasma stability', 'R:- Backup system health', 'Requires aux field A or B to be enabled'],
+  rodA:             ['CONTROL ROD A',       'G:- Core temp', 'G:- Core pressure', 'R:- Power output', 'R:- Plasma stability'],
+  rodB:             ['CONTROL ROD B',       'G:- Core temp', 'G:- Core pressure', 'R:- Power output', 'R:- Plasma stability'],
+  rodC:             ['CONTROL ROD C',       'G:- Core temp', 'G:- Core pressure', 'R:- Power output', 'R:- Plasma stability'],
 };
 
 // Descriptions: knobs
 const HELP_KNOB = {
-  pressureRelief: ['PRESSURE RELIEF', 'G:- core pressure (moderate)', 'No direct effect on temperature or plasma'],
-  mixRatio:       ['MIX RATIO',        'R:+ core temperature when turned up', 'R:- power output and earnings when turned down', 'Adjusts fuel-plasma mixture — higher runs hotter, lower reduces energy extraction'],
-  fieldTune:      ['FIELD TUNE',       'G:+ magnetic flux efficiency', 'G:+ plasma stability', 'Fine-tunes the confinement field geometry'],
+  pressureRelief:   ['PRESSURE RELIEF',     'G:- Core pressure'],
+  mixRatio:         ['MIX RATIO',           'G:+ Power output', 'R:+ Core temp', 'Adjusts fuel-plasma mixture'],
+  fieldTune:        ['FIELD TUNE',          'G:+ Power output', 'G:+ Plasma stability', 'R:+ Radiation'],
 };
 
 // Descriptions: gauges / readouts
 // Format: ['GAUGE NAME', 'One sentence description.']
 const HELP_GAUGE = {
-  coreTemp:         ['CORE TEMP',         'Temperature of the reaction plasma - high values degrade containment integrity and destabilize plasma confinement.'],
-  corePressure:     ['CORE PRESSURE',     'Internal pressure of the reaction chamber - excess pressure risks vessel breach and disrupts plasma stability.'],
-  plasmaStability:  ['PLASMA STABILITY',  'How well the plasma is confined - low stability leads to loss of ignition, containment failure, or reactor damage.'],
-  neutronDensity:   ['NEUTRON DENSITY',   'Density of neutrons produced by the reaction - indicates fusion intensity and is the primary source of radiation output.'],
-  coolantTemp:      ['COOLANT TEMP',      'Temperature of the primary coolant circuit - overheating reduces cooling effectiveness and risks thermal damage to the loop.'],
-  coolantFlowRate:  ['COOLANT FLOW',      'Volume of coolant moving through the primary loop per minute - insufficient flow allows core heat to build unchecked.'],
-  turbineRPM:       ['TURBINE RPM',       'Rotation speed of the turbine generator — drives all electrical power output and money earned; excessive speed risks mechanical disintegration.'],
-  containIntegrity: ['CONTAIN INTEGRITY', 'Structural health of the magnetic containment field - loss at critical levels allows plasma contact with vessel walls.'],
-  magneticFlux:     ['MAGNETIC FLUX',     'Strength of the active magnetic confinement field - directly determines plasma stability and how well the plasma is held.'],
-  radiationLevel:   ['RADIATION',         'Radiation escaping the reactor - elevated by high neutron flux, disabled shielding, or degraded containment integrity.'],
-  auxCoolTemp:      ['AUX COOL TEMP',     'Temperature of the backup cooling circuit - indicates the heat load being handled by secondary cooling systems.'],
-  auxCoolFlow:      ['AUX COOL FLOW',     'Flow rate through the auxiliary cooling loop - provides supplemental heat removal when primary cooling is under stress.'],
-  backupFieldStr:   ['BACKUP FIELD STR',  'Strength of the backup magnetic containment field - supplements the main field and contributes to containment integrity recovery.'],
-  secondaryPressure:['SECONDARY PRES',    'Pressure in the secondary containment circuit - driven by core pressure levels and backup field power settings.'],
-  rodPosition:      ['ROD INSERTION',     'Average insertion depth of all control rods - rods absorb neutrons to reduce core heat, neutron density, and power output.'],
-  heatSinkTemp:     ['HEAT SINK TEMP',    'Temperature of the primary thermal heat sink - reflects the overall heat load being rejected from the cooling system.'],
-  fuelRemaining:    ['FUEL REMAINING',    'Current fuel reserve level — depleting fully shuts off plasma ignition and brings the reactor to a halt. Refueling costs money from the RESUPPLY tab.'],
-  fuelConsump:      ['FUEL CONSUMPTION',  'Rate at which fuel is being consumed — rises with injection rate and reactor load. Higher consumption means more money spent on refueling.'],
-  netOutput:        ['NET OUTPUT (MW)',    'Total electrical power being generated — directly determines money earned per second. Higher output earns money faster.'],
+  coreTemp:         ['CORE TEMP',           'Temperature of the reaction plasma - high values degrade containment integrity and destabilize plasma confinement.'],
+  corePressure:     ['CORE PRESSURE',       'Internal pressure of the reaction chamber - excess pressure risks vessel breach and disrupts plasma stability.'],
+  plasmaStability:  ['PLASMA STABILITY',    'How well the plasma is confined - low stability leads to loss of ignition, containment failure, or reactor damage.'],
+  neutronDensity:   ['NEUTRON DENSITY',     'Density of neutrons produced by the reaction - indicates fusion intensity and is the primary source of radiation output.'],
+  coolantTemp:      ['COOLANT TEMP',        'Temperature of the primary coolant loop - overheating reduces cooling effectiveness and risks thermal damage.'],
+  coolantFlowRate:  ['COOLANT FLOW',        'Volume of coolant moving through the primary loop per minute - insufficient flow allows core heat to build unchecked.'],
+  turbineRPM:       ['TURBINE RPM',         'Rotation speed of the turbine generator - drives all electrical power output and money generation; excessive speed risks major system damage.'],
+  containIntegrity: ['CONTAIN INTEGRITY',   'Structural health of the magnetic containment field - loss at critical levels allows plasma contact with vessel walls.'],
+  magneticFlux:     ['MAGNETIC FLUX',       'Strength of the active magnetic containment field - directly determines plasma stability and how well the plasma is held.'],
+  radiationLevel:   ['RADIATION',           'Radiation escaping the reactor - elevated by high neutron flux, disabled shielding, or degraded containment integrity.'],
+  auxCoolTemp:      ['AUX COOL TEMP',       'Temperature of the backup cooling circuit - indicates the heat load being handled by secondary cooling systems.'],
+  auxCoolFlow:      ['AUX COOL FLOW',       'Flow rate through the auxiliary cooling loop - provides supplemental heat removal when primary cooling is under stress.'],
+  backupFieldStr:   ['BACKUP FIELD STR',    'Strength of the backup magnetic containment field - supplements the main field and contributes to containment integrity recovery.'],
+  secondaryPressure:['SECONDARY PRES',      'Pressure in the secondary containment circuit - driven by core pressure levels and backup field power settings.'],
+  rodPosition:      ['ROD INSERTION',       'Average insertion depth of all control rods - control rods slow the chemical reaction, reducing core heat, neutron density, and power output.'],
+  heatSinkTemp:     ['HEAT SINK TEMP',      'Temperature of the primary thermal heat sink - reflects the overall heat load being rejected from the cooling system.'],
+  fuelRemaining:    ['FUEL REMAINING',      'Current fuel reserve level - depleting fully shuts off plasma ignition and brings the reactor to a halt. Refueling costs money from the RESUPPLY tab.'],
+  fuelConsump:      ['FUEL CONSUMPTION',    'Rate at which fuel is being consumed - rises with injection rate. Higher consumption means more money spent on refueling.'],
+  netOutput:        ['NET OUTPUT (MW)',     'Total electrical power being generated - directly determines money earned per second. Higher output earns money faster.'],
 };
 
 // Descriptions: emergency push buttons
 const HELP_BIGBTN = {
-  'PLASMA DUMP': ['PLASMA DUMP',  'G:- core temperature (significant)', 'Immediately terminates plasma ignition'],
-  'COOL FLOOD':  ['COOL FLOOD',   'Maximizes all primary and backup coolant systems instantly', 'G:- core temperature (significant)'],
-  'HARD RESET':  ['HARD RESET',   'Shuts everything down and takes all modules offline, then restores all module health to a minimum of 60% and clears system errors', 'Zeros all controls and resets lever positions — use as a last resort to recover heavily damaged systems'],
+  'PLASMA DUMP':    ['PLASMA DUMP',         'Immediately kills the reaction, extinguishing the core and shutting down the reactor'],
+  'COOL FLOOD':     ['COOL FLOOD',          'Maximizes all primary and auxiliary coolant systems immediately; useful in scenarios where core heat is critical'],
+  'HARD RESET':     ['HARD RESET',          'Shuts everything down and takes all modules offline, restoring broken systems to a minimum of 60% health, clearing all system errors in the process', 'Zeros all controls and resets lever positions', 'Use as a last resort to recover heavily damaged systems without spending money on repairs'],
 };
 
 // Descriptions: SCRAM button
-const HELP_SCRAM = ['SCRAM', 'Emergency reactor shutdown - kills all main switches, zeros all controls, and locks out the main panel for several seconds.'];
+const HELP_SCRAM =  ['SCRAM',               'Immediate reactor shutdown', 'Kills all main switches and zeros all controls', 'Technically for emergencies only, but useful as a way to easily turn off the reactor if a break from the action is needed'];
 
 // Descriptions: systems tab per-module buttons
 const HELP_SYS_BTN = {
-  modeNormal:    ['MODE: NORMAL',    'Standard operating mode', '+ balanced performance', '+ normal health drain rate'],
-  modeOverclock: ['MODE: OVERCLOCK', 'G:+ performance by 50%', 'R:- tripled health drain rate — significantly increases repair costs', 'R:- adds significant heat to the core'],
-  modeEco:       ['MODE: ECO',       'R:- performance reduced to 60%', 'G:+ very slow health drain — reduces repair costs', 'G:+ slight reduction in core heat'],
-  modeBypass:    ['MODE: BYPASS',    'G:+ runs at 90% performance with no self-drain', 'R:- redirects all stress to backup systems instead'],
-  restart:       ['RESTART',         'Takes the module fully offline to clear all system errors', 'Module is unavailable for several seconds during restart'],
-  power:         ['POWER ON / OFF',  'Toggles the module offline or online without affecting health', 'Module is unavailable while transitioning'],
-  diagnose:      ['DIAGNOSE',        'Runs a scan to reveal any hidden system errors', 'Takes a few seconds - only one module can be diagnosed at a time'],
-  repair:        ['REPAIR',          'Gradually restores module health over time', 'R:Costs money per second while active', 'Offline modules repair significantly faster than online ones'],
+  modeNormal:       ['MODE: NORMAL',        'Standard operating mode'],
+  modeOverclock:    ['MODE: OVERCLOCK',     'G:+ 50% efficiency', 'R:+ 200% damage rate', 'R:+ Core temp'],
+  modeEco:          ['MODE: ECO',           'G:- 40% damage rate', 'G:- Core temp', 'R:- 40% efficiency'],
+  modeBypass:       ['MODE: BYPASS',        'G:- 100% damage rate', 'G:+ 200% repair speed', 'R:+ 300% backup system damage rate', 'BYPASS only works when backup systems are functional'],
+  restart:          ['RESTART',             'Disables a module for a few seconds, fixing all errors in the process'],
+  power:            ['POWER ON / OFF',      'Toggles the module offline or online', 'Offline modules disable their respective systems while off'],
+  diagnose:         ['DIAGNOSE',            'Scans to reveal system errors', 'Only one module can be diagnosed at a time'],
+  repair:           ['REPAIR',              'G:+ Module health', 'R:- Money', 'Offline and bypassed modules repair significantly faster than online ones'],
 };
 
 // Descriptions: resupply tab elements

@@ -62,11 +62,11 @@ const SEQUENCE = [
   { label:'FUEL PUMPS',     check:()=>S.fuelPumps                          },
   { label:'COOLANT PUMPS',  check:()=>S.coolantPumps                       },
   { label:'MAG COILS',      check:()=>S.magCoils                           },
-  { label:'CONTAIN >60%',   check:()=>S.containPower>=SEQ_CONTAIN_MIN       },
-  { label:'FUEL INJ >10%',  check:()=>S.fuelInject>=SEQ_FUEL_INJ_MIN        },
+  { label:'CONTAIN >60%',   check:()=>S.containPower>=SEQ_CONTAIN_MIN      },
+  { label:'FUEL INJ >10%',  check:()=>S.fuelInject>=SEQ_FUEL_INJ_MIN       },
   { label:'IGN PRIME',      check:()=>S.ignPrime                           },
   { label:'HOLD IGN 3s',    check:()=>S.igniting                           },
-  { label:'THROTTLE >20%',  check:()=>S.mainThrottle>=SEQ_THROTTLE_MIN      },
+  { label:'THROTTLE >20%',  check:()=>S.mainThrottle>=SEQ_THROTTLE_MIN     },
   { label:'TURBINE',        check:()=>S.turbineEngage                      },
   { label:'GRID SYNC',      check:()=>S.gridSync                           }
 ];

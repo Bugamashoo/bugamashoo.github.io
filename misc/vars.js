@@ -47,6 +47,7 @@ const FUEL_CONSUME_RATE    = 0.005;  // Fuel drained per 1% injection per dt (ba
 const FUEL_CONSUME_DISPLAY = 0.3;    // Scale factor for the fuelConsump readout (visual only)
 const FUEL_CONSUME_DECAY   = 0.9;    // Per-tick decay of fuelConsump when not igniting (fraction)
 const FUEL_DUMP_DRAIN      = 0.5;    // Fuel drained per second when emergency dump is active (%)
+const BACKUP_GEN_FUEL_DRAIN = 0.0001; // Fuel % drained per tick when backup generator is on (~medium reactor consumption)
 const FUEL_PUMP_GRACE_MS   = 10000;   // Milliseconds fuel continues flowing after pumps go offline
 const PLASMA_EXTINGUISH_EF         = 1;  // Plasma extinguishes if effective fuel drops below this
 const PLASMA_EXTINGUISH_STABILITY  = 5;  // ...and plasma stability drops below this (%)

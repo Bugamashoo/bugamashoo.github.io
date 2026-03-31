@@ -49,6 +49,11 @@ function simulate() {
     S.fuelConsump  *= FUEL_CONSUME_DECAY;
   }
   if (S.emergDump) { S.fuelRemaining = Math.max(0, S.fuelRemaining - FUEL_DUMP_DRAIN * dt); S.fuelConsump += 6; }
+  // Backup generator fuel drain (medium reactor consumption rate)
+  if (S.backupGen && S.fuelRemaining > 0) {
+    S.fuelRemaining = Math.max(0, S.fuelRemaining - BACKUP_GEN_FUEL_DRAIN);
+    S.fuelConsump += FUEL_CONSUME_DISPLAY * 0.4; // Display contribution (~40% injection equivalent)
+  }
 
   const eF = S.fuelInject * fM * aM * fP * (S.fuelRemaining > 0 ? 1 : 0);
 
@@ -206,8 +211,8 @@ function simulate() {
     tW *= gP; // Grid interface module - degraded/offline grid cuts power delivery
   }
   S.powerOutput += (Math.max(0, tW) - S.powerOutput) * POWER_LERP;
-  // Backup generator: always 2 MW, independent of reactor state - excluded from score/uptime
-  S.backupGenOutput += ((S.backupGen ? POWER_BACKUP_GEN_BONUS : 0) - S.backupGenOutput) * POWER_LERP;
+  // Backup generator: ~2 MW independent of reactor state - earns money but excluded from score/uptime/peakPower
+  S.backupGenOutput += (((S.backupGen && S.fuelRemaining > 0) ? POWER_BACKUP_GEN_BONUS : 0) - S.backupGenOutput) * POWER_LERP;
   if (S.powerOutput > S.peakPower) S.peakPower = S.powerOutput;
 
   S.heatSinkTemp = HEATSINK_IDLE + S.coreTemp * HEATSINK_CORE_SCALE - cE_flat * HEATSINK_COOL_SCALE;
@@ -411,9 +416,13 @@ function simulate() {
     }
   }
   // Money earning (scales linearly with power, plus scaling multiplier up to 1.5x at high MW)
-  if (S.reactorState === 'ONLINE' && S.powerOutput > 0) {
+  // Backup generator earns money independently (no scaling bonus, just base rate)
+  const totalEarnPower = S.powerOutput + S.backupGenOutput;
+  if (totalEarnPower > 0 && (S.reactorState === 'ONLINE' || S.backupGenOutput > 0)) {
     const scaleMult = 1 + (Math.min(S.powerOutput, MONEY_EARN_SCALE_MW) / MONEY_EARN_SCALE_MW) * (MONEY_EARN_SCALE_MAX - 1);
-    const earn = S.powerOutput * MONEY_EARN_BASE * scaleMult * dt;
+    const mainEarn = S.reactorState === 'ONLINE' && S.powerOutput > 0 ? S.powerOutput * MONEY_EARN_BASE * scaleMult * dt : 0;
+    const backupEarn = S.backupGenOutput > 0 ? S.backupGenOutput * MONEY_EARN_BASE * dt : 0;
+    const earn = mainEarn + backupEarn;
     S.money += earn;
     S.totalEarned += earn;
   }
