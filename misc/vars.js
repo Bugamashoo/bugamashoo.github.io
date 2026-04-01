@@ -397,7 +397,7 @@ const FUEL_PRICE_NORMAL_RANGE = 0.35;    // Normal fluctuation +-35% around base
 const FUEL_PRICE_EXTREME_CHANCE = 0.08;  // 8% chance of extreme price swing per change
 const FUEL_PRICE_EXTREME_LOW  = 0.50;    // Extreme discount: price drops to 50% of base
 const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% of base
-const FUEL_SELL_RATIO         = 0.65;    // Sell price = 65% of current buy price
+const FUEL_SELL_RATIO         = 0.75;    // Sell price = 75% of current buy price
 
 // REPAIR COSTS
 const REPAIR_COST_PER_TICK    = 2000;      // $/tick cost while actively repairing a module

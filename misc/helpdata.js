@@ -101,29 +101,29 @@ const HELP_SYS_BTN = {
 
 // Descriptions: resupply tab elements
 const HELP_RESUPPLY = {
-  buyFuel:       ['BUY FUEL',         'Purchase fuel at the current market price', 'Price fluctuates ±25% normally, with rare extreme swings'],
-  sellFuel:      ['SELL FUEL',        'Sell remaining fuel at 60% of current buy price', 'R:Fuel sold is lost — only sell excess'],
-  fuelPrice:     ['FUEL MARKET PRICE','Current cost per 1% fuel', 'Fluctuates over 5–10 minute intervals after first purchase'],
-  upgHealth:     ['MAX HEALTH UPGRADE','G:+ maximum module health capacity', 'Allows module to survive longer between maintenance'],
-  upgEfficiency: ['EFFICIENCY UPGRADE','G:+ overall module performance multiplier', 'Boosts effective output regardless of system error state — T1/T2/T3 give +10%/+25%/+50% total'],
-  upgDrain:      ['DURABILITY UPGRADE','G:- health drain rate during operation', 'Module lasts longer before needing repair'],
-  itemFuel:      ['EMERGENCY FUEL',   'G:+ instantly adds 3% fuel to reserves', 'Use when fuel is critically low'],
-  itemRepair:    ['QUICK REPAIR KIT', 'G:+ instantly restores 30 health to one module', 'Select target module after purchase'],
-  itemDiag:      ['DIAGNOSTIC SWEEP', 'Reveals all hidden system errors simultaneously', 'Saves time vs diagnosing each module individually'],
-  itemOC:        ['OVERCLOCK BOOST',  'G:+ doubles overclock performance for 60 seconds', 'Normal health drain rate during boost period'],
-  itemContain:   ['CONTAINMENT PATCH','G:+ instantly restores 25% containment integrity', 'Use during containment emergencies'],
-  itemEvent:     ['EVENT EXTENDER',   'G:+ adds 15 seconds to current event countdown', 'Only available while an event is active'],
+  buyFuel:       ['BUY FUEL',               'G:+ Fuel', 'Purchase fuel at the current market price', 'Price fluctuates between +/-50% normally, with rare spikes or drops'],
+  sellFuel:      ['SELL FUEL',              'R:- Fuel', 'Sell spare fuel at 75% of current buy price'],
+  fuelPrice:     ['FUEL MARKET PRICE',      'Current cost per kg of fuel', 'Fluctuates in price following first purchase'],
+  upgHealth:     ['MAX HEALTH UPGRADE',     'G:+ Module max health', 'Allows module to survive longer between maintenance'],
+  upgEfficiency: ['EFFICIENCY UPGRADE',     'G:+ Module performance', 'Boosts effective output regardless of system error state — T1/T2/T3 give +10%/+25%/+50% total'],
+  upgDrain:      ['DURABILITY UPGRADE',     'G:- Module damage', 'Damage to module accumulates more slowly'],
+  itemFuel:      ['EMERGENCY FUEL',         'N/A'],
+  itemRepair:    ['QUICK REPAIR KIT',       'G:+ 30HP', 'Select target module after purchase'],
+  itemDiag:      ['DIAGNOSTIC SWEEP',       'Reveals all hidden system errors simultaneously', 'Saves time vs diagnosing each module individually'],
+  itemOC:        ['OVERCLOCK BOOST',        'N/A'],
+  itemContain:   ['CONTAINMENT PATCH',      'G:+ 25% containment', 'Use during containment emergencies to prevent reactor failure'],
+  itemEvent:     ['EVENT EXTENDER',         'G:+ 30 seconds to current event', 'Provides extra valuable seconds to resolve an emergency', 'Only available while an event is active'],
 };
 
 // Descriptions: money header
-const HELP_MONEY = ['FUNDS', 'Current available money earned from power output', 'Spend on fuel, repairs, upgrades, and items in the RESUPPLY tab'];
+const HELP_MONEY = ['FUNDS', 'Current available money earned from power output', 'Spend on fuel, repairs, upgrades, and items in the STORE tab'];
 
 // Descriptions: systems tab bulk control buttons
 const HELP_BULK_BTN = {
-  powerAll:     ['POWER ALL ON / OFF', 'Toggles all modules online or offline simultaneously', 'Useful for a full system power cycle'],
-  restartAll:   ['RESTART ALL',        'Restarts all modules at once', 'Clears all system errors across every module simultaneously'],
-  allNormal:    ['ALL NORMAL',         'Sets all compatible modules to Normal mode at once'],
-  allOverclock: ['ALL OVERCLOCK',      'Sets all compatible modules to Overclock mode at once', 'R:- significantly accelerates health drain across the board'],
-  allEco:       ['ALL ECO',            'Sets all compatible modules to Eco mode at once', 'G:+ significantly slows health drain across the board'],
-  allBypass:    ['ALL BYPASS',         'Sets all compatible modules to Bypass mode at once', 'R:- concentrates all stress onto backup systems'],
+  powerAll:     ['POWER ALL ON / OFF',      'Toggles all modules online or offline simultaneously', 'Useful for a full system power cycle, clearing all errors in the process'],
+  restartAll:   ['RESTART ALL',             'Restarts all modules at once', 'Clears all system errors across every module simultaneously', 'All systems will be temporarily offline'],
+  allNormal:    ['ALL NORMAL',              'Restores all compatible modules to Normal mode simultaneously'],
+  allOverclock: ['ALL OVERCLOCK',           'G:+ 50% efficiency', 'R:+ 200% damage rate', 'R:+ Core temp', 'Sets all compatible modules to Overclock mode at once'],
+  allEco:       ['ALL ECO',                 'G:- 40% damage rate', 'G:- Core temp', 'R:- 40% efficiency', 'Sets all compatible modules to Eco mode at once'],
+  allBypass:    ['ALL BYPASS',              'R:+ 1500% Backup system damage rate', 'Sets all compatible modules to Bypass mode at once, pushing the backup system to its limits'],
 };
