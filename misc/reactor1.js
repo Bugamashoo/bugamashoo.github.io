@@ -97,6 +97,7 @@ let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets u
 
 // Money & resupply globals
 let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0 } } — tier purchased (0=none)
+let specialUpgrades = { eventSuppression: 0, emergencyDelayer: 0, backupGenerator: 0 }; // tier purchased (0=none)
 let overclockBoostEnd = 0;  // tick when overclock boost expires (0 = inactive)
 let resupplyPulseDone = false; // true once resupply tab pulse has been clicked — never pulses again
 // Initialize upgrade tracking for each module

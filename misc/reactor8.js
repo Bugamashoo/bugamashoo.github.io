@@ -10,7 +10,7 @@ function triggerEvent() {
   const e = pool[Math.floor(Math.random() * pool.length)];
   recentEventIds.push(e.id);
   if (recentEventIds.length > EVT_RECENT_MEMORY) recentEventIds.shift();
-  S.activeEvent          = { ...e, startTime: Date.now() };
+  S.activeEvent          = { ...e, startTime: Date.now(), time: e.time * getSpecialUpgradeMult('emergencyDelayer') };
   S.eventStepsComplete   = new Array(e.steps.length).fill(0);
   document.getElementById('eventOverlay').classList.add('active');
   document.getElementById('eventTitle').textContent = e.title;
@@ -132,7 +132,7 @@ function closeEvt() {
   if (td) { td.style.color = ''; td.style.animation = 'none'; }
   S.activeEvent = null;
   document.getElementById('eventOverlay').classList.remove('active');
-  nextEventTime = S.uptime + EVT_POST_CLOSE_MIN + Math.random() * EVT_POST_CLOSE_RANGE;
+  nextEventTime = S.uptime + (EVT_POST_CLOSE_MIN + Math.random() * EVT_POST_CLOSE_RANGE) * getSpecialUpgradeMult('eventSuppression');
 }
 
 // Hover passthrough for event overlay

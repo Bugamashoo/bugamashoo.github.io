@@ -67,3 +67,21 @@ function fmtTime(s) {
          m.toString().padStart(2,'0') + ':' +
          sc.toString().padStart(2,'0');
 }
+
+// Returns the current multiplier for a special tiered upgrade (1.0 if not purchased)
+function getSpecialUpgradeMult(key) {
+  const tier = specialUpgrades[key] || 0;
+  return tier > 0 ? SPEC_UPG_MULT_STEPS[tier - 1] : 1.0;
+}
+
+// Returns current backup generator power output (MW) based on upgrade tier
+function getBackupGenOutput() {
+  const tier = specialUpgrades.backupGenerator || 0;
+  return POWER_BACKUP_GEN_BONUS + tier * (SPEC_UPG_BACKUP_GEN_MAX_MW - POWER_BACKUP_GEN_BONUS) / SPEC_UPG_BACKUP_GEN_TIERS;
+}
+
+// Returns current backup generator fuel consumption multiplier (1.0 at T0, 0.5 at T9)
+function getBackupGenFuelMult() {
+  const tier = specialUpgrades.backupGenerator || 0;
+  return 1.0 - tier * (1.0 - SPEC_UPG_BACKUP_GEN_MIN_FUEL) / SPEC_UPG_BACKUP_GEN_TIERS;
+}

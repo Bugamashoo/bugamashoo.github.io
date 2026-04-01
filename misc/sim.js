@@ -49,10 +49,10 @@ function simulate() {
     S.fuelConsump  *= FUEL_CONSUME_DECAY;
   }
   if (S.emergDump) { S.fuelRemaining = Math.max(0, S.fuelRemaining - FUEL_DUMP_DRAIN * dt); S.fuelConsump += 6; }
-  // Backup generator fuel drain (medium reactor consumption rate)
+  // Backup generator fuel drain (scaled by upgrade tier efficiency)
   if (S.backupGen && S.fuelRemaining > 0) {
-    S.fuelRemaining = Math.max(0, S.fuelRemaining - BACKUP_GEN_FUEL_DRAIN);
-    S.fuelConsump += FUEL_CONSUME_DISPLAY * 0.4; // Display contribution (~40% injection equivalent)
+    S.fuelRemaining = Math.max(0, S.fuelRemaining - BACKUP_GEN_FUEL_DRAIN * getBackupGenFuelMult());
+    S.fuelConsump += FUEL_CONSUME_DISPLAY * 0.4 * getBackupGenFuelMult(); // Display contribution
   }
 
   const eF = S.fuelInject * fM * aM * fP * (S.fuelRemaining > 0 ? 1 : 0);
@@ -211,8 +211,8 @@ function simulate() {
     tW *= gP; // Grid interface module - degraded/offline grid cuts power delivery
   }
   S.powerOutput += (Math.max(0, tW) - S.powerOutput) * POWER_LERP;
-  // Backup generator: ~2 MW independent of reactor state - earns money but excluded from score/uptime/peakPower
-  S.backupGenOutput += (((S.backupGen && S.fuelRemaining > 0) ? POWER_BACKUP_GEN_BONUS : 0) - S.backupGenOutput) * POWER_LERP;
+  // Backup generator: power scales with upgrade tier - earns money but excluded from score/uptime/peakPower
+  S.backupGenOutput += (((S.backupGen && S.fuelRemaining > 0) ? getBackupGenOutput() : 0) - S.backupGenOutput) * POWER_LERP;
   if (S.powerOutput > S.peakPower) S.peakPower = S.powerOutput;
 
   S.heatSinkTemp = HEATSINK_IDLE + S.coreTemp * HEATSINK_CORE_SCALE - cE_flat * HEATSINK_COOL_SCALE;

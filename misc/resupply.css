@@ -352,3 +352,91 @@
   gap: 3px;
   margin-top: 4px;
 }
+
+/* ── SPECIAL UPGRADES ────────────────────────────── */
+.spec-upgrades-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.spec-upgrade-card {
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 7px 8px;
+}
+
+.spec-upgrade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.spec-upgrade-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.spec-upgrade-tier-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--amber);
+  white-space: nowrap;
+}
+
+.spec-upgrade-effect {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: #8a8f96;
+  margin-bottom: 5px;
+}
+
+.spec-upgrade-btn {
+  width: 100%;
+  background: rgba(0,229,255,.06);
+  border: 1px solid rgba(0,229,255,.4);
+  border-radius: 2px;
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  padding: 4px 6px;
+  cursor: pointer;
+  transition: background .2s, box-shadow .2s;
+  text-align: center;
+}
+.spec-upgrade-btn:hover:not(:disabled) {
+  background: rgba(0,229,255,.15);
+  box-shadow: 0 0 8px rgba(0,229,255,.2);
+}
+.spec-upgrade-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Dim the name and effect text when card is unaffordable or maxed.
+   Tier badge is intentionally excluded. Button opacity is handled by :disabled alone. */
+.spec-upgrade-card.dimmed .spec-upgrade-name,
+.spec-upgrade-card.dimmed .spec-upgrade-effect {
+  opacity: 0.55;
+  transition: opacity .3s;
+}
+.spec-upgrade-name,
+.spec-upgrade-effect {
+  transition: opacity .3s;
+}
+
+.spec-upgrade-maxed {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  color: var(--green);
+  text-align: center;
+  letter-spacing: 2px;
+  padding: 3px 0;
+}

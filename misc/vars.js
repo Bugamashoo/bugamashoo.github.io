@@ -435,8 +435,21 @@ const ITEM_OVERCLOCK_BOOST_COST  = 1200000;  // 60s enhanced overclock (2x perf,
 const ITEM_OVERCLOCK_BOOST_TICKS = 1200;   // Duration in ticks (60s at 20Hz)
 const ITEM_CONTAINMENT_PATCH_COST  = 40000; // Instant +25% containment integrity
 const ITEM_CONTAINMENT_PATCH_AMOUNT= 25;
-const ITEM_EVENT_EXTENDER_COST   = 100000; // Adds 30s to active event timer
+const ITEM_EVENT_EXTENDER_COST   = 110000; // Adds 30s to active event timer
 const ITEM_EVENT_EXTENDER_BONUS  = 30;     // Seconds added to event countdown
+
+// SPECIAL TIERED UPGRADES
+// 5 tiers each; multiplier at each tier level (applied to base 1.0×)
+const SPEC_UPG_TIERS             = 5;
+const SPEC_UPG_MULT_STEPS        = [1.4, 1.8, 2.2, 2.6, 3.0]; // multiplier per tier
+const SPEC_UPG_EVENT_SUPPRESS_COSTS  = [150000, 400000, 900000, 2000000, 5000000];  // Event Suppression tier costs
+const SPEC_UPG_EMERGENCY_DELAY_COSTS = [200000, 500000, 1100000, 2500000, 6000000]; // Emergency Delayer tier costs
+
+// Backup Generator upgrade (9 tiers, linear: 2MW→20MW output, 100%→50% fuel rate)
+const SPEC_UPG_BACKUP_GEN_TIERS    = 9;
+const SPEC_UPG_BACKUP_GEN_MAX_MW   = 20;   // Power output at max tier
+const SPEC_UPG_BACKUP_GEN_MIN_FUEL = 0.5;  // Fuel consumption multiplier at max tier (50% of base)
+const SPEC_UPG_BACKUP_GEN_COSTS    = [24000, 54000, 90000, 158000, 279000, 442000, 746000, 1500000, 3700000];
 
 // FUEL+MONEY EXHAUSTION
 const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)

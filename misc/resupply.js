@@ -67,7 +67,7 @@ window.buyFuel = function(pct) {
   spendMoney(cost);
   S.fuelRemaining = Math.min(maxCap, S.fuelRemaining + actual);
   addLog('Purchased ' + actual.toFixed(1) + '% fuel — ' + fmtMoney(cost), 'ok');
-  buildResupply();
+  updateResupplyValues();
 };
 
 window.buyFuelMax = function() {
@@ -85,7 +85,7 @@ window.buyFuelMax = function() {
   spendMoney(cost);
   S.fuelRemaining = Math.min(maxCap, S.fuelRemaining + affordable);
   addLog('Purchased ' + affordable.toFixed(1) + '% fuel — ' + fmtMoney(cost), 'ok');
-  buildResupply();
+  updateResupplyValues();
 };
 
 window.sellFuel = function(pct) {
@@ -154,7 +154,7 @@ window.buyUpgrade = function(key, type) {
   u[type] = tier + 1;
   const m = S.modules[key];
   addLog(m.name + ' ' + type.toUpperCase() + ' upgraded to T' + u[type], 'ok');
-  buildResupply();
+  updateUpgradeCard(key);
   buildSys();
 };
 
@@ -165,7 +165,7 @@ window.buyEmergencyFuel = function() {
   if (!spendMoney(ITEM_EMERGENCY_FUEL_COST)) { addLog('Insufficient funds', 'warn'); return; }
   S.fuelRemaining = Math.min(getMaxFuel(), S.fuelRemaining + ITEM_EMERGENCY_FUEL_AMOUNT);
   addLog('Emergency fuel cell: +' + ITEM_EMERGENCY_FUEL_AMOUNT + '% fuel', 'ok');
-  buildResupply();
+  updateResupplyValues();
 };
 
 window.buyQuickRepair = function(key) {
@@ -193,7 +193,7 @@ window.buyDiagSweep = function() {
     if (m.sysError && !m.sysErrorVisible) { m.sysErrorVisible = true; found++; }
   });
   addLog('Diagnostic sweep: ' + (found > 0 ? found + ' errors revealed' : 'no hidden errors'), found > 0 ? 'err' : 'ok');
-  buildResupply();
+  updateResupplyValues();
   buildSys();
 };
 
@@ -201,14 +201,14 @@ window.buyOverclockBoost = function() {
   if (!spendMoney(ITEM_OVERCLOCK_BOOST_COST)) { addLog('Insufficient funds', 'warn'); return; }
   overclockBoostEnd = tick + ITEM_OVERCLOCK_BOOST_TICKS;
   addLog('Overclock boost active for 60s', 'ok');
-  buildResupply();
+  updateResupplyValues();
 };
 
 window.buyContainmentPatch = function() {
   if (!spendMoney(ITEM_CONTAINMENT_PATCH_COST)) { addLog('Insufficient funds', 'warn'); return; }
   S.containIntegrity = Math.min(100, S.containIntegrity + ITEM_CONTAINMENT_PATCH_AMOUNT);
   addLog('Containment patch: +' + ITEM_CONTAINMENT_PATCH_AMOUNT + '% integrity', 'ok');
-  buildResupply();
+  updateResupplyValues();
 };
 
 window.buyEventExtender = function() {
@@ -216,7 +216,29 @@ window.buyEventExtender = function() {
   if (!spendMoney(ITEM_EVENT_EXTENDER_COST)) { addLog('Insufficient funds', 'warn'); return; }
   S.activeEvent.time += ITEM_EVENT_EXTENDER_BONUS;
   addLog('Event timer extended +' + ITEM_EVENT_EXTENDER_BONUS + 's', 'ok');
-  buildResupply();
+  updateResupplyValues();
+};
+
+window.buySpecialUpgrade = function(key) {
+  const tier = specialUpgrades[key] || 0;
+  if (tier >= SPEC_UPG_TIERS) return;
+  const costs = key === 'eventSuppression' ? SPEC_UPG_EVENT_SUPPRESS_COSTS : SPEC_UPG_EMERGENCY_DELAY_COSTS;
+  if (!spendMoney(costs[tier])) { addLog('Insufficient funds', 'warn'); return; }
+  specialUpgrades[key] = tier + 1;
+  const label = key === 'eventSuppression' ? 'Event Suppression' : 'Emergency Delayer';
+  addLog(label + ' T' + (tier + 1) + ' — ' + SPEC_UPG_MULT_STEPS[tier].toFixed(1) + '× active', 'ok');
+  rebuildSpecUpgradesSection();
+};
+
+window.buyBackupGenUpgrade = function() {
+  const tier = specialUpgrades.backupGenerator || 0;
+  if (tier >= SPEC_UPG_BACKUP_GEN_TIERS) return;
+  if (!spendMoney(SPEC_UPG_BACKUP_GEN_COSTS[tier])) { addLog('Insufficient funds', 'warn'); return; }
+  specialUpgrades.backupGenerator = tier + 1;
+  const mw   = getBackupGenOutput().toFixed(0);
+  const fuel = Math.round(getBackupGenFuelMult() * 100);
+  addLog('Backup Generator T' + (tier + 1) + ' — ' + mw + 'MW / ' + fuel + '% fuel rate', 'ok');
+  rebuildSpecUpgradesSection();
 };
 
 // FUEL ACTION DISPATCHERS (route through buy/sell mode)
@@ -238,6 +260,36 @@ window.fuelActionFull = function() {
   else sellFuelAll();
 };
 
+// Targeted rebuild of a single system upgrade card (no full rebuild, no scroll disruption)
+function updateUpgradeCard(key) {
+  const card = document.getElementById('rsUpgCard_' + key);
+  if (!card) return;
+  const u    = moduleUpgrades[key];
+  const maxH = getUpgradeMaxHealth(key);
+  const hp   = card.querySelector('.upgrade-card-health');
+  if (hp) hp.textContent = 'HP: ' + S.modules[key].health.toFixed(0) + '/' + maxH;
+  card.querySelectorAll('.upgrade-track').forEach(t => t.remove());
+  let tracks = buildUpgradeTrack(key, 'health', 'MAX HP', UPGRADE_HEALTH_BONUS, u.health, '+');
+  if (key !== 'comms' && key !== 'sensor') {
+    tracks += buildUpgradeTrack(key, 'efficiency', 'EFFICIENCY', UPGRADE_EFFICIENCY_BONUS.map(v => (v * 100).toFixed(0) + '%'), u.efficiency, '+');
+  }
+  tracks += buildUpgradeTrack(key, 'drain', 'DURABILITY', UPGRADE_DRAIN_MULT.map(v => Math.round((1 - v) * 100) + '%'), u.drain, '-drain ');
+  card.insertAdjacentHTML('beforeend', tracks);
+}
+
+// Targeted rebuild of only the special upgrades grid (sorted, no full rebuild)
+function rebuildSpecUpgradesSection() {
+  const grid = document.querySelector('.spec-upgrades-grid');
+  if (!grid) return;
+  const cards = [
+    { maxed: (specialUpgrades.eventSuppression || 0) >= SPEC_UPG_TIERS,             html: buildSpecUpgradeCard('specUpgSuppress', 'EVENT SUPPRESSION', 'interval between events', 'eventSuppression') },
+    { maxed: (specialUpgrades.emergencyDelayer  || 0) >= SPEC_UPG_TIERS,             html: buildSpecUpgradeCard('specUpgDelay',    'EMERGENCY DELAYER',  'event resolve time',      'emergencyDelayer') },
+    { maxed: (specialUpgrades.backupGenerator   || 0) >= SPEC_UPG_BACKUP_GEN_TIERS, html: buildBackupGenUpgradeCard() },
+  ];
+  cards.sort((a, b) => a.maxed - b.maxed);
+  grid.innerHTML = cards.map(c => c.html).join('');
+}
+
 // BUILD RESUPPLY TAB (full DOM rebuild - structural changes only)
 let resupplyBuilt = false;
 let resupplyQRP = false; // tracks quickRepairPending state at last build
@@ -246,9 +298,10 @@ function buildResupply() {
   const c = document.getElementById('resupplyGrid');
   if (!c) return;
 
-  // Preserve scroll position across rebuilds
+  // Preserve scroll position across rebuilds (tab + each panel by index)
   const tabEl = document.getElementById('tab-resupply');
   const scrollTop = tabEl ? tabEl.scrollTop : 0;
+  const panelScrolls = Array.from(c.querySelectorAll('.resupply-panel')).map(p => p.scrollTop);
 
   resupplyQRP = quickRepairPending;
 
@@ -290,11 +343,13 @@ function buildResupply() {
   Object.entries(S.modules).forEach(([k, m]) => {
     const u = moduleUpgrades[k];
     const maxH = getUpgradeMaxHealth(k);
-    html += `<div class="upgrade-card">
+    html += `<div class="upgrade-card" id="rsUpgCard_${k}">
       <div class="upgrade-card-title">${m.name}</div>
       <div class="upgrade-card-health" id="rsHp_${k}">HP: ${m.health.toFixed(0)}/${maxH}</div>`;
     html += buildUpgradeTrack(k, 'health', 'MAX HP', UPGRADE_HEALTH_BONUS, u.health, '+');
-    html += buildUpgradeTrack(k, 'efficiency', 'EFFICIENCY', UPGRADE_EFFICIENCY_BONUS.map(v => (v * 100).toFixed(0) + '%'), u.efficiency, '+');
+    if (k !== 'comms' && k !== 'sensor') {
+      html += buildUpgradeTrack(k, 'efficiency', 'EFFICIENCY', UPGRADE_EFFICIENCY_BONUS.map(v => (v * 100).toFixed(0) + '%'), u.efficiency, '+');
+    }
     html += buildUpgradeTrack(k, 'drain', 'DURABILITY', UPGRADE_DRAIN_MULT.map(v => Math.round((1 - v) * 100) + '%'), u.drain, '-drain ');
     html += `</div>`;
   });
@@ -313,6 +368,18 @@ function buildResupply() {
 
   html += `</div>`;
 
+  // Special tiered upgrades — maxed cards sorted to bottom
+  html += `<div class="resupply-panel-title" style="margin-top:10px">SPECIAL UPGRADES</div>`;
+  html += `<div class="spec-upgrades-grid">`;
+  const specCards = [
+    { maxed: (specialUpgrades.eventSuppression  || 0) >= SPEC_UPG_TIERS,              html: buildSpecUpgradeCard('specUpgSuppress', 'EVENT SUPPRESSION', 'interval between events', 'eventSuppression') },
+    { maxed: (specialUpgrades.emergencyDelayer   || 0) >= SPEC_UPG_TIERS,              html: buildSpecUpgradeCard('specUpgDelay',    'EMERGENCY DELAYER',  'event resolve time',      'emergencyDelayer') },
+    { maxed: (specialUpgrades.backupGenerator    || 0) >= SPEC_UPG_BACKUP_GEN_TIERS,  html: buildBackupGenUpgradeCard() },
+  ];
+  specCards.sort((a, b) => a.maxed - b.maxed);
+  specCards.forEach(sc => { html += sc.html; });
+  html += `</div>`;
+
   // Quick repair module picker
   if (quickRepairPending) {
     html += `<div class="quick-repair-picker">
@@ -329,6 +396,7 @@ function buildResupply() {
   c.innerHTML = html;
   resupplyBuilt = true;
   if (tabEl) tabEl.scrollTop = scrollTop;
+  c.querySelectorAll('.resupply-panel').forEach((p, i) => { if (panelScrolls[i]) p.scrollTop = panelScrolls[i]; });
   updateResupplyValues();
 }
 
@@ -439,9 +507,31 @@ function updateResupplyValues() {
   if (quickRepairPending) {
     Object.entries(S.modules).forEach(([k, m]) => {
       const p = document.getElementById('rsRepPickP_' + k);
-      if (p) p.textContent = m.health.toFixed(0) + '% HP';
+      if (p) p.textContent = m.health.toFixed(0) + '/' + getUpgradeMaxHealth(k) + ' HP';
     });
   }
+
+  // Special upgrade button disabled states + card dimming
+  [['specUpgSuppress', 'eventSuppression', SPEC_UPG_EVENT_SUPPRESS_COSTS, SPEC_UPG_TIERS],
+   ['specUpgDelay',    'emergencyDelayer',  SPEC_UPG_EMERGENCY_DELAY_COSTS, SPEC_UPG_TIERS]
+  ].forEach(([btnId, key, costs, maxTier]) => {
+    const tier    = specialUpgrades[key] || 0;
+    const maxed   = tier >= maxTier;
+    const cost    = maxed ? Infinity : costs[tier];
+    const cantAfford = S.money < cost;
+    const btnEl   = document.getElementById(btnId);
+    if (btnEl) btnEl.disabled = cantAfford;
+    const cardEl  = document.getElementById('specCard_' + key);
+    if (cardEl) cardEl.classList.toggle('dimmed', maxed || cantAfford);
+  });
+  const bgTier     = specialUpgrades.backupGenerator || 0;
+  const bgMaxed    = bgTier >= SPEC_UPG_BACKUP_GEN_TIERS;
+  const bgCost     = bgMaxed ? Infinity : SPEC_UPG_BACKUP_GEN_COSTS[bgTier];
+  const bgCantAfford = S.money < bgCost;
+  const bgBtnEl    = document.getElementById('specUpgBackupGen');
+  if (bgBtnEl) bgBtnEl.disabled = bgCantAfford;
+  const bgCardEl   = document.getElementById('specCard_backupGenerator');
+  if (bgCardEl) bgCardEl.classList.toggle('dimmed', bgMaxed || bgCantAfford);
 }
 
 function buildUpgradeTrack(key, type, label, bonuses, currentTier, prefix) {
@@ -472,6 +562,67 @@ function buildItemBtn(id, name, desc, cost, onclick, active, forceDisabled) {
     <div class="item-desc">${desc}</div>
     <div class="item-cost">${fmtMoney(cost)}</div>
   </button>`;
+}
+
+function buildSpecUpgradeCard(btnId, name, effectLabel, key) {
+  const tier  = specialUpgrades[key] || 0;
+  const costs = key === 'eventSuppression' ? SPEC_UPG_EVENT_SUPPRESS_COSTS : SPEC_UPG_EMERGENCY_DELAY_COSTS;
+  const currentMult = tier > 0 ? SPEC_UPG_MULT_STEPS[tier - 1] : 1.0;
+  const tierBadge   = tier > 0 ? 'T' + tier + '\u2009/\u2009T' + SPEC_UPG_TIERS : '\u2014\u2009/\u2009T' + SPEC_UPG_TIERS;
+  const effectText  = currentMult.toFixed(1) + '\u00d7 ' + effectLabel;
+  const maxed       = tier >= SPEC_UPG_TIERS;
+  const dimmed      = maxed || S.money < costs[tier];
+
+  let actionHtml;
+  if (maxed) {
+    actionHtml = `<button class="spec-upgrade-btn" disabled>MAXED</button>`;
+  } else {
+    const nextMult = SPEC_UPG_MULT_STEPS[tier];
+    const delta    = (nextMult - currentMult).toFixed(1);
+    const cost     = costs[tier];
+    actionHtml = `<button class="spec-upgrade-btn" id="${btnId}" onclick="buySpecialUpgrade('${key}')" ${S.money < cost ? 'disabled' : ''}>\u2192 T${tier + 1}\u2002+${delta}\u00d7\u2002${fmtMoney(cost)}</button>`;
+  }
+
+  return `<div class="spec-upgrade-card${dimmed ? ' dimmed' : ''}" id="specCard_${key}">
+    <div class="spec-upgrade-header">
+      <span class="spec-upgrade-name">${name}</span>
+      <span class="spec-upgrade-tier-badge">${tierBadge}</span>
+    </div>
+    <div class="spec-upgrade-effect">${effectText}</div>
+    ${actionHtml}
+  </div>`;
+}
+
+function buildBackupGenUpgradeCard() {
+  const tier        = specialUpgrades.backupGenerator || 0;
+  const maxTiers    = SPEC_UPG_BACKUP_GEN_TIERS;
+  const tierBadge   = tier > 0 ? 'T' + tier + '\u2009/\u2009T' + maxTiers : '\u2014\u2009/\u2009T' + maxTiers;
+  const currentMW   = getBackupGenOutput();
+  const currentFuel = Math.round(getBackupGenFuelMult() * 100);
+  const effectText  = currentMW.toFixed(0) + 'MW\u2002\u2022\u2002' + currentFuel + '% fuel rate';
+  const maxed       = tier >= maxTiers;
+  const dimmed      = maxed || S.money < SPEC_UPG_BACKUP_GEN_COSTS[tier];
+
+  let actionHtml;
+  if (maxed) {
+    actionHtml = `<button class="spec-upgrade-btn" disabled>MAXED</button>`;
+  } else {
+    const nextMW    = POWER_BACKUP_GEN_BONUS + (tier + 1) * (SPEC_UPG_BACKUP_GEN_MAX_MW - POWER_BACKUP_GEN_BONUS) / maxTiers;
+    const nextFuel  = Math.round((1.0 - (tier + 1) * (1.0 - SPEC_UPG_BACKUP_GEN_MIN_FUEL) / maxTiers) * 100);
+    const cost      = SPEC_UPG_BACKUP_GEN_COSTS[tier];
+    const deltaMW   = (nextMW - currentMW).toFixed(0);
+    const deltaFuel = currentFuel - nextFuel;
+    actionHtml = `<button class="spec-upgrade-btn" id="specUpgBackupGen" onclick="buyBackupGenUpgrade()" ${S.money < cost ? 'disabled' : ''}>\u2192 T${tier + 1}\u2002+${deltaMW}MW\u2002-${deltaFuel}% fuel\u2002${fmtMoney(cost)}</button>`;
+  }
+
+  return `<div class="spec-upgrade-card${dimmed ? ' dimmed' : ''}" id="specCard_backupGenerator">
+    <div class="spec-upgrade-header">
+      <span class="spec-upgrade-name">BACKUP GENERATOR</span>
+      <span class="spec-upgrade-tier-badge">${tierBadge}</span>
+    </div>
+    <div class="spec-upgrade-effect">${effectText}</div>
+    ${actionHtml}
+  </div>`;
 }
 
 // Build on load
