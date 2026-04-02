@@ -17,11 +17,13 @@ function addLog(m, t='') {
 }
 
 function doShake() {
+  if (FLASH_DISABLED) return;
   document.body.classList.add('shake');
   setTimeout(() => document.body.classList.remove('shake'), 300);
 }
 
 function doFlash(c) {
+  if (FLASH_DISABLED) return;
   const d = document.createElement('div');
   d.className = 'flash-ov';
   d.style.background = c || 'rgba(255,159,28,0.06)';

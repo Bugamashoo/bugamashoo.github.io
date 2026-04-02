@@ -117,7 +117,7 @@ function updateEvt() {
   const td      = document.getElementById('eventTimer');
   td.textContent = Math.floor(rem / 60).toString().padStart(2,'0') + ':' +
                    Math.floor(rem % 60).toString().padStart(2,'0');
-  td.style.animation = rem <= EVT_BLINK_THRESHOLD ? 'blink .3s step-end infinite' : 'none';
+  td.style.animation = (!FLASH_DISABLED && rem <= EVT_BLINK_THRESHOLD) ? 'blink .3s step-end infinite' : 'none';
   td.style.color = '';
 
   renderEvt();
@@ -153,13 +153,15 @@ function triggerCatastrophe(evtId) {
   document.getElementById('eventOverlay').classList.remove('active');
   const cat = CATASTROPHES[evtId] || CATASTROPHES.coolant_leak;
 
-  // Destruction animation
-  document.body.style.animationName           = 'bigShake,' + cat.anim;
-  document.body.style.animationDuration       = '2s,4s';
-  document.body.style.animationDelay          = '0s,1s';
-  document.body.style.animationTimingFunction = 'ease-in-out';
-  document.body.style.animationFillMode       = 'forwards';
-  document.body.classList.add('shake');
+  // Destruction animation (skipped in no-flash mode)
+  if (!FLASH_DISABLED) {
+    document.body.style.animationName           = 'bigShake,' + cat.anim;
+    document.body.style.animationDuration       = '2s,4s';
+    document.body.style.animationDelay          = '0s,1s';
+    document.body.style.animationTimingFunction = 'ease-in-out';
+    document.body.style.animationFillMode       = 'forwards';
+    document.body.classList.add('shake');
+  }
 
   setTimeout(() => {
     const go = document.getElementById('gameOverScreen');

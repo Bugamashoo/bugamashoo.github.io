@@ -20,7 +20,13 @@
 <div id="introOverlay">
   <div id="introContent">
     <div id="introTitle">Buga's Reactor Command</div>
-    <div id="introVersion">v3.3</div>
+    <div id="introVersionBlock">
+      <div id="introVersion">v3.3</div>
+      <div id="introFlashRow">
+        <input type="checkbox" id="introFlashCheck">
+        <label for="introFlashCheck">disable flashing lights</label>
+      </div>
+    </div>
     <div id="introRow">
       <div id="introTextBox">placeholder</div>
       <div id="introSwitchWrap">
@@ -40,6 +46,9 @@
     </div>
   </div>
 </div>
+<!-- Second black layer: sits above game content but below the header.
+     Fades with the flicker animation after the title screen clears. -->
+<div id="introBlackout"></div>
 
 <div class="header">
   <div class="header-title">MKIV TOKAMAK - CONTROL INTERFACE</div>

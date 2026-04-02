@@ -182,3 +182,22 @@ body.help-mode .hdr-box:not(.hdr-box-help),
 body.help-mode .ticker-bar,
 body.help-mode .header-title,
 body.help-mode #headerStatus{opacity:.1;transition:opacity .3s}
+
+/* ── No-flash mode (body.no-flash) ────────────────────────────────────────
+   When the intro "disable flashing lights" checkbox is checked, all blinking
+   and strobing animations are suppressed.  Static colours are preserved.    */
+
+/* Warning light dot: keep colour, kill blink */
+body.no-flash .warning-light.active-red .dot { animation: none; }
+
+/* Event panel: keep border glow, kill alarmPulse strobe */
+body.no-flash .event-panel { animation: none; }
+
+/* Event timer: blink is killed in JS; this is a safety net */
+body.no-flash #eventTimer { animation: none !important; }
+
+/* Tab-bar alert blink */
+body.no-flash .tab-btn.alert { animation: none; }
+
+/* Event visualisations contain inline animation:blink styles */
+body.no-flash .event-viz * { animation: none !important; }

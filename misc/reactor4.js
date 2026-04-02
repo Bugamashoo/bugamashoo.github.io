@@ -570,14 +570,24 @@ document.addEventListener('contextmenu', e => e.preventDefault());
       w.classList.remove('active-amber', 'active-red', 'active-green');
       if (cls) w.classList.add(cls);
     });
-    setAll('active-amber');
-    setTimeout(() => setAll(''),             1000);
-    setTimeout(() => setAll('active-red'),   1250);
-    setTimeout(() => {
-      lights.forEach(w => w.classList.remove('active-amber', 'active-red', 'active-green'));
-      lampTestActive = false;
-      addLog('LAMP TEST OK', 'ok');
-    }, 2250);
+    if (FLASH_DISABLED) {
+      // No-flash mode: single amber pass, no cycling
+      setAll('active-amber');
+      setTimeout(() => {
+        lights.forEach(w => w.classList.remove('active-amber', 'active-red', 'active-green'));
+        lampTestActive = false;
+        addLog('LAMP TEST OK', 'ok');
+      }, 1000);
+    } else {
+      setAll('active-amber');
+      setTimeout(() => setAll(''),             1000);
+      setTimeout(() => setAll('active-red'),   1250);
+      setTimeout(() => {
+        lights.forEach(w => w.classList.remove('active-amber', 'active-red', 'active-green'));
+        lampTestActive = false;
+        addLog('LAMP TEST OK', 'ok');
+      }, 2250);
+    }
   });
 
   document.getElementById('purgeBtn').addEventListener('click', () => {

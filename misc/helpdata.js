@@ -26,7 +26,7 @@ const HELP_CTRL = {
   emergVent:        ['EMERG VENT',          'G:- Core temp', 'G:- Core pressure', 'R:- Backup system health'],
   emergDump:        ['FUEL DUMP',           'R:- Fuel (significant)', 'Required to resolve some events'],
   rodSafetyOff:     ['ROD SAFETY',          'Retracts all rods to 0% and locks the sliders', 'OFF unlocks control rod insertion controls'],
-  turbineLimiter:   ['TURBINE LIMITER',     'Caps turbine RPM just below the current warning threshold (~84% of safe max)', 'R:- Max power output when active', 'Prevents turbine overspeed and protects the grid module from RPM damage', 'Upgrade Turbine Speed in RESUPPLY to raise the safe limit and unlock higher output', 'Turn OFF to remove the RPM cap and allow full turbine speed'],
+  turbineLimiter:   ['TURBINE LIMITER',     'Caps turbine RPM just below the current warning threshold (~84% of safe max)', 'R:- Max power output when active', 'Prevents turbine overspeed and protects the grid module from RPM damage', 'Upgrade Turbine Speed in STORE to raise the safe limit and unlock higher output', 'Turn OFF to remove the RPM cap and allow full turbine speed'],
 
   // Ignition panel push buttons
   ignBtn:           ['IGNITE',              'Hold continuously for 3 seconds to fire plasma ignition', 'Requires IGN PRIME and AUX POWER to be active', 'Ensure sufficient fuel flow to start'],
@@ -73,7 +73,7 @@ const HELP_GAUGE = {
   secondaryPressure:['SECONDARY PRES',      'Pressure in the secondary containment circuit - driven by core pressure levels and backup field power settings.'],
   rodPosition:      ['ROD INSERTION',       'Average insertion depth of all control rods - control rods slow the chemical reaction, reducing core heat, neutron density, and power output.'],
   heatSinkTemp:     ['HEAT SINK TEMP',      'Temperature of the primary thermal heat sink - reflects the overall heat load being rejected from the cooling system.'],
-  fuelRemaining:    ['FUEL REMAINING',      'Current fuel reserve level - depleting fully shuts off plasma ignition and brings the reactor to a halt. Refueling costs money from the RESUPPLY tab.'],
+  fuelRemaining:    ['FUEL REMAINING',      'Current fuel reserve level - depleting fully shuts off plasma ignition and brings the reactor to a halt. Refueling costs money from the STORE tab.'],
   fuelConsump:      ['FUEL CONSUMPTION',    'Rate at which fuel is being consumed - rises with injection rate. Higher consumption means more money spent on refueling.'],
   netOutput:        ['NET OUTPUT (MW)',     'Total electrical power being generated - directly determines money earned per second. Higher output earns money faster.'],
 };

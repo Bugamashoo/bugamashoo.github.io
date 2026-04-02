@@ -59,26 +59,97 @@
   text-transform: uppercase;
 }
 
-/* Flicker-to-life fade-out - duration set inline by intro.js */
-@keyframes introFlickerOut {
-  0%   { opacity: 1;    }
-  7%   { opacity: 0.04; }
-  11%  { opacity: 0.9;  }
-  17%  { opacity: 0;    }
-  21%  { opacity: 0.75; }
-  27%  { opacity: 0.02; }
-  33%  { opacity: 0.6;  }
-  40%  { opacity: 0;    }
-  48%  { opacity: 0.35; }
-  56%  { opacity: 0;    }
-  65%  { opacity: 0.12; }
-  76%  { opacity: 0;    }
-  88%  { opacity: 0.04; }
-  100% { opacity: 0;    }
+/* Checkbox row — sits below #introRow, vertically centres checkbox and label */
+/* Wraps version + checkbox so they count as one flex child in #introContent,
+   keeping the gap layout identical to before (title | versionBlock | row). */
+#introVersionBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
+#introFlashRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Hide the native control entirely */
+#introFlashCheck {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: #0d0f11;
+  border: 1px solid #3a3f48;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Checkmark — drawn with a rotated border trick */
+#introFlashCheck::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid var(--amber);
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+#introFlashCheck:checked {
+  background: rgba(255, 159, 28, 0.08);
+  border-color: var(--amber);
+  box-shadow: 0 0 6px rgba(255, 159, 28, 0.35);
+}
+
+#introFlashCheck:checked::after {
+  display: block;
+}
+
+#introFlashRow:hover #introFlashCheck {
+  border-color: #6a7080;
+}
+
+#introFlashRow:hover #introFlashCheck:checked {
+  border-color: var(--amber);
+  box-shadow: 0 0 10px rgba(255, 159, 28, 0.5);
+}
+
+#introFlashRow label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #8a9098;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+#introFlashRow:hover label {
+  color: #b0b8c4;
+}
+
+/* Second black layer: above game content (z-index auto) and tabs bar (z-index 5)
+   but below the header (z-index 10) so the banner is visible above it.
+   Opacity is driven by JS startFlicker() after the title screen clears. */
+#introBlackout {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 8;
+  pointer-events: none;
+}
+
+/* Disable title-screen clicks while it is fading out or after it is done. */
 #introOverlay.flickering {
-  animation-name: introFlickerOut;
-  animation-fill-mode: forwards;
   pointer-events: none;
 }

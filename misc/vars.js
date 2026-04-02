@@ -465,8 +465,19 @@ const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 befo
 const INTRO_TITLE            = "Buga's Reactor Command";
 const INTRO_VERSION          = "v3.3.1";
 const INTRO_TEXT             = "story placeholder...";
-const INTRO_SWITCH_DELAY_MS  = 600;   // ms pause after switch flips ON before flicker starts
-const INTRO_FLICKER_MS       = 0;  // ms total duration of the flicker-out animation
+const INTRO_SWITCH_DELAY_MS         = 600;   // ms - pause after switch flips ON before fade starts
+const INTRO_FADE_MS                 = 700;   // ms - smooth fade: intro content out + game in simultaneously
+const INTRO_FLICKER_MS              = 3200;  // ms - total duration of the fluorescent flicker sequence
+// Fluorescent flicker physics - B(t) = S(t) · [W(t) + α·sin(2πft)]
+const INTRO_FLICKER_K               = 0.7;   // flicker catch rate: P(on) = 1 − e^(−k·t); higher = catches faster
+const INTRO_FLICKER_M               = 0.5;  // warm-up rate: how quickly the tube climbs from B_start to full brightness
+const INTRO_FLICKER_B_START         = 0.3;   // initial brightness when the tube first catches (0–1)
+const INTRO_FLICKER_ALPHA           = 0.02;  // hum amplitude: subtle 50/60Hz electrical oscillation on brightness
+const INTRO_FLICKER_HUM_FREQ        = 120;   // Hz - electrical hum frequency (120 = 2× 60 Hz mains)
+const INTRO_FLICKER_MIN_INTERVAL_MS = 28;    // ms - fastest S(t) sample interval (chaotic early stuttering)
+const INTRO_FLICKER_MAX_INTERVAL_MS = 200;   // ms - slowest S(t) sample interval (lamp stabilising)
+const INTRO_FLICKER_RAMP_RATE       = 1.0;   // brightness units/sec at litProb=1; scales with litProb so early catches ramp slowly, late catches ramp fast
+const INTRO_FLICKER_MIN_BRIGHT      = 0.4;   // minimum brightness for any flicker "on" state (0–1)
 const INTRO_Z_INDEX          = 11000;
 const INTRO_TITLE_SIZE       = 40;    // px - title font size
 const INTRO_TITLE_SPACING    = 2;     // px - title letter-spacing

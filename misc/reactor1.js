@@ -104,5 +104,6 @@ let resupplyPulseDone = false; // true once resupply tab pulse has been clicked 
 let commsLockedSwitches = []; // switch IDs on main panel locked by comms sysErrors
 let commsLockedControls = []; // lever/knob IDs on main panel locked by comms sysErrors
 let sensorFaultyGauges  = []; // gauge IDs in diagnostics showing per-fault sensor noise
+let FLASH_DISABLED = false;   // set true by intro checkbox - skips all flashing/shaking effects
 // Initialize upgrade tracking for each module
 Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0 }; });
