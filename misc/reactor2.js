@@ -71,7 +71,7 @@ const CATASTROPHES = {
   steam_hammer: {
     anim:'empBlast', title:'STEAM LINE RUPTURE', subtitle:'MECHANICAL FAILURE IN SECONDARY LOOP',
     color:'var(--cyan)',
-    narrative:`The harmonic pressure cycling you ignored induced water hammer events throughout the secondary loop. Sections of steam pipe rated for 180 bar experienced repeated dynamic loads exceeding 400 bar during each hammer pulse. The third rupture severed the main feed line to the turbine hall. A wall of superheated steam at 320°C swept through the generator deck at 60 meters per second. Every surface was scoured clean. The turbine, starved of drive steam, entered an overspeed condition and shed blades through the housing. The resulting shrapnel destroyed the main electrical switchgear. The facility lost all power and has been dark ever since.`
+    narrative:`The harmonic pressure cycling you ignored induced water hammer events throughout the secondary loop. Sections of steam pipe rated for 180 bar experienced repeated dynamic loads exceeding 400 bar during each hammer pulse. The third rupture severed the main feed line to the turbine hall. A wall of superheated steam at 320°C swept through the generator deck at 60 meters per second. Every surface was scoured clean. The burning steam scalded you and instantly stripped the air from your lungs. The flash of heat put your nervous system into total thermal shock, and you never regained consciousness.`
   },
   divertor_overload: {
     anim:'nukeFlash', title:'DIVERTOR MELTDOWN', subtitle:'PLASMA EXHAUST SYSTEM FAILED',

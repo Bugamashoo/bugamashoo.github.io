@@ -144,7 +144,7 @@ const NEUTRON_LERP            = 0.03; // Neutron density lerp rate per tick
 // Normal shielded operation: ~15–25 mSv. Warning above 30. Danger above 60.
 const RAD_NEUTRON_MULT             = 0.4;  // neutronDensity × this = baseline radiation
 const RAD_NO_SHIELD_BONUS          = 25;   // Extra mSv when radiation shielding is off
-const RAD_LOW_CONTAIN_THRESHOLD    = 50;   // Containment % below which radiation leaks
+const RAD_LOW_CONTAIN_THRESHOLD    = 70;   // Containment % below which radiation leaks
 const RAD_LOW_CONTAIN_SCALE        = 0.5;  // (threshold - containIntegrity) × this = leak bonus
 
 // CONTAINMENT INTEGRITY
@@ -337,7 +337,7 @@ const EVT_TIME_VACUUM_BREACH    = 35;
 const EVT_TIME_COOLANT_OVERHEAT = 40;
 const EVT_TIME_POWER_SURGE      = 35;
 const EVT_TIME_TRITIUM_LEAK     = 50;
-const EVT_TIME_MAG_QUENCH       = 30;
+const EVT_TIME_MAG_QUENCH       = 70;
 const EVT_TIME_STEAM_HAMMER     = 35;
 const EVT_TIME_DIVERTOR_OVERLOAD = 40;
 const EVT_TIME_AUX_POWER_FAULT  = 30;
@@ -351,8 +351,8 @@ const GAME_OVER_DELAY_MS = 4500; // Milliseconds after catastrophe animation bef
 
 // REPAIR & DIAGNOSIS
 // Repair rates are in health % per tick.
-const REPAIR_ONLINE_RATE    = 1 / 30;    // Health regained per tick when online (normal repair)
-const REPAIR_BYPASS_RATE    = 3 / 30;    // Health regained per tick in bypass mode
+const REPAIR_ONLINE_RATE    = 1.2 / 30;    // Health regained per tick when online (normal repair)
+const REPAIR_BYPASS_RATE    = 2 / 30;    // Health regained per tick in bypass mode
 const REPAIR_OFFLINE_RATE   = 5 / 30;  // Health regained per tick when offline (fast repair)
 const DIAG_DURATION_BASE_MS  = 1000;  // Minimum diagnosis duration (ms)
 const DIAG_DURATION_RANGE_MS = 4000;  // Random extra duration added (total: 1–5s)
@@ -401,7 +401,7 @@ const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% o
 const FUEL_SELL_RATIO         = 0.75;    // Sell price = 75% of current buy price
 
 // REPAIR COSTS
-const REPAIR_COST_PER_TICK    = 2000;      // $/tick cost while actively repairing a module
+const REPAIR_COST_PER_TICK    = 1400;      // $/tick cost while actively repairing a module
 
 // SYSTEM UPGRADES (per-module, 3 tiers each)
 // Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
@@ -463,7 +463,7 @@ const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 befo
 
 // INTRO OVERLAY
 const INTRO_TITLE            = "Buga's Reactor Command";
-const INTRO_VERSION          = "v3.3.1";
+const INTRO_VERSION          = "v3.4.1";
 const INTRO_TEXT             = "story placeholder...";
 const INTRO_SWITCH_DELAY_MS         = 600;   // ms - pause after switch flips ON before fade starts
 const INTRO_FADE_MS                 = 700;   // ms - smooth fade: intro content out + game in simultaneously
@@ -474,8 +474,8 @@ const INTRO_FLICKER_M               = 0.5;  // warm-up rate: how quickly the tub
 const INTRO_FLICKER_B_START         = 0.3;   // initial brightness when the tube first catches (0–1)
 const INTRO_FLICKER_ALPHA           = 0.02;  // hum amplitude: subtle 50/60Hz electrical oscillation on brightness
 const INTRO_FLICKER_HUM_FREQ        = 120;   // Hz - electrical hum frequency (120 = 2× 60 Hz mains)
-const INTRO_FLICKER_MIN_INTERVAL_MS = 28;    // ms - fastest S(t) sample interval (chaotic early stuttering)
-const INTRO_FLICKER_MAX_INTERVAL_MS = 200;   // ms - slowest S(t) sample interval (lamp stabilising)
+const INTRO_FLICKER_MIN_INTERVAL_MS = 40;    // ms - fastest S(t) sample interval (chaotic early stuttering)
+const INTRO_FLICKER_MAX_INTERVAL_MS = 240;   // ms - slowest S(t) sample interval (lamp stabilising)
 const INTRO_FLICKER_RAMP_RATE       = 1.0;   // brightness units/sec at litProb=1; scales with litProb so early catches ramp slowly, late catches ramp fast
 const INTRO_FLICKER_MIN_BRIGHT      = 0.4;   // minimum brightness for any flicker "on" state (0–1)
 const INTRO_Z_INDEX          = 11000;
