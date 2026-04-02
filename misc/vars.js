@@ -450,7 +450,7 @@ const SPEC_UPG_EMERGENCY_DELAY_COSTS = [200000, 500000, 1100000, 2500000, 600000
 const SPEC_UPG_TURBINE_SPEED_TIERS = 9;
 const SPEC_UPG_TURBINE_SPEED_BASE  = 2000;  // Safe RPM at tier 0 (no upgrade)
 const SPEC_UPG_TURBINE_SPEED_MAX   = 20000; // Safe RPM at max tier
-const SPEC_UPG_TURBINE_SPEED_COSTS = [15000, 37000, 90000, 220000, 540000, 1300000, 3200000, 7800000, 19200000];
+const SPEC_UPG_TURBINE_SPEED_COSTS = [3500, 15500, 49000, 180000, 540000, 1300000, 3200000, 7800000, 19200000];
 
 // Backup Generator upgrade (9 tiers, linear: 2MW -> 20MW output, 100% -> 50% fuel rate)
 const SPEC_UPG_BACKUP_GEN_TIERS    = 9;
@@ -463,7 +463,7 @@ const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 befo
 
 // INTRO OVERLAY
 const INTRO_TITLE            = "Buga's Reactor Command";
-const INTRO_VERSION          = "v3.3";
+const INTRO_VERSION          = "v3.3.1";
 const INTRO_TEXT             = "story placeholder...";
 const INTRO_SWITCH_DELAY_MS  = 600;   // ms pause after switch flips ON before flicker starts
 const INTRO_FLICKER_MS       = 0;  // ms total duration of the flicker-out animation
