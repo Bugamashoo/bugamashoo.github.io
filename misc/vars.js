@@ -463,7 +463,7 @@ const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 befo
 
 // INTRO OVERLAY
 const INTRO_TITLE            = "Buga's Reactor Command";
-const INTRO_VERSION          = "v3.4.1";
+const INTRO_VERSION          = "v3.4.2";
 const INTRO_TEXT             = "story placeholder...";
 const INTRO_SWITCH_DELAY_MS         = 600;   // ms - pause after switch flips ON before fade starts
 const INTRO_FADE_MS                 = 700;   // ms - smooth fade: intro content out + game in simultaneously
