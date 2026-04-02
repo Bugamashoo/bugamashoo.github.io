@@ -161,7 +161,7 @@ function simulate() {
   }
   S.neutronDensity += (tN - S.neutronDensity) * NEUTRON_LERP;
 
-  // Radiation ──
+  // Radiation 
   // Normal shielded operation: ~15–25 mSv. Warning at >30, danger at >60
   S.radiationLevel = S.neutronDensity * RAD_NEUTRON_MULT
                    + (S.igniting && !S.radShield ? RAD_NO_SHIELD_BONUS : 0)
@@ -194,13 +194,14 @@ function simulate() {
   let tR = 0;
   if (S.turbineEngage && S.igniting && aM) tR = S.mainThrottle * TURB_RPM_SCALE * (S.plasmaStability / 100) * fuelRPMBoost;
   S.turbineRPM += (tR - S.turbineRPM) * TURB_LERP;
+  if (S.turbineLimiter) S.turbineRPM = Math.min(S.turbineRPM, Math.floor(getTurbineSafeMax() * 0.84));
   if (S.gridSync && S.turbineRPM > 1000) S.gridLoad += (GRID_TARGET - S.gridLoad) * GRID_LERP * gP;
   else S.gridLoad *= GRID_DECAY;
 
   // Power output
   // Fuel injection directly scales power - more fuel = denser plasma = more energy extraction
   const fuelPowerMult = POWER_FUEL_MULT_BASE + (eF / 100) * POWER_FUEL_MULT_RANGE;
-  // Mix ratio power factor: MIX_POWER_MIN at 0% → 1.0 at 50% → MIX_POWER_MAX at 100%
+  // Mix ratio power factor: MIX_POWER_MIN at 0% -> 1.0 at 50% -> MIX_POWER_MAX at 100%
   const mixPowerMult = S.mixRatio <= 50
     ? MIX_POWER_MIN + (S.mixRatio / 50) * (1 - MIX_POWER_MIN)
     : 1 + ((S.mixRatio - 50) / 50) * (MIX_POWER_MAX - 1);
@@ -311,8 +312,7 @@ function simulate() {
 
   // System error spawning
   if (S.startupComplete && S.uptime > nextErrorTime) {
-    // Pick a random overclock-capable module (not comms/sensor - they have no modes)
-    const errCandidates = Object.keys(S.modules).filter(k => k !== 'comms' && k !== 'sensor' && S.modules[k].status !== 'offline');
+    const errCandidates = Object.keys(S.modules).filter(k => S.modules[k].status !== 'offline');
     const hasAnyError = errCandidates.some(k => S.modules[k].sysError);
 
     if (!hasAnyError) {
@@ -360,6 +360,8 @@ function simulate() {
       }
     }
     nextErrorTime = S.uptime + ERR_SPAWN_NEXT_MIN + Math.random() * ERR_SPAWN_NEXT_RANGE;
+    syncCommsLocks();
+    syncSensorFaults();
   }
 
   // Diagnosis completion
@@ -517,8 +519,8 @@ function simulate() {
     if (S.containIntegrity < WARN_CONTAIN_AMBER) addLog('WARN: Containment', 'err');
   }
 
-  // Sensor noise (randomise bar values every 5 ticks when offline)
-  if (tick % 5 === 0 && S.modules.sensor.status !== 'online') {
+  // Sensor noise (randomise bar values every 5 ticks when sensor offline or any gauge is faulty)
+  if (tick % 5 === 0 && (S.modules.sensor.status !== 'online' || sensorFaultyGauges.length > 0)) {
     sensorNoise = {
       coreTemp:         (Math.random() * DISP_TEMP_MAX).toFixed(0),
       corePressure:     (Math.random() * DISP_PRES_MAX).toFixed(1),

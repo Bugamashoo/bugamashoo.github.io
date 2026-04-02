@@ -74,6 +74,48 @@ function getSpecialUpgradeMult(key) {
   return tier > 0 ? SPEC_UPG_MULT_STEPS[tier - 1] : 1.0;
 }
 
+// Pools for comms/sensor error effects (controls and gauges on the main panel)
+const COMMS_LOCKABLE_SWITCHES = ['auxPower','radShield','fuelPumps','coolantPumps','magCoils','ignPrime','turbineEngage','gridSync','ventSystem','containField','backupGen','turbineLimiter'];
+const COMMS_LOCKABLE_CONTROLS = ['mainThrottle','fuelInject','coolantFlow','containPower','pressureRelief','mixRatio','fieldTune'];
+const SENSOR_FAULTY_GAUGE_POOL = ['coreTemp','corePressure','plasmaStability','neutronDensity','coolantTemp','coolantFlowRate','turbineRPM','containIntegrity','magneticFlux','radiationLevel'];
+
+// Reconcile commsLockedSwitches / commsLockedControls to match current comms errorCount.
+// Only appends new random picks when errorCount increased; clears when sysError is false.
+function syncCommsLocks() {
+  const m = S.modules.comms;
+  if (!m.sysError) { commsLockedSwitches = []; commsLockedControls = []; return; }
+  const needed = Math.min(m.errorCount, Math.min(COMMS_LOCKABLE_SWITCHES.length, COMMS_LOCKABLE_CONTROLS.length));
+  while (commsLockedSwitches.length < needed) {
+    const avail = COMMS_LOCKABLE_SWITCHES.filter(id => !commsLockedSwitches.includes(id));
+    if (!avail.length) break;
+    commsLockedSwitches.push(avail[Math.floor(Math.random() * avail.length)]);
+  }
+  while (commsLockedControls.length < needed) {
+    const avail = COMMS_LOCKABLE_CONTROLS.filter(id => !commsLockedControls.includes(id));
+    if (!avail.length) break;
+    commsLockedControls.push(avail[Math.floor(Math.random() * avail.length)]);
+  }
+}
+
+// Reconcile sensorFaultyGauges to match current sensor errorCount.
+function syncSensorFaults() {
+  const m = S.modules.sensor;
+  if (!m.sysError) { sensorFaultyGauges = []; return; }
+  const needed = Math.min(m.errorCount, SENSOR_FAULTY_GAUGE_POOL.length);
+  while (sensorFaultyGauges.length < needed) {
+    const avail = SENSOR_FAULTY_GAUGE_POOL.filter(id => !sensorFaultyGauges.includes(id));
+    if (!avail.length) break;
+    sensorFaultyGauges.push(avail[Math.floor(Math.random() * avail.length)]);
+  }
+  sensorFaultyGauges = sensorFaultyGauges.slice(0, needed);
+}
+
+// Returns current turbine safe RPM threshold based on turbineSpeedUpgrade tier
+function getTurbineSafeMax() {
+  const tier = specialUpgrades.turbineSpeedUpgrade || 0;
+  return SPEC_UPG_TURBINE_SPEED_BASE + tier * (SPEC_UPG_TURBINE_SPEED_MAX - SPEC_UPG_TURBINE_SPEED_BASE) / SPEC_UPG_TURBINE_SPEED_TIERS;
+}
+
 // Returns current backup generator power output (MW) based on upgrade tier
 function getBackupGenOutput() {
   const tier = specialUpgrades.backupGenerator || 0;

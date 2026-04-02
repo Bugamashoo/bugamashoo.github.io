@@ -1,5 +1,5 @@
 /* ============================================================
-   backup.css — BACKUP SYS tab size overrides
+   backup.css - BACKUP SYS tab size overrides
    ============================================================ */
 /* Backup Systems tab: all text +4px (panel-label header excluded) */
 #tab-backup .sub-panel-title{font-size:13px}

@@ -44,6 +44,7 @@ function hardReset() {
     S.modules[k].errorCount = 0;
   });
   diagTarget = null; diagStart = 0;
+  syncCommsLocks(); syncSensorFaults();
   Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
   S.igniting = 0; S.startupComplete = 0; S.scramActive = 0; S.seqStep = 0;
   ['fuelPumps','coolantPumps','containField','ignPrime','turbineEngage','gridSync','magCoils','radShield','ventSystem']
@@ -83,7 +84,7 @@ function checkSeq() {
   }
   if (step !== S.seqStep) {
     if (step > S.seqStep) {
-      const next = step < SEQUENCE.length ? ' — next: ' + SEQUENCE[step].label : '';
+      const next = step < SEQUENCE.length ? ' - next: ' + SEQUENCE[step].label : '';
       addLog('SEQ ' + step + '/' + SEQUENCE.length + next, 'ok');
       doFlash();
     }
@@ -111,7 +112,7 @@ const GAUGE_DANGERS = [
   { id: 'coolFlow',     label: 'COOLANT FLOW',       check: () => S.igniting && S.coolantFlowRate < GAUGE_COOLANT_FLOW_DANGER, mod: 'coolant'  },
   { id: 'contain',      label: 'CONTAINMENT',        check: () => S.containIntegrity < GAUGE_CONTAIN_DANGER,               mod: 'magnetic' },
   { id: 'radiation',    label: 'RADIATION LEVEL',    check: () => S.radiationLevel > GAUGE_RADIATION_DANGER,               mod: 'sensor'   },
-  { id: 'turbineRPM',   label: 'TURBINE RPM',        check: () => S.turbineRPM > GAUGE_TURBINE_DANGER,                    mod: 'grid'     },
+  { id: 'turbineRPM',   label: 'TURBINE RPM',        check: () => S.turbineRPM > getTurbineSafeMax(),                     mod: 'grid'     },
   { id: 'heatSink',     label: 'HEAT SINK TEMP',     check: () => S.heatSinkTemp > GAUGE_HEATSINK_DANGER,                 mod: 'coolant'  },
   { id: 'auxCoolTemp',  label: 'AUX COOL TEMP',      check: () => S.auxCoolTemp > GAUGE_AUXCOOL_DANGER,                   mod: 'backup'   },
 ];
@@ -132,8 +133,9 @@ function updD(id, t, mx, colorFn) {
 }
 
 // Like updD but shows "Sensor ERR" text + randomised bar when sensor array is offline
+// or when this specific gauge is in sensorFaultyGauges due to a sensor sysError
 function updDN(id, t, mx, colorFn) {
-  const off = S.modules.sensor.status !== 'online';
+  const off = S.modules.sensor.status !== 'online' || sensorFaultyGauges.includes(id);
   const e = document.getElementById('disp_' + id);
   const b = document.getElementById('bar_'  + id);
   if (off) {
@@ -163,5 +165,5 @@ function setW(id, t) {
 addLog('MKIV TOKAMAK v4.7.2', 'sys');
 addLog('Manual: MANUAL tab', '');
 addLog('Module modes: SYSTEMS tab', 'sys');
-addLog('All systems nominal — flip AUX PWR to begin startup sequence', 'ok');
-addLog('Fuel low — visit RESUPPLY tab to purchase fuel', 'warn');
+addLog('All systems nominal - flip AUX PWR to begin startup sequence', 'ok');
+addLog('Fuel low - visit RESUPPLY tab to purchase fuel', 'warn');

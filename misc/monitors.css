@@ -1,5 +1,5 @@
 /* ============================================================
-   monitors.css — MONITORS tab graph panel styles
+   monitors.css - MONITORS tab graph panel styles
    ============================================================ */
 .monitors-grid{display:flex;flex-direction:column;width:100%}
 .monitor-panel{background:#0a0c0e;border-bottom:1px solid var(--panel-border);overflow:hidden;padding:6px 10px;height:120px;flex-shrink:0;position:relative}

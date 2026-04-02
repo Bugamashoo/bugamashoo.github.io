@@ -2,7 +2,7 @@
 // Load order: 4th (after reactor1, reactor3)
 // Builds: tabs, switch banks, lever rows, knobs, push buttons
 
-// Tab navigation ───────────────────────────────────────────
+// Tab navigation ─
 document.querySelectorAll('.tab-btn').forEach(b => {
   b.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
@@ -16,7 +16,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   });
 });
 
-// Hamburger menu for mobile ────────────────────────────────
+// Hamburger menu for mobile 
 (function() {
   const menuBtn = document.getElementById('tabMenuBtn');
   const dropdown = document.getElementById('tabMenuDropdown');
@@ -60,7 +60,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   });
 })();
 
-// Knife switch geometry constants ──────────────────────────
+// Knife switch geometry constants 
 const KS = {
   HINGE_Y: 42,       // pivot Y in switch coords
   UP_Y: 14,           // handle center Y when OFF (up)
@@ -78,7 +78,7 @@ const MAIN_PANEL_SWITCH_IDS = new Set([
   'ignPrime','turbineEngage','gridSync','ventSystem','containField'
 ]);
 
-// Switch banks ─────────────────────────────────────────────
+// Switch banks ─
 function buildSB(cid, defs) {
   const c = document.getElementById(cid);
   if (!c) return;
@@ -241,6 +241,10 @@ function togSw(id, el) {
     if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
     return;
   }
+  if (S.modules.comms.sysError && commsLockedSwitches.includes(id)) {
+    addLog('COMMS ERROR - control unresponsive, please restart system', 'err');
+    return;
+  }
   if (S.scramActive && !['auxPower','backupGen','emergVent','emergDump','rodSafetyOff'].includes(id)) return;
   const mm = { fuelPumps:'fuel', coolantPumps:'coolant', gridSync:'grid', magCoils:'magnetic' };
   if (mm[id]) {
@@ -344,15 +348,16 @@ buildSB('switchBank1', [
   { id:'gridSync',      label:'GRID SYNC'  }
 ]);
 buildSB('switchBank2', [
-  { id:'ventSystem',  label:'VENT SYS' },
-  { id:'backupGen',   label:'BACKUP GEN' },
-  { id:'containField',label:'CONTAIN' }
+  { id:'ventSystem',    label:'VENT SYS'  },
+  { id:'backupGen',     label:'BACKUP GEN'},
+  { id:'containField',  label:'CONTAIN'   },
+  { id:'turbineLimiter',label:'TURBINE LIMIT'}
 ]);
 buildSB('auxCoolSwitches',   [{ id:'auxCoolPump', label:'AUX PUMP' }, { id:'auxCoolLoop', label:'AUX LOOP' }]);
 buildSB('backupContSwitches',[{ id:'backupContA', label:'FIELD A'  }, { id:'backupContB', label:'FIELD B'  }]);
 buildSB('emergSwitches',     [{ id:'emergVent',   label:'EMRG VENT'}, { id:'emergDump', label:'FUEL DUMP' }, { id:'rodSafetyOff', label:'ROD SAFETY' }]);
 
-// Lever rows ────────────────────────────────────────────────
+// Lever rows
 function buildLev(cid, defs) {
   const c = document.getElementById(cid);
   if (!c) return;
@@ -379,6 +384,10 @@ function setupLev(tr, id) {
   function setL(cy) {
     if (S.modules.comms.status === 'offline' && tr.closest('#tab-controls')) {
       if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
+      return;
+    }
+    if (S.modules.comms.sysError && commsLockedControls.includes(id) && tr.closest('#tab-controls')) {
+      addLog('COMMS ERROR - control unresponsive, please restart system', 'err');
       return;
     }
     if (['rodA','rodB','rodC'].includes(id) && S.rodSafetyOff) {
@@ -433,7 +442,7 @@ buildLev('auxCoolLevers',    [{ id:'auxCoolRate',   label:'AUX RATE'  }]);
 buildLev('backupContLevers', [{ id:'backupContPow', label:'FIELD PWR' }]);
 buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'ROD B' }, { id:'rodC', label:'ROD C' }]);
 
-// Knob panel ────────────────────────────────────────────────
+// Knob panel
 // Knobs point toward the cursor/touch position (calculated from
 // center of dial, snapped to 5% increments within angular limits).
 // Angular range: -135° (5%) to +135° (95%), 0° = pointer up.
@@ -464,6 +473,10 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
         if (tick - lastCommsWarnTick > 20) { addLog('COMMS OFFLINE - controls locked', 'err'); lastCommsWarnTick = tick; }
         return;
       }
+      if (S.modules.comms.sysError && commsLockedControls.includes(d.id)) {
+        addLog('COMMS ERROR - control unresponsive, please restart system', 'err');
+        return;
+      }
       const rect = housing.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
@@ -471,9 +484,9 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
       const dy = cy - clientY; // inverted: screen Y down, we want Y up
       // Angle: 0° = up, positive = clockwise (matches CSS rotation)
       let angle = Math.atan2(dx, dy) * 180 / Math.PI;
-      // Clamp to [-135, 135] — dead zone at bottom
+      // Clamp to [-135, 135] - dead zone at bottom
       angle = Math.max(-135, Math.min(135, angle));
-      // Map angle to value: -135° → 0%, 0° → 50%, +135° → 100%
+      // Map angle to value: -135° -> 0%, 0° -> 50%, +135° -> 100%
       let val = (angle + 135) / 270 * 100;
       // Snap to 5% increments, clamp to [5, 95]
       val = Math.round(val / 5) * 5;
@@ -522,10 +535,10 @@ buildLev('rodLevers',        [{ id:'rodA', label:'ROD A' }, { id:'rodB', label:'
   });
 })();
 
-// Disable right-click on entire page ───────────────────────
+// Disable right-click on entire page
 document.addEventListener('contextmenu', e => e.preventDefault());
 
-// Push button panel (Ignite, Lamp Test, Line Purge) ─────────
+// Push button panel (Ignite, Lamp Test, Line Purge)
 (function() {
   const c = document.getElementById('buttonPanel');
   c.innerHTML =
@@ -575,7 +588,7 @@ document.addEventListener('contextmenu', e => e.preventDefault());
   });
 })();
 
-// Emergency button panel (Plasma Dump, Cool Flood, Hard Reset) ─
+// Emergency button panel (Plasma Dump, Cool Flood, Hard Reset)
 (function() {
   const c = document.getElementById('emergButtons');
   ['PLASMA DUMP', 'COOL FLOOD', 'HARD RESET'].forEach((l, i) => {

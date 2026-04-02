@@ -26,6 +26,7 @@ const HELP_CTRL = {
   emergVent:        ['EMERG VENT',          'G:- Core temp', 'G:- Core pressure', 'R:- Backup system health'],
   emergDump:        ['FUEL DUMP',           'R:- Fuel (significant)', 'Required to resolve some events'],
   rodSafetyOff:     ['ROD SAFETY',          'Retracts all rods to 0% and locks the sliders', 'OFF unlocks control rod insertion controls'],
+  turbineLimiter:   ['TURBINE LIMITER',     'Caps turbine RPM just below the current warning threshold (~84% of safe max)', 'R:- Max power output when active', 'Prevents turbine overspeed and protects the grid module from RPM damage', 'Upgrade Turbine Speed in RESUPPLY to raise the safe limit and unlock higher output', 'Turn OFF to remove the RPM cap and allow full turbine speed'],
 
   // Ignition panel push buttons
   ignBtn:           ['IGNITE',              'Hold continuously for 3 seconds to fire plasma ignition', 'Requires IGN PRIME and AUX POWER to be active', 'Ensure sufficient fuel flow to start'],
@@ -105,7 +106,7 @@ const HELP_RESUPPLY = {
   sellFuel:      ['SELL FUEL',              'R:- Fuel', 'Sell spare fuel at 75% of current buy price'],
   fuelPrice:     ['FUEL MARKET PRICE',      'Current cost per kg of fuel', 'Fluctuates in price following first purchase'],
   upgHealth:     ['MAX HEALTH UPGRADE',     'G:+ Module max health', 'Allows module to survive longer between maintenance'],
-  upgEfficiency: ['EFFICIENCY UPGRADE',     'G:+ Module performance', 'Boosts effective output regardless of system error state — T1/T2/T3 give +10%/+25%/+50% total'],
+  upgEfficiency: ['EFFICIENCY UPGRADE',     'G:+ Module performance', 'Boosts effective output regardless of system error state - T1/T2/T3 give +10%/+25%/+50% total'],
   upgDrain:      ['DURABILITY UPGRADE',     'G:- Module damage', 'Damage to module accumulates more slowly'],
   itemFuel:      ['EMERGENCY FUEL',         'N/A'],
   itemRepair:    ['QUICK REPAIR KIT',       'G:+ 30HP', 'Select target module after purchase'],

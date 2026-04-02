@@ -1,5 +1,5 @@
 /* ============================================================
-   mobile.css — Responsive layout for portrait mobile devices
+   mobile.css - Responsive layout for portrait mobile devices
    Triggers: portrait orientation + max-width 1024px
    (excludes vertical desktop monitors which are typically 1080px+)
    ============================================================ */
@@ -14,7 +14,7 @@
   touch-action: none;
 }
 
-/* Hamburger menu — hidden on desktop */
+/* Hamburger menu - hidden on desktop */
 .tab-menu-wrap {
   display: none;
   position: relative;
@@ -76,7 +76,7 @@
   background: rgba(255,159,28,.05);
 }
 
-/* ── PORTRAIT MOBILE LAYOUT ──────────────────────────────── */
+/*  PORTRAIT MOBILE LAYOUT  */
 @media (orientation: portrait) and (max-width: 1024px) {
 
   /* Body: keep flex column, allow content scroll */
@@ -86,7 +86,7 @@
     height: 100dvh;
   }
 
-  /* ── HEADER ──────────────────────────────────────────── */
+  /*  HEADER  */
   .header {
     flex-wrap: wrap;
     padding: 4px 8px;
@@ -130,7 +130,7 @@
   }
   .hdr-box-help .hdr-box-value { font-size: 11px; }
 
-  /* ── TAB BAR ─────────────────────────────────────────── */
+  /*  TAB BAR ─ */
   .tab-btn-desktop { display: none !important; }
   .tab-menu-wrap { display: flex; }
   .tabs-bar {
@@ -148,26 +148,26 @@
     justify-content: center;
   }
 
-  /* ── CONTROLS TAB: SINGLE-COLUMN REFLOW ──────────────── */
+  /*  CONTROLS TAB: SINGLE-COLUMN REFLOW  */
   .main-grid {
     display: flex !important;
     flex-direction: column !important;
     min-height: auto;
   }
 
-  /* Dissolve center controls wrapper — children become flex items */
+  /* Dissolve center controls wrapper - children become flex items */
   #panelControlsWrap {
     display: contents !important;
   }
 
-  /* Dissolve diagnostics panel — children become flex items */
+  /* Dissolve diagnostics panel - children become flex items */
   #panelDiag {
     display: contents !important;
   }
   #panelDiag > .panel-label { display: none; }
   #panelDiag > .panel-body { display: contents !important; }
 
-  /* Reorder sections: startup → visuals(in panelSeq) → log → warnings → controls → gauges */
+  /* Reorder sections: startup -> visuals(in panelSeq) -> log -> warnings -> controls -> gauges */
   #panelSeq       { order: 1; }
   #diagLog        { order: 2; }
   #diagWarnings   { order: 3; }
@@ -191,7 +191,7 @@
     padding: 8px;
   }
 
-  /* ── PANEL SIZING ────────────────────────────────────── */
+  /*  PANEL SIZING  */
   #panelSeq {
     width: 100%;
   }
@@ -258,7 +258,7 @@
     margin: 1px 0;
   }
 
-  /* ── BACKUP SYS TAB ──────────────────────────────────── */
+  /*  BACKUP SYS TAB  */
   #tab-backup .main-grid {
     display: flex !important;
     flex-direction: column !important;
@@ -268,18 +268,18 @@
   #backupAux   { order: 1; }
   #backupCont  { order: 2; }
 
-  /* ── SYSTEMS TAB ─────────────────────────────────────── */
+  /*  SYSTEMS TAB ─ */
   .systems-grid {
     grid-template-columns: 1fr !important;
     grid-template-rows: auto !important;
   }
 
-  /* ── MONITORS TAB ────────────────────────────────────── */
+  /*  MONITORS TAB  */
   .monitor-panel {
     height: 100px;
   }
 
-  /* ── MANUAL TAB ──────────────────────────────────────── */
+  /*  MANUAL TAB  */
   .manual-container {
     flex-direction: column !important;
   }
@@ -301,7 +301,7 @@
     padding: 4px 8px !important;
   }
 
-  /* ── EVENT OVERLAY ───────────────────────────────────── */
+  /*  EVENT OVERLAY ─ */
   .event-overlay {
     left: 8px;
     right: 8px;
@@ -311,7 +311,7 @@
     width: 100%;
   }
 
-  /* ── GAME OVER SCREEN ────────────────────────────────── */
+  /*  GAME OVER SCREEN  */
   #gameOverInner {
     padding: 20px 16px;
   }
@@ -326,7 +326,7 @@
     padding: 12px;
   }
 
-  /* ── RESUPPLY TAB ────────────────────────────────────── */
+  /*  RESUPPLY TAB  */
   .resupply-grid {
     grid-template-columns: 1fr !important;
   }
@@ -347,7 +347,7 @@
   .item-desc { font-size: 14px; }
   .item-cost { font-size: 16px; }
 
-  /* ── HELP MODE ───────────────────────────────────────── */
+  /*  HELP MODE ─ */
   #helpModeNotice {
     font-size: 0;
     letter-spacing: 2px;
@@ -362,7 +362,7 @@
   }
 }
 
-/* ── EXTRA-SMALL PHONES (≤400px) ─────────────────────────── */
+/*  EXTRA-SMALL PHONES (≤400px) ─ */
 @media (orientation: portrait) and (max-width: 400px) {
   .header-title {
     font-size: 8px;

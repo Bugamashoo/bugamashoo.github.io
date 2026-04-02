@@ -196,7 +196,7 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:r
 .go-narrative{font-family:'Special Elite',cursive;font-size:15px;line-height:1.8;color:#a0a5ab;margin:20px auto;max-width:600px;text-align:left;padding:20px;border:1px solid var(--panel-border);background:rgba(26,28,30,.8);border-radius:4px}
 .go-restart{margin-top:30px;padding:14px 40px;font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:4px;background:transparent;border:2px solid var(--amber);color:var(--amber);cursor:pointer;border-radius:4px;transition:all .3s}
 .go-restart:hover{background:var(--amber);color:#000}
-/* Controls tab: all text +2px (header excluded — it lives outside #tab-controls) */
+/* Controls tab: all text +2px (header excluded - it lives outside #tab-controls) */
 #tab-controls .panel-label{font-size:11px}
 #tab-controls .sub-panel-title{font-size:11px}
 #tab-controls .switch-name{font-size:10px}
@@ -221,7 +221,7 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:r
 #tab-backup .push-btn{font-size:12px!important;text-align:center}
 #tab-backup .warning-light{font-size:12px}
 
-/* ── HELP MODE ──────────────────────────────────────────────── */
+/*  HELP MODE  */
 .hdr-box-help{border-color:var(--amber-dim);cursor:pointer;min-width:68px}
 .hdr-box-help .hdr-box-value{color:var(--amber-dim);font-size:13px;letter-spacing:2px}
 .hdr-box-help:hover{border-color:var(--amber);box-shadow:inset 0 1px 6px rgba(0,0,0,.8),0 0 12px rgba(255,159,28,.25)}

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <link rel="stylesheet" href="./misc/global.css">
+<link rel="stylesheet" href="./misc/intro.css">
 <link rel="stylesheet" href="./misc/controls.css">
 <link rel="stylesheet" href="./misc/manual.css">
 <link rel="stylesheet" href="./misc/monitors.css">
@@ -14,8 +15,34 @@
 <title>MKIV REACTOR CONTROL</title>
 </head>
 <body class="no-power">
+
+<!--  Startup overlay (styled by intro.css, wired by intro.js)  -->
+<div id="introOverlay">
+  <div id="introContent">
+    <div id="introTitle">Buga's Reactor Command</div>
+    <div id="introVersion">v3.3</div>
+    <div id="introRow">
+      <div id="introTextBox">placeholder</div>
+      <div id="introSwitchWrap">
+        <div id="introSwitchLabel">LIGHTS</div>
+        <div class="knife-switch" id="introSwitch">
+          <div class="ks-cap"></div>
+          <div class="ks-post ks-post-left"></div>
+          <div class="ks-post ks-post-right"></div>
+          <div class="ks-hinge"></div>
+          <div class="ks-arm ks-arm-left"></div>
+          <div class="ks-arm ks-arm-right"></div>
+          <div class="ks-handle"></div>
+          <div class="ks-contact"></div>
+        </div>
+        <div class="switch-indicator"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="header">
-  <div class="header-title">MKIV TOKAMAK — CONTROL INTERFACE</div>
+  <div class="header-title">MKIV TOKAMAK - CONTROL INTERFACE</div>
   <div class="header-displays">
     <div class="hdr-box hdr-box-warn" id="warnBox">
       <div class="hdr-box-label">STATUS</div>
@@ -96,13 +123,13 @@
     </defs>
     <!-- Background hex fill -->
     <polygon points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="url(#bgGrad)"/>
-    <!-- Heat background — hex tints orange/red with heat sink temp -->
+    <!-- Heat background - hex tints orange/red with heat sink temp -->
     <polygon id="heatBg" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="#ff5500" opacity="0" filter="url(#radBlur)"/>
-    <!-- Radiation aura — large blurred halo (green→amber→red) -->
+    <!-- Radiation aura - large blurred halo (green->amber->red) -->
     <circle id="radAura" cx="70" cy="62.5" r="48" fill="#39ff14" opacity="0" filter="url(#radBlur)"/>
     <!-- Outer border hex -->
     <polygon id="hexBorder" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
-    <!-- Fuel arc ring — progress ring showing remaining fuel, starts at top (rotate -90) -->
+    <!-- Fuel arc ring - progress ring showing remaining fuel, starts at top (rotate -90) -->
     <circle id="fuelArc" cx="70" cy="62.5" r="50" fill="none" stroke="#ff9f1c" stroke-width="2.5" stroke-dasharray="314 315" stroke-linecap="round" transform="rotate(-90 70 62.5)" opacity="0"/>
     <!-- Fuel injection indicator (orange, bottom-left) -->
     <polygon points="-13.1,110.5 28.5,110.5 7.7,74.5" fill="url(#bgGrad)" stroke="none"/>
@@ -112,15 +139,15 @@
     <polygon points="111.5,110.5 153.1,110.5 132.3,74.5" fill="url(#bgGrad)" stroke="none"/>
     <polygon id="coolFill" points="111.5,110.5 153.1,110.5 132.3,74.5" clip-path="url(#coolFillClip)" fill="#00e5ff" opacity="0" stroke="none"/>
     <polygon id="coolantIndicator" points="111.5,110.5 153.1,110.5 132.3,74.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
-    <!-- Ring 3 — containment field -->
+    <!-- Ring 3 - containment field -->
     <polygon id="ring3" class="rviz-ring" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="none" stroke="#1e2830" stroke-width="1.5"/>
-    <!-- Turbine spin ring — dashed circle, animation speed driven by turbineRPM -->
+    <!-- Turbine spin ring - dashed circle, animation speed driven by turbineRPM -->
     <circle id="turbineSpin" cx="70" cy="62.5" r="44" fill="none" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 7" opacity="0"/>
-    <!-- Ring 2 — magnetic -->
+    <!-- Ring 2 - magnetic -->
     <polygon id="ring2" class="rviz-ring" points="108,62.5 89,95.4 51,95.4 32,62.5 51,29.6 89,29.6" fill="none" stroke="#1e2830" stroke-width="2"/>
-    <!-- Pressure pulse indicator — pulsing ring, frequency driven by core pressure -->
+    <!-- Pressure pulse indicator - pulsing ring, frequency driven by core pressure -->
     <circle id="pressPulse" cx="70" cy="62.5" r="16" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
-    <!-- Ring 1 — plasma -->
+    <!-- Ring 1 - plasma -->
     <polygon id="ring1" class="rviz-ring" points="94,62.5 82,83.3 58,83.3 46,62.5 58,41.7 82,41.7" fill="none" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Electrical arc paths -->
     <g id="arcLayer">
@@ -207,7 +234,7 @@
   <div class="go-narrative" id="goNarrative"></div>
   <button class="go-restart" onclick="location.reload()">RESTART REACTOR</button>
 </div></div>
-<script src="./misc/vars.js"></script>      <!-- Balance constants — edit here to tune gameplay -->
+<script src="./misc/vars.js"></script>      <!-- Balance constants - edit here to tune gameplay -->
 <script src="./misc/reactor1.js"></script>  <!-- State (S), MODES, SEQUENCE, shared vars -->
 <script src="./misc/reactor2.js"></script>  <!-- EVENTS[], CATASTROPHES{} definitions -->
 <script src="./misc/reactor3.js"></script>  <!-- Utilities: addLog, doShake, doFlash, modPerf, modHeat, fmtTime -->
@@ -222,4 +249,5 @@
 <script src="./misc/sim.js"></script>      <!-- Simulation loop: simulate() -->
 <script src="./misc/helpdata.js"></script>  <!-- Help text data: all description objects -->
 <script src="./misc/help.js"></script>     <!-- Help mode: tooltips and graying -->
+<script src="./misc/intro.js"></script>  <!-- Startup overlay: lights switch + flicker-out -->
 </body></html>

@@ -6,7 +6,7 @@ const S = {
   auxPower:0, fuelPumps:0, coolantPumps:0, containField:0, ignPrime:0,
   turbineEngage:0, gridSync:0, radShield:0, magCoils:0, ventSystem:0,
   backupGen:0, auxCoolPump:0, auxCoolLoop:0, backupContA:0, backupContB:0,
-  emergVent:0, emergDump:0, rodSafetyOff:1,
+  emergVent:0, emergDump:0, rodSafetyOff:1, turbineLimiter:1,
   // Levers
   mainThrottle:0, fuelInject:0, coolantFlow:0, containPower:0,
   auxCoolRate:0, backupContPow:0, rodA:0, rodB:0, rodC:0,
@@ -96,9 +96,13 @@ let moduleHealthPrev = {}; // previous-tick health per module key, for threshold
 let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets uptime at 10s
 
 // Money & resupply globals
-let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0 } } — tier purchased (0=none)
-let specialUpgrades = { eventSuppression: 0, emergencyDelayer: 0, backupGenerator: 0 }; // tier purchased (0=none)
+let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0 } } - tier purchased (0=none)
+let specialUpgrades = { eventSuppression: 0, emergencyDelayer: 0, backupGenerator: 0, turbineSpeedUpgrade: 0 }; // tier purchased (0=none)
 let overclockBoostEnd = 0;  // tick when overclock boost expires (0 = inactive)
-let resupplyPulseDone = false; // true once resupply tab pulse has been clicked — never pulses again
+let resupplyPulseDone = false; // true once resupply tab pulse has been clicked - never pulses again
+// Comms/sensor error effects
+let commsLockedSwitches = []; // switch IDs on main panel locked by comms sysErrors
+let commsLockedControls = []; // lever/knob IDs on main panel locked by comms sysErrors
+let sensorFaultyGauges  = []; // gauge IDs in diagnostics showing per-fault sensor noise
 // Initialize upgrade tracking for each module
 Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0 }; });

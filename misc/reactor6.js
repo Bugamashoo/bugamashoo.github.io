@@ -6,7 +6,7 @@ function buildSys() {
   const c = document.getElementById('systemsGrid');
   c.innerHTML = '';
 
-  // Bulk control card (top-left cell) ──
+  // Bulk control card (top-left cell) 
   const allOnline = Object.values(S.modules).every(m => m.status !== 'offline');
   const ctrl = document.createElement('div');
   ctrl.className = 'module-card';
@@ -214,6 +214,8 @@ window.rstMod = function(k) {
       m.errorCount = 0;
       bypassRestartTarget = null;
       rstTargets.delete(k);
+      if (k === 'comms') syncCommsLocks();
+      if (k === 'sensor') syncSensorFaults();
       addLog(m.name + ' errors cleared (bypass)', 'ok');
       buildSys();
     }, MODULE_RESTART_MS);
@@ -224,6 +226,8 @@ window.rstMod = function(k) {
     m.sysErrorVisible = false;
     m.errorPenalty = 1;
     m.errorCount = 0;
+    if (k === 'comms') syncCommsLocks();
+    if (k === 'sensor') syncSensorFaults();
     buildSys();
     setTimeout(() => {
       m.status = 'online';

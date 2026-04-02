@@ -1,5 +1,5 @@
 /* ============================================================
-   manual.css — MANUAL tab typography and layout
+   manual.css - MANUAL tab typography and layout
    ============================================================ */
 .manual-container{display:grid;grid-template-columns:200px 1fr;flex:1;min-height:0}
 .manual-nav{background:#1e1c18;border-right:3px solid #3a3528;padding:12px}

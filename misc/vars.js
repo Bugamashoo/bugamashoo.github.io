@@ -15,7 +15,7 @@ const POWER_HIST_MAX       = 100;    // Max power history entries (100 × 3s = 5
 
 // INITIAL STATE
 // Starting values when the game loads.
-const FUEL_START      = 5;    // Starting fuel level (%) — 1/20th of capacity, buy more via RESUPPLY tab
+const FUEL_START      = 5;    // Starting fuel level (%) - 1/20th of capacity, buy more via RESUPPLY tab
 const KNOB_DEFAULT    = 50;   // Default value for pressureRelief, mixRatio, fieldTune knobs (%)
 const TEMP_IDLE       = 20;   // Ambient/idle core temperature (°C)
 const PRESSURE_BASE   = 1;    // Idle core pressure (ATM)
@@ -75,7 +75,7 @@ const EMERG_VENT_TEMP_OFFSET = 100;  // Additional °C subtracted when emergency
 
 // Physics
 const TEMP_LERP           = 0.02;  // Temperature lerp rate toward target per tick (higher = snappier)
-const TEMP_RUNAWAY_STEP   = 200;   // °C/tick forced rise when no active cooling is running
+const TEMP_RUNAWAY_STEP   = 250;   // °C/tick forced rise when no active cooling is running
 
 // CORE PRESSURE
 // Pressure formula constants.
@@ -161,6 +161,7 @@ const CONTAIN_BACKUP_REGEN_SCALE = 0.003; // backupFieldStr × this = extra rege
 
 // TURBINE & GRID
 // Safe RPM range: 3,000–12,000. Warning above 13,000.
+// TURBINE_LIMITER_MAX is computed dynamically as getTurbineSafeMax() * 0.84 (just below amber threshold)
 const TURB_FUEL_BOOST_BASE  = 0.7;   // RPM multiplier at zero effective fuel
 const TURB_FUEL_BOOST_RANGE = 0.6;   // Added to base at full fuel (max: base + range = 1.3×)
 const TURB_RPM_SCALE        = 150;   // throttle × plasma% × fuelBoost × this = target RPM
@@ -242,7 +243,7 @@ const GAUGE_COOLANT_TEMP_DANGER = 150; // Coolant temp (°C) above which coolant
 const GAUGE_COOLANT_FLOW_DANGER = 100; // Coolant flow (L/min) below which coolant module takes damage
 const GAUGE_CONTAIN_DANGER    = 15;    // Containment (%) below which magnetic module takes damage
 const GAUGE_RADIATION_DANGER  = 60;    // Radiation (mSv) above which sensor module takes damage
-const GAUGE_TURBINE_DANGER    = 16000; // Turbine RPM above which grid module takes damage
+const GAUGE_TURBINE_DANGER    = 6000;  // Turbine RPM above which grid module takes damage (base; scales with turbineSpeedUpgrade)
 const GAUGE_HEATSINK_DANGER   = 150;   // Heat sink temp (°C) above which coolant module takes damage
 const GAUGE_AUXCOOL_DANGER    = 70;    // Aux cool temp (°C) above which backup module takes damage
 
@@ -279,7 +280,7 @@ const SAFE_RAD_RED        = 60;    // Radiation (mSv) -> red warning light
 const SAFE_RAD_AMBER      = 30;    // Radiation (mSv) -> amber warning light
 const SAFE_HEATSINK_RED   = 150;   // Heat sink temp (°C) -> red gauge
 const SAFE_AUXCOOL_RED    = 70;    // Aux cool temp (°C) -> red gauge
-const SAFE_TURBINE_RED    = 16000; // Turbine RPM -> red gauge
+const SAFE_TURBINE_RED    = 6000;  // Turbine RPM -> red gauge (base; scales with turbineSpeedUpgrade)
 const SAFE_CONTAIN_DISP   = 15;    // Containment (%) -> red gauge (display threshold, slightly tighter than light)
 const SAFE_PLASMA_LOW     = 20;    // Plasma stability (%) -> red gauge (when igniting)
 
@@ -412,17 +413,17 @@ const UPGRADE_EFFICIENCY_BONUS= [0.1, 0.15, 0.25];       // Flat perf multiplier
 const UPGRADE_DRAIN_COST      = [23000, 187000, 650000];    // Base cost per tier: reduce health drain rate
 const UPGRADE_DRAIN_MULT      = [0.90, 0.70, 0.45];       // Health drain multiplied by this (lower = better)
 
-// Per-module cost multiplier — scales all upgrade costs for that module.
+// Per-module cost multiplier - scales all upgrade costs for that module.
 // Ranked by how directly the module contributes to reactor output.
 const UPGRADE_MODULE_COST_MULT = {
-  grid:     5.0,   // Grid Interface — power delivery, most expensive
-  backup:   2.2,   // Backup Power — emergency stability
-  fuel:     3.7,   // Fuel Processing — fuel efficiency
-  thermal:  1.3,   // Thermal Control — heat management
-  magnetic: 2.0,   // Magnetic Containment — plasma stability
-  coolant:  1.5,   // Coolant System — overheat prevention
-  sensor:   0.3,   // Sensor Array — readout accuracy
-  comms:    0.6    // Comms Relay — control access
+  grid:     5.0,   // Grid Interface - power delivery, most expensive
+  backup:   2.2,   // Backup Power - emergency stability
+  fuel:     3.7,   // Fuel Processing - fuel efficiency
+  thermal:  1.3,   // Thermal Control - heat management
+  magnetic: 2.0,   // Magnetic Containment - plasma stability
+  coolant:  1.5,   // Coolant System - overheat prevention
+  sensor:   0.3,   // Sensor Array - readout accuracy
+  comms:    0.6    // Comms Relay - control access
 };
 
 // SPECIAL ITEMS (one-time-use, repeatable purchase)
@@ -445,7 +446,13 @@ const SPEC_UPG_MULT_STEPS        = [1.4, 1.8, 2.2, 2.6, 3.0]; // multiplier per 
 const SPEC_UPG_EVENT_SUPPRESS_COSTS  = [150000, 400000, 900000, 2000000, 5000000];  // Event Suppression tier costs
 const SPEC_UPG_EMERGENCY_DELAY_COSTS = [200000, 500000, 1100000, 2500000, 6000000]; // Emergency Delayer tier costs
 
-// Backup Generator upgrade (9 tiers, linear: 2MW→20MW output, 100%→50% fuel rate)
+// Turbine Speed upgrade (9 tiers, linear: 2,000 -> 20,000 RPM safe threshold)
+const SPEC_UPG_TURBINE_SPEED_TIERS = 9;
+const SPEC_UPG_TURBINE_SPEED_BASE  = 2000;  // Safe RPM at tier 0 (no upgrade)
+const SPEC_UPG_TURBINE_SPEED_MAX   = 20000; // Safe RPM at max tier
+const SPEC_UPG_TURBINE_SPEED_COSTS = [15000, 37000, 90000, 220000, 540000, 1300000, 3200000, 7800000, 19200000];
+
+// Backup Generator upgrade (9 tiers, linear: 2MW -> 20MW output, 100% -> 50% fuel rate)
 const SPEC_UPG_BACKUP_GEN_TIERS    = 9;
 const SPEC_UPG_BACKUP_GEN_MAX_MW   = 20;   // Power output at max tier
 const SPEC_UPG_BACKUP_GEN_MIN_FUEL = 0.5;  // Fuel consumption multiplier at max tier (50% of base)
@@ -453,3 +460,24 @@ const SPEC_UPG_BACKUP_GEN_COSTS    = [24000, 54000, 90000, 158000, 279000, 44200
 
 // FUEL+MONEY EXHAUSTION
 const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)
+
+// INTRO OVERLAY
+const INTRO_TITLE            = "Buga's Reactor Command";
+const INTRO_VERSION          = "v3.3";
+const INTRO_TEXT             = "story placeholder...";
+const INTRO_SWITCH_DELAY_MS  = 600;   // ms pause after switch flips ON before flicker starts
+const INTRO_FLICKER_MS       = 0;  // ms total duration of the flicker-out animation
+const INTRO_Z_INDEX          = 11000;
+const INTRO_TITLE_SIZE       = 40;    // px - title font size
+const INTRO_TITLE_SPACING    = 2;     // px - title letter-spacing
+const INTRO_TITLE_GLOW       = 1;  // opacity multiplier for amber title text-shadow
+const INTRO_VERSION_SIZE     = 16;    // px - version text font size
+const INTRO_VERSION_SPACING  = 8;     // px - version letter-spacing
+const INTRO_VERSION_OPACITY  = 0.8;  // opacity of version text
+const INTRO_VERSION_OFFSET   = -22;   // px - margin-top pulling version up under title
+const INTRO_CONTENT_GAP      = 28;    // px - gap between title block and the row below
+const INTRO_ROW_GAP          = 18;    // px - gap between text box and switch
+const INTRO_BOX_WIDTH        = 420;   // px - text box width
+const INTRO_BOX_MIN_HEIGHT   = 130;   // px - text box minimum height
+const INTRO_BOX_FONT_SIZE    = 13;    // px - text box font size
+const INTRO_BOX_LINE_HEIGHT  = 1.75;  // text box line-height

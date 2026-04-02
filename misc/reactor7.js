@@ -246,10 +246,10 @@ const MP = {
      <div style="margin-bottom:12px">
        Fuel can be purchased from the RESUPPLY tab at a fluctuating market price. Price is displayed as $/kg and changes gradually over 5–10 minute intervals.<br><br>
        <b>Normal fluctuation:</b> ±25% around base price.<br>
-       <b>Extreme swings:</b> Rare — prices can spike to +100% or drop to −50%. Watch for green prices (below average) and buy in bulk.<br>
+       <b>Extreme swings:</b> Rare - prices can spike to +100% or drop to −50%. Watch for green prices (below average) and buy in bulk.<br>
        <b>Price changes begin</b> after your first fuel purchase. Before that, the price remains at base rate.<br><br>
        <b>Buy options:</b> BUY MAX (spend all available funds), +1%, +5%, +25%, FULL REFILL. Each button shows its cost.<br>
-       <b>Sell fuel:</b> You may sell your remaining fuel at 60% of the current buy price. This is a last resort — fuel is more valuable as reactor input.
+       <b>Sell fuel:</b> You may sell your remaining fuel at 60% of the current buy price. This is a last resort - fuel is more valuable as reactor input.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">REPAIR COSTS</div>
@@ -260,26 +260,26 @@ const MP = {
      <div class="manual-note" style="margin-bottom:6px">SYSTEM UPGRADES</div>
      <div style="margin-bottom:12px">
        Each module can be upgraded in three categories, each with 3 tiers:<br><br>
-       <b style="color:var(--green)">MAX HEALTH</b> — Increases the module's maximum health pool (+10, +15, +20 per tier, cumulative +45 at T3). Higher max health means longer operation between repairs.<br><br>
-       <b style="color:var(--green)">EFFICIENCY</b> — Raises the minimum efficiency when system errors occur. Reduces the performance penalty from hidden faults.<br><br>
-       <b style="color:var(--green)">DURABILITY</b> — Reduces the module's health drain rate during operation. At T3, drain is reduced by 45%. Significant long-term cost savings on repairs.<br><br>
+       <b style="color:var(--green)">MAX HEALTH</b> - Increases the module's maximum health pool (+10, +15, +20 per tier, cumulative +45 at T3). Higher max health means longer operation between repairs.<br><br>
+       <b style="color:var(--green)">EFFICIENCY</b> - Raises the minimum efficiency when system errors occur. Reduces the performance penalty from hidden faults.<br><br>
+       <b style="color:var(--green)">DURABILITY</b> - Reduces the module's health drain rate during operation. At T3, drain is reduced by 45%. Significant long-term cost savings on repairs.<br><br>
        Upgrades are permanent and persist through restarts and hard resets.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">SPECIAL ITEMS</div>
      <div style="margin-bottom:12px">
        One-time-use items available from the RESUPPLY tab:<br><br>
-       &nbsp;• <b>EMERGENCY FUEL CELL</b> — Instantly adds 3% fuel. Use when reserves are critically low.<br>
-       &nbsp;• <b>QUICK REPAIR KIT</b> — Instantly restores 30 health to a selected module.<br>
-       &nbsp;• <b>DIAGNOSTIC SWEEP</b> — Reveals all hidden system errors across every module simultaneously.<br>
-       &nbsp;• <b>OVERCLOCK BOOST</b> — For 60 seconds, all overclocked modules produce 2× performance at normal drain rate.<br>
-       &nbsp;• <b>CONTAINMENT PATCH</b> — Instantly restores 25% containment integrity.<br>
-       &nbsp;• <b>EVENT TIME EXTENSION</b> — Adds 15 seconds to the active event countdown. Only available during an active event.
+       &nbsp;• <b>EMERGENCY FUEL CELL</b> - Instantly adds 3% fuel. Use when reserves are critically low.<br>
+       &nbsp;• <b>QUICK REPAIR KIT</b> - Instantly restores 30 health to a selected module.<br>
+       &nbsp;• <b>DIAGNOSTIC SWEEP</b> - Reveals all hidden system errors across every module simultaneously.<br>
+       &nbsp;• <b>OVERCLOCK BOOST</b> - For 60 seconds, all overclocked modules produce 2× performance at normal drain rate.<br>
+       &nbsp;• <b>CONTAINMENT PATCH</b> - Instantly restores 25% containment integrity.<br>
+       &nbsp;• <b>EVENT TIME EXTENSION</b> - Adds 15 seconds to the active event countdown. Only available during an active event.
      </div>
 
      <div class="manual-note" style="margin-bottom:6px">FUEL &amp; MONEY EXHAUSTION</div>
      <div style="margin-bottom:12px">
-       If fuel reserves reach 0% and you have insufficient funds to purchase more, the reactor enters a terminal state. After a short grace period, the facility is condemned — GAME OVER. Manage your fuel budget carefully. When fuel runs low, reduce throttle to extend burn time while accumulating funds for resupply.
+       If fuel reserves reach 0% and you have insufficient funds to purchase more, the reactor enters a terminal state. After a short grace period, the facility is condemned - GAME OVER. Manage your fuel budget carefully. When fuel runs low, reduce throttle to extend burn time while accumulating funds for resupply.
      </div>
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`
 };

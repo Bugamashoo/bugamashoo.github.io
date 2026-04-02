@@ -1,4 +1,4 @@
-/* resupply.css — Resupply tab: fuel market, upgrades, items */
+/* resupply.css - Resupply tab: fuel market, upgrades, items */
 
 #tab-resupply {
   padding: 6px;
@@ -34,7 +34,7 @@
   text-transform: uppercase;
 }
 
-/* ── FUEL MARKET ─────────────────────────────────── */
+/*  FUEL MARKET ─ */
 .fuel-price-display {
   display: flex;
   align-items: center;
@@ -75,7 +75,7 @@
   letter-spacing: 1px;
 }
 
-/* ── FUEL CONTROLS (switch + buttons side by side) ── */
+/*  FUEL CONTROLS (switch + buttons side by side)  */
 .fuel-controls {
   display: flex;
   gap: 8px;
@@ -188,7 +188,7 @@
   margin-top: 2px;
 }
 
-/* ── SYSTEM UPGRADES ─────────────────────────────── */
+/*  SYSTEM UPGRADES ─ */
 .upgrade-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -286,7 +286,7 @@
   display: block;
 }
 
-/* ── SPECIAL ITEMS ───────────────────────────────── */
+/*  SPECIAL ITEMS ─ */
 .items-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -337,7 +337,7 @@
   color: var(--amber);
 }
 
-/* ── QUICK REPAIR PICKER ─────────────────────────── */
+/*  QUICK REPAIR PICKER ─ */
 .quick-repair-picker {
   margin-top: 8px;
   padding: 6px;
@@ -353,7 +353,7 @@
   margin-top: 4px;
 }
 
-/* ── SPECIAL UPGRADES ────────────────────────────── */
+/*  SPECIAL UPGRADES  */
 .spec-upgrades-grid {
   display: flex;
   flex-direction: column;

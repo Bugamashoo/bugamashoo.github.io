@@ -1,5 +1,5 @@
 /* ============================================================
-   systems.css — SYSTEMS tab module cards and buttons
+   systems.css - SYSTEMS tab module cards and buttons
    ============================================================ */
 .systems-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:6px;flex:1;min-height:0}
 .module-card{background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:4px;padding:10px;display:flex;flex-direction:column}

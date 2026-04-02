@@ -1,0 +1,84 @@
+/* intro.css - Startup overlay: structure + flicker animation only.
+   All values (sizes, colours, timing, text) live in vars.js and are
+   applied programmatically by intro.js. */
+
+#introOverlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#introContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#introTitle {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 1000;
+  text-align: center;
+  color: var(--amber);
+}
+
+#introVersion {
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--amber);
+}
+
+#introRow {
+  display: flex;
+  align-items: flex-start;
+}
+
+#introTextBox {
+  font-family: 'Share Tech Mono', monospace;
+  color: #a0a5ab;
+  border: 1px solid var(--panel-border);
+  background: rgba(26,28,30,0.9);
+  border-radius: 4px;
+  padding: 16px 20px;
+  text-align: left;
+}
+
+#introSwitchWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+#introSwitchLabel {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  color: #8a9098;
+  text-transform: uppercase;
+}
+
+/* Flicker-to-life fade-out - duration set inline by intro.js */
+@keyframes introFlickerOut {
+  0%   { opacity: 1;    }
+  7%   { opacity: 0.04; }
+  11%  { opacity: 0.9;  }
+  17%  { opacity: 0;    }
+  21%  { opacity: 0.75; }
+  27%  { opacity: 0.02; }
+  33%  { opacity: 0.6;  }
+  40%  { opacity: 0;    }
+  48%  { opacity: 0.35; }
+  56%  { opacity: 0;    }
+  65%  { opacity: 0.12; }
+  76%  { opacity: 0;    }
+  88%  { opacity: 0.04; }
+  100% { opacity: 0;    }
+}
+
+#introOverlay.flickering {
+  animation-name: introFlickerOut;
+  animation-fill-mode: forwards;
+  pointer-events: none;
+}

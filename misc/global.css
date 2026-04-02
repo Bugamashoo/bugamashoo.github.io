@@ -143,7 +143,7 @@ body.no-power .display-value{opacity:0}body.no-power .bar-fill{width:0%!importan
 .go-narrative{font-family:'Special Elite',cursive;font-size:15px;line-height:1.8;color:#a0a5ab;margin:20px auto;max-width:600px;text-align:left;padding:20px;border:1px solid var(--panel-border);background:rgba(26,28,30,.8);border-radius:4px}
 .go-restart{margin-top:30px;padding:14px 40px;font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:4px;background:transparent;border:2px solid var(--amber);color:var(--amber);cursor:pointer;border-radius:4px;transition:all .3s}
 .go-restart:hover{background:var(--amber);color:#000}
-/* ── HELP MODE ──────────────────────────────────────────────── */
+/*  HELP MODE  */
 .hdr-box-help{border-color:var(--amber-dim);cursor:pointer;min-width:68px}
 .hdr-box-help .hdr-box-value{color:var(--amber-dim);font-size:13px;letter-spacing:2px}
 .hdr-box-help:hover{border-color:var(--amber);box-shadow:inset 0 1px 6px rgba(0,0,0,.8),0 0 12px rgba(255,159,28,.25)}

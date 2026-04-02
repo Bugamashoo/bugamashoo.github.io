@@ -17,7 +17,7 @@ function updateUI() {
   updDN('neutronDensity',   S.neutronDensity.toFixed(1),     DISP_NEUTRON_MAX);
   updDN('coolantTemp',      S.coolantTemp.toFixed(0),        DISP_COOLANT_TEMP_MAX, hi(SAFE_COOLANT_RED));
   updDN('coolantFlowRate',  S.coolantFlowRate.toFixed(0),    DISP_COOLANT_FLOW_MAX, lo(SAFE_COOLFLOW_AMBER, () => !!S.igniting));
-  updDN('turbineRPM',       S.turbineRPM.toFixed(0),         DISP_TURBINE_MAX,      hi(SAFE_TURBINE_RED));
+  updDN('turbineRPM',       S.turbineRPM.toFixed(0),         DISP_TURBINE_MAX,      hi(getTurbineSafeMax()));
   updDN('containIntegrity', S.containIntegrity.toFixed(1),   DISP_CONTAIN_MAX,      lo(SAFE_CONTAIN_DISP));
   updDN('magneticFlux',     S.magneticFlux.toFixed(2),       DISP_FLUX_MAX);
   updDN('radiationLevel',   S.radiationLevel.toFixed(1),     DISP_RAD_MAX,          hi(SAFE_RAD_RED));
@@ -71,7 +71,7 @@ function updateUI() {
   const rvRingClr  = S.containIntegrity < 15 ? '#ff2e2e' : S.containIntegrity < 17.25 ? '#ff9f1c' : '#00e5ff';
   const rvArcClr   = S.plasmaStability < 20  ? '#ff2e2e' : S.plasmaStability < 23    ? '#ff9f1c' : '#00e5ff';
 
-  // Core hex — during startup, gradually brighten border and tint fill
+  // Core hex - during startup, gradually brighten border and tint fill
   const rvCore = document.getElementById('reactorCore');
   if (rvCore) {
     if (rvOn) {
@@ -401,6 +401,6 @@ function updateUI() {
   // Systems tab (throttled rebuild)
   if (document.getElementById('tab-systems').classList.contains('active') && tick % 40 === 0) buildSys();
 
-  // Resupply tab (patch values only — no DOM rebuild)
+  // Resupply tab (patch values only - no DOM rebuild)
   if (document.getElementById('tab-resupply').classList.contains('active') && tick % 20 === 0) updateResupplyValues();
 }
