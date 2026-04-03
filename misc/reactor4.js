@@ -11,6 +11,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
     if (b.dataset.tab === 'resupply' && b.classList.contains('tab-pulse')) resupplyPulseDone = true;
     b.classList.remove('tab-pulse');
     document.getElementById('tab-' + b.dataset.tab).classList.add('active');
+    if (b.dataset.tab === 'controls') syncLeverPositions();
     if (b.dataset.tab === 'systems') buildSys();
     if (b.dataset.tab === 'resupply' && typeof buildResupply === 'function') buildResupply();
   });

@@ -163,9 +163,14 @@ function simulate() {
 
   // Radiation 
   // Normal shielded operation: ~15–25 mSv. Warning at >30, danger at >60
+  // pressureRelief knob: 5%→−20 mSv, 95%→+10 mSv (linear). Only applies while running.
+  const radPresOffset = S.igniting
+    ? RAD_PRES_RELIEF_MIN + (S.pressureRelief - 5) / 90 * (RAD_PRES_RELIEF_MAX - RAD_PRES_RELIEF_MIN)
+    : 0;
   S.radiationLevel = S.neutronDensity * RAD_NEUTRON_MULT
                    + (S.igniting && !S.radShield ? RAD_NO_SHIELD_BONUS : 0)
-                   + (S.containIntegrity < RAD_LOW_CONTAIN_THRESHOLD ? (RAD_LOW_CONTAIN_THRESHOLD - S.containIntegrity) * RAD_LOW_CONTAIN_SCALE : 0);
+                   + (S.containIntegrity < RAD_LOW_CONTAIN_THRESHOLD ? (RAD_LOW_CONTAIN_THRESHOLD - S.containIntegrity) * RAD_LOW_CONTAIN_SCALE : 0)
+                   + radPresOffset;
 
   // Containment integrity
   if (S.igniting) {

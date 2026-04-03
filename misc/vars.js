@@ -59,10 +59,10 @@ const PLASMA_EXTINGUISH_STABILITY  = 5;  // ...and plasma stability drops below 
 const TEMP_HEAT_FUEL      = 120;   // Fuel injection contribution to raw heat (per 1% inject)
 const TEMP_HEAT_THROTTLE  = 50;    // Throttle contribution to raw heat (per 1% throttle)
 const TEMP_HEAT_SCALE     = 70;    // Multiplier applied after sqrt-compressing raw heat
-const TEMP_MIX_BASE       = 0.5;   // Mix ratio modifier base (result: 0.5 + mixRatio/TEMP_MIX_SCALE)
-const TEMP_MIX_SCALE      = 200;   // Denominator for mix ratio modifier (see above)
-const MIX_POWER_MIN       = 0.85;  // Power multiplier at 0% mix ratio (scales linearly to 1.0 at 50%)
-const MIX_POWER_MAX       = 1.08;  // Power multiplier at 100% mix ratio (slight buff above 50%)
+const TEMP_MIX_BASE       = 0.625;  // Mix ratio modifier base (result: 0.625 + mixRatio/TEMP_MIX_SCALE); ½ of original ±0.25 swing around 0.75
+const TEMP_MIX_SCALE      = 400;    // Denominator for mix ratio modifier; larger = smaller effect (was 200)
+const MIX_POWER_MIN       = 0.925;  // Power multiplier at 0% mix ratio (½ of original 0.15 penalty = 0.075)
+const MIX_POWER_MAX       = 1.04;   // Power multiplier at 100% mix ratio (½ of original 0.08 bonus = 0.04)
 const TEMP_ROD_REDUCTION  = 0.7;   // Fraction of heat removed by full rod insertion (rE=1)
 
 // Cooling
@@ -146,6 +146,8 @@ const RAD_NEUTRON_MULT             = 0.4;  // neutronDensity × this = baseline 
 const RAD_NO_SHIELD_BONUS          = 25;   // Extra mSv when radiation shielding is off
 const RAD_LOW_CONTAIN_THRESHOLD    = 70;   // Containment % below which radiation leaks
 const RAD_LOW_CONTAIN_SCALE        = 0.5;  // (threshold - containIntegrity) × this = leak bonus
+const RAD_PRES_RELIEF_MIN          = -20;  // Radiation offset at pressureRelief=5% (venting reduces rad)
+const RAD_PRES_RELIEF_MAX          = 10;   // Radiation offset at pressureRelief=95% (closed = slight buildup)
 
 // CONTAINMENT INTEGRITY
 // Drain when under-powered; regen when powered with field on.
@@ -452,11 +454,11 @@ const SPEC_UPG_TURBINE_SPEED_BASE  = 2000;  // Safe RPM at tier 0 (no upgrade)
 const SPEC_UPG_TURBINE_SPEED_MAX   = 20000; // Safe RPM at max tier
 const SPEC_UPG_TURBINE_SPEED_COSTS = [3500, 15500, 49000, 180000, 540000, 1300000, 3200000, 7800000, 19200000];
 
-// Backup Generator upgrade (9 tiers, linear: 2MW -> 20MW output, 100% -> 50% fuel rate)
-const SPEC_UPG_BACKUP_GEN_TIERS    = 9;
-const SPEC_UPG_BACKUP_GEN_MAX_MW   = 20;   // Power output at max tier
+// Backup Generator upgrade (19 tiers, linear: 2MW -> 40MW output, 100% -> 50% fuel rate)
+const SPEC_UPG_BACKUP_GEN_TIERS    = 19;
+const SPEC_UPG_BACKUP_GEN_MAX_MW   = 40;   // Power output at max tier (2MW/tier × 19 + 2 base)
 const SPEC_UPG_BACKUP_GEN_MIN_FUEL = 0.5;  // Fuel consumption multiplier at max tier (50% of base)
-const SPEC_UPG_BACKUP_GEN_COSTS    = [24000, 54000, 90000, 158000, 279000, 442000, 746000, 1500000, 3700000];
+const SPEC_UPG_BACKUP_GEN_COSTS    = [24000, 33000, 45000, 62000, 85000, 117000, 161000, 221000, 304000, 418000, 575000, 791000, 1088000, 1496000, 2057000, 2828000, 3889000, 5347000, 7400000];
 
 // FUEL+MONEY EXHAUSTION
 const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)
@@ -469,14 +471,14 @@ const INTRO_SWITCH_DELAY_MS         = 600;   // ms - pause after switch flips ON
 const INTRO_FADE_MS                 = 700;   // ms - smooth fade: intro content out + game in simultaneously
 const INTRO_FLICKER_MS              = 3200;  // ms - total duration of the fluorescent flicker sequence
 // Fluorescent flicker physics - B(t) = S(t) · [W(t) + α·sin(2πft)]
-const INTRO_FLICKER_K               = 0.7;   // flicker catch rate: P(on) = 1 − e^(−k·t); higher = catches faster
-const INTRO_FLICKER_M               = 0.5;  // warm-up rate: how quickly the tube climbs from B_start to full brightness
-const INTRO_FLICKER_B_START         = 0.3;   // initial brightness when the tube first catches (0–1)
-const INTRO_FLICKER_ALPHA           = 0.02;  // hum amplitude: subtle 50/60Hz electrical oscillation on brightness
+const INTRO_FLICKER_K               = 0.65;  // catch rate: P(on) = 1−e^(−k·t); lower = more desperate early struggling
+const INTRO_FLICKER_M               = 0.4;   // warm-up rate: how quickly the tube climbs from B_start to full brightness
+const INTRO_FLICKER_B_START         = 0.25;  // initial brightness when the tube first catches (0–1)
+const INTRO_FLICKER_ALPHA           = 0.03;  // hum amplitude: subtle electrical oscillation on brightness
 const INTRO_FLICKER_HUM_FREQ        = 120;   // Hz - electrical hum frequency (120 = 2× 60 Hz mains)
-const INTRO_FLICKER_MIN_INTERVAL_MS = 40;    // ms - fastest S(t) sample interval (chaotic early stuttering)
-const INTRO_FLICKER_MAX_INTERVAL_MS = 240;   // ms - slowest S(t) sample interval (lamp stabilising)
-const INTRO_FLICKER_RAMP_RATE       = 1.0;   // brightness units/sec at litProb=1; scales with litProb so early catches ramp slowly, late catches ramp fast
+const INTRO_FLICKER_MIN_INTERVAL_MS = 20;    // ms - minimum hold/dark time (fast early stuttering)
+const INTRO_FLICKER_MAX_INTERVAL_MS = 280;   // ms - maximum dark gap (long dark pauses early on)
+const INTRO_FLICKER_RAMP_RATE       = 1.5;   // brightness ceiling units/sec at litProb=1; ensures all panels reach 1.0
 const INTRO_FLICKER_MIN_BRIGHT      = 0.4;   // minimum brightness for any flicker "on" state (0–1)
 const INTRO_Z_INDEX          = 11000;
 const INTRO_TITLE_SIZE       = 40;    // px - title font size

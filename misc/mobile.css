@@ -326,9 +326,14 @@
     padding: 12px;
   }
 
-  /*  RESUPPLY TAB  */
+  /*  RESUPPLY TAB - single scrollable section  */
   .resupply-grid {
     grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: unset !important;
+  }
+  .resupply-panel {
+    overflow-y: visible !important;
   }
   .upgrade-grid {
     grid-template-columns: 1fr 1fr !important;
@@ -403,5 +408,11 @@
   #eventDesc,
   #eventViz {
     display: none !important;
+  }
+
+  /* Intro text box: narrower + smaller font on small screens (overrides inline styles from vars.js) */
+  #introTextBox {
+    width: 180px !important;
+    font-size: 10px !important;
   }
 }

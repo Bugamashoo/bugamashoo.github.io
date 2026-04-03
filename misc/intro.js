@@ -5,7 +5,9 @@
 
 (function () {
   const overlay    = document.getElementById('introOverlay');
-  const blackout   = document.getElementById('introBlackout');
+  const blackout1  = document.getElementById('introBlackout1');
+  const blackout2  = document.getElementById('introBlackout2');
+  const blackout3  = document.getElementById('introBlackout3');
   const content    = document.getElementById('introContent');
   const titleEl    = document.getElementById('introTitle');
   const versionEl  = document.getElementById('introVersion');
@@ -71,103 +73,143 @@
       overlay.style.transition = `opacity ${INTRO_FADE_MS}ms linear`;
       overlay.style.opacity    = '0';
 
-      // Phase 2: once the title is gone, either flicker or instantly clear blackout.
+      // Phase 2: once the title is gone, either flicker or instantly clear blackouts.
       setTimeout(() => {
         overlay.style.display = 'none';
         if (FLASH_DISABLED) {
-          blackout.style.display = 'none';
+          blackout1.style.display = 'none';
+          blackout2.style.display = 'none';
+          blackout3.style.display = 'none';
         } else {
-          requestAnimationFrame(() => startFlicker());
+          // Stagger the three panels slightly for a realistic multi-tube feel
+          requestAnimationFrame(() => {
+            startFlicker(blackout1, 0);
+            startFlicker(blackout2, Math.random() * 180 + 60);
+            startFlicker(blackout3, Math.random() * 180 + 60);
+          });
         }
       }, INTRO_FADE_MS);
     }, INTRO_SWITCH_DELAY_MS);
   }
 
-  // ── Fluorescent tube flicker: B(t) = S(t) · [W(t) + α·sin(2πft)] ────────
+  // ── Atmospheric fluorescent tube flicker ────────────────────────────────────
   //
-  // S(t)  - binary on/off flicker state.  Sampled at random intervals via a
-  //          separate setTimeout chain.  P(on) = 1 − e^(−k·t) so the tube
-  //          struggles to catch early and stabilises over time.
+  // State machine with discrete strike attempts:
+  //   DARK  → tube is off, waiting for next strike attempt
+  //   STRIKE → tube tries to ignite; holds for a duration that increases with Pon
+  //   ON    → tube is sustaining (late-stage only, once fully caught)
   //
-  // W(t)  - slow warm-up envelope: starts at B_start and climbs toward 1 via
-  //          W(t) = B_start + (1−B_start)·(1−e^(−m·t)).
+  // B(t) = S(t) · [W(t) + α·sin(2πft)]
   //
-  // hum   - α·sin(2πft): faint electrical oscillation always present when lit.
+  // The key difference from a simple random sampler: early on the tube makes
+  // short, desperate flicker attempts with long dark pauses between them.
+  // As Pon climbs, attempts last longer and dark gaps shrink. Once Pon is near 1,
+  // the tube locks on and maxBright races to 1.0.
   //
-  // B(t) is brightness in [0,1].  Overlay opacity = 1 − B(t) because opacity 1
-  // is fully visible (tube OFF) and opacity 0 is fully transparent (tube ON).
-  //
-  // Two loops run concurrently:
-  //   • rAF  - re-evaluates W(t)+hum every display frame (smooth continuous glow)
-  //   • setTimeout chain - re-samples S(t) at random jittered intervals
-  function startFlicker() {
-    const start = performance.now();
-    const dur   = INTRO_FLICKER_MS;
-    let S        = 0;   // binary flicker state from sampleS()
-    let maxBright = INTRO_FLICKER_MIN_BRIGHT;  // ceiling on brightness — only climbs while S=1
-    let lastFrameTime = performance.now();
-    let done = false;
+  // maxBright ceiling: only climbs while arc is sustained. Never jumps.
+  function startFlicker(panel, delayMs) {
+    setTimeout(() => {
+      const start = performance.now();
+      const dur   = INTRO_FLICKER_MS;
+      let S         = 0;   // binary lit state
+      let maxBright = INTRO_FLICKER_MIN_BRIGHT;
+      let lastFrameTime = performance.now();
+      let done = false;
 
-    // - S(t) sampler: random-interval binary state drawn from P(on) = 1−e^(−k·t) —
-    function sampleS() {
-      if (done) return;
-      const t  = (performance.now() - start) / 1000; // seconds
-      const Pon = 1 - Math.exp(-INTRO_FLICKER_K * t);
-      S = Math.random() < Pon ? 1 : 0;
+      // State machine vars
+      let strikeEnd    = 0;   // performance.now() when current strike ends
+      let darkEnd      = 0;   // performance.now() when current dark pause ends
+      let inStrike     = false;
 
-      // Interval shrinks as the tube stabilises (faster chaos early → slower calm late)
-      const tNorm    = Math.min(t / (dur / 1000), 1);
-      const range    = INTRO_FLICKER_MAX_INTERVAL_MS - INTRO_FLICKER_MIN_INTERVAL_MS;
-      const interval = INTRO_FLICKER_MIN_INTERVAL_MS +
-                       Math.random() * range * (0.2 + tNorm * 0.8);
-      setTimeout(sampleS, interval);
-    }
-    sampleS();
+      function scheduleNext() {
+        if (done) return;
+        const t   = (performance.now() - start) / 1000;
+        const Pon = 1 - Math.exp(-INTRO_FLICKER_K * t);
 
-    // - rAF loop: applies B(t) to overlay opacity every display frame —
-    function frame(now) {
-      const elapsed = now - start;
-      const t  = elapsed / 1000; // seconds
-      const dt = (now - lastFrameTime) / 1000;
-      lastFrameTime = now;
-
-      // Once past the nominal duration, force S=1 so the tube stays lit
-      // and maxBright keeps climbing to 1.0 naturally — no hard jump.
-      const pastEnd = elapsed >= dur;
-      if (pastEnd) S = 1;
-
-      // maxBright only climbs while the arc is sustained (S=1).
-      // Rate scales with litProb so early catches barely raise the ceiling
-      // before the arc fails, while late sustained arcs push it to 1.0 quickly.
-      if (S === 1) {
-        const litProb = pastEnd ? 1 : (1 - Math.exp(-INTRO_FLICKER_K * t));
-        maxBright = Math.min(1, maxBright + INTRO_FLICKER_RAMP_RATE * litProb * dt);
+        if (inStrike) {
+          // Currently lit — decide whether to sustain or drop out
+          const keepProb = Pon * 0.85 + 0.1; // high Pon → likely to keep going
+          if (Math.random() < keepProb) {
+            // Stay lit a bit longer; hold duration grows with Pon
+            const holdMs = INTRO_FLICKER_MIN_INTERVAL_MS +
+                           Math.random() * 120 * (0.3 + Pon * 0.7);
+            strikeEnd = performance.now() + holdMs;
+            S = 1;
+            setTimeout(scheduleNext, holdMs);
+          } else {
+            // Arc dies — go dark
+            inStrike = false;
+            S = 0;
+            // Dark gap shrinks as Pon grows (early = long dark, late = brief flicker off)
+            const darkMs = INTRO_FLICKER_MIN_INTERVAL_MS +
+                           Math.random() * INTRO_FLICKER_MAX_INTERVAL_MS * (1 - Pon * 0.8);
+            darkEnd = performance.now() + darkMs;
+            setTimeout(scheduleNext, darkMs);
+          }
+        } else {
+          // Currently dark — attempt a strike
+          if (Math.random() < Pon * 0.9 + 0.05) {
+            // Strike succeeds
+            inStrike = true;
+            S = 1;
+            // Early strikes are short and desperate; late ones hold
+            const holdMs = INTRO_FLICKER_MIN_INTERVAL_MS +
+                           Math.random() * 200 * (Pon * Pon);
+            strikeEnd = performance.now() + holdMs;
+            setTimeout(scheduleNext, holdMs);
+          } else {
+            // Strike fails — stay dark
+            const darkMs = INTRO_FLICKER_MIN_INTERVAL_MS +
+                           Math.random() * INTRO_FLICKER_MAX_INTERVAL_MS * (1.2 - Pon);
+            darkEnd = performance.now() + darkMs;
+            setTimeout(scheduleNext, darkMs);
+          }
+        }
       }
+      scheduleNext();
 
-      // Done once maxBright has fully reached 1.0 (no visible jump)
-      if (maxBright >= 0.995) {
-        done = true;
-        blackout.style.opacity = '0';
-        setTimeout(() => { blackout.style.display = 'none'; }, 80);
-        return;
+      // ── rAF loop: applies B(t) to panel opacity every display frame ──
+      function frame(now) {
+        const elapsed = now - start;
+        const t  = elapsed / 1000;
+        const dt = (now - lastFrameTime) / 1000;
+        lastFrameTime = now;
+
+        // Past the nominal duration: force tube on, let maxBright race to 1
+        const pastEnd = elapsed >= dur;
+        if (pastEnd) { S = 1; inStrike = true; }
+
+        // maxBright only climbs while arc is sustained (S=1)
+        if (S === 1) {
+          const litProb = pastEnd ? 1 : (1 - Math.exp(-INTRO_FLICKER_K * t));
+          maxBright = Math.min(1, maxBright + INTRO_FLICKER_RAMP_RATE * litProb * dt);
+        }
+
+        // Done once maxBright fully reaches 1.0 — no visible jump
+        if (maxBright >= 0.995) {
+          done = true;
+          panel.style.opacity = '0';
+          setTimeout(() => { panel.style.display = 'none'; }, 80);
+          return;
+        }
+
+        // W(t): slow warm-up envelope B_start → 1
+        const W = INTRO_FLICKER_B_START +
+                  (1 - INTRO_FLICKER_B_START) * (1 - Math.exp(-INTRO_FLICKER_M * t));
+
+        // Electrical hum: faint sine always present when lit
+        const hum = INTRO_FLICKER_ALPHA * Math.sin(2 * Math.PI * INTRO_FLICKER_HUM_FREQ * t);
+
+        // When lit: brightness = maxBright × envelope. When dark: 0.
+        const B = S * maxBright * Math.max(0, Math.min(1, W + hum));
+
+        // Opacity is complement of brightness (opaque=off, transparent=on)
+        panel.style.opacity = String(1 - B);
+
+        requestAnimationFrame(frame);
       }
-
-      // W(t): slow warm-up envelope B_start → 1
-      const W = INTRO_FLICKER_B_START +
-                (1 - INTRO_FLICKER_B_START) * (1 - Math.exp(-INTRO_FLICKER_M * t));
-
-      // Electrical hum
-      const hum = INTRO_FLICKER_ALPHA * Math.sin(2 * Math.PI * INTRO_FLICKER_HUM_FREQ * t);
-
-      // When lit: brightness = maxBright × envelope. When dark: 0.
-      const B = S * maxBright * Math.max(0, Math.min(1, W + hum));
-
-      // Opacity is the complement of brightness (opaque = off, transparent = on)
-      blackout.style.opacity = String(1 - B);
-
       requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    }, delayMs);
   }
 
   //  Drag / click - mirrors setupKnifeSwitch, one-way only ─

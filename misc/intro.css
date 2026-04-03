@@ -138,16 +138,21 @@
   color: #b0b8c4;
 }
 
-/* Second black layer: above game content (z-index auto) and tabs bar (z-index 5)
-   but below the header (z-index 10) so the banner is visible above it.
-   Opacity is driven by JS startFlicker() after the title screen clears. */
-#introBlackout {
+/* Three independent blackout panels: above game content (z-index auto) and tabs bar
+   (z-index 5) but below the header (z-index 10). Each covers one vertical third.
+   Opacity is driven by JS startFlicker() independently after the title screen clears. */
+.intro-blackout {
   position: fixed;
-  inset: 0;
+  top: 0;
+  bottom: 0;
   background: #000;
   z-index: 8;
   pointer-events: none;
 }
+/* Panels match the .main-grid columns: 250px | 1fr | 500px */
+#introBlackout1 { left: 0;    width: 250px; }
+#introBlackout2 { left: 250px; right: 500px; }
+#introBlackout3 { right: 0;   width: 500px; }
 
 /* Disable title-screen clicks while it is fading out or after it is done. */
 #introOverlay.flickering {
