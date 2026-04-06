@@ -95,8 +95,11 @@ function checkSeq() {
     S.reactorState = 'ONLINE';
     addLog('*** REACTOR ONLINE ***', 'ok');
     doShake(); doFlash();
-    document.querySelector('[data-tab="systems"]').classList.add('tab-pulse');
-    document.querySelector('[data-tab="backup"]').classList.add('tab-pulse');
+    document.getElementById('seqSteps').classList.remove('seq-pulse');
+    if (unlockedSubsystems) {
+      document.querySelector('[data-tab="systems"]').classList.add('tab-pulse');
+      document.querySelector('[data-tab="backup"]').classList.add('tab-pulse');
+    }
   }
 }
 

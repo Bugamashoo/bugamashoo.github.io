@@ -9,6 +9,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 11000;
+}
+
+#introSwitchWrap {
+  opacity: 0.01;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
 #introContent {
@@ -55,7 +62,7 @@
 #introSwitchLabel {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
-  color: #8a9098;
+  color: #c5c8cc;
   text-transform: uppercase;
 }
 
@@ -83,7 +90,7 @@
   width: 14px;
   height: 14px;
   background: #0d0f11;
-  border: 1px solid #3a3f48;
+  border: 1px solid #9d9fa4;
   border-radius: 2px;
   cursor: pointer;
   position: relative;
@@ -116,7 +123,7 @@
 }
 
 #introFlashRow:hover #introFlashCheck {
-  border-color: #6a7080;
+  border-color: #b5b8c0;
 }
 
 #introFlashRow:hover #introFlashCheck:checked {
@@ -127,7 +134,7 @@
 #introFlashRow label {
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  color: #8a9098;
+  color: #c5c8cc;
   letter-spacing: 1px;
   cursor: pointer;
   user-select: none;
@@ -135,7 +142,78 @@
 }
 
 #introFlashRow:hover label {
-  color: #b0b8c4;
+  color: #d8dce2;
+}
+
+#introEventsRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+#introEventsCheck {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: #0d0f11;
+  border: 1px solid #9d9fa4;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#introEventsCheck::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid var(--amber);
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+#introEventsCheck:checked {
+  background: rgba(255, 159, 28, 0.08);
+  border-color: var(--amber);
+  box-shadow: 0 0 6px rgba(255, 159, 28, 0.35);
+}
+
+#introEventsCheck:checked::after {
+  display: block;
+}
+
+#introEventsRow:hover #introEventsCheck {
+  border-color: #b5b8c0;
+}
+
+#introEventsRow:hover #introEventsCheck:checked {
+  border-color: var(--amber);
+  box-shadow: 0 0 10px rgba(255, 159, 28, 0.5);
+}
+
+#introEventsRow label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #c5c8cc;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+#introEventsRow:hover label {
+  color: #d8dce2;
+}
+
+#introEventsLabel {
+  color: #adafb3;
 }
 
 /* Three independent blackout panels: above game content (z-index auto) and tabs bar

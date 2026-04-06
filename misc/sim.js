@@ -225,7 +225,7 @@ function simulate() {
   S.rodPosition  = !S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 3 : 0;
 
   // Module health + interconnection drain
-  if (S.igniting && tick % MOD_DRAIN_INTERVAL === 0) {
+  if (S.igniting && unlockedSubsystems && tick % MOD_DRAIN_INTERVAL === 0) {
     // Slider load per module: 0>0.5x drain, 50>1.0x, 100>1.5x
     const sliderLoad = {
       fuel:     S.fuelInject,
@@ -272,8 +272,8 @@ function simulate() {
     }
   }
 
-  // Backup systems health drain (usage-proportional, always active)
-  if (S.modules.backup.status !== 'offline') {
+  // Backup systems health drain (usage-proportional, active only after subsystems unlocked)
+  if (unlockedSubsystems && S.modules.backup.status !== 'offline') {
     // Each active system at max contributes BACKUP_*_DRAIN/tick > all four maxed = ~1 min to empty
     const bLoad = (S.backupGen ? BACKUP_GEN_DRAIN : 0)
       + (S.auxCoolPump && S.auxCoolLoop ? (S.auxCoolRate / 100) * BACKUP_AUX_DRAIN : 0)
@@ -294,8 +294,8 @@ function simulate() {
     }
   }
 
-  // Gauge danger > module damage
-  GAUGE_DANGERS.forEach(gd => {
+  // Gauge danger > module damage (only after subsystems unlocked)
+  if (unlockedSubsystems) GAUGE_DANGERS.forEach(gd => {
     if (gd.check()) {
       if (gaugeDamageTimes[gd.id] == null) {
         // Just entered danger - arm the timer
@@ -316,7 +316,7 @@ function simulate() {
   });
 
   // System error spawning
-  if (S.startupComplete && S.uptime > nextErrorTime) {
+  if (S.startupComplete && unlockedSubsystems && S.uptime > nextErrorTime) {
     const errCandidates = Object.keys(S.modules).filter(k => S.modules[k].status !== 'offline');
     const hasAnyError = errCandidates.some(k => S.modules[k].sysError);
 
@@ -415,7 +415,7 @@ function simulate() {
     // Score accumulation: +1 every floor(3000/MW) ticks
     if (S.powerOutput > 0) {
       S.scoreTicks++;
-      const interval = Math.floor(SCORE_DIVISOR / S.powerOutput);
+      const interval = Math.floor((EVENTS_DISABLED ? SCORE_DIVISOR * 4 : SCORE_DIVISOR) / S.powerOutput);
       if (interval > 0 && S.scoreTicks >= interval) {
         S.score++;
         S.scoreTicks -= interval;
@@ -480,7 +480,7 @@ function simulate() {
 
   // Event tick
   if (S.activeEvent) updateEvt();
-  else if (S.startupComplete && S.uptime > nextEventTime) triggerEvent();
+  else if (S.startupComplete && unlockedSubsystems && !EVENTS_DISABLED && S.uptime > nextEventTime) triggerEvent();
 
   // Monitor history
   if (tick % MONITOR_SAMPLE_TICKS === 0) {
@@ -503,8 +503,8 @@ function simulate() {
     }
   }
 
-  // Module health threshold alerts
-  {
+  // Module health threshold alerts (only after subsystems unlocked, so pre-unlock health is irrelevant)
+  if (unlockedSubsystems) {
     const THRESHOLDS = HEALTH_ALERT_THRESHOLDS;
     Object.entries(S.modules).forEach(([k, m]) => {
       const prev = moduleHealthPrev[k] ?? 100;

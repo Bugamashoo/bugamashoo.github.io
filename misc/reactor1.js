@@ -105,5 +105,11 @@ let commsLockedSwitches = []; // switch IDs on main panel locked by comms sysErr
 let commsLockedControls = []; // lever/knob IDs on main panel locked by comms sysErrors
 let sensorFaultyGauges  = []; // gauge IDs in diagnostics showing per-fault sensor noise
 let FLASH_DISABLED = false;   // set true by intro checkbox - skips all flashing/shaking effects
+var EVENTS_DISABLED = false;  // set true by intro checkbox - disables random events, -75% score rate
+// Panel unlock progression (controls tab sections)
+// Using var so they are accessible on the window object for dynamic keyed assignment
+var unlockedEmergency = false;   // ctrlEmergency (PURGE + SCRAM) - $20k
+var unlockedSubsystems = false;  // ctrlSubsys (switchBank2) - $10k; gates events + non-core tabs
+var unlockedTuning = false;      // ctrlKnobs (knobPanel) - $300k
 // Initialize upgrade tracking for each module
 Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0 }; });

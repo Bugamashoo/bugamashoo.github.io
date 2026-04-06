@@ -5,6 +5,7 @@
 // Tab navigation ─
 document.querySelectorAll('.tab-btn').forEach(b => {
   b.addEventListener('click', () => {
+    if (b.classList.contains('tab-locked')) return;
     document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
@@ -15,6 +16,16 @@ document.querySelectorAll('.tab-btn').forEach(b => {
     if (b.dataset.tab === 'systems') buildSys();
     if (b.dataset.tab === 'resupply' && typeof buildResupply === 'function') buildResupply();
   });
+});
+
+// Lock non-core tabs until subsystems unlocked
+['manual','monitors','systems','backup'].forEach(t => {
+  const btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
+  if (btn) btn.classList.add('tab-locked');
+});
+['manual','monitors'].forEach(t => {
+  const item = document.querySelector('.tab-menu-item[data-tab="' + t + '"]');
+  if (item) item.classList.add('tab-locked');
 });
 
 // Hamburger menu for mobile 
@@ -37,6 +48,7 @@ document.querySelectorAll('.tab-btn').forEach(b => {
   dropdown.querySelectorAll('.tab-menu-item').forEach(item => {
     item.addEventListener('click', e => {
       e.stopPropagation();
+      if (item.classList.contains('tab-locked')) return;
       const tab = item.dataset.tab;
       // Deactivate all main tab buttons
       document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
@@ -631,6 +643,56 @@ document.addEventListener('contextmenu', e => e.preventDefault());
         addLog('COOLANT FLOOD', 'sys');
       }
       if (i === 2) hardReset();
+    });
+  });
+})();
+
+// Startup sequence steps pulse (stops on first completion)
+document.getElementById('seqSteps').classList.add('seq-pulse');
+
+// Panel lock overlays for gated sections
+(function() {
+  const LOCKS = [
+    { panelId: 'ctrlSubsys',    label: 'SUBSYSTEMS', cost: 10000,  costLabel: '$10k',  key: 'unlockedSubsystems' },
+    { panelId: 'ctrlEmergency', label: 'EMERGENCY',  cost: 20000,  costLabel: '$20k',  key: 'unlockedEmergency'  },
+    { panelId: 'ctrlKnobs',     label: 'TUNING',     cost: 300000, costLabel: '$300k',  key: 'unlockedTuning'     }
+  ];
+
+  LOCKS.forEach(def => {
+    const panel = document.getElementById(def.panelId);
+    if (!panel) return;
+    panel.style.position = 'relative';
+    panel.style.zIndex = '5';
+    const ov = document.createElement('div');
+    ov.className = 'panel-lock-overlay';
+    ov.id = 'lock_' + def.panelId;
+    ov.innerHTML =
+      '<div class="panel-lock-label">' + def.label + '</div>' +
+      '<button class="panel-lock-btn" data-lock-cost="' + def.cost + '">UNLOCK<br><span class="panel-lock-price">' + def.costLabel + '</span></button>';
+    panel.appendChild(ov);
+
+    ov.querySelector('.panel-lock-btn').addEventListener('click', () => {
+      if (S.money < def.cost) {
+        addLog('Insufficient funds - need ' + def.costLabel, 'warn');
+        return;
+      }
+      S.money -= def.cost;
+      S.totalSpent += def.cost;
+      window[def.key] = true;
+      ov.remove();
+      addLog(def.label + ' UNLOCKED', 'ok');
+      doFlash();
+
+      if (def.key === 'unlockedSubsystems') {
+        // Unlock gated tabs
+        document.querySelectorAll('.tab-btn.tab-locked').forEach(b => b.classList.remove('tab-locked'));
+        document.querySelectorAll('.tab-menu-item.tab-locked').forEach(b => b.classList.remove('tab-locked'));
+        // Pulse systems/backup tabs if reactor already online
+        if (S.startupComplete) {
+          document.querySelector('[data-tab="systems"]').classList.add('tab-pulse');
+          document.querySelector('[data-tab="backup"]').classList.add('tab-pulse');
+        }
+      }
     });
   });
 })();

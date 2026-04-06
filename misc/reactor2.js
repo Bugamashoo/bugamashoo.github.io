@@ -107,7 +107,6 @@ const EVENTS = [
     desc:'Harmonic resonance in confinement field.',
     viz:`<div style="color:var(--magenta);text-align:center"><span style="font-size:28px;animation:blink .3s step-end infinite">HARMONICS UNSTABLE</span></div>`,
     steps:[
-      { text:'FIELD TUNE 70-80%',  check:()=>S.fieldTune>=70&&S.fieldTune<=80, cont:true },
       { text:'CONTAIN >80%',       check:()=>S.containPower>=80,               cont:true },
       { text:'CONTAIN switch ON',  check:()=>S.containField }
     ]
@@ -119,7 +118,6 @@ const EVENTS = [
     steps:[
       { text:'FUEL PUMPS OFF',      check:()=>!S.fuelPumps },
       { text:'FUEL INJ <10%',       check:()=>S.fuelInject<=10,               cont:true },
-      { text:'MIX RATIO 30-40%',    check:()=>S.mixRatio>=30&&S.mixRatio<=40, cont:true },
       { text:'FUEL PUMPS ON',       check:()=>S.fuelPumps }
     ]
   },
@@ -130,7 +128,6 @@ const EVENTS = [
     steps:[
       { text:'THROTTLE <30%',          check:()=>S.mainThrottle<=30,                        cont:true },
       { text:'TURBINE OFF',            check:()=>!S.turbineEngage },
-      { text:'PRESS RELIEF 60-80%',    check:()=>S.pressureRelief>=60&&S.pressureRelief<=80, cont:true },
       { text:'TURBINE ON',             check:()=>S.turbineEngage }
     ]
   },
@@ -148,7 +145,6 @@ const EVENTS = [
     desc:'Edge-localized mode. Boundary oscillating.',
     viz:`<div style="text-align:center"><div style="width:70px;height:70px;margin:0 auto;border-radius:50%;background:radial-gradient(circle,var(--cyan),transparent 70%);animation:coreGlow .3s ease-in-out infinite"></div><div style="font-size:10px;color:var(--red);margin-top:6px;animation:blink .5s step-end infinite">UNSTABLE</div></div>`,
     steps:[
-      { text:'FIELD TUNE 80-95%',  check:()=>S.fieldTune>=80&&S.fieldTune<=95, cont:true },
       { text:'CONTAIN >90%',       check:()=>S.containPower>=90,               cont:true },
       { text:'FIELD A ON (Backup)',check:()=>S.backupContA },
       { text:'FIELD B ON (Backup)',check:()=>S.backupContB },
@@ -187,7 +183,6 @@ const EVENTS = [
     steps:[
       { text:'VENT SYSTEM ON',         check:()=>S.ventSystem },
       { text:'THROTTLE <25%',          check:()=>S.mainThrottle<=25,  cont:true },
-      { text:'PRESS RELIEF >70%',      check:()=>S.pressureRelief>=70, cont:true },
       { text:'FUEL INJ <15%',          check:()=>S.fuelInject<=15,     cont:true }
     ]
   },
@@ -243,7 +238,6 @@ const EVENTS = [
     viz:`<div style="text-align:center;color:var(--amber)"><div style="display:flex;justify-content:center;gap:3px;margin:4px 0">${Array.from({length:18},(_,i)=>`<div style="width:6px;height:${20+Math.abs(Math.sin(i*1.3)*40)}px;background:var(--cyan);border-radius:1px;margin-top:${40-Math.abs(Math.sin(i*1.3)*40)}px"></div>`).join('')}</div><div style="font-size:9px;color:var(--red);margin-top:4px;animation:blink .3s step-end infinite">PIPE STRESS ${Math.floor(Math.random()*120+280)}%</div></div>`,
     steps:[
       { text:'TURBINE OFF',            check:()=>!S.turbineEngage },
-      { text:'PRESS RELIEF 50-70%',    check:()=>S.pressureRelief>=50&&S.pressureRelief<=70, cont:true },
       { text:'COOLANT FLOW <30%',      check:()=>S.coolantFlow<=30,                           cont:true },
       { text:'TURBINE ON',             check:()=>S.turbineEngage }
     ]

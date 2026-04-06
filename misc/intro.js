@@ -27,6 +27,23 @@
     });
   }
 
+  // Wire the "disable random catastrophes" checkbox
+  const eventsCheck = document.getElementById('introEventsCheck');
+  if (eventsCheck) {
+    eventsCheck.addEventListener('change', () => {
+      EVENTS_DISABLED = eventsCheck.checked;
+    });
+  }
+
+  // Fade the knife switch in once all page resources are loaded
+  const switchWrap = document.getElementById('introSwitchWrap');
+  window.addEventListener('load', () => {
+    if (switchWrap) {
+      switchWrap.style.opacity = '1';
+      switchWrap.style.pointerEvents = 'auto';
+    }
+  });
+
   //  Apply all values from vars.js ─
 
   overlay.style.zIndex = INTRO_Z_INDEX;
