@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="./misc/backup.css">
   <link rel="stylesheet" href="./misc/resupply.css">
   <link rel="stylesheet" href="./misc/mobile.css">
+  <link rel="stylesheet" href="./misc/toast.css">
 </head>
 <body class="no-power">
 
@@ -43,7 +44,7 @@
   <div id="introContent">
     <div id="introTitle">Buga's Reactor Command</div>
     <div id="introVersionBlock">
-      <div id="introVersion">v3.5.2</div>
+      <div id="introVersion">v3.6.0</div>
       <div id="introFlashRow">
         <input type="checkbox" id="introFlashCheck">
         <label for="introFlashCheck">disable flashing lights</label>
@@ -113,7 +114,7 @@
 </div>
 <div id="helpOverlay"></div>
 <div id="helpTooltip"></div>
-<div id="helpModeNotice">HELP MODE &mdash; HOVER ANY INSTRUMENT FOR INFO</div>
+<div id="helpModeNotice">HELP MODE - HOVER ANY INSTRUMENT FOR INFO</div>
 <div class="tabs-bar">
   <button class="tab-btn active" data-tab="controls">CONTROLS</button>
   <button class="tab-btn tab-btn-desktop" data-tab="manual">MANUAL</button>
@@ -271,7 +272,10 @@
   <div class="go-narrative" id="goNarrative"></div>
   <button class="go-restart" onclick="location.reload()">RESTART REACTOR</button>
 </div></div>
-<script src="./misc/vars.js"></script>      <!-- Balance constants - edit here to tune gameplay -->
+<script src="./misc/toastmsgs.js"></script>    <!-- Toast message content definitions -->
+<script src="./misc/vars.js"></script>         <!-- Simulation & gameplay balance constants -->
+<script src="./misc/resupplyvars.js"></script> <!-- Money, upgrade, and resupply constants -->
+<script src="./misc/systemvars.js"></script>  <!-- Module modes, health, repair, diagnosis constants -->
 <script src="./misc/reactor1.js"></script>  <!-- State (S), MODES, SEQUENCE, shared vars -->
 <script src="./misc/reactor2.js"></script>  <!-- EVENTS[], CATASTROPHES{} definitions -->
 <script src="./misc/reactor3.js"></script>  <!-- Utilities: addLog, doShake, doFlash, modPerf, modHeat, fmtTime -->
@@ -287,4 +291,6 @@
 <script src="./misc/helpdata.js"></script>  <!-- Help text data: all description objects -->
 <script src="./misc/help.js"></script>     <!-- Help mode: tooltips and graying -->
 <script src="./misc/intro.js"></script>  <!-- Startup overlay: lights switch + flicker-out -->
+<script src="./misc/keybinds.js"></script> <!-- Keyboard shortcuts for Controls tab -->
+<script src="./misc/toast.js"></script>   <!-- Toast notifications: showToast(msg) -->
 </body></html>

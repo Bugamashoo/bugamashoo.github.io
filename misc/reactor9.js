@@ -95,6 +95,9 @@ function checkSeq() {
     S.reactorState = 'ONLINE';
     addLog('*** REACTOR ONLINE ***', 'ok');
     doShake(); doFlash();
+    if (FIRST_ON == 0) {
+        FIRST_ON++; showToast(toastFirstOn);
+    }
     document.getElementById('seqSteps').classList.remove('seq-pulse');
     if (unlockedSubsystems) {
       document.querySelector('[data-tab="systems"]').classList.add('tab-pulse');
@@ -103,7 +106,7 @@ function checkSeq() {
   }
 }
 
-// GAUGE DANGER > MODULE DAMAGE
+// GAUGE DANGER -> MODULE DAMAGE
 // Each entry: gauge display name, danger condition, target module key.
 // When a gauge is in danger, a timer arms (15–60s). On expiry the module
 // takes 6–15% damage and the timer rearms. Timer disarms when safe again.
@@ -165,8 +168,7 @@ function setW(id, t) {
 }
 
 // Init console sequence
-addLog('MKIV TOKAMAK v4.7.2', 'sys');
-addLog('Manual: MANUAL tab', '');
-addLog('Module modes: SYSTEMS tab', 'sys');
+addLog('MKIV TOKAMAK reactor', 'sys');
+addLog('Manual: MANUAL tab', 'sys');
 addLog('All systems nominal - flip AUX PWR to begin startup sequence', 'ok');
-addLog('Fuel low - visit RESUPPLY tab to purchase fuel', 'warn');
+addLog('Fuel low - visit STORE tab to purchase fuel', 'warn');

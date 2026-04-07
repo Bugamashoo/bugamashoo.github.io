@@ -7,29 +7,38 @@ function simulate() {
   tick++;
   const dt = SIM_DT;
 
-  // Ignition hold timer
+  // Ignition hold timer — requires sufficient fuel flow to ignite
   if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= IGN_HOLD_MS) {
-    S.igniting = 1;
-    addLog('PLASMA IGNITION', 'ok');
-    doShake(); doFlash();
-    checkSeq();
+    const ignEF = S.fuelInject * fuelPumpFlow * (S.auxPower ? 1 : 0) * modPerf('fuel') * (S.fuelRemaining > 0 ? 1 : 0);
+    if (ignEF >= PLASMA_IGNITE_EF) {
+      S.igniting = 1;
+      ignitionGraceTick = tick;
+      addLog('PLASMA IGNITION', 'ok');
+      doShake(); doFlash();
+      checkSeq();
+    }
   }
   if (!S.ignPrime && S.igniting) { S.igniting = 0; addLog('PLASMA LOST', 'err'); }
 
-  const aM = S.auxPower    ? 1 : 0;
-  const cM = S.coolantPumps? 1 : 0;
+  const aM = S.auxPower ? 1 : 0;
 
-  // Fuel pump grace period - pumps must be off for 8s before fuel flow cuts
+  // Fuel pump flow - ramps up quickly when on, coasts down over ~30s when offline
   if (S.fuelPumps) {
-    if (fuelPumpOffStart !== 0) { fuelPumpOffStart = 0; }
+    fuelPumpFlow = Math.min(1, fuelPumpFlow + FUEL_PUMP_SPINUP_RATE);
   } else {
-    if (fuelPumpOffStart === 0) {
-      fuelPumpOffStart = Date.now();
-      if (S.igniting) addLog('WARN: Fuel pumps offline - shutdown in 8s', 'warn');
-    }
+    if (fuelPumpFlow === 1 && S.igniting) addLog('WARN: Fuel pumps offline - flow decreasing', 'warn');
+    fuelPumpFlow = Math.max(0, fuelPumpFlow - FUEL_PUMP_SPINDOWN_RATE);
   }
-  const fuelPumpGrace = !S.fuelPumps && fuelPumpOffStart > 0 && (Date.now() - fuelPumpOffStart) < FUEL_PUMP_GRACE_MS;
-  const fM = (S.fuelPumps || fuelPumpGrace) ? 1 : 0;
+  const fM = fuelPumpFlow;
+
+  // Coolant pump flow - ramps up quickly when on, coasts down over ~30s when offline
+  if (S.coolantPumps) {
+    coolantPumpFlow = Math.min(1, coolantPumpFlow + COOLANT_PUMP_SPINUP_RATE);
+  } else {
+    if (coolantPumpFlow === 1 && S.igniting) addLog('WARN: Coolant pumps offline - flow decreasing', 'warn');
+    coolantPumpFlow = Math.max(0, coolantPumpFlow - COOLANT_PUMP_SPINDOWN_RATE);
+  }
+  const cM = coolantPumpFlow;
 
   const fP = modPerf('fuel');   const cP = modPerf('coolant');
   const tP = modPerf('thermal');
@@ -41,9 +50,9 @@ function simulate() {
   const fH = modHeat('fuel');   const cH = modHeat('coolant');
   const tH = modHeat('thermal');const mH = modHeat('magnetic');
 
-  // Fuel consumption
+  // Fuel consumption — only while ignited, scaled by pump flow
   if (S.igniting && fM) {
-    S.fuelRemaining = Math.max(0, S.fuelRemaining - (S.fuelInject / 100) * FUEL_CONSUME_RATE * fP * dt);
+    S.fuelRemaining = Math.max(0, S.fuelRemaining - (S.fuelInject / 100) * FUEL_CONSUME_RATE * fP * fM * dt);
     S.fuelConsump   = S.fuelInject * FUEL_CONSUME_DISPLAY * fM * fP;
   } else {
     S.fuelConsump  *= FUEL_CONSUME_DECAY;
@@ -57,10 +66,22 @@ function simulate() {
 
   const eF = S.fuelInject * fM * aM * fP * (S.fuelRemaining > 0 ? 1 : 0);
 
-  if (S.igniting && eF < PLASMA_EXTINGUISH_EF && S.plasmaStability < PLASMA_EXTINGUISH_STABILITY) {
+  // Plasma extinguishes when effective fuel drops below 5% of max
+  if (S.igniting && eF < PLASMA_EXTINGUISH_EF) {
     S.igniting = 0;
-    addLog('PLASMA EXTINGUISHED: No fuel flow', 'err');
+    addLog('PLASMA EXTINGUISHED: Insufficient fuel flow', 'err');
     doShake();
+  }
+  // Low plasma stability: increasing chance of extinguish below 10%
+  // 0.1% per tick at 10% stability, 10% per tick at 0% stability (linear)
+  // Suppressed for 5s after ignition to let plasma stabilize
+  if (S.igniting && S.plasmaStability < 10 && tick - ignitionGraceTick > 100) {
+    const chance = 0.001 + (10 - S.plasmaStability) / 10 * 0.099;
+    if (Math.random() < chance) {
+      S.igniting = 0;
+      addLog('PLASMA EXTINGUISHED: Stability collapse', 'err');
+      doShake();
+    }
   }
   const rE = !S.rodSafetyOff ? (S.rodA + S.rodB + S.rodC) / 300 : 0;
 
@@ -156,8 +177,14 @@ function simulate() {
     const tempFactor    = Math.sqrt(S.coreTemp) / NEUTRON_TEMP_SCALE; // ~5.9 at 3500, ~7.7 at 6000
     const plasmaFactor  = S.plasmaStability / 100;                     // 0.7–0.9
     const fuelFactor    = Math.sqrt(eF);                               // ~6.3 at 40, ~7.7 at 60
-    tN = tempFactor * plasmaFactor * fuelFactor * NEUTRON_MULT * (1 - rE * NEUTRON_ROD_REDUCTION);
-    // ~ 5.9 × 0.8 × 6.3 × 1.5 ~ 45 at moderate operation
+    // Pressure relief venting: at 5% removes half of neutron flux, at 95% no effect
+    const neutronReliefMult = 1 - 0.5 * (95 - S.pressureRelief) / 90;
+    // Fuel mix ratio: 2x at 5%, 1x at 50%, 0.25x at 95%
+    const neutronMixMult = S.mixRatio < 50
+      ? 2.0 - (S.mixRatio - 5) / 45
+      : 1.0 - (S.mixRatio - 50) / 45 * 0.75;
+    tN = tempFactor * plasmaFactor * fuelFactor * NEUTRON_MULT * (1 - rE * NEUTRON_ROD_REDUCTION) * neutronReliefMult * neutronMixMult;
+    // ~ 5.9 × 0.8 × 6.3 × 1.5 ~ 45 at moderate operation (before relief)
   }
   S.neutronDensity += (tN - S.neutronDensity) * NEUTRON_LERP;
 
@@ -167,10 +194,10 @@ function simulate() {
   const radPresOffset = S.igniting
     ? RAD_PRES_RELIEF_MIN + (S.pressureRelief - 5) / 90 * (RAD_PRES_RELIEF_MAX - RAD_PRES_RELIEF_MIN)
     : 0;
-  S.radiationLevel = S.neutronDensity * RAD_NEUTRON_MULT
+  S.radiationLevel = Math.max(0, S.neutronDensity * RAD_NEUTRON_MULT
                    + (S.igniting && !S.radShield ? RAD_NO_SHIELD_BONUS : 0)
                    + (S.containIntegrity < RAD_LOW_CONTAIN_THRESHOLD ? (RAD_LOW_CONTAIN_THRESHOLD - S.containIntegrity) * RAD_LOW_CONTAIN_SCALE : 0)
-                   + radPresOffset;
+                   + radPresOffset);
 
   // Containment integrity
   if (S.igniting) {
@@ -409,7 +436,7 @@ function simulate() {
   }
 
   // Reactor state
-  if (S.reactorState === 'ONLINE') {
+  if (S.reactorState === 'ONLINE' && S.igniting) {
     S.uptime += dt;
     if (S.uptime > S.bestUptime) S.bestUptime = S.uptime;
     // Score accumulation: +1 every floor(3000/MW) ticks
@@ -463,7 +490,7 @@ function simulate() {
   }
 
   // Fuel + money exhaustion game over
-  if (S.fuelRemaining <= 0 && S.money < 500 && S.startupComplete) {
+  if (S.fuelRemaining <= 0 && S.money < 400 && S.startupComplete) {
     S.fuelMoneyDeadTicks++;
     if (S.fuelMoneyDeadTicks >= FUEL_MONEY_GAMEOVER_DELAY) {
       triggerCatastrophe('fuel_exhaustion');
@@ -551,11 +578,15 @@ function simulate() {
     sensorNoise = {};
   }
 
-  // Resupply tab pulse: fuel < 1% or can afford cheapest upgrade (one-time)
+  // Resupply tab pulse: fuel < 1%, can afford cheapest module upgrade, or can afford turbine T1 (one-time)
   if (!resupplyPulseDone && !S.gameOver) {
     const cheapest = Math.min(...Object.keys(UPGRADE_MODULE_COST_MULT).map(k => getUpgradeCost(k, 'health', 0)));
-    if (S.fuelRemaining < 1 || S.money >= cheapest) {
+    const turbineT1Available = (specialUpgrades.turbineSpeedUpgrade || 0) === 0 && S.money >= SPEC_UPG_TURBINE_SPEED_COSTS[0];
+    if ((S.fuelRemaining < 1 || S.money >= cheapest || turbineT1Available) && STORE_PULSE == 0) {
+      if (S.fuelRemaining < 1) showToast(toastCheckStoreGas);
+      if (turbineT1Available) showToast (toastCheckStoreUpg);
       document.querySelector('[data-tab="resupply"]').classList.add('tab-pulse');
+      STORE_PULSE++;
     }
   }
 

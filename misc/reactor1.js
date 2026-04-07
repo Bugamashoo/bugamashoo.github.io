@@ -88,12 +88,14 @@ let diagStart     = 0;    // Date.now() when diagnosis started
 let diagDuration  = 0;    // random 1-5s duration for current diagnosis
 let nextErrorTime  = ERR_SPAWN_INIT_MIN + Math.random() * ERR_SPAWN_INIT_RANGE; // uptime threshold for next system error
 let recentEventIds = []; // last 3 triggered event IDs - prevents same event repeating until 3 others have fired
-let fuelPumpOffStart = 0; // Date.now() when fuel pumps went off; 0 = pumps are on or grace expired
+let fuelPumpFlow    = 0; // 0–1 multiplier for fuel pump flow; lerps to 0 over ~30s when pumps go offline
+let coolantPumpFlow = 0; // 0–1 multiplier for coolant pump flow; lerps to 0 over ~30s when pumps go offline
 let powerHist5m = []; // power samples every 60 ticks (3s), max 100 entries = 5 min rolling window
 let sensorNoise       = {};   // randomised display strings shown when sensor array is offline
 let lastCommsWarnTick = -100; // throttle "comms offline" log spam (1 message per 20 ticks)
 let moduleHealthPrev = {}; // previous-tick health per module key, for threshold crossing detection
 let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets uptime at 10s
+let ignitionGraceTick = -100; // tick when plasma ignited; suppresses stability collapse for 5s
 
 // Money & resupply globals
 let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0 } } - tier purchased (0=none)

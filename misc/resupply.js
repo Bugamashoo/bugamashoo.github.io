@@ -254,6 +254,7 @@ window.buyTurbineSpeedUpgrade = function() {
   const tier = specialUpgrades.turbineSpeedUpgrade || 0;
   if (tier >= SPEC_UPG_TURBINE_SPEED_TIERS) return;
   if (!spendMoney(SPEC_UPG_TURBINE_SPEED_COSTS[tier])) { addLog('Insufficient funds', 'warn'); return; }
+  if (tier == 0) showToast(toastTurbineUpg1);
   specialUpgrades.turbineSpeedUpgrade = tier + 1;
   const newMax = getTurbineSafeMax();
   addLog('Turbine Speed T' + (tier + 1) + ' - safe limit ' + newMax.toFixed(0) + ' RPM', 'ok');
@@ -291,7 +292,7 @@ window.fuelActionFull = function() {
   else sellFuelAll();
 };
 
-// Targeted rebuild of a single system upgrade card (no full rebuild, no scroll disruption)
+// Targeted rebuild of a single system upgrade card
 function updateUpgradeCard(key) {
   const card = document.getElementById('rsUpgCard_' + key);
   if (!card) return;
@@ -308,13 +309,15 @@ function updateUpgradeCard(key) {
   card.insertAdjacentHTML('beforeend', tracks);
 }
 
-// Targeted rebuild of only the special upgrades grid (sorted, no full rebuild)
+// Targeted rebuild of only the special upgrades grid
 function rebuildSpecUpgradesSection() {
   const grid = document.querySelector('.spec-upgrades-grid');
   if (!grid) return;
   const cards = [
-    { maxed: (specialUpgrades.eventSuppression    || 0) >= SPEC_UPG_TIERS,                  html: buildSpecUpgradeCard('specUpgSuppress',   'EVENT SUPPRESSION', 'interval between events', 'eventSuppression') },
-    { maxed: (specialUpgrades.emergencyDelayer     || 0) >= SPEC_UPG_TIERS,                  html: buildSpecUpgradeCard('specUpgDelay',       'EMERGENCY DELAYER',  'event resolve time',     'emergencyDelayer') },
+    ...(!EVENTS_DISABLED ? [
+      { maxed: (specialUpgrades.eventSuppression || 0) >= SPEC_UPG_TIERS, html: buildSpecUpgradeCard('specUpgSuppress', 'EVENT SUPPRESSION', 'interval between events', 'eventSuppression') },
+      { maxed: (specialUpgrades.emergencyDelayer  || 0) >= SPEC_UPG_TIERS, html: buildSpecUpgradeCard('specUpgDelay',    'EMERGENCY DELAYER',  'event resolve time',     'emergencyDelayer') },
+    ] : []),
     { maxed: (specialUpgrades.backupGenerator      || 0) >= SPEC_UPG_BACKUP_GEN_TIERS,       html: buildBackupGenUpgradeCard() },
     { maxed: (specialUpgrades.turbineSpeedUpgrade  || 0) >= SPEC_UPG_TURBINE_SPEED_TIERS,    html: buildTurbineSpeedUpgradeCard() },
   ];
@@ -341,7 +344,8 @@ function buildTurbineSpeedUpgradeCard() {
     actionHtml = `<button class="spec-upgrade-btn" id="specUpgTurbineSpeed" onclick="buyTurbineSpeedUpgrade()" ${S.money < cost ? 'disabled' : ''}>\u2192 T${tier + 1}\u2002+${deltaRPM} RPM\u2002${fmtMoney(cost)}</button>`;
   }
 
-  return `<div class="spec-upgrade-card${dimmed ? ' dimmed' : ''}" id="specCard_turbineSpeedUpgrade">
+  const shouldPulse = tier === 0 && S.money >= SPEC_UPG_TURBINE_SPEED_COSTS[0];
+  return `<div class="spec-upgrade-card${dimmed ? ' dimmed' : ''}${shouldPulse ? ' card-pulse' : ''}" id="specCard_turbineSpeedUpgrade">
     <div class="spec-upgrade-header">
       <span class="spec-upgrade-name">TURBINE SPEED</span>
       <span class="spec-upgrade-tier-badge">${tierBadge}</span>
@@ -433,8 +437,10 @@ function buildResupply() {
   html += `<div class="resupply-panel-title" style="margin-top:10px">SPECIAL UPGRADES</div>`;
   html += `<div class="spec-upgrades-grid">`;
   const specCards = [
-    { maxed: (specialUpgrades.eventSuppression    || 0) >= SPEC_UPG_TIERS,                 html: buildSpecUpgradeCard('specUpgSuppress',  'EVENT SUPPRESSION', 'interval between events', 'eventSuppression') },
-    { maxed: (specialUpgrades.emergencyDelayer     || 0) >= SPEC_UPG_TIERS,                 html: buildSpecUpgradeCard('specUpgDelay',      'EMERGENCY DELAYER',  'event resolve time',     'emergencyDelayer') },
+    ...(!EVENTS_DISABLED ? [
+      { maxed: (specialUpgrades.eventSuppression || 0) >= SPEC_UPG_TIERS, html: buildSpecUpgradeCard('specUpgSuppress', 'EVENT SUPPRESSION', 'interval between events', 'eventSuppression') },
+      { maxed: (specialUpgrades.emergencyDelayer  || 0) >= SPEC_UPG_TIERS, html: buildSpecUpgradeCard('specUpgDelay',    'EMERGENCY DELAYER',  'event resolve time',     'emergencyDelayer') },
+    ] : []),
     { maxed: (specialUpgrades.backupGenerator      || 0) >= SPEC_UPG_BACKUP_GEN_TIERS,      html: buildBackupGenUpgradeCard() },
     { maxed: (specialUpgrades.turbineSpeedUpgrade  || 0) >= SPEC_UPG_TURBINE_SPEED_TIERS,   html: buildTurbineSpeedUpgradeCard() },
   ];
@@ -556,8 +562,8 @@ function updateResupplyValues() {
   // Item buttons disabled states
   const itemMap = {
     rsItemRepair:{ cost: ITEM_QUICK_REPAIR_COST, force: false },
-    rsItemDiag:  { cost: ITEM_DIAGNOSTIC_SWEEP_COST, force: false },
-    rsItemCont:  { cost: ITEM_CONTAINMENT_PATCH_COST, force: false },
+    rsItemDiag:  { cost: ITEM_DIAGNOSTIC_SWEEP_COST, force: !Object.values(S.modules).some(m => m.sysError && !m.sysErrorVisible) },
+    rsItemCont:  { cost: ITEM_CONTAINMENT_PATCH_COST, force: S.containIntegrity >= 99.9 },
     rsItemEvt:   { cost: ITEM_EVENT_EXTENDER_COST, force: !S.activeEvent }
   };
   Object.entries(itemMap).forEach(([id, info]) => {
@@ -603,6 +609,7 @@ function updateResupplyValues() {
   if (tsBtnEl) tsBtnEl.disabled = tsCantAfford;
   const tsCardEl     = document.getElementById('specCard_turbineSpeedUpgrade');
   if (tsCardEl) tsCardEl.classList.toggle('dimmed', tsMaxed || tsCantAfford);
+  if (tsCardEl) tsCardEl.classList.toggle('card-pulse', tsTier === 0 && !tsCantAfford);
 }
 
 function buildUpgradeTrack(key, type, label, bonuses, currentTier, prefix) {

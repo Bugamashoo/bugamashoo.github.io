@@ -368,6 +368,14 @@
   padding: 7px 8px;
 }
 
+.spec-upgrade-card.card-pulse {
+  animation: helpBtnPulse 1.4s ease-in-out infinite;
+}
+
+.spec-upgrade-card.card-pulse .spec-upgrade-name {
+  animation: helpBtnPulseText 1.4s ease-in-out infinite;
+}
+
 .spec-upgrade-header {
   display: flex;
   justify-content: space-between;

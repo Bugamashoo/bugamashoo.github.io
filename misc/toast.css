@@ -1,0 +1,11 @@
+#toastContainer{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);width:50%;z-index:12000;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;align-items:center}
+.toast-wrap{overflow:hidden;max-height:0;transition:max-height .3s ease-out;width:100%}
+.toast-wrap.open{max-height:200px}
+.toast{pointer-events:auto;width:100%;background:rgba(10,12,14,.95);border:2px solid var(--amber);border-radius:4px;color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:14px;line-height:1.5;padding:10px 38px 10px 14px;box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 12px rgba(255,159,28,.15);position:relative;animation:toastIn .3s ease-out}
+.toast.fade-out{transition:opacity 1s ease,margin .3s ease;opacity:0}
+.toast.fade-out-fast{transition:opacity .35s ease;opacity:0}
+.toast .toast-close{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;opacity:.6;transition:opacity .15s}
+.toast .toast-close:hover{opacity:1}
+.toast .toast-close svg{width:14px;height:14px;stroke:var(--amber);stroke-width:2.5;stroke-linecap:round}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(orientation:portrait) and (max-width:1024px){#toastContainer{width:calc(100% - 24px)}}

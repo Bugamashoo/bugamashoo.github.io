@@ -31,6 +31,7 @@
   const eventsCheck = document.getElementById('introEventsCheck');
   if (eventsCheck) {
     eventsCheck.addEventListener('change', () => {
+      if (eventsCheck.checked) showToast(toastEventsOff);
       EVENTS_DISABLED = eventsCheck.checked;
     });
   }
@@ -76,10 +77,12 @@
   positionKnifeSwitch(ks, false);
 
   let state = 0; // 0 = off; 1 = on (one-way - overlay cannot be re-shown)
+  window.introStarted = false; // global flag for other systems (keybinds etc.)
 
   function turnOn() {
     if (state) return;
     state = 1;
+    window.introStarted = true;
     ks.classList.add('on');
     animateKnifeSwitch(ks, true, () => spawnSwitchSparks(ks));
 

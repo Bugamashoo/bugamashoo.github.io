@@ -1,8 +1,9 @@
-// vars.js - GAME BALANCE CONSTANTS
+// vars.js - SIMULATION & GAMEPLAY BALANCE CONSTANTS
 // Load order: 0th (before all reactor scripts)
+// Money, upgrade, and resupply constants are in resupplyvars.js
+// Module/systems constants are in systemvars.js
 
 // Tuning for gameplay difficulty and feel.
-// Changes take effect on the next page load.
 
 // SIMULATION TIMING
 // How fast the simulation runs and how much history is kept.
@@ -12,6 +13,8 @@ const MONITOR_HISTORY_LEN  = 1200;   // Points kept in monitor graphs (~9 min at
 const MONITOR_SAMPLE_TICKS = 3;      // Sample monitor history every N ticks
 const POWER_HIST_TICKS     = 60;     // Sample 5-min avg power history every N ticks (3s at 20 Hz)
 const POWER_HIST_MAX       = 100;    // Max power history entries (100 × 3s = 5-min rolling window)
+var FIRST_ON               = 0;      // Whether reactor has been started before (this session)
+var STORE_PULSE            = 0;      // Whether the store has been pulsed before
 
 // INITIAL STATE
 // Starting values when the game loads.
@@ -22,17 +25,6 @@ const PRESSURE_BASE   = 1;    // Idle core pressure (ATM)
 const HEATSINK_IDLE   = 20;   // Idle heat sink temperature (°C)
 const COOLANT_IDLE    = 15;   // Idle coolant temperature (°C)
 const AUX_COOL_IDLE   = 12;   // Idle aux coolant temperature (°C)
-
-// MODULE MODES
-// Performance multiplier, health drain rate, and heat modifier for each mode.
-// healthDrain is a multiplier applied to the per-interval drain roll (MOD_BASE_DRAIN_ROLL).
-const MODE_OVERCLOCK_PERF  = 1.5;   // Performance multiplier in overclock (+50%)
-const MODE_OVERCLOCK_DRAIN = 3;     // Health drain multiplier in overclock (3× normal)
-const MODE_OVERCLOCK_HEAT  = 110;    // Extra °C added to core temp target in overclock
-const MODE_ECO_PERF        = 0.6;   // Performance multiplier in eco mode (-40%)
-const MODE_ECO_DRAIN       = 0.3;   // Health drain multiplier in eco mode (0.3× normal)
-const MODE_ECO_HEAT        = -40;    // Heat reduction in eco mode (°C)
-const MODE_BYPASS_PERF     = 0.9;   // Performance multiplier in bypass mode (-10%)
 
 // STARTUP SEQUENCE THRESHOLDS
 // Minimum lever positions required to advance the startup checklist.
@@ -48,9 +40,12 @@ const FUEL_CONSUME_DISPLAY = 0.3;    // Scale factor for the fuelConsump readout
 const FUEL_CONSUME_DECAY   = 0.9;    // Per-tick decay of fuelConsump when not igniting (fraction)
 const FUEL_DUMP_DRAIN      = 0.5;    // Fuel drained per second when emergency dump is active (%)
 const BACKUP_GEN_FUEL_DRAIN = 0.0001; // Fuel % drained per tick when backup generator is on (~medium reactor consumption)
-const FUEL_PUMP_GRACE_MS   = 10000;   // Milliseconds fuel continues flowing after pumps go offline
-const PLASMA_EXTINGUISH_EF         = 1;  // Plasma extinguishes if effective fuel drops below this
-const PLASMA_EXTINGUISH_STABILITY  = 5;  // ...and plasma stability drops below this (%)
+const FUEL_PUMP_SPINDOWN_RATE    = 1 / 600;  // Flow decrease per tick when fuel pumps go offline (~30s to zero at 20Hz)
+const FUEL_PUMP_SPINUP_RATE      = 0.2;      // Flow increase per tick when fuel pumps come online (~5 ticks)
+const COOLANT_PUMP_SPINDOWN_RATE = 1 / 600;  // Flow decrease per tick when coolant pumps go offline (~30s to zero at 20Hz)
+const COOLANT_PUMP_SPINUP_RATE   = 0.2;      // Flow increase per tick when coolant pumps come online (~5 ticks)
+const PLASMA_EXTINGUISH_EF         = 5;   // Plasma extinguishes if effective fuel drops below 5% of max (100)
+const PLASMA_IGNITE_EF             = 10;  // Effective fuel must be at least 10% of max to ignite
 
 // CORE TEMPERATURE
 // Heat generation, cooling, and lerp tuning.
@@ -187,83 +182,6 @@ const POWER_LERP             = 0.03;  // Power output lerp rate per tick
 const HEATSINK_CORE_SCALE = 0.005;  // coreTemp × this = heat sink heating contribution
 const HEATSINK_COOL_SCALE = 0.025;   // cE_flat (coolant effect) × this = heat sink cooling
 
-// MODULE HEALTH & DEGRADATION 
-// Raise DRAIN_INTERVAL or lower BASE_DRAIN_ROLL to make modules last longer.
-const MOD_DRAIN_INTERVAL    = 60;   // Ticks between module health drain calculations (every 3s at 20Hz)
-const MOD_BASE_DRAIN_ROLL   = 0.2;  // Max random health drained per interval (before multipliers)
-const MOD_SLIDER_BASE       = 0.5;  // Slider load multiplier at 0% lever position
-const MOD_SLIDER_SCALE      = 100;  // sliderLoad / this added to MOD_SLIDER_BASE (max 1.5× at 100%)
-const MOD_BYPASS_STRESS_MULT = 3; // Bypass mode redirects this × normal stress to backup systems
-const MOD_ERROR_DRAIN_MULT  = 1.1;  // System errors multiply health drain by this
-
-const MOD_DEGRADE_HEALTH    = 25;   // Health % below which a module can randomly degrade to 'degraded'
-const MOD_DEGRADE_CHANCE    = 0.03; // Probability per drain-interval of degrading when below threshold
-const MOD_OFFLINE_HEALTH    = 5;    // Health % below which a module automatically goes offline
-
-// Warning-severity multiplier applied to health drain
-// warnX: +1 per amber warning, +2 per red warning active
-const WARN_SEVERITY_SCALE   = 8;   // warnMult = 1 + warnX / this, Lower means more impact!!
-
-// Warning thresholds used by the severity scoring in the drain loop
-const WARN_TEMP_RED         = 6000; // Core temp (°C) for red severity score
-const WARN_TEMP_AMBER       = 4000; // Core temp (°C) for amber severity score
-const WARN_PRES_RED         = 24;   // Core pressure (ATM) for red severity score
-const WARN_PRES_AMBER       = 18;   // Core pressure (ATM) for amber severity score
-const WARN_CONTAIN_RED      = 30;   // Containment (%) below which red severity score
-const WARN_CONTAIN_AMBER    = 60;   // Containment (%) below which amber severity score
-const WARN_COOLANT_TEMP_RED = 150;  // Coolant temp (°C) for red severity score
-const WARN_COOLANT_FLOW_AMB = 100;  // Coolant flow (L/min) below this = amber severity score
-const WARN_FUEL_RED         = 10;   // Fuel remaining (%) below which red severity score
-const WARN_FUEL_AMBER       = 25;   // Fuel remaining (%) below which amber severity score
-const WARN_RAD_RED          = 60;   // Radiation (mSv) above which red severity score
-const WARN_RAD_AMBER        = 30;   // Radiation (mSv) above which amber severity score
-
-// BACKUP SYSTEMS HEALTH DRAIN
-// Each active backup load drains backup health per tick.
-// All four maxed out = ~1 minute to deplete from full.
-const BACKUP_GEN_DRAIN        = 0.005;  // Health drained/tick when backupGen is on
-const BACKUP_AUX_DRAIN        = 0.02;  // Health drained/tick per % auxCoolRate / 100 when aux loop active
-const BACKUP_FIELD_A_DRAIN    = 0.02;  // Health drained/tick per % backupContPow / 100 when Field A on
-const BACKUP_FIELD_B_DRAIN    = 0.02;  // Health drained/tick per % backupContPow / 100 when Field B on
-const BACKUP_OVERCLOCK_DRAIN  = 2;     // Backup drain multiplied by this when backup is in overclock mode
-
-// GAUGE DANGER -> MODULE DAMAGE
-// When a gauge stays in danger, a timer arms. On expiry, the linked module takes damage.
-// Lower ARM_MIN / ARM_RANGE for faster punishment; lower DMG values for softer consequences.
-
-const GAUGE_DANGER_ARM_MIN   = 15;  // Minimum seconds before first damage after entering danger
-const GAUGE_DANGER_ARM_RANGE = 45;  // Random seconds added to the arm timer (total: 15–60s)
-const GAUGE_DANGER_DMG_MIN   = 6;   // Minimum health % damage per trigger
-const GAUGE_DANGER_DMG_RANGE = 9;   // Random health % added to minimum damage (total: 6–15%)
-
-// GAUGE DANGER THRESHOLDS
-// Conditions that arm the gauge danger timer and deal module damage.
-const GAUGE_TEMP_DANGER       = 6000;  // Core temp (°C) above which thermal damage accrues
-const GAUGE_PRES_DANGER       = 24;    // Core pressure (ATM) above which fuel module takes damage
-const GAUGE_PLASMA_DANGER     = 20;    // Plasma stability (%) below which magnetic module takes damage
-const GAUGE_COOLANT_TEMP_DANGER = 150; // Coolant temp (°C) above which coolant module takes damage
-const GAUGE_COOLANT_FLOW_DANGER = 100; // Coolant flow (L/min) below which coolant module takes damage
-const GAUGE_CONTAIN_DANGER    = 15;    // Containment (%) below which magnetic module takes damage
-const GAUGE_RADIATION_DANGER  = 60;    // Radiation (mSv) above which sensor module takes damage
-const GAUGE_TURBINE_DANGER    = 6000;  // Turbine RPM above which grid module takes damage (base; scales with turbineSpeedUpgrade)
-const GAUGE_HEATSINK_DANGER   = 150;   // Heat sink temp (°C) above which coolant module takes damage
-const GAUGE_AUXCOOL_DANGER    = 70;    // Aux cool temp (°C) above which backup module takes damage
-
-// SYSTEM ERRORS 
-// Hidden faults that silently reduce module efficiency until diagnosed.
-// Raise SPAWN_NEXT_MIN to give players more breathing room between errors.
-const ERR_SPAWN_INIT_MIN    = 30;   // Seconds after reactor start before first error can spawn
-const ERR_SPAWN_INIT_RANGE  = 270;  // Random seconds added to initial spawn time (total: 30–300s)
-const ERR_SPAWN_NEXT_MIN    = 30;   // Seconds between subsequent error events
-const ERR_SPAWN_NEXT_RANGE  = 270;  // Random seconds added (total: 30–300s per error cycle)
-const ERR_PENALTY_INIT_MIN  = 0.85; // Initial efficiency when an error is applied (85%)
-const ERR_PENALTY_INIT_RANGE = 0.05;// Random range on top of min (initial: 85–90% efficiency)
-const ERR_PENALTY_FLOOR     = 0.40; // Efficiency cannot drop below this, even with many worsening events
-const ERR_WORSEN_STEP       = 0.05; // Efficiency reduction per worsening event
-const ERR_WORSEN_STEP_RANGE = 0.05; // Random amount added to worsen step (total: 0.05–0.10 per event)
-const ERR_WORSEN_CHANCE     = 0.75; // Probability that a new error event worsens an existing error vs spreading
-const ERR_SPREAD_THRESHOLD  = 8;    // errorCount at which a maxed error starts spreading to new modules
-
 // SAFE OPERATING RANGES ─
 // Thresholds that drive warning lights and gauge color coding.
 // These match the values referenced in the Operations Manual tab.
@@ -307,10 +225,6 @@ const DISP_FUEL_AMBER     = 50;    // Fuel bar turns amber below this %
 const DISP_POWER_RED      = 2000;   // Power display turns red above this MW
 const DISP_POWER_AMBER    = 1500;   // Power display turns amber above this MW
 
-// Module health card color thresholds
-const MOD_HEALTH_GREEN    = 75;    // Health (%) above which the bar is green
-const MOD_HEALTH_AMBER    = 40;    // Health (%) above which the bar is amber (below = red)
-
 // Reactor state transitions
 const STATE_CRITICAL_TEMP     = 8000; // Core temp (°C) above which state becomes CRITICAL
 const STATE_CRITICAL_CONTAIN  = 20;   // Containment (%) below which state becomes CRITICAL
@@ -351,19 +265,6 @@ const DEESC_TOLERANCE = 2;     // +- units of change allowed in a tracked contro
 // Game-over screen
 const GAME_OVER_DELAY_MS = 4500; // Milliseconds after catastrophe animation before showing game over
 
-// REPAIR & DIAGNOSIS
-// Repair rates are in health % per tick.
-const REPAIR_ONLINE_RATE    = 1.2 / 30;    // Health regained per tick when online (normal repair)
-const REPAIR_BYPASS_RATE    = 2 / 30;    // Health regained per tick in bypass mode
-const REPAIR_OFFLINE_RATE   = 5 / 30;  // Health regained per tick when offline (fast repair)
-const DIAG_DURATION_BASE_MS  = 1000;  // Minimum diagnosis duration (ms)
-const DIAG_DURATION_RANGE_MS = 4000;  // Random extra duration added (total: 1–5s)
-const DIAG_BYPASS_MULT       = 0.4;   // Duration multiplied by this when module is in bypass mode (0.5–2.5s)
-
-// MODULE MANAGEMENT TIMERS
-const MODULE_POWER_TRANSITION_MS = 3000;  // Milliseconds for a module to power on or off
-const MODULE_RESTART_MS          = 6000;  // Milliseconds for a module restart to complete
-
 // EMERGENCY ACTIONS
 const EMERG_PURGE_PRES_MULT    = 0.6;   // Core pressure multiplied by this on line purge
 const EMERG_PLASMA_DUMP_TEMP   = 0.5;   // Core temp multiplied by this on plasma dump
@@ -371,97 +272,14 @@ const EMERG_COOL_FLOOD_COOLANT = 100;   // coolantFlow set to this % on cool flo
 const EMERG_COOL_FLOOD_AUX     = 100;   // auxCoolRate set to this % on cool flood
 const EMERG_COOL_FLOOD_TEMP    = 0.3;   // Core temp multiplied by this on cool flood
 
-// SCRAM & HARD RESET
+// SCRAM
 const SCRAM_LOCKOUT_MS        = 10000;  // Milliseconds controls stay locked after a SCRAM
-const HARD_RESET_OFFLINE_MS   = 4000;  // Milliseconds modules stay offline during hard reset
-const HARD_RESET_MIN_HEALTH   = 60;    // Module health floored to this % during hard reset (not zeroed)
 
 // UPTIME & SCORING
 const PLASMA_OFF_RESET_SECS   = 10;   // Seconds plasma must be off before uptime resets to 0
 const SCORE_DIVISOR           = 3500; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
 const HEALTH_ALERT_THRESHOLDS = [75, 50, 25, 10, 5]; // Health % levels that trigger log alerts
 const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning log messages
-
-// MONEY SYSTEM
-const MONEY_START             = 2000;       // Starting funds ($)
-const MONEY_EARN_BASE         = 3;     // Base $/tick earned per MW of power output (at 20Hz)
-const MONEY_EARN_SCALE_MW     = 2000;     // MW threshold for maximum earning multiplier
-const MONEY_EARN_SCALE_MAX    = 1.5;     // Maximum earning multiplier at high MW output
-const MONEY_FORMAT_K          = 1000;    // Threshold to display as $X.Xk
-const MONEY_FORMAT_M          = 1000000; // Threshold to display as $X.Xm
-const MONEY_FORMAT_B          = 1000000000; // Threshold to display as $X.Xb
-
-// FUEL MARKET
-const FUEL_PRICE_BASE_PER_PCT = 20000;    // Base price ($) for 1% fuel
-const FUEL_PRICE_LERP         = 0.005;   // Per-tick lerp rate toward target price multiplier
-const FUEL_PRICE_CHANGE_MIN   = 3000;    // Min ticks between price target changes (~2.5 min at 20Hz)
-const FUEL_PRICE_CHANGE_RANGE = 6000;    // Random ticks added (total 2.5–7.5 min between changes)
-const FUEL_PRICE_NORMAL_RANGE = 0.35;    // Normal fluctuation +-35% around base
-const FUEL_PRICE_EXTREME_CHANCE = 0.08;  // 8% chance of extreme price swing per change
-const FUEL_PRICE_EXTREME_LOW  = 0.50;    // Extreme discount: price drops to 50% of base
-const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% of base
-const FUEL_SELL_RATIO         = 0.75;    // Sell price = 75% of current buy price
-
-// REPAIR COSTS
-const REPAIR_COST_PER_TICK    = 1400;      // $/tick cost while actively repairing a module
-
-// SYSTEM UPGRADES (per-module, 3 tiers each)
-// Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
-// Total all upgrades ≈ $9.6m (roughly 2 hours of max-output play).
-const UPGRADE_HEALTH_COST     = [23000, 91000, 290000];    // Base cost per tier: +max health
-const UPGRADE_HEALTH_BONUS    = [10, 15, 25];              // +max health per tier (cumulative: +10, +25, +45)
-const UPGRADE_EFFICIENCY_COST = [94000, 379000, 1220000];    // Base cost per tier: error penalty floor improvement
-const UPGRADE_EFFICIENCY_BONUS= [0.1, 0.15, 0.25];       // Flat perf multiplier per tier (stacks: T3 = +50%)
-const UPGRADE_DRAIN_COST      = [23000, 187000, 650000];    // Base cost per tier: reduce health drain rate
-const UPGRADE_DRAIN_MULT      = [0.90, 0.70, 0.45];       // Health drain multiplied by this (lower = better)
-
-// Per-module cost multiplier - scales all upgrade costs for that module.
-// Ranked by how directly the module contributes to reactor output.
-const UPGRADE_MODULE_COST_MULT = {
-  grid:     5.0,   // Grid Interface - power delivery, most expensive
-  backup:   2.2,   // Backup Power - emergency stability
-  fuel:     3.7,   // Fuel Processing - fuel efficiency
-  thermal:  1.3,   // Thermal Control - heat management
-  magnetic: 2.0,   // Magnetic Containment - plasma stability
-  coolant:  1.5,   // Coolant System - overheat prevention
-  sensor:   0.3,   // Sensor Array - readout accuracy
-  comms:    0.6    // Comms Relay - control access
-};
-
-// SPECIAL ITEMS (one-time-use, repeatable purchase)
-const ITEM_EMERGENCY_FUEL_COST   = 0;   // Instant +0% fuel (REMOVE BUTTON)
-const ITEM_EMERGENCY_FUEL_AMOUNT = 0;
-const ITEM_QUICK_REPAIR_COST     = 165000;  // Instant +30 health to target module
-const ITEM_QUICK_REPAIR_AMOUNT   = 30;
-const ITEM_DIAGNOSTIC_SWEEP_COST = 96000;  // Reveals ALL hidden system errors
-const ITEM_OVERCLOCK_BOOST_COST  = 1200000;  // 60s enhanced overclock (2x perf, normal drain)
-const ITEM_OVERCLOCK_BOOST_TICKS = 1200;   // Duration in ticks (60s at 20Hz)
-const ITEM_CONTAINMENT_PATCH_COST  = 40000; // Instant +25% containment integrity
-const ITEM_CONTAINMENT_PATCH_AMOUNT= 25;
-const ITEM_EVENT_EXTENDER_COST   = 110000; // Adds 30s to active event timer
-const ITEM_EVENT_EXTENDER_BONUS  = 30;     // Seconds added to event countdown
-
-// SPECIAL TIERED UPGRADES
-// 5 tiers each; multiplier at each tier level (applied to base 1.0×)
-const SPEC_UPG_TIERS             = 5;
-const SPEC_UPG_MULT_STEPS        = [1.4, 1.8, 2.2, 2.6, 3.0]; // multiplier per tier
-const SPEC_UPG_EVENT_SUPPRESS_COSTS  = [150000, 400000, 900000, 2000000, 5000000];  // Event Suppression tier costs
-const SPEC_UPG_EMERGENCY_DELAY_COSTS = [200000, 500000, 1100000, 2500000, 6000000]; // Emergency Delayer tier costs
-
-// Turbine Speed upgrade (9 tiers, linear: 2,000 -> 20,000 RPM safe threshold)
-const SPEC_UPG_TURBINE_SPEED_TIERS = 9;
-const SPEC_UPG_TURBINE_SPEED_BASE  = 2000;  // Safe RPM at tier 0 (no upgrade)
-const SPEC_UPG_TURBINE_SPEED_MAX   = 20000; // Safe RPM at max tier
-const SPEC_UPG_TURBINE_SPEED_COSTS = [3500, 15500, 49000, 180000, 540000, 1300000, 3200000, 7800000, 19200000];
-
-// Backup Generator upgrade (19 tiers, linear: 2MW -> 40MW output, 100% -> 50% fuel rate)
-const SPEC_UPG_BACKUP_GEN_TIERS    = 19;
-const SPEC_UPG_BACKUP_GEN_MAX_MW   = 40;   // Power output at max tier (2MW/tier × 19 + 2 base)
-const SPEC_UPG_BACKUP_GEN_MIN_FUEL = 0.5;  // Fuel consumption multiplier at max tier (50% of base)
-const SPEC_UPG_BACKUP_GEN_COSTS    = [24000, 33000, 45000, 62000, 85000, 117000, 161000, 221000, 304000, 418000, 575000, 791000, 1088000, 1496000, 2057000, 2828000, 3889000, 5347000, 7400000];
-
-// FUEL+MONEY EXHAUSTION
-const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)
 
 // INTRO OVERLAY
 const INTRO_TITLE            = "Buga's Reactor Command";

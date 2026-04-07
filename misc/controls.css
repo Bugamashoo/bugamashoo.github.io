@@ -22,6 +22,8 @@
 .knob-housing.dragging{cursor:ew-resize}
 .knob{width:36px;height:36px;background:radial-gradient(circle at 40% 35%,#606670,#3a3f44);border-radius:50%;border:2px solid #6a6f75;position:relative;box-shadow:0 2px 4px rgba(0,0,0,.4)}
 .knob-pointer{position:absolute;top:3px;left:50%;width:3px;height:12px;background:var(--amber);border-radius:1px;transform:translateX(-50%)}
+.lever-handle.kb-selected{background:linear-gradient(180deg,#9a3510,#e05020,#c04018);border-color:#f06030}
+.knob.kb-selected-knob{background:radial-gradient(circle at 40% 35%,#787e88,#50555c);border-color:#8a8f95}
 .seq-step{display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:var(--panel-surface);border:1px solid var(--panel-border);border-radius:2px;transition:all .3s}
 .seq-step.active{border-color:var(--amber)}.seq-step.complete{border-color:var(--green-dim);background:rgba(57,255,20,.03)}
 .seq-step.complete .seq-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
