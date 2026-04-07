@@ -44,7 +44,7 @@
   <div id="introContent">
     <div id="introTitle">Buga's Reactor Command</div>
     <div id="introVersionBlock">
-      <div id="introVersion">v3.6.0</div>
+      <div id="introVersion">v3.6.1</div>
       <div id="introFlashRow">
         <input type="checkbox" id="introFlashCheck">
         <label for="introFlashCheck">disable flashing lights</label>
@@ -80,7 +80,7 @@
 <div class="intro-blackout" id="introBlackout3"></div>
 
 <div class="header">
-  <div class="header-title">MKIV TOKAMAK - CONTROL INTERFACE</div>
+  <div class="header-title">MKIV REACTOR - CONTROL INTERFACE</div>
   <div class="header-displays">
     <div class="hdr-box hdr-box-warn" id="warnBox">
       <div class="hdr-box-label">STATUS</div>
@@ -234,13 +234,13 @@
     <div class="sub-panel mt-4"><div class="sub-panel-title">Fuel</div><div class="display-box"><div class="display-label">REMAINING</div><div class="display-value amber" id="disp_fuelRemaining">100.0</div><div class="bar-gauge"><div class="bar-fill green" id="bar_fuelRemaining" style="width:100%"></div></div></div>
     <div class="display-box mt-4"><div class="display-label">CONSUMPTION KG/MIN</div><div class="display-value cyan" id="disp_fuelConsump">0.0</div></div></div>
   </div></div>
-  <div id="panelControlsWrap" style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto 1fr auto;gap:0;height:100%">
+  <div id="panelControlsWrap" style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr .75fr;grid-template-rows:auto 1fr auto;gap:0;height:100%">
     <div class="panel" id="ctrlSwitches" style="grid-column:1/4"><div class="panel-label">Primary Switch Bank</div><div class="panel-body"><div class="switch-row" id="switchBank1"></div></div></div>
     <div class="panel" id="ctrlLevers" style="grid-column:1/3;grid-row:2;display:flex;flex-direction:column"><div class="panel-label">Throttle &amp; Flow</div><div class="lever-row" id="leverRow"></div></div>
     <div class="panel" id="ctrlKnobs" style="grid-column:3;grid-row:2"><div class="panel-label">Tuning</div><div class="panel-body flex-col gap-8" id="knobPanel" style="align-items:center"></div></div>
     <div class="panel" id="ctrlSubsys" style="grid-column:1;grid-row:3"><div class="panel-label">Subsystems</div><div class="panel-body"><div class="switch-row" id="switchBank2"></div></div></div>
     <div class="panel" id="ctrlIgnition" style="grid-column:2;grid-row:3"><div class="panel-label">Ignition</div><div class="panel-body flex-center gap-12" id="buttonPanel"></div></div>
-    <div class="panel" id="ctrlEmergency" style="grid-column:3;grid-row:3"><div class="panel-label">Emergency</div><div class="panel-body flex-center gap-12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="push-btn amber-btn" id="purgeBtn" style="width:80px;height:80px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><button class="scram-btn" id="scramBtn">SCRAM</button><div class="switch-name">Emergency Shutdown</div></div></div></div>
+    <div class="panel" id="ctrlEmergency" style="grid-column:3;grid-row:3"><div class="panel-label">Emergency</div><div class="panel-body flex-center gap-12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="push-btn amber-btn" id="purgeBtn" style="width:60px;height:60px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><button class="scram-btn" id="scramBtn">SCRAM</button><div class="switch-name">Emergency Shutdown</div></div></div></div>
   </div>
   <div class="panel" id="panelDiag" style="grid-column:3;grid-row:1/3"><div class="panel-label">Diagnostics</div><div class="panel-body flex-col gap-6">
     <div class="sub-panel" id="diagCore"><div class="sub-panel-title">Core</div><div class="display-grid cols-2" id="coreReadings"></div></div>
