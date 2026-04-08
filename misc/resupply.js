@@ -281,12 +281,14 @@ window.buyModeUnlock = function(mode) {
               : mode === 'eco'       ? MODE_UNLOCK_ECO_COSTS
               :                        MODE_UNLOCK_BYPASS_COSTS;
   if (!spendMoney(costs[tier])) { addLog('Insufficient funds', 'warn'); return; }
+  const wasTier0 = tier === 0;
   modeUnlocks[mode] = tier + 1;
   syncModeStats();
   const label = mode.toUpperCase();
   addLog(label + ' MODE T' + (tier + 1) + ' unlocked', 'ok');
-  rebuildModeUnlocksSection();
+  buildResupply();
   buildSys();
+  if (wasTier0) showToast(mode === 'overclock' ? toastUnlockOverclock : mode === 'eco' ? toastUnlockEco : toastUnlockBypass);
 };
 
 window.buyBackupGenUpgrade = function() {
@@ -512,7 +514,7 @@ function buildResupply() {
   html += `</div></div>`;
 
   // SPECIAL ITEMS PANEL
-  html += `<div class="resupply-panel">
+  html += `<div class="resupply-panel" style="position:relative">
     <div class="resupply-panel-title">SPECIAL ITEMS</div>
     <div class="items-grid">`;
 
@@ -538,13 +540,15 @@ function buildResupply() {
   specCards.forEach(sc => { html += sc.html; });
   html += `</div>`;
 
-  // Quick repair module picker
+  // Quick repair module picker — overlays items + upgrades
   if (quickRepairPending) {
     html += `<div class="quick-repair-picker">
       <div class="resupply-panel-title" style="font-size:10px">SELECT MODULE TO REPAIR</div>
       <div class="repair-picker-grid">`;
     Object.entries(S.modules).forEach(([k, m]) => {
-      html += `<button class="resupply-btn buy" id="rsRepPick_${k}" onclick="buyQuickRepair('${k}')">${m.name}<br><span class="btn-price" id="rsRepPickP_${k}"></span></button>`;
+      const maxH = getUpgradeMaxHealth(k);
+      const full = m.health >= maxH * 0.99;
+      html += `<button class="resupply-btn buy" id="rsRepPick_${k}" onclick="buyQuickRepair('${k}')" ${full ? 'disabled' : ''}>${m.name}<br><span class="btn-price" id="rsRepPickP_${k}"></span></button>`;
     });
     html += `</div></div>`;
   }
@@ -556,6 +560,12 @@ function buildResupply() {
   if (tabEl) tabEl.scrollTop = scrollTop;
   c.querySelectorAll('.resupply-panel').forEach((p, i) => { if (panelScrolls[i]) p.scrollTop = panelScrolls[i]; });
   updateResupplyValues();
+
+  // Snap quick-repair picker into view when it opens
+  if (quickRepairPending) {
+    const picker = c.querySelector('.quick-repair-picker');
+    if (picker) requestAnimationFrame(() => picker.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+  }
 }
 
 // UPDATE RESUPPLY VALUES (DOM patches only - no rebuild)
@@ -652,7 +662,7 @@ function updateResupplyValues() {
 
   // Item buttons disabled states
   const itemMap = {
-    rsItemRepair:{ cost: ITEM_QUICK_REPAIR_COST, force: false },
+    rsItemRepair:{ cost: ITEM_QUICK_REPAIR_COST, force: Object.entries(S.modules).every(([k, m]) => m.health >= getUpgradeMaxHealth(k) * 0.98) },
     rsItemDiag:  { cost: ITEM_DIAGNOSTIC_SWEEP_COST, force: !Object.values(S.modules).some(m => m.sysError && !m.sysErrorVisible) },
     rsItemCont:  { cost: ITEM_CONTAINMENT_PATCH_COST, force: S.containIntegrity >= 99.9 },
     rsItemEvt:   { cost: ITEM_EVENT_EXTENDER_COST, force: !S.activeEvent }
@@ -665,8 +675,11 @@ function updateResupplyValues() {
   // Quick repair picker HP values
   if (quickRepairPending) {
     Object.entries(S.modules).forEach(([k, m]) => {
+      const maxH = getUpgradeMaxHealth(k);
       const p = document.getElementById('rsRepPickP_' + k);
-      if (p) p.textContent = m.health.toFixed(0) + '/' + getUpgradeMaxHealth(k) + ' HP';
+      if (p) p.textContent = m.health.toFixed(0) + '/' + maxH + ' HP';
+      const btn = document.getElementById('rsRepPick_' + k);
+      if (btn) btn.disabled = m.health >= maxH * 0.99;
     });
   }
 
@@ -739,7 +752,10 @@ function updateTurbineArrow() {
   if (!_turbineArrowBound) {
     _turbineArrowBound = true;
     resTab.addEventListener('scroll', _positionTurbineArrow, { passive: true });
-    arrow.addEventListener('click', _scrollToTurbineCard);
+    arrow.addEventListener('click', () => {
+      document.querySelectorAll('.toast-close').forEach(btn => btn.click());
+      _scrollToTurbineCard();
+    });
   }
   _positionTurbineArrow();
 }
@@ -749,19 +765,24 @@ function _positionTurbineArrow() {
   const card  = document.getElementById('specCard_turbineSpeedUpgrade');
   if (!arrow || !card || arrow.style.display === 'none') return;
 
-  const cardRect   = card.getBoundingClientRect();
-  const viewH      = window.innerHeight;
-  const arrowH     = arrow.offsetHeight;
-  const restBottom = 18;                       // default CSS bottom
-  const restTop    = viewH - restBottom - arrowH;
+  const cardRect = card.getBoundingClientRect();
+  const viewH    = window.innerHeight;
+  // Arrow tip should sit just above the card top.
+  // If card top is above where the arrow's resting bottom edge would be, park it there.
+  const arrowRect = arrow.getBoundingClientRect();
+  const arrowH   = arrowRect.height > 0 ? arrowRect.height : 92;
+  const gap      = 6;
+  const parkTop  = cardRect.top - arrowH - gap;
+  const restTop  = viewH - 18 - arrowH;        // where the arrow sits when fixed to bottom
 
-  if (cardRect.top <= restTop) {
-    // Card reached the arrow — park just above the card
+  if (parkTop <= restTop) {
+    arrow.style.position = 'fixed';
     arrow.style.bottom = 'auto';
-    arrow.style.top = Math.max(0, cardRect.top - arrowH - 6) + 'px';
+    arrow.style.top = Math.max(0, parkTop) + 'px';
   } else {
+    arrow.style.position = 'fixed';
     arrow.style.top = 'auto';
-    arrow.style.bottom = restBottom + 'px';
+    arrow.style.bottom = '18px';
   }
 }
 

@@ -6,4 +6,7 @@ const
 	toastEventsOff = "Buga recommends that you leave this off on your first playthrough!",
 	toastLockedOverclock = "Overclock mode is locked. Buy it from the STORE tab to allow for increased performance at the cost of significantly more damage and reactor heat.",
 	toastLockedEco       = "Eco mode is locked. Buy it from the STORE tab to allow for massively reduced damage and reactor heat in exchange for some performance loss.",
-	toastLockedBypass    = "Bypass mode is locked. Buy it from the STORE tab to allow for a repair speed boost without turning off the module at the cost of some performance. Damage gets redirected to backup systems.";
+	toastLockedBypass    = "Bypass mode is locked. Buy it from the STORE tab to allow for a repair speed boost without turning off the module at the cost of some performance. Damage gets redirected to backup systems.",
+	toastUnlockOverclock = "Overclock mode unlocked! Overclock mode allows for increased system module performance at the cost of significantly more damage and reactor heat.",
+	toastUnlockEco       = "Eco mode unlocked! Eco mode allows for massively reduced system module damage and reactor heat in exchange for some performance loss.",
+	toastUnlockBypass    = "Bypass mode unlocked! Bypass mode allows for a repair speed boost without turning off the module, although it loses some performance while bypassed. Damage gets redirected to backup systems.";

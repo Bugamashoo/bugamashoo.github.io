@@ -16,6 +16,7 @@ const MODE_BYPASS_PERF     = 0.9;   // Performance multiplier in bypass mode (-1
 // TIERED MODE STATS — per-tier values [T1, T2, T3] for each mode unlock level
 // Overclock: perf scales up, drain scales up, heat scales up
 const MODE_OVERCLOCK_PERF_TIERS  = [1.2, 1.6, 2.0];
+const MODE_OVERCLOCK_DRAIN_TIERS = [1.8, 3.0, 4.5];
 const MODE_OVERCLOCK_HEAT_TIERS  = [60, 90, 120];
 // Eco: perf scales down (better), drain scales down (better), heat reduction scales up
 const MODE_ECO_PERF_TIERS        = [0.7, 0.6, 0.5];

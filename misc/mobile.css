@@ -357,14 +357,21 @@
     bottom: 18px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 6;
+    z-index: 12001;
     cursor: pointer;
-    background: rgba(6, 8, 8, 0.9);
-    border: 2px solid var(--amber-dim);
-    border-radius: 8px;
-    padding: 8px 12px;
-    animation: helpBtnPulse 1.4s ease-in-out infinite;
+    background: none;
+    border: none;
+    padding: 0;
     line-height: 0;
+    animation: turbineArrowPulse 1.4s ease-in-out infinite;
+  }
+  #turbineArrow svg {
+    height: 92px;
+    width: auto;
+  }
+  @keyframes turbineArrowPulse {
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(255,159,28,.2)); }
+    50%      { filter: drop-shadow(0 0 12px rgba(255,159,28,.8)) drop-shadow(0 0 24px rgba(255,159,28,.4)); }
   }
 
   /*  INTRO OVERLAY ─ move switch above title  */

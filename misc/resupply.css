@@ -399,13 +399,18 @@
   color: var(--amber);
 }
 
-/*  QUICK REPAIR PICKER ─ */
+/*  QUICK REPAIR PICKER — overlays items + upgrades sections */
 .quick-repair-picker {
-  margin-top: 8px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 6px;
   border: 1px solid var(--magenta);
   border-radius: 3px;
-  background: rgba(255,46,170,.03);
+  background: var(--panel-bg);
+  z-index: 2;
 }
 
 .repair-picker-grid {
