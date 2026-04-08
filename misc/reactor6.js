@@ -21,9 +21,9 @@ function buildSys() {
       `<button class="mod-btn" style="width:100%" onclick="rstAllMods()">RESTART ALL</button>` +
       `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px">` +
         `<button class="mod-btn" onclick="setAllMode('normal')">ALL NORMAL</button>` +
-        `<button class="mod-btn" onclick="setAllMode('overclock')">ALL OVERCLOCK</button>` +
-        `<button class="mod-btn" onclick="setAllMode('eco')">ALL ECO</button>` +
-        `<button class="mod-btn" onclick="setAllMode('bypass')">ALL BYPASS</button>` +
+        `<button class="mod-btn ${modeUnlocks.overclock<1?'locked':''}" onclick="${modeUnlocks.overclock<1?'showToast(toastLockedOverclock)':'setAllMode(\'overclock\')'}">${modeUnlocks.overclock<1?'LOCKED':'ALL OVERCLOCK'}</button>` +
+        `<button class="mod-btn ${modeUnlocks.eco<1?'locked':''}" onclick="${modeUnlocks.eco<1?'showToast(toastLockedEco)':'setAllMode(\'eco\')'}">${modeUnlocks.eco<1?'LOCKED':'ALL ECO'}</button>` +
+        `<button class="mod-btn ${modeUnlocks.bypass<1?'locked':''}" onclick="${modeUnlocks.bypass<1?'showToast(toastLockedBypass)':'setAllMode(\'bypass\')'}">${modeUnlocks.bypass<1?'LOCKED':'ALL BYPASS'}</button>` +
       `</div>` +
     `</div>`;
   c.appendChild(ctrl);
@@ -72,9 +72,9 @@ function buildSys() {
        <div style="display:flex;gap:4px;padding-top:6px">
          <div class="btn-group" style="flex:2;display:grid;grid-template-columns:1fr 1fr;gap:2px">
            <button class="mod-btn ${m.mode==='normal'   ?'active-mode':''}" ${!hasModes||isOff?'disabled':''} onclick="setMode('${k}','normal')">NORMAL</button>
-           <button class="mod-btn ${m.mode==='overclock'?'active-mode':''}" ${!hasModes||isOff?'disabled':''} onclick="setMode('${k}','overclock')">OVERCLOCK</button>
-           <button class="mod-btn ${m.mode==='eco'      ?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="setMode('${k}','eco')">ECO</button>
-           <button class="mod-btn ${m.mode==='bypass'   ?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="setMode('${k}','bypass')">BYPASS</button>
+           <button class="mod-btn ${modeUnlocks.overclock<1?'locked':''} ${m.mode==='overclock'?'active-mode':''}" ${!hasModes||isOff?'disabled':''} onclick="${modeUnlocks.overclock<1?'showToast(toastLockedOverclock)':'setMode(\''+k+'\',\'overclock\')'}">${modeUnlocks.overclock<1?'LOCKED':'OVERCLOCK'}</button>
+           <button class="mod-btn ${modeUnlocks.eco<1?'locked':''} ${m.mode==='eco'?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="${modeUnlocks.eco<1?'showToast(toastLockedEco)':'setMode(\''+k+'\',\'eco\')'}">${modeUnlocks.eco<1?'LOCKED':'ECO'}</button>
+           <button class="mod-btn ${modeUnlocks.bypass<1?'locked':''} ${m.mode==='bypass'?'active-mode':''}" ${!hasModes||k==='backup'||isOff?'disabled':''} onclick="${modeUnlocks.bypass<1?'showToast(toastLockedBypass)':'setMode(\''+k+'\',\'bypass\')'}">${modeUnlocks.bypass<1?'LOCKED':'BYPASS'}</button>
          </div>
          <div class="btn-group" style="flex:1;display:flex;flex-direction:column;gap:2px">
            <button class="mod-btn ${isRestarting?'active-mode':''}" ${isOff&&!isRestarting?'disabled':''} onclick="rstMod('${k}')">RESTART</button>
@@ -93,6 +93,7 @@ function buildSys() {
 window.setMode = function(k, mode) {
   const m = S.modules[k];
   if (!MODES[mode]) return;
+  if (mode !== 'normal' && modeUnlocks[mode] < 1) return;
   if (m.status === 'offline') { addLog(m.name + ' is OFFLINE', 'err'); return; }
   if (mode === 'bypass' && k === 'backup') { addLog('BACKUP SYSTEMS cannot be bypassed', 'err'); return; }
   m.mode = mode;
@@ -150,6 +151,7 @@ window.rstAllMods = function() {
 };
 
 window.setAllMode = function(mode) {
+  if (mode !== 'normal' && modeUnlocks[mode] < 1) return;
   // Eligibility mirrors per-module rules: comms/sensor have no modes; backup skips eco/bypass
   let count = 0;
   Object.entries(S.modules).forEach(([k, m]) => {

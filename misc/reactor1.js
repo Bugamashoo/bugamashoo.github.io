@@ -56,6 +56,32 @@ const MODES = {
   bypass:   { label:'USING BACKUP SYSTEMS', perfMult:MODE_BYPASS_PERF, healthDrain:0,                heatMod:0,                   desc:'~90% perf, no self-drain, stress>backup' }
 };
 
+// Sync MODES stats to current mode unlock tier (call after purchasing upgrades)
+function syncModeStats() {
+  const ocT = modeUnlocks.overclock;
+  if (ocT > 0) {
+    MODES.overclock.perfMult    = MODE_OVERCLOCK_PERF_TIERS[ocT - 1];
+    MODES.overclock.healthDrain = MODE_OVERCLOCK_DRAIN_TIERS[ocT - 1];
+    MODES.overclock.heatMod     = MODE_OVERCLOCK_HEAT_TIERS[ocT - 1];
+    const pBonus = Math.round((MODES.overclock.perfMult - 1) * 100);
+    MODES.overclock.desc = '+' + pBonus + '% perf, ' + MODES.overclock.healthDrain + 'x drain, +heat';
+  }
+  const ecT = modeUnlocks.eco;
+  if (ecT > 0) {
+    MODES.eco.perfMult    = MODE_ECO_PERF_TIERS[ecT - 1];
+    MODES.eco.healthDrain = MODE_ECO_DRAIN_TIERS[ecT - 1];
+    MODES.eco.heatMod     = MODE_ECO_HEAT_TIERS[ecT - 1];
+    const pPen = Math.round((1 - MODES.eco.perfMult) * 100);
+    MODES.eco.desc = '-' + pPen + '% perf, ' + MODES.eco.healthDrain + 'x drain, ' + MODES.eco.heatMod + '°C';
+  }
+  const bpT = modeUnlocks.bypass;
+  if (bpT > 0) {
+    MODES.bypass.perfMult = MODE_BYPASS_PERF_TIERS[bpT - 1];
+    const pPct = Math.round(MODES.bypass.perfMult * 100);
+    MODES.bypass.desc = '~' + pPct + '% perf, no self-drain, stress>backup';
+  }
+}
+
 const SEQUENCE = [
   { label:'AUX POWER ON',   check:()=>S.auxPower                           },
   { label:'RAD SHIELDING',  check:()=>S.radShield                          },
@@ -98,8 +124,9 @@ let plasmaOffTime    = 0;  // seconds plasma has been continuously off; resets u
 let ignitionGraceTick = -100; // tick when plasma ignited; suppresses stability collapse for 5s
 
 // Money & resupply globals
-let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0 } } - tier purchased (0=none)
+let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0, repair: 0 } } - tier purchased (0=none)
 let specialUpgrades = { eventSuppression: 0, emergencyDelayer: 0, backupGenerator: 0, turbineSpeedUpgrade: 0 }; // tier purchased (0=none)
+let modeUnlocks = { overclock: 0, eco: 0, bypass: 0 }; // global mode unlock tiers (0=locked, 1-3=tier)
 let overclockBoostEnd = 0;  // tick when overclock boost expires (0 = inactive)
 let resupplyPulseDone = false; // true once resupply tab pulse has been clicked - never pulses again
 // Comms/sensor error effects
@@ -114,4 +141,4 @@ var unlockedEmergency = false;   // ctrlEmergency (PURGE + SCRAM) - $20k
 var unlockedSubsystems = false;  // ctrlSubsys (switchBank2) - $10k; gates events + non-core tabs
 var unlockedTuning = false;      // ctrlKnobs (knobPanel) - $300k
 // Initialize upgrade tracking for each module
-Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0 }; });
+Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0, repair: 0 }; });

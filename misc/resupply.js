@@ -150,17 +150,29 @@ function getUpgradeCost(key, type, tier) {
   if (type === 'health')          baseCosts = UPGRADE_HEALTH_COST;
   else if (type === 'efficiency') baseCosts = UPGRADE_EFFICIENCY_COST;
   else if (type === 'drain')      baseCosts = UPGRADE_DRAIN_COST;
+  else if (type === 'repair')     baseCosts = UPGRADE_REPAIR_SPEED_COST;
   else return 0;
   const mult = UPGRADE_MODULE_COST_MULT[key] || 1;
   return Math.round(baseCosts[tier] * mult);
+}
+
+function getRepairSpeedMult(key) {
+  const tier = moduleUpgrades[key]?.repair || 0;
+  return REPAIR_SPEED_MULT[tier];
+}
+
+function getRepairCostMult(key) {
+  const tier = moduleUpgrades[key]?.repair || 0;
+  return REPAIR_COST_MULT[tier];
 }
 
 window.buyUpgrade = function(key, type) {
   if (commsBlockPurchase()) return;
   const u = moduleUpgrades[key];
   if (!u) return;
-  const tier = u[type]; // current tier (0,1,2)
-  if (tier >= 3) { addLog('Already max tier', 'warn'); return; }
+  const tier = u[type]; // current tier
+  const maxTier = type === 'repair' ? REPAIR_SPEED_TIERS : 3;
+  if (tier >= maxTier) { addLog('Already max tier', 'warn'); return; }
   const cost = getUpgradeCost(key, type, tier);
   if (!spendMoney(cost)) { addLog('Insufficient funds', 'warn'); return; }
   u[type] = tier + 1;
@@ -261,6 +273,22 @@ window.buyTurbineSpeedUpgrade = function() {
   rebuildSpecUpgradesSection();
 };
 
+window.buyModeUnlock = function(mode) {
+  if (commsBlockPurchase()) return;
+  const tier = modeUnlocks[mode] || 0;
+  if (tier >= MODE_UNLOCK_TIERS) return;
+  const costs = mode === 'overclock' ? MODE_UNLOCK_OVERCLOCK_COSTS
+              : mode === 'eco'       ? MODE_UNLOCK_ECO_COSTS
+              :                        MODE_UNLOCK_BYPASS_COSTS;
+  if (!spendMoney(costs[tier])) { addLog('Insufficient funds', 'warn'); return; }
+  modeUnlocks[mode] = tier + 1;
+  syncModeStats();
+  const label = mode.toUpperCase();
+  addLog(label + ' MODE T' + (tier + 1) + ' unlocked', 'ok');
+  rebuildModeUnlocksSection();
+  buildSys();
+};
+
 window.buyBackupGenUpgrade = function() {
   if (commsBlockPurchase()) return;
   const tier = specialUpgrades.backupGenerator || 0;
@@ -300,16 +328,71 @@ function updateUpgradeCard(key) {
   const maxH = getUpgradeMaxHealth(key);
   const hp   = card.querySelector('.upgrade-card-health');
   if (hp) hp.textContent = 'HP: ' + S.modules[key].health.toFixed(0) + '/' + maxH;
-  card.querySelectorAll('.upgrade-track').forEach(t => t.remove());
+  card.querySelectorAll('.upgrade-track,.upgrade-track-tiered,.upgrade-pip-row,.upg-row-btn').forEach(t => t.remove());
   let tracks = buildUpgradeTrack(key, 'health', 'MAX HP', UPGRADE_HEALTH_BONUS, u.health, '+');
   if (key !== 'comms' && key !== 'sensor') {
     tracks += buildUpgradeTrack(key, 'efficiency', 'EFFICIENCY', UPGRADE_EFFICIENCY_BONUS.map(v => (v * 100).toFixed(0) + '%'), u.efficiency, '+');
   }
   tracks += buildUpgradeTrack(key, 'drain', 'DURABILITY', UPGRADE_DRAIN_MULT.map(v => Math.round((1 - v) * 100) + '%'), u.drain, '-drain ');
+  tracks += buildUpgradeTrack(key, 'repair', 'REPAIR SPEED', null, u.repair, '');
   card.insertAdjacentHTML('beforeend', tracks);
 }
 
 // Targeted rebuild of only the special upgrades grid
+function buildModeUnlockCard(mode) {
+  const tier     = modeUnlocks[mode] || 0;
+  const maxTiers = MODE_UNLOCK_TIERS;
+  const tierBadge = tier > 0 ? 'T' + tier + '\u2009/\u2009T' + maxTiers : '\u2014\u2009/\u2009T' + maxTiers;
+  const costs    = mode === 'overclock' ? MODE_UNLOCK_OVERCLOCK_COSTS
+                 : mode === 'eco'       ? MODE_UNLOCK_ECO_COSTS
+                 :                        MODE_UNLOCK_BYPASS_COSTS;
+  const maxed    = tier >= maxTiers;
+
+  // Effect text based on current tier
+  let effectText;
+  if (tier === 0) {
+    effectText = 'LOCKED';
+  } else if (mode === 'overclock') {
+    effectText = '+' + Math.round((MODE_OVERCLOCK_PERF_TIERS[tier - 1] - 1) * 100) + '% perf, ' + MODE_OVERCLOCK_DRAIN_TIERS[tier - 1] + '\u00d7 drain';
+  } else if (mode === 'eco') {
+    effectText = '-' + Math.round((1 - MODE_ECO_PERF_TIERS[tier - 1]) * 100) + '% perf, ' + MODE_ECO_DRAIN_TIERS[tier - 1] + '\u00d7 drain';
+  } else {
+    effectText = '~' + Math.round(MODE_BYPASS_PERF_TIERS[tier - 1] * 100) + '% perf, no self-drain';
+  }
+
+  const dimmed = maxed || S.money < (costs[tier] || Infinity);
+  let actionHtml;
+  if (maxed) {
+    actionHtml = `<button class="spec-upgrade-btn" disabled>MAXED</button>`;
+  } else {
+    const cost = costs[tier];
+    let deltaText;
+    if (mode === 'overclock') {
+      deltaText = '+' + Math.round((MODE_OVERCLOCK_PERF_TIERS[tier] - 1) * 100) + '% perf';
+    } else if (mode === 'eco') {
+      deltaText = '-' + Math.round((1 - MODE_ECO_PERF_TIERS[tier]) * 100) + '% perf';
+    } else {
+      deltaText = '~' + Math.round(MODE_BYPASS_PERF_TIERS[tier] * 100) + '% perf';
+    }
+    actionHtml = `<button class="spec-upgrade-btn" id="specUpgMode_${mode}" onclick="buyModeUnlock('${mode}')" ${S.money < cost ? 'disabled' : ''}>\u2192 T${tier + 1}\u2002${deltaText}\u2002${fmtMoney(cost)}</button>`;
+  }
+
+  return `<div class="spec-upgrade-card${dimmed ? ' dimmed' : ''}" id="specCard_mode_${mode}">
+    <div class="spec-upgrade-header">
+      <span class="spec-upgrade-name">${mode.toUpperCase()} MODE</span>
+      <span class="spec-upgrade-tier-badge">${tierBadge}</span>
+    </div>
+    <div class="spec-upgrade-effect">${effectText}</div>
+    ${actionHtml}
+  </div>`;
+}
+
+function rebuildModeUnlocksSection() {
+  const grid = document.querySelector('.mode-unlocks-grid');
+  if (!grid) return;
+  grid.innerHTML = buildModeUnlockCard('overclock') + buildModeUnlockCard('eco') + buildModeUnlockCard('bypass');
+}
+
 function rebuildSpecUpgradesSection() {
   const grid = document.querySelector('.spec-upgrades-grid');
   if (!grid) return;
@@ -398,6 +481,12 @@ function buildResupply() {
         <button class="resupply-btn buy" id="rsBuyFull" onclick="fuelActionFull()"><span id="rsBuyFullL">FULL REFILL</span><br><span class="btn-price" id="rsBuyFullP"></span></button>
       </div>
     </div>
+    <div class="resupply-panel-title" style="margin-top:10px">MODE UNLOCKS</div>
+    <div class="mode-unlocks-grid">
+      ${buildModeUnlockCard('overclock')}
+      ${buildModeUnlockCard('eco')}
+      ${buildModeUnlockCard('bypass')}
+    </div>
   </div>`;
 
   // SYSTEM UPGRADES PANEL
@@ -416,6 +505,7 @@ function buildResupply() {
       html += buildUpgradeTrack(k, 'efficiency', 'EFFICIENCY', UPGRADE_EFFICIENCY_BONUS.map(v => (v * 100).toFixed(0) + '%'), u.efficiency, '+');
     }
     html += buildUpgradeTrack(k, 'drain', 'DURABILITY', UPGRADE_DRAIN_MULT.map(v => Math.round((1 - v) * 100) + '%'), u.drain, '-drain ');
+    html += buildUpgradeTrack(k, 'repair', 'REPAIR SPEED', null, u.repair, '');
     html += `</div>`;
   });
 
@@ -548,14 +638,15 @@ function updateResupplyValues() {
     if (hp) hp.textContent = 'HP: ' + m.health.toFixed(0) + '/' + getUpgradeMaxHealth(k);
   });
 
-  // Upgrade tier disabled states
-  document.querySelectorAll('.upgrade-tier.available').forEach(el => {
+  // Upgrade row button disabled states
+  document.querySelectorAll('.upg-row-btn').forEach(el => {
     const oc = el.getAttribute('onclick') || '';
     const m = oc.match(/buyUpgrade\('(\w+)','(\w+)'\)/);
     if (m) {
       const [, key, type] = m;
       const tier = moduleUpgrades[key]?.[type] || 0;
-      if (tier < 3) el.disabled = S.money < getUpgradeCost(key, type, tier);
+      const maxTier = type === 'repair' ? REPAIR_SPEED_TIERS : 3;
+      if (tier < maxTier) el.disabled = S.money < getUpgradeCost(key, type, tier);
     }
   });
 
@@ -578,6 +669,18 @@ function updateResupplyValues() {
       if (p) p.textContent = m.health.toFixed(0) + '/' + getUpgradeMaxHealth(k) + ' HP';
     });
   }
+
+  // Mode unlock card disabled states
+  [['overclock', MODE_UNLOCK_OVERCLOCK_COSTS], ['eco', MODE_UNLOCK_ECO_COSTS], ['bypass', MODE_UNLOCK_BYPASS_COSTS]].forEach(([mode, costs]) => {
+    const tier    = modeUnlocks[mode] || 0;
+    const maxed   = tier >= MODE_UNLOCK_TIERS;
+    const cost    = maxed ? Infinity : costs[tier];
+    const cantAfford = S.money < cost;
+    const btnEl   = document.getElementById('specUpgMode_' + mode);
+    if (btnEl) btnEl.disabled = cantAfford;
+    const cardEl  = document.getElementById('specCard_mode_' + mode);
+    if (cardEl) cardEl.classList.toggle('dimmed', maxed || cantAfford);
+  });
 
   // Special upgrade button disabled states + card dimming
   [['specUpgSuppress', 'eventSuppression', SPEC_UPG_EVENT_SUPPRESS_COSTS, SPEC_UPG_TIERS],
@@ -612,25 +715,79 @@ function updateResupplyValues() {
   if (tsCardEl) tsCardEl.classList.toggle('card-pulse', tsTier === 0 && !tsCantAfford);
 }
 
-function buildUpgradeTrack(key, type, label, bonuses, currentTier, prefix) {
-  let h = `<div class="upgrade-track">
-    <div class="upgrade-track-label">${label}</div>
-    <div class="upgrade-tiers">`;
-  for (let i = 0; i < 3; i++) {
-    const purchased = i < currentTier;
-    const available = i === currentTier;
-    const bonus = typeof bonuses[i] === 'string' ? bonuses[i] : prefix + bonuses[i];
-    const cost = getUpgradeCost(key, type, i);
-    if (purchased) {
-      h += `<div class="upgrade-tier purchased">T${i + 1} ✓</div>`;
-    } else if (available) {
-      h += `<button class="upgrade-tier available" onclick="buyUpgrade('${key}','${type}')" ${S.money < cost ? 'disabled' : ''}>${bonus}<br><span class="tier-cost">${fmtMoney(cost)}</span></button>`;
-    } else {
-      h += `<div class="upgrade-tier locked">T${i + 1}</div>`;
+function getUpgradeTooltipLines(key, type, bonuses, currentTier, prefix) {
+  const maxTier = type === 'repair' ? REPAIR_SPEED_TIERS : 3;
+  const maxed = currentTier >= maxTier;
+  const modName = S.modules[key]?.name || key;
+
+  // Title & description per type
+  const descs = {
+    health:     ['MAX HEALTH', 'Increases the maximum health this module can have, letting it survive longer between repairs'],
+    efficiency: ['EFFICIENCY', 'Boosts the performance output of this module regardless of system errors or degradation'],
+    drain:      ['DURABILITY', 'Reduces the rate at which this module takes passive health damage over time'],
+    repair:     ['REPAIR SPEED', 'Increases how fast this module is repaired, but also increases the cost per tick of repairing it']
+  };
+  const [title, desc] = descs[type] || [type.toUpperCase(), ''];
+  const lines = [modName + ' \u2014 ' + title];
+  lines.push(desc);
+
+  // Current tier summary
+  if (currentTier > 0) {
+    if (type === 'repair') {
+      const ds = (REPAIR_SPEED_MULT[currentTier] / REPAIR_SPEED_MULT[0]).toFixed(1);
+      const dc = (REPAIR_COST_MULT[currentTier] / REPAIR_COST_MULT[0]).toFixed(1);
+      lines.push('G:Current: ' + ds + '\u00d7 repair speed, ' + dc + '\u00d7 repair cost');
+    } else if (type === 'health') {
+      let total = 0;
+      for (let i = 0; i < currentTier; i++) total += UPGRADE_HEALTH_BONUS[i];
+      lines.push('G:Current: +' + total + ' max health (' + (100 + total) + ' total)');
+    } else if (type === 'efficiency') {
+      let total = 0;
+      for (let i = 0; i < currentTier; i++) total += UPGRADE_EFFICIENCY_BONUS[i];
+      lines.push('G:Current: +' + Math.round(total * 100) + '% performance');
+    } else if (type === 'drain') {
+      lines.push('G:Current: ' + Math.round((1 - UPGRADE_DRAIN_MULT[currentTier - 1]) * 100) + '% less damage taken');
     }
   }
-  h += `</div></div>`;
-  return h;
+
+  if (maxed) {
+    lines.push('G:Fully upgraded');
+  } else {
+    const cost = getUpgradeCost(key, type, currentTier);
+    // Next tier preview
+    if (type === 'repair') {
+      const ns = (REPAIR_SPEED_MULT[currentTier + 1] / REPAIR_SPEED_MULT[0]).toFixed(1);
+      const nc = (REPAIR_COST_MULT[currentTier + 1] / REPAIR_COST_MULT[0]).toFixed(1);
+      lines.push('Next: ' + ns + '\u00d7 repair speed, ' + nc + '\u00d7 repair cost');
+    } else if (type === 'health') {
+      lines.push('Next: +' + UPGRADE_HEALTH_BONUS[currentTier] + ' max health');
+    } else if (type === 'efficiency') {
+      lines.push('Next: +' + (UPGRADE_EFFICIENCY_BONUS[currentTier] * 100).toFixed(0) + '% performance');
+    } else if (type === 'drain') {
+      lines.push('Next: ' + Math.round((1 - UPGRADE_DRAIN_MULT[currentTier]) * 100) + '% less damage taken');
+    }
+    lines.push('Cost: ' + fmtMoney(cost));
+    if (S.money < cost) lines.push('R:Insufficient funds');
+  }
+  return lines;
+}
+
+function buildUpgradeTrack(key, type, label, bonuses, currentTier, prefix) {
+  const maxTier = type === 'repair' ? REPAIR_SPEED_TIERS : 3;
+  const maxed = currentTier >= maxTier;
+  const nextCost = maxed ? 0 : getUpgradeCost(key, type, currentTier);
+  const canAfford = !maxed && S.money >= nextCost;
+
+  // Indicator pips — always fully opaque red/green
+  let pips = '';
+  for (let i = 0; i < maxTier; i++) {
+    pips += `<div class="upg-pip ${i < currentTier ? 'purchased' : 'unpurchased'}"></div>`;
+  }
+
+  return `<button class="upg-row-btn" data-ugk="${key}" data-ugt="${type}" onclick="buyUpgrade('${key}','${type}')" ${maxed || !canAfford ? 'disabled' : ''}>
+    <span class="upg-row-label">${label}</span>
+    <div class="upg-row-pips">${pips}</div>
+  </button>`;
 }
 
 function buildItemBtn(id, name, desc, cost, onclick, active, forceDisabled) {
@@ -702,6 +859,62 @@ function buildBackupGenUpgradeCard() {
     ${actionHtml}
   </div>`;
 }
+
+// Upgrade row hover tooltips (reuses help tooltip, but only outside help mode)
+// On mobile (portrait ≤1024px): first tap shows tooltip + prevents purchase, second tap confirms
+(function() {
+  const BONUS_DATA = {
+    health:     { bonuses: UPGRADE_HEALTH_BONUS, prefix: '+' },
+    efficiency: { bonuses: UPGRADE_EFFICIENCY_BONUS.map(v => (v * 100).toFixed(0) + '%'), prefix: '+' },
+    drain:      { bonuses: UPGRADE_DRAIN_MULT.map(v => Math.round((1 - v) * 100) + '%'), prefix: '-drain ' },
+    repair:     { bonuses: null, prefix: '' }
+  };
+  const mobileQuery = window.matchMedia('(orientation:portrait) and (max-width:1024px)');
+  let previewedBtn = null; // the button currently previewed on mobile (tap-to-confirm)
+
+  function showUpgTooltip(btn, x, y) {
+    const key = btn.dataset.ugk;
+    const type = btn.dataset.ugt;
+    if (!key || !type) return;
+    const tier = moduleUpgrades[key]?.[type] || 0;
+    const bd = BONUS_DATA[type];
+    if (!bd) return;
+    const lines = getUpgradeTooltipLines(key, type, bd.bonuses, tier, bd.prefix);
+    showHelpTooltip(x, y, lines);
+  }
+
+  // Desktop: mousemove tooltip
+  document.addEventListener('mousemove', function(e) {
+    if (typeof helpMode !== 'undefined' && helpMode) return;
+    const btn = e.target.closest('.upg-row-btn');
+    if (!btn) { hideHelpTooltip(); return; }
+    showUpgTooltip(btn, e.clientX, e.clientY);
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (typeof helpMode !== 'undefined' && helpMode) return;
+    if (!e.relatedTarget || !e.relatedTarget.closest('.upg-row-btn')) hideHelpTooltip();
+  });
+
+  // Mobile: tap-to-preview, tap again to confirm
+  document.addEventListener('click', function(e) {
+    if (!mobileQuery.matches) return;
+    const btn = e.target.closest('.upg-row-btn');
+    if (!btn) { previewedBtn = null; hideHelpTooltip(); return; }
+    if (typeof helpMode !== 'undefined' && helpMode) return;
+    if (previewedBtn === btn) {
+      // Second tap — allow the onclick to fire, clear preview
+      previewedBtn = null;
+      hideHelpTooltip();
+      return;
+    }
+    // First tap — show tooltip, block the purchase
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    previewedBtn = btn;
+    const rect = btn.getBoundingClientRect();
+    showUpgTooltip(btn, rect.left + rect.width / 2, rect.top);
+  }, true); // capture phase to intercept before onclick
+})();
 
 // Build on load
 buildResupply();

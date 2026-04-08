@@ -158,12 +158,13 @@ function getHelpInfo(el) {
     if (oc.includes('ContainmentPatch')) return HELP_RESUPPLY.itemContain;
     if (oc.includes('EventExtender'))    return HELP_RESUPPLY.itemEvent;
   }
-  const upgTier = el.closest('.upgrade-tier.available');
-  if (upgTier) {
-    const oc = upgTier.getAttribute('onclick') || '';
+  const upgBtn = el.closest('.upg-row-btn');
+  if (upgBtn) {
+    const oc = upgBtn.getAttribute('onclick') || '';
     if (oc.includes("'health'"))     return HELP_RESUPPLY.upgHealth;
     if (oc.includes("'efficiency'")) return HELP_RESUPPLY.upgEfficiency;
     if (oc.includes("'drain'"))      return HELP_RESUPPLY.upgDrain;
+    if (oc.includes("'repair'"))     return HELP_RESUPPLY.upgRepair;
   }
 
   return null;

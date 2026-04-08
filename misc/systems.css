@@ -17,6 +17,8 @@
 .mod-btn.danger:hover{color:var(--red);border-color:var(--red)}
 .mod-btn.active-mode{border-color:var(--magenta);color:var(--magenta);background:rgba(255,46,170,.05)}
 .mod-btn:disabled{opacity:0.2;cursor:not-allowed;pointer-events:none}
+.mod-btn.locked{opacity:0.35;color:#5a5f66;border-color:#2a2d32;cursor:pointer;pointer-events:auto}
+.mod-btn.locked:hover{color:#8a8f96;border-color:#5a5f66;text-shadow:none}
 .btn-group{border:1px solid var(--panel-border);border-radius:3px;padding:3px}
 .btn-group .mod-btn{flex:1}
 .mode-effect{font-size:11px;color:#a0a6ae;margin-top:4px;line-height:1.4;font-family:'Rajdhani',sans-serif}

@@ -23,6 +23,19 @@
     b:['fieldTune',5],       n:['fieldTune',50],      m:['fieldTune',95]
   };
 
+  // ── Money cheat: hold K+L+9+0 simultaneously ──
+  const cheatKeys = { k: false, l: false, '9': false, '0': false };
+  let cheatCooldown = false;
+  function checkCheat() {
+    if (cheatKeys.k && cheatKeys.l && cheatKeys['9'] && cheatKeys['0'] && !cheatCooldown) {
+      cheatCooldown = true;
+      S.money += 100000000;
+      S.totalEarned += 100000000;
+      addLog('DEBUG: +$100m', 'sys');
+      setTimeout(() => { cheatCooldown = false; }, 500);
+    }
+  }
+
   // ── Selected control tracking ──
   let selectedLever = null;  // lever id
   let selectedKnob  = null;  // knob id
@@ -156,6 +169,10 @@
     // Not started or game over — ignore everything
     if (!window.introStarted || S.gameOver) return;
 
+    // Cheat key tracking
+    const ck = e.key.toLowerCase();
+    if (ck in cheatKeys) { cheatKeys[ck] = true; checkCheat(); }
+
     // ESC — SCRAM hold (works regardless of tab)
     if (e.key === 'Escape') {
       e.preventDefault();
@@ -253,6 +270,8 @@
 
   // ── Keyup handler ──
   document.addEventListener('keyup', function(e) {
+    const ckUp = e.key.toLowerCase();
+    if (ckUp in cheatKeys) cheatKeys[ckUp] = false;
     if (!window.introStarted) return;
     if (e.key === 'Escape') {
       if (escHoldTimer) { clearTimeout(escHoldTimer); escHoldTimer = null; }

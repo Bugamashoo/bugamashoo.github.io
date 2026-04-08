@@ -4,6 +4,7 @@
 // MODULE MODES
 // Performance multiplier, health drain rate, and heat modifier for each mode.
 // healthDrain is a multiplier applied to the per-interval drain roll (MOD_BASE_DRAIN_ROLL).
+// Max-tier values (T3) — these are the legacy constants, still used as MODES defaults
 const MODE_OVERCLOCK_PERF  = 1.5;   // Performance multiplier in overclock (+50%)
 const MODE_OVERCLOCK_DRAIN = 3;     // Health drain multiplier in overclock (3× normal)
 const MODE_OVERCLOCK_HEAT  = 110;    // Extra °C added to core temp target in overclock
@@ -12,12 +13,23 @@ const MODE_ECO_DRAIN       = 0.3;   // Health drain multiplier in eco mode (0.3�
 const MODE_ECO_HEAT        = -40;    // Heat reduction in eco mode (°C)
 const MODE_BYPASS_PERF     = 0.9;   // Performance multiplier in bypass mode (-10%)
 
+// TIERED MODE STATS — per-tier values [T1, T2, T3] for each mode unlock level
+// Overclock: perf scales up, drain scales up, heat scales up
+const MODE_OVERCLOCK_PERF_TIERS  = [1.2, 1.6, 2.0];
+const MODE_OVERCLOCK_HEAT_TIERS  = [60, 90, 120];
+// Eco: perf scales down (better), drain scales down (better), heat reduction scales up
+const MODE_ECO_PERF_TIERS        = [0.7, 0.6, 0.5];
+const MODE_ECO_DRAIN_TIERS       = [0.75, 0.5, 0.25];
+const MODE_ECO_HEAT_TIERS        = [-20, -50, -80];
+// Bypass: perf scales up toward 0.9
+const MODE_BYPASS_PERF_TIERS     = [0.55, 0.7, 0.85];
+
 // MODULE HEALTH & DEGRADATION
 // Raise DRAIN_INTERVAL or lower BASE_DRAIN_ROLL to make modules last longer.
 const MOD_DRAIN_INTERVAL    = 60;   // Ticks between module health drain calculations (every 3s at 20Hz)
 const MOD_BASE_DRAIN_ROLL   = 0.2;  // Max random health drained per interval (before multipliers)
-const MOD_SLIDER_BASE       = 0.5;  // Slider load multiplier at 0% lever position
-const MOD_SLIDER_SCALE      = 100;  // sliderLoad / this added to MOD_SLIDER_BASE (max 1.5× at 100%)
+const MOD_SLIDER_BASE       = 0.05;   // Slider load multiplier at 0% lever position
+const MOD_SLIDER_SCALE      = 68.9655; // sliderLoad / this added to MOD_SLIDER_BASE (max 1.5× at 100%)
 const MOD_BYPASS_STRESS_MULT = 3; // Bypass mode redirects this × normal stress to backup systems
 const MOD_ERROR_DRAIN_MULT  = 1.1;  // System errors multiply health drain by this
 
@@ -102,7 +114,7 @@ const DIAG_DURATION_RANGE_MS = 4000;  // Random extra duration added (total: 1�
 const DIAG_BYPASS_MULT       = 0.4;   // Duration multiplied by this when module is in bypass mode (0.5–2.5s)
 
 // MODULE MANAGEMENT TIMERS
-const MODULE_POWER_TRANSITION_MS = 3000;  // Milliseconds for a module to power on or off
+const MODULE_POWER_TRANSITION_MS = 2500;  // Milliseconds for a module to power on or off
 const MODULE_RESTART_MS          = 6000;  // Milliseconds for a module restart to complete
 
 // HARD RESET

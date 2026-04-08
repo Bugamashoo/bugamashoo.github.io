@@ -22,7 +22,7 @@ const FUEL_PRICE_EXTREME_HIGH = 2.00;    // Extreme spike: price rises to 200% o
 const FUEL_SELL_RATIO         = 0.75;    // Sell price = 75% of current buy price
 
 // REPAIR COSTS
-const REPAIR_COST_PER_TICK    = 1400;      // $/tick cost while actively repairing a module
+const REPAIR_COST_PER_TICK    = 1000;      // $/tick cost while actively repairing a module
 
 // SYSTEM UPGRADES (per-module, 3 tiers each)
 // Base costs are multiplied by UPGRADE_MODULE_COST_MULT per module.
@@ -78,6 +78,20 @@ const SPEC_UPG_BACKUP_GEN_TIERS    = 19;
 const SPEC_UPG_BACKUP_GEN_MAX_MW   = 40;   // Power output at max tier (2MW/tier × 19 + 2 base)
 const SPEC_UPG_BACKUP_GEN_MIN_FUEL = 0.5;  // Fuel consumption multiplier at max tier (50% of base)
 const SPEC_UPG_BACKUP_GEN_COSTS    = [24000, 33000, 45000, 62000, 85000, 117000, 161000, 221000, 304000, 418000, 575000, 791000, 1088000, 1496000, 2057000, 2828000, 3889000, 5347000, 7400000];
+
+// MODE UNLOCK UPGRADES (global, 3 tiers each: T0=locked, T1-T3=scaling effectiveness)
+// Base costs (not affected by module cost multiplier - these are global unlocks)
+const MODE_UNLOCK_OVERCLOCK_COSTS = [210000, 850000, 4400000];   // T1, T2, T3
+const MODE_UNLOCK_ECO_COSTS       = [25000, 300000, 2600000];
+const MODE_UNLOCK_BYPASS_COSTS    = [40000, 175000, 400000];
+const MODE_UNLOCK_TIERS           = 3; // Max tier for each mode unlock
+
+// REPAIR SPEED UPGRADE (per-module, 5 tiers; affected by module cost multiplier)
+// Raw multipliers applied to base repair rate/cost. Tier 0 is the default baseline (displayed as 1.0×).
+const REPAIR_SPEED_TIERS          = 5;
+const REPAIR_SPEED_MULT           = [0.5, 0.7, 1.0, 1.5, 2.15, 3.0];  // [base, T1, T2, T3, T4, T5]
+const REPAIR_COST_MULT            = [0.25, 0.35, 0.5, 0.75, 1.075, 1.5]; // cost mult at each tier
+const UPGRADE_REPAIR_SPEED_COST   = [15000, 50000, 150000, 400000, 1000000]; // Base cost per tier
 
 // FUEL+MONEY EXHAUSTION
 const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)

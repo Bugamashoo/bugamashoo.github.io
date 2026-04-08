@@ -416,11 +416,14 @@ function simulate() {
     if (rm) {
       const maxH = getUpgradeMaxHealth(repairTarget);
       if (rm.health < maxH) {
-        // Check if player can afford repair cost
-        if (S.money >= REPAIR_COST_PER_TICK * dt) {
-          S.money -= REPAIR_COST_PER_TICK * dt;
-          S.totalSpent += REPAIR_COST_PER_TICK * dt;
-          const rate = rm.status === 'offline' ? REPAIR_OFFLINE_RATE : (rm.mode === 'bypass' ? REPAIR_BYPASS_RATE : REPAIR_ONLINE_RATE);
+        // Check if player can afford repair cost (scaled by repair upgrade tier)
+        const repairCostMult = getRepairCostMult(repairTarget);
+        const repairTickCost = REPAIR_COST_PER_TICK * repairCostMult * dt;
+        if (S.money >= repairTickCost) {
+          S.money -= repairTickCost;
+          S.totalSpent += repairTickCost;
+          const baseRate = rm.status === 'offline' ? REPAIR_OFFLINE_RATE : (rm.mode === 'bypass' ? REPAIR_BYPASS_RATE : REPAIR_ONLINE_RATE);
+          const rate = baseRate * getRepairSpeedMult(repairTarget);
           rm.health = Math.min(maxH, rm.health + rate);
         } else {
           addLog('Repair halted: insufficient funds', 'warn');

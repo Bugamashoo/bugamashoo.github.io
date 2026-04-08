@@ -108,6 +108,7 @@ const HELP_RESUPPLY = {
   upgHealth:     ['MAX HEALTH UPGRADE',     'G:+ Module max health', 'Allows module to survive longer between maintenance'],
   upgEfficiency: ['EFFICIENCY UPGRADE',     'G:+ Module performance', 'Boosts effective output regardless of system error state - T1/T2/T3 give +10%/+25%/+50% total'],
   upgDrain:      ['DURABILITY UPGRADE',     'G:- Module damage', 'Damage to module accumulates more slowly'],
+  upgRepair:     ['REPAIR SPEED UPGRADE',   'G:+ Repair speed / cost', 'Increases repair rate and proportionally scales repair cost per tick'],
   itemFuel:      ['EMERGENCY FUEL',         'N/A'],
   itemRepair:    ['QUICK REPAIR KIT',       'G:+ 30HP', 'Select target module after purchase'],
   itemDiag:      ['DIAGNOSTIC SWEEP',       'Reveals all hidden system errors simultaneously', 'Saves time vs diagnosing each module individually'],

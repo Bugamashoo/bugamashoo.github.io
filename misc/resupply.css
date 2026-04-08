@@ -286,6 +286,68 @@
   display: block;
 }
 
+/* Upgrade row buttons (compact clickable rows inside module cards) */
+.upg-row-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 2px 6px;
+  margin: 1px 0;
+  background: rgba(0,229,255,.06);
+  border: 1px solid rgba(0,229,255,.4);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background .2s, box-shadow .2s;
+  text-align: left;
+}
+.upg-row-btn:hover:not(:disabled) {
+  background: rgba(0,229,255,.15);
+  box-shadow: 0 0 8px rgba(0,229,255,.2);
+}
+.upg-row-btn:disabled {
+  cursor: not-allowed;
+  background: rgba(0,229,255,.02);
+  border-color: rgba(0,229,255,.12);
+}
+.upg-row-btn:disabled .upg-row-label {
+  color: #3a3f44;
+}
+.upg-row-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.upg-row-pips {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.upg-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  transition: background .3s, box-shadow .3s;
+}
+.upg-pip.purchased {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+}
+.upg-pip.unpurchased {
+  background: var(--red-dim);
+}
+
+/* Mode unlocks grid (left panel under fuel) */
+.mode-unlocks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /*  SPECIAL ITEMS ─ */
 .items-grid {
   display: grid;
