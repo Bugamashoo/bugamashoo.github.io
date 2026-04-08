@@ -283,7 +283,7 @@ const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning l
 
 // INTRO OVERLAY
 const INTRO_TITLE            = "Buga's Reactor Command";
-const INTRO_VERSION          = "v3.4.2";
+const INTRO_VERSION          = document.getElementById("introVersion").textContent.trim();
 const INTRO_TEXT             = "story placeholder...";
 const INTRO_SWITCH_DELAY_MS         = 600;   // ms - pause after switch flips ON before fade starts
 const INTRO_FADE_MS                 = 700;   // ms - smooth fade: intro content out + game in simultaneously

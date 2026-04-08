@@ -44,7 +44,7 @@
   <div id="introContent">
     <div id="introTitle">Buga's Reactor Command</div>
     <div id="introVersionBlock">
-      <div id="introVersion">v3.7.0</div>
+      <div id="introVersion">v3.7.1</div>
       <div id="introFlashRow">
         <input type="checkbox" id="introFlashCheck">
         <label for="introFlashCheck">disable flashing lights</label>
@@ -57,16 +57,20 @@
     <div id="introRow">
       <div id="introTextBox">placeholder</div>
       <div id="introSwitchWrap">
-        <div id="introSwitchLabel">LIGHTS</div>
-        <div class="knife-switch" id="introSwitch">
-          <div class="ks-cap"></div>
-          <div class="ks-post ks-post-left"></div>
-          <div class="ks-post ks-post-right"></div>
-          <div class="ks-hinge"></div>
-          <div class="ks-arm ks-arm-left"></div>
-          <div class="ks-arm ks-arm-right"></div>
-          <div class="ks-handle"></div>
-          <div class="ks-contact"></div>
+        <div id="introSwitchLabel">LIGHTS<br>(START GAME)</div>
+        <div id="introSwitchBody">
+          <div class="knife-switch" id="introSwitch">
+            <div class="ks-cap"></div>
+            <div class="ks-post ks-post-left"></div>
+            <div class="ks-post ks-post-right"></div>
+            <div class="ks-hinge"></div>
+            <div class="ks-arm ks-arm-left"></div>
+            <div class="ks-arm ks-arm-right"></div>
+            <div class="ks-handle"></div>
+            <div class="ks-contact"></div>
+          </div>
+          <span class="intro-sw-label intro-sw-off">OFF</span>
+          <span class="intro-sw-label intro-sw-on">ON</span>
         </div>
         <div class="switch-indicator"></div>
       </div>
@@ -261,6 +265,7 @@
   <div class="panel" id="backupEmerg"><div class="panel-label">Emergency Override</div><div class="panel-body flex-col gap-6"><div class="sub-panel"><div class="sub-panel-title">Vent &amp; Dump</div><div class="switch-row" id="emergSwitches"></div><div style="display:flex;justify-content:center;gap:10px;margin-top:10px" id="emergButtons"></div></div><div class="sub-panel"><div class="sub-panel-title">Control Rods</div><div class="lever-row" id="rodLevers"></div></div><div class="sub-panel"><div class="sub-panel-title">Status</div><div class="display-grid cols-2" id="emergReadings"></div></div></div></div>
 </div></div>
 <div class="tab-content" id="tab-resupply"><div class="resupply-grid" id="resupplyGrid"></div></div>
+<div id="turbineArrow" style="display:none"><svg viewBox="0 0 22 30" width="22" height="30" fill="none"><path d="M4 12 L11 26 L18 12 L14 12 L14 4 L8 4 L8 12 Z" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
 <div class="event-overlay" id="eventOverlay"><div class="event-panel"><div class="event-header"><div class="event-title" id="eventTitle">⚠ ALERT</div><div class="event-timer" id="eventTimer">00:00</div></div><div class="event-body"><div class="event-desc" id="eventDesc"></div><div class="event-viz" id="eventViz"></div><div id="eventSteps"></div><div class="event-progress"><div class="event-progress-fill" id="eventProgress" style="width:0%"></div></div></div></div></div>
 <div id="gameOverScreen"><div id="gameOverInner">
   <div class="go-title" id="goTitle">MELTDOWN</div>

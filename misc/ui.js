@@ -404,6 +404,9 @@ function updateUI() {
   // Resupply tab (patch values only - no DOM rebuild)
   if (document.getElementById('tab-resupply').classList.contains('active') && tick % 20 === 0) updateResupplyValues();
 
+  // Turbine arrow mobile scroll hint (every 20 ticks)
+  if (tick % 20 === 0) updateTurbineArrow();
+
   // Panel lock affordability styling (throttled)
   if (tick % 10 === 0) {
     document.querySelectorAll('.panel-lock-btn').forEach(btn => {

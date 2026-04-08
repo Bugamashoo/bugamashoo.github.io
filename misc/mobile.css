@@ -86,25 +86,34 @@
     height: 100dvh;
   }
 
-  /*  HEADER  */
+  /*  HEADER  — dissolve children into a single grid */
   .header {
-    flex-wrap: wrap;
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
     padding: 4px 8px;
-    gap: 2px;
+    align-items: center;
   }
   .header-title {
+    grid-column: 1 / -1;
     font-size: 10px;
     letter-spacing: 2px;
-    width: 100%;
     text-align: center;
     padding: 2px 0;
   }
-  .header-displays {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 3px;
-    width: 100%;
-  }
+  .header-displays { display: contents !important; }
+  .header-displays::after { display: none; }
+  .header-status   { display: contents !important; }
+  /* Row 2 (3×1/3): uptime + [notch gap] + money */
+  .uptime-display  { grid-column: 1 / 3; grid-row: 2; }
+  .hdr-box-money   { grid-column: 5 / 7; grid-row: 2; }
+  /* Row 3 (2×1/2): warn + score — override fixed 72px widths */
+  .hdr-box-warn    { grid-column: 1 / 4; grid-row: 3; width: auto; }
+  .hdr-box-score   { grid-column: 4 / 7; grid-row: 3; width: auto; }
+  /* Row 4 (3×1/3): status text (left) + power (center) + help (right) */
+  #headerStatus    { grid-column: 1 / 3; grid-row: 4; justify-self: start; font-size: 9px; letter-spacing: 2px; }
+  .hdr-box-power   { grid-column: 3 / 5; grid-row: 4; width: auto; }
+  .hdr-box-help    { grid-column: 5 / 7; grid-row: 4; justify-self: end; }
   .hdr-box {
     height: 36px;
     padding: 2px 6px;
@@ -119,16 +128,6 @@
   .uptime-value { font-size: 14px; }
   .uptime-label { font-size: 6px; }
   .best-label { font-size: 6px; }
-  .header-status {
-    width: 100%;
-    justify-content: space-between;
-    font-size: 9px;
-    gap: 8px;
-  }
-  .hdr-box-help {
-    min-width: 56px;
-  }
-  .hdr-box-help .hdr-box-value { font-size: 11px; }
 
   /*  TAB BAR ─ */
   .tab-btn-desktop { display: none !important; }
@@ -351,6 +350,22 @@
   .item-name { font-size: 15px; }
   .item-desc { font-size: 14px; }
   .item-cost { font-size: 16px; }
+
+  /*  TURBINE ARROW — scroll hint for first turbine upgrade  */
+  #turbineArrow {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    cursor: pointer;
+    background: rgba(6, 8, 8, 0.9);
+    border: 2px solid var(--amber-dim);
+    border-radius: 8px;
+    padding: 8px 12px;
+    animation: helpBtnPulse 1.4s ease-in-out infinite;
+    line-height: 0;
+  }
 
   /*  INTRO OVERLAY ─ move switch above title  */
   #introContent {

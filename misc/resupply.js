@@ -715,6 +715,78 @@ function updateResupplyValues() {
   if (tsCardEl) tsCardEl.classList.toggle('card-pulse', tsTier === 0 && !tsCantAfford);
 }
 
+// ── Turbine arrow: mobile scroll hint for first turbine upgrade ──
+let _turbineArrowBound = false;
+const _turbineMQ = typeof matchMedia !== 'undefined'
+  ? matchMedia('(orientation:portrait) and (max-width:1024px)') : null;
+
+function updateTurbineArrow() {
+  const arrow = document.getElementById('turbineArrow');
+  if (!arrow) return;
+
+  // Only on mobile, resupply tab active, T0, affordable, game running
+  const isMobile   = _turbineMQ && _turbineMQ.matches;
+  const resTab     = document.getElementById('tab-resupply');
+  const resActive  = resTab && resTab.classList.contains('active');
+  const tier       = specialUpgrades.turbineSpeedUpgrade || 0;
+  const canAfford  = S.money >= SPEC_UPG_TURBINE_SPEED_COSTS[0];
+  const show       = isMobile && resActive && tier === 0 && canAfford && !S.gameOver;
+
+  if (!show) { arrow.style.display = 'none'; return; }
+  arrow.style.display = '';
+
+  // Bind listeners once
+  if (!_turbineArrowBound) {
+    _turbineArrowBound = true;
+    resTab.addEventListener('scroll', _positionTurbineArrow, { passive: true });
+    arrow.addEventListener('click', _scrollToTurbineCard);
+  }
+  _positionTurbineArrow();
+}
+
+function _positionTurbineArrow() {
+  const arrow = document.getElementById('turbineArrow');
+  const card  = document.getElementById('specCard_turbineSpeedUpgrade');
+  if (!arrow || !card || arrow.style.display === 'none') return;
+
+  const cardRect   = card.getBoundingClientRect();
+  const viewH      = window.innerHeight;
+  const arrowH     = arrow.offsetHeight;
+  const restBottom = 18;                       // default CSS bottom
+  const restTop    = viewH - restBottom - arrowH;
+
+  if (cardRect.top <= restTop) {
+    // Card reached the arrow — park just above the card
+    arrow.style.bottom = 'auto';
+    arrow.style.top = Math.max(0, cardRect.top - arrowH - 6) + 'px';
+  } else {
+    arrow.style.top = 'auto';
+    arrow.style.bottom = restBottom + 'px';
+  }
+}
+
+function _scrollToTurbineCard() {
+  const container = document.getElementById('tab-resupply');
+  const card      = document.getElementById('specCard_turbineSpeedUpgrade');
+  if (!container || !card) return;
+
+  const cRect  = container.getBoundingClientRect();
+  const kRect  = card.getBoundingClientRect();
+  const target = container.scrollTop + kRect.top - cRect.top
+               - cRect.height / 2 + kRect.height / 2;
+  const start  = container.scrollTop;
+  const dist   = target - start;
+  const dur    = 1000;
+  const t0     = performance.now();
+
+  (function step(now) {
+    const p    = Math.min((now - t0) / dur, 1);
+    const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    container.scrollTop = start + dist * ease;
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
 function getUpgradeTooltipLines(key, type, bonuses, currentTier, prefix) {
   const maxTier = type === 'repair' ? REPAIR_SPEED_TIERS : 3;
   const maxed = currentTier >= maxTier;

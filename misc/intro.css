@@ -59,11 +59,35 @@
   padding-top: 2px;
 }
 
+#introSwitchBody {
+  position: relative;
+}
+
+.intro-sw-label {
+  position: absolute;
+  left: calc(100% + 8px);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: #fff;
+  letter-spacing: 1px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.intro-sw-off {
+  top: 7px;
+}
+
+.intro-sw-on {
+  top: 81px;
+}
+
 #introSwitchLabel {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   color: #c5c8cc;
   text-transform: uppercase;
+  text-align: center;
 }
 
 /* Checkbox row — sits below #introRow, vertically centres checkbox and label */
