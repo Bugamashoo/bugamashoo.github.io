@@ -36,6 +36,15 @@
     });
   }
 
+  // Wire the "disable helpful toasts" checkbox
+  const toastsCheck = document.getElementById('introToastsCheck');
+  if (toastsCheck) {
+    toastsCheck.addEventListener('change', () => {
+      if (toastsCheck.checked) showToast(toastToastsOff);
+      TOASTS_DISABLED = toastsCheck.checked;
+    });
+  }
+
   // Fade the knife switch in once all page resources are loaded
   const switchWrap = document.getElementById('introSwitchWrap');
   window.addEventListener('load', () => {

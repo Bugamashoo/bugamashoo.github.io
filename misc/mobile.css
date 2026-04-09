@@ -195,6 +195,9 @@
     width: 100%;
   }
 
+  /* Mobile IGN arrow: shown by updateUI() when HOLD IGN step is active */
+  .seq-ign-arrow.mobile-show { display: block; }
+
   /* Reactor viz: center and scale up slightly for mobile */
   .reactor-viz {
     width: 200px;
@@ -391,17 +394,15 @@
 
   /*  HELP MODE ─ */
   #helpModeNotice {
-    font-size: 0;
-    letter-spacing: 2px;
-    height: 50px;
+    grid-column: 1 / 5;
+    grid-row: 4;
+    font-size: 7px;
+    letter-spacing: 1px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  #helpModeNotice::after {
-    content: 'HELP MODE \2014  TAP ANY INSTRUMENT FOR INFO';
-    font-size: 11px;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    letter-spacing: 2px;
-  }
+  #helpModeNotice::after { content: none; }
 }
 
 /*  EXTRA-SMALL PHONES (≤400px) ─ */

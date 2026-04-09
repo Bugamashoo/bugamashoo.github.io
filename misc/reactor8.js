@@ -10,7 +10,7 @@ function triggerEvent() {
   const e = pool[Math.floor(Math.random() * pool.length)];
   recentEventIds.push(e.id);
   if (recentEventIds.length > EVT_RECENT_MEMORY) recentEventIds.shift();
-  S.activeEvent          = { ...e, startTime: Date.now(), time: e.time * getSpecialUpgradeMult('emergencyDelayer') };
+  S.activeEvent          = { ...e, startTime: tick, time: e.time * getSpecialUpgradeMult('emergencyDelayer') };
   S.eventStepsComplete   = new Array(e.steps.length).fill(0);
   document.getElementById('eventOverlay').classList.add('active');
   document.getElementById('eventTitle').textContent = e.title;
@@ -36,7 +36,6 @@ function renderEvt() {
 const DEESC_TRACKED = ['mainThrottle','fuelInject','coolantFlow','containPower',
                         'auxCoolRate','backupContPow','rodA','rodB','rodC',
                         'pressureRelief','mixRatio','fieldTune'];
-const DEESC_DURATION = DEESC_HOLD_MS;   // ms to hold controls steady (set in vars.js)
 const DEESC_TOL      = DEESC_TOLERANCE; // ±units allowed before reset (set in vars.js)
 
 function updateEvt() {
@@ -62,8 +61,8 @@ function updateEvt() {
 
     if (!ev.deescalating) {
       ev.deescalating      = true;
-      ev.deescStart        = Date.now();
-      ev.deescPauseElapsed = (Date.now() - ev.startTime) / 1000;
+      ev.deescStart        = tick;
+      ev.deescPauseElapsed = tick - ev.startTime;
       ev.deescSnapshot     = {};
       DEESC_TRACKED.forEach(k => { ev.deescSnapshot[k] = S[k]; });
       document.getElementById('eventTitle').textContent = 'Deescalating...';
@@ -74,7 +73,7 @@ function updateEvt() {
       const violated = ev.steps.findIndex(s => s.cont && !s.check());
       if (violated !== -1) {
         ev.deescalating = false;
-        ev.startTime = Date.now() - ev.deescPauseElapsed * 1000;
+        ev.startTime = tick - ev.deescPauseElapsed;
         for (let i = violated; i < S.eventStepsComplete.length; i++) S.eventStepsComplete[i] = 0;
         if (panel) panel.classList.remove('deescalating');
         addLog('HOLD BROKEN - control out of range', 'warn');
@@ -85,11 +84,11 @@ function updateEvt() {
       // Reset hold timer if any control moved beyond tolerance
       const moved = DEESC_TRACKED.some(k => Math.abs(S[k] - ev.deescSnapshot[k]) > DEESC_TOL);
       if (moved) {
-        ev.deescStart = Date.now();
+        ev.deescStart = tick;
         DEESC_TRACKED.forEach(k => { ev.deescSnapshot[k] = S[k]; });
       }
 
-      if (Date.now() - ev.deescStart >= DEESC_DURATION) {
+      if (tick - ev.deescStart >= DEESC_HOLD_TICKS) {
         S.eventsResolved++;
         addLog('EVENT RESOLVED', 'ok');
         doFlash('rgba(57,255,20,0.15)');
@@ -100,7 +99,7 @@ function updateEvt() {
 
     // Hold-progress bar (0>100% over DEESC_DURATION)
     renderEvt();
-    const holdPct = Math.min(100, (Date.now() - ev.deescStart) / DEESC_DURATION * 100);
+    const holdPct = Math.min(100, (tick - ev.deescStart) / DEESC_HOLD_TICKS * 100);
     document.getElementById('eventProgress').style.width = holdPct + '%';
 
     // Frozen timer display
@@ -112,8 +111,14 @@ function updateEvt() {
   }
 
   // Normal countdown
-  const elapsed = (Date.now() - ev.startTime) / 1000;
+  const elapsed = (tick - ev.startTime) / 20;
   const rem     = Math.max(0, ev.time - elapsed);
+
+  if (rem <= 5 && !ev.finalWarned) {
+    ev.finalWarned = true;
+    addLog('EVENT TIMER: 5 SECONDS REMAINING', 'err');
+    doFlash('rgba(255,46,46,0.15)');
+  }
   const td      = document.getElementById('eventTimer');
   td.textContent = Math.floor(rem / 60).toString().padStart(2,'0') + ':' +
                    Math.floor(rem % 60).toString().padStart(2,'0');

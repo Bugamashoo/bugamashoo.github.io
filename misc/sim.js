@@ -8,7 +8,7 @@ function simulate() {
   const dt = SIM_DT;
 
   // Ignition hold timer — requires sufficient fuel flow to ignite
-  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && Date.now() - ignHoldStart >= IGN_HOLD_MS) {
+  if (S.ignitionHeld && !S.igniting && ignHoldStart > 0 && tick - ignHoldStart >= IGN_HOLD_TICKS) {
     const ignEF = S.fuelInject * fuelPumpFlow * (S.auxPower ? 1 : 0) * modPerf('fuel') * (S.fuelRemaining > 0 ? 1 : 0);
     if (ignEF >= PLASMA_IGNITE_EF) {
       S.igniting = 1;
@@ -18,7 +18,7 @@ function simulate() {
       checkSeq();
     }
   }
-  if (!S.ignPrime && S.igniting) { S.igniting = 0; addLog('PLASMA LOST', 'err'); }
+  if (!S.ignPrime && S.igniting) { S.igniting = 0; addLog('PLASMA LOST', 'err'); buildShutdownToast('ignPrime'); }
 
   const aM = S.auxPower ? 1 : 0;
 
@@ -51,25 +51,36 @@ function simulate() {
   const tH = modHeat('thermal');const mH = modHeat('magnetic');
 
   // Fuel consumption — only while ignited, scaled by pump flow
+  // Actual deductions happen immediately; only the display value (fuelConsump) lerps
+  let targetConsump = 0;
   if (S.igniting && fM) {
     S.fuelRemaining = Math.max(0, S.fuelRemaining - (S.fuelInject / 100) * FUEL_CONSUME_RATE * fP * fM * dt);
-    S.fuelConsump   = S.fuelInject * FUEL_CONSUME_DISPLAY * fM * fP;
-  } else {
-    S.fuelConsump  *= FUEL_CONSUME_DECAY;
+    targetConsump += (S.fuelInject / 100) * FUEL_CONSUME_RATE * fM * fP * 60;
   }
-  if (S.emergDump) { S.fuelRemaining = Math.max(0, S.fuelRemaining - FUEL_DUMP_DRAIN * dt); S.fuelConsump += 6; }
+  if (S.emergDump) {
+    S.fuelRemaining = Math.max(0, S.fuelRemaining - FUEL_DUMP_DRAIN * dt);
+    targetConsump += FUEL_DUMP_DRAIN * 60;
+  }
   // Backup generator fuel drain (scaled by upgrade tier efficiency)
   if (S.backupGen && S.fuelRemaining > 0) {
     S.fuelRemaining = Math.max(0, S.fuelRemaining - BACKUP_GEN_FUEL_DRAIN * getBackupGenFuelMult());
-    S.fuelConsump += FUEL_CONSUME_DISPLAY * 0.4 * getBackupGenFuelMult(); // Display contribution
+    targetConsump += BACKUP_GEN_FUEL_DRAIN * getBackupGenFuelMult() * 1200;
   }
+  // Lerp display value toward true consumption rate (same feel as pump flow spindown ~30s)
+  S.fuelConsump += (targetConsump - S.fuelConsump) * FUEL_CONSUMP_LERP;
 
   const eF = S.fuelInject * fM * aM * fP * (S.fuelRemaining > 0 ? 1 : 0);
 
   // Plasma extinguishes when effective fuel drops below 5% of max
   if (S.igniting && eF < PLASMA_EXTINGUISH_EF) {
     S.igniting = 0;
-    addLog('PLASMA EXTINGUISHED: Insufficient fuel flow', 'err');
+    if (S.fuelRemaining <= 0) {
+      addLog('PLASMA EXTINGUISHED: Fuel depleted - buy fuel from STORE', 'err');
+      buildShutdownToast('fuelEmpty');
+    } else {
+      addLog('PLASMA EXTINGUISHED: Insufficient fuel flow', 'err');
+      buildShutdownToast('lowFlow');
+    }
     doShake();
   }
   // Low plasma stability: increasing chance of extinguish below 10%
@@ -80,6 +91,7 @@ function simulate() {
     if (Math.random() < chance) {
       S.igniting = 0;
       addLog('PLASMA EXTINGUISHED: Stability collapse', 'err');
+      buildShutdownToast('stability');
       doShake();
     }
   }
@@ -287,10 +299,16 @@ function simulate() {
       }
       if (m.health < MOD_DEGRADE_HEALTH && m.status === 'online' && Math.random() < MOD_DEGRADE_CHANCE) {
         m.status = 'degraded'; addLog(m.name + ' DEGRADED', 'warn');
+        sysDirty = true;
       }
       if (m.health < MOD_OFFLINE_HEALTH && m.status !== 'offline') {
         m.status = 'offline'; m.mode = 'normal';
         addLog(m.name + ' FAILED - restart required', 'err');
+        sysDirty = true;
+        if (!firstModuleOfflineToasted) {
+          firstModuleOfflineToasted = true;
+          showToast(toastFirstModuleOffline);
+        }
       }
     });
     // Apply accumulated bypass stress to backup systems
@@ -313,37 +331,55 @@ function simulate() {
     if (tick % MOD_DRAIN_INTERVAL === 0) {
       if (S.modules.backup.health < MOD_DEGRADE_HEALTH && S.modules.backup.status === 'online' && Math.random() < MOD_DEGRADE_CHANCE) {
         S.modules.backup.status = 'degraded'; addLog('BACKUP SYSTEMS DEGRADED', 'warn');
+        sysDirty = true;
       }
       if (S.modules.backup.health < MOD_OFFLINE_HEALTH) {
         S.modules.backup.status = 'offline'; S.modules.backup.mode = 'normal';
         addLog('BACKUP SYSTEMS FAILED - restart required', 'err');
+        sysDirty = true;
+        if (!firstModuleOfflineToasted) {
+          firstModuleOfflineToasted = true;
+          showToast(toastFirstModuleOffline);
+        }
       }
     }
   }
 
-  // Gauge danger > module damage (only after subsystems unlocked)
+  // Gauge danger > module damage + control hints (only after subsystems unlocked)
   if (unlockedSubsystems) GAUGE_DANGERS.forEach(gd => {
     if (gd.check()) {
       if (gaugeDamageTimes[gd.id] == null) {
-        // Just entered danger - arm the timer
+        // Just entered danger - arm the timer and fire initial control hints
         gaugeDamageTimes[gd.id] = S.uptime + GAUGE_DANGER_ARM_MIN + Math.random() * GAUGE_DANGER_ARM_RANGE;
-      } else if (S.uptime >= gaugeDamageTimes[gd.id]) {
-        // Timer expired - deal damage and rearm
-        const m = S.modules[gd.mod];
-        if (m && m.status !== 'offline') {
-          const dmg = GAUGE_DANGER_DMG_MIN + Math.random() * GAUGE_DANGER_DMG_RANGE;
-          m.health = Math.max(0, m.health - dmg);
-          addLog(gd.label + ' value critical, ' + m.name + ' system damaged', 'err');
+        fireCritHints(gd.id, gd.label);
+        critHintTicks[gd.id] = tick;
+      } else {
+        // Guard for edge case where critHintTicks entry is missing
+        if (critHintTicks[gd.id] == null) critHintTicks[gd.id] = tick;
+        // Periodically re-fire hints while gauge stays critical
+        if (tick - critHintTicks[gd.id] >= CRIT_HINT_RETRIGGER_TICKS) {
+          fireCritHints(gd.id, gd.label);
+          critHintTicks[gd.id] = tick;
         }
-        gaugeDamageTimes[gd.id] = S.uptime + GAUGE_DANGER_ARM_MIN + Math.random() * GAUGE_DANGER_ARM_RANGE;
+        if (S.uptime >= gaugeDamageTimes[gd.id]) {
+          // Timer expired - deal damage and rearm
+          const m = S.modules[gd.mod];
+          if (m && m.status !== 'offline') {
+            const dmg = GAUGE_DANGER_DMG_MIN + Math.random() * GAUGE_DANGER_DMG_RANGE;
+            m.health = Math.max(0, m.health - dmg);
+            addLog(gd.label + ' value critical, ' + m.name + ' system damaged', 'err');
+          }
+          gaugeDamageTimes[gd.id] = S.uptime + GAUGE_DANGER_ARM_MIN + Math.random() * GAUGE_DANGER_ARM_RANGE;
+        }
       }
     } else {
       gaugeDamageTimes[gd.id] = null; // safe - disarm
+      delete critHintTicks[gd.id];    // reset so hints fire fresh on next entry
     }
   });
 
   // System error spawning
-  if (S.startupComplete && unlockedSubsystems && S.uptime > nextErrorTime) {
+  if (S.startupComplete && unlockedSubsystems && unlockedEmergency && S.uptime > nextErrorTime) {
     const errCandidates = Object.keys(S.modules).filter(k => S.modules[k].status !== 'offline');
     const hasAnyError = errCandidates.some(k => S.modules[k].sysError);
 
@@ -356,6 +392,10 @@ function simulate() {
       m.errorPenalty = ERR_PENALTY_INIT_MIN + Math.random() * ERR_PENALTY_INIT_RANGE;
       m.errorCount = 1;
       addLog('New non-critical system error detected', 'warn');
+      if (!firstSysErrorToasted) {
+        firstSysErrorToasted = true;
+        showToast(toastFirstSysError);
+      }
     } else {
       if (Math.random() < ERR_WORSEN_CHANCE) {
         // Worsen a random existing error (reduce penalty further)
@@ -393,21 +433,86 @@ function simulate() {
     }
     nextErrorTime = S.uptime + ERR_SPAWN_NEXT_MIN + Math.random() * ERR_SPAWN_NEXT_RANGE;
     syncCommsLocks();
+    if (!commsErrToasted && commsLockedSwitches.length > 0) {
+      commsErrToasted = true;
+      showToast(toastCommsError);
+    }
     syncSensorFaults();
   }
 
+  // Module power transition timers — process tick-based transitions
+  Object.keys(modPowerTimers).forEach(k => {
+    const t = modPowerTimers[k];
+    if (tick >= t.endTick) {
+      const m = S.modules[k];
+      delete modPowerTimers[k];
+      if (t.dir === 'off') {
+        m.status = 'offline'; m.mode = 'normal';
+        m.sysError = false; m.sysErrorVisible = false;
+        m.errorPenalty = 1; m.errorCount = 0;
+        addLog(m.name + ' POWERED OFF', 'warn');
+      } else {
+        m.status = 'online';
+        addLog(m.name + ' POWERED ON', 'ok');
+      }
+      sysDirty = true;
+    }
+  });
+
+  // Module restart timers — process tick-based restarts
+  Object.keys(rstEndTicks).forEach(k => {
+    if (tick >= rstEndTicks[k]) {
+      delete rstEndTicks[k];
+      const m = S.modules[k];
+      if (bypassRestartTarget === k) {
+        m.sysError = false; m.sysErrorVisible = false;
+        m.errorPenalty = 1; m.errorCount = 0;
+        bypassRestartTarget = null;
+        rstTargets.delete(k);
+        if (k === 'comms') syncCommsLocks();
+        if (k === 'sensor') syncSensorFaults();
+        addLog(m.name + ' errors cleared (bypass)', 'ok');
+      } else {
+        m.status = 'online';
+        rstTargets.delete(k);
+        addLog(m.name + ' ONLINE', 'ok');
+      }
+      sysDirty = true;
+    }
+  });
+
+  // Hard reset offline timer
+  if (hardResetEndTick > 0 && tick >= hardResetEndTick) {
+    hardResetEndTick = 0;
+    Object.keys(S.modules).forEach(k => { S.modules[k].status = 'online'; S.modules[k].mode = 'normal'; });
+    addLog('Modules restarted', 'ok');
+    sysDirty = true;
+  }
+
   // Diagnosis completion
-  if (diagTarget && diagStart > 0 && Date.now() - diagStart >= diagDuration) {
-    const dm = S.modules[diagTarget];
+  if (diagTarget && diagStart > 0 && tick - diagStart >= diagDuration) {
+    const dk = diagTarget;
+    const dm = S.modules[dk];
+    let hadError = false;
     if (dm.sysError && !dm.sysErrorVisible) {
       dm.sysErrorVisible = true;
-      addLog(dm.name + ': SYSTEM ERROR - restart required', 'err');
+      hadError = true;
+      if (!diagAllActive) {
+        addLog(dm.name + ': SYSTEM ERROR - restart required', 'err');
+      }
     } else {
-      addLog('Diag ' + dm.name + ': ' + dm.health.toFixed(0) + '% ' + dm.mode + (dm.sysErrorVisible ? ' [SYS ERROR]' : ' - no errors'), 'sys');
+      if (!diagAllActive) {
+        addLog('Diag ' + dm.name + ': ' + dm.health.toFixed(0) + '% ' + dm.mode + (dm.sysErrorVisible ? ' [SYS ERROR]' : ' - no errors'), 'sys');
+      }
     }
     diagTarget = null;
     diagStart = 0;
-    buildSys();
+    if (diagAllActive) {
+      // Part of a sweep — let reactor6.js advance to the next module
+      _advanceDiagAll(dk, hadError);
+    } else {
+      buildSys();
+    }
   }
 
   // Active repair (costs money each tick)
@@ -489,12 +594,23 @@ function simulate() {
     if (plasmaOffTime >= PLASMA_OFF_RESET_SECS && S.uptime > 0) {
       S.uptime = 0;
       plasmaOffTime = 0;
+      if (!uptimeResetToasted) {
+        uptimeResetToasted = true;
+        showToast(toastUptimeReset);
+      }
     }
   }
 
   // Fuel + money exhaustion game over
   if (S.fuelRemaining <= 0 && S.money < 400 && S.startupComplete) {
     S.fuelMoneyDeadTicks++;
+    if (S.fuelMoneyDeadTicks === 1) {
+      addLog('CRITICAL: No fuel and insufficient funds - reactor failure in 5 seconds', 'err');
+      if (!lowFuelMoneyToasted) {
+        lowFuelMoneyToasted = true;
+        showToast(toastLowFuelMoney);
+      }
+    }
     if (S.fuelMoneyDeadTicks >= FUEL_MONEY_GAMEOVER_DELAY) {
       triggerCatastrophe('fuel_exhaustion');
       return;
@@ -503,14 +619,23 @@ function simulate() {
     S.fuelMoneyDeadTicks = 0;
   }
 
+  // Warn when containment is approaching the auto-scram threshold (max once every 6 seconds)
+  if (S.igniting && S.containIntegrity > AUTO_SCRAM_CONTAIN && S.containIntegrity <= AUTO_SCRAM_CONTAIN + 10) {
+    if (tick - lastContainWarnTick > 120) {
+      lastContainWarnTick = tick;
+      addLog('WARN: Containment critical - auto-scram triggers at ' + AUTO_SCRAM_CONTAIN + '%', 'err');
+    }
+  }
+
   // Auto-scram on containment loss
   if (S.containIntegrity <= AUTO_SCRAM_CONTAIN && !S.scramActive && S.igniting) {
     doScram(); addLog('AUTO-SCRAM: Containment', 'err');
+    buildShutdownToast('autoScram');
   }
 
   // Event tick
   if (S.activeEvent) updateEvt();
-  else if (S.startupComplete && unlockedSubsystems && !EVENTS_DISABLED && S.uptime > nextEventTime) triggerEvent();
+  else if (S.startupComplete && unlockedSubsystems && unlockedEmergency && !EVENTS_DISABLED && S.uptime > nextEventTime) triggerEvent();
 
   // Monitor history
   if (tick % MONITOR_SAMPLE_TICKS === 0) {
@@ -544,6 +669,11 @@ function simulate() {
           addLog(m.name + ': health at ' + t + '%', sev);
         }
       });
+      // One-time tutorial hint when any module first drops below 80HP
+      if (!moduleBelow80Warned && m.health < 80) {
+        moduleBelow80Warned = true;
+        showToast('One of your system modules has dropped below 80% HP. You should start a repair now to keep it in good shape!');
+      }
       moduleHealthPrev[k] = m.health;
     });
   }
@@ -574,7 +704,7 @@ function simulate() {
       rodPosition:      (Math.random() * 100).toFixed(0),
       heatSinkTemp:     (Math.random() * DISP_HEATSINK_MAX).toFixed(0),
       fuelRemaining:    (Math.random() * 100).toFixed(1),
-      fuelConsump:      (Math.random() * 50).toFixed(1),
+      fuelConsump:      (Math.random() * 5).toFixed(2),
       powerOutput:      (Math.random() * 600).toFixed(2),
     };
   } else if (S.modules.sensor.status === 'online') {
@@ -596,4 +726,11 @@ function simulate() {
   updateUI();
 }
 
-setInterval(simulate, SIM_INTERVAL_MS);
+var simInterval = setInterval(simulate, SIM_INTERVAL_MS);
+
+function toggleFastMode() {
+  cheatFastMode = !cheatFastMode;
+  clearInterval(simInterval);
+  simInterval = setInterval(simulate, cheatFastMode ? 0 : SIM_INTERVAL_MS);
+  addLog(cheatFastMode ? 'FAST MODE ON' : 'FAST MODE OFF', 'sys');
+}

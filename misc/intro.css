@@ -240,6 +240,73 @@
   color: #adafb3;
 }
 
+#introToastsRow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+#introToastsCheck {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: #0d0f11;
+  border: 1px solid #9d9fa4;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#introToastsCheck::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid var(--amber);
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+#introToastsCheck:checked {
+  background: rgba(255, 159, 28, 0.08);
+  border-color: var(--amber);
+  box-shadow: 0 0 6px rgba(255, 159, 28, 0.35);
+}
+
+#introToastsCheck:checked::after {
+  display: block;
+}
+
+#introToastsRow:hover #introToastsCheck {
+  border-color: #b5b8c0;
+}
+
+#introToastsRow:hover #introToastsCheck:checked {
+  border-color: var(--amber);
+  box-shadow: 0 0 10px rgba(255, 159, 28, 0.5);
+}
+
+#introToastsRow label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #c5c8cc;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+#introToastsRow:hover label {
+  color: #d8dce2;
+}
+
 /* Three independent blackout panels: above game content (z-index auto) and tabs bar
    (z-index 5) but below the header (z-index 10). Each covers one vertical third.
    Opacity is driven by JS startFlicker() independently after the title screen clears. */

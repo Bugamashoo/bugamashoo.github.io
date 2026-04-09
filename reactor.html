@@ -44,7 +44,7 @@
   <div id="introContent">
     <div id="introTitle">Buga's Reactor Command</div>
     <div id="introVersionBlock">
-      <div id="introVersion">v3.7.2</div>
+      <div id="introVersion">v4.0.0</div>
       <div id="introFlashRow">
         <input type="checkbox" id="introFlashCheck">
         <label for="introFlashCheck">disable flashing lights</label>
@@ -52,6 +52,10 @@
       <div id="introEventsRow">
         <input type="checkbox" id="introEventsCheck">
         <label for="introEventsCheck">disable random catastrophes <span id="introEventsLabel">(-75% score)</span></label>
+      </div>
+      <div id="introToastsRow">
+        <input type="checkbox" id="introToastsCheck">
+        <label for="introToastsCheck">disable helpful toasts</label>
       </div>
     </div>
     <div id="introRow">
@@ -89,6 +93,7 @@
     <div class="hdr-box hdr-box-warn" id="warnBox">
       <div class="hdr-box-label">STATUS</div>
       <div class="hdr-box-value" id="warnIndicator">⚠</div>
+      <div id="warnTooltip" class="warn-tooltip" style="display:none"></div>
     </div>
     <div class="uptime-display">
       <div class="uptime-label">MISSION UPTIME</div>
@@ -110,6 +115,7 @@
   </div>
   <div class="header-status">
     <span id="headerStatus" class="blink">■ STANDBY</span>
+    <div id="helpModeNotice">HOVER ANY INSTRUMENT FOR INFO</div>
     <div class="hdr-box hdr-box-help" id="helpBtn" onclick="toggleHelp()">
       <div class="hdr-box-label">MODE</div>
       <div class="hdr-box-value" id="helpBtnVal">? HELP</div>
@@ -118,7 +124,6 @@
 </div>
 <div id="helpOverlay"></div>
 <div id="helpTooltip"></div>
-<div id="helpModeNotice">HELP MODE - HOVER ANY INSTRUMENT FOR INFO</div>
 <div class="tabs-bar">
   <button class="tab-btn active" data-tab="controls">CONTROLS</button>
   <button class="tab-btn tab-btn-desktop" data-tab="manual">MANUAL</button>
@@ -137,7 +142,7 @@
 <div class="tab-content active" id="tab-controls">
 <div class="main-grid">
   <div class="panel" id="panelSeq" style="grid-column:1;grid-row:1/3"><div class="panel-label">Startup Sequence</div><div class="panel-body"><div id="seqSteps"></div>
-    <div class="sub-panel mt-6"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz">
+    <div class="sub-panel mt-6" style="padding-top:4px;padding-bottom:4px"><div class="sub-panel-title">Reactor Core</div><div class="reactor-viz">
   <svg id="reactorSVG" viewBox="-16 0 172 125" xmlns="http://www.w3.org/2000/svg" width="172" height="125" style="display:block;overflow:visible">
     <defs>
       <filter id="rGlow" x="-60%" y="-60%" width="220%" height="220%">
@@ -169,6 +174,8 @@
     <polygon id="heatBg" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="#ff5500" opacity="0" filter="url(#radBlur)"/>
     <!-- Radiation aura - large blurred halo (green->amber->red) -->
     <circle id="radAura" cx="70" cy="62.5" r="48" fill="#39ff14" opacity="0" filter="url(#radBlur)"/>
+    <!-- Rad shield hex ring - rotating dashed hex scan line (radShield switch) -->
+    <polygon id="shieldHex" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="none" stroke="#39ff14" stroke-width="1.5" stroke-dasharray="8 4" opacity="0"/>
     <!-- Outer border hex -->
     <polygon id="hexBorder" points="130,62.5 100,114.5 40,114.5 10,62.5 40,10.5 100,10.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Fuel arc ring - progress ring showing remaining fuel, starts at top (rotate -90) -->
@@ -183,10 +190,41 @@
     <polygon id="coolantIndicator" points="111.5,110.5 153.1,110.5 132.3,74.5" fill="none" stroke="#1e2830" stroke-width="2.5"/>
     <!-- Ring 3 - containment field -->
     <polygon id="ring3" class="rviz-ring" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="none" stroke="#1e2830" stroke-width="1.5"/>
+    <!-- Contain field glow - blurred hex fill behind/around ring3 (containField switch) -->
+    <polygon id="containFieldGlow" points="122,62.5 96,107.5 44,107.5 18,62.5 44,17.5 96,17.5" fill="#00e5ff" opacity="0" filter="url(#radBlur)"/>
+    <!-- Backup containment field arc segments A/B (backupContA, backupContB switches) -->
+    <path id="backupFieldA" d="M122,62.5 L96,17.5 L44,17.5 L18,62.5" fill="none" stroke="#ff9f1c" stroke-width="2" stroke-dasharray="6 4" opacity="0" filter="url(#rGlow)"/>
+    <path id="backupFieldB" d="M18,62.5 L44,107.5 L96,107.5 L122,62.5" fill="none" stroke="#ff9f1c" stroke-width="2" stroke-dasharray="6 4" opacity="0" filter="url(#rGlow)"/>
     <!-- Turbine spin ring - dashed circle, animation speed driven by turbineRPM -->
     <circle id="turbineSpin" cx="70" cy="62.5" r="44" fill="none" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 7" opacity="0"/>
+    <!-- Turbine speed limiter ring - dashed ring warns when approaching RPM limit -->
+    <circle id="limiterRing" cx="70" cy="62.5" r="41" fill="none" stroke="#00bcd4" stroke-width="1.5" stroke-dasharray="5 5" opacity="0"/>
+    <!-- Vent system streaks - 6 radial exhaust lines, ring3 midpoints → hexBorder midpoints -->
+    <g id="ventStreaks">
+      <line id="vStr0" x1="70"  y1="17.5" x2="70"  y2="10.5" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
+      <line id="vStr1" x1="109" y1="40"   x2="115" y2="36.5" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
+      <line id="vStr2" x1="109" y1="85"   x2="115" y2="88.5" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
+      <line id="vStr3" x1="70"  y1="107.5" x2="70" y2="114.5" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
+      <line id="vStr4" x1="31"  y1="85"   x2="25"  y2="88.5" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
+      <line id="vStr5" x1="31"  y1="40"   x2="25"  y2="36.5" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
+    </g>
+    <!-- Emergency vent burst - spike lines from hex vertices outward (emergVent switch) -->
+    <g id="emergVentBurst">
+      <line id="evb0" x1="130" y1="62.5"  x2="143" y2="62.5"  stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+      <line id="evb1" x1="100" y1="114.5" x2="107" y2="126.6" stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+      <line id="evb2" x1="40"  y1="114.5" x2="33"  y2="126.6" stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+      <line id="evb3" x1="10"  y1="62.5"  x2="-3"  y2="62.5"  stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+      <line id="evb4" x1="40"  y1="10.5"  x2="33"  y2="-1.6"  stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+      <line id="evb5" x1="100" y1="10.5"  x2="107" y2="-1.6"  stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
+    </g>
     <!-- Ring 2 - magnetic -->
     <polygon id="ring2" class="rviz-ring" points="108,62.5 89,95.4 51,95.4 32,62.5 51,29.6 89,29.6" fill="none" stroke="#1e2830" stroke-width="2"/>
+    <!-- Aux cooling orbit dots - 3 dots orbit at r=35 between ring2/ring3 (auxCoolPump) -->
+    <g id="auxCoolOrbit">
+      <circle id="aOrb0" cx="105"  cy="62.5" r="2.5" fill="#00bfff" opacity="0"/>
+      <circle id="aOrb1" cx="52.5" cy="92.8" r="2.5" fill="#00bfff" opacity="0"/>
+      <circle id="aOrb2" cx="52.5" cy="32.2" r="2.5" fill="#00bfff" opacity="0"/>
+    </g>
     <!-- Pressure pulse indicator - pulsing ring, frequency driven by core pressure -->
     <circle id="pressPulse" cx="70" cy="62.5" r="16" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0"/>
     <!-- Ring 1 - plasma -->
@@ -219,6 +257,10 @@
     </g>
     <!-- Core glow halo -->
     <circle id="coreGlowCirc" cx="70" cy="62.5" r="22" fill="url(#coreGrad)" opacity="0"/>
+    <!-- Backup generator glow - amber halo behind core hex when backupGen active -->
+    <circle id="backupGlow" cx="70" cy="62.5" r="16" fill="#ff9f1c" opacity="0" filter="url(#radBlur)"/>
+    <!-- Backup generator ring - expanding pulse ring breathing in antiphase with core glow -->
+    <circle id="backupGlowRing" cx="70" cy="62.5" r="20" fill="none" stroke="#ff9f1c" stroke-width="2" opacity="0" filter="url(#rGlow)"/>
     <!-- Core hex -->
     <polygon id="reactorCore" points="83,62.5 76.5,73.8 63.5,73.8 57,62.5 63.5,51.2 76.5,51.2" fill="#0d1418" stroke="#1e2830" stroke-width="1.5"/>
     <!-- Control rod insertion indicators (visible when rod safety off) -->
@@ -235,8 +277,8 @@
   </svg>
 </div>
     <div class="power-display mt-4"><div class="display-label" style="text-align:center">NET OUTPUT</div><div class="power-value" id="netOutput">0.00</div><div class="power-unit">MEGAWATTS</div></div></div>
-    <div class="sub-panel mt-4"><div class="sub-panel-title">Fuel</div><div class="display-box"><div class="display-label">REMAINING</div><div class="display-value amber" id="disp_fuelRemaining">100.0</div><div class="bar-gauge"><div class="bar-fill green" id="bar_fuelRemaining" style="width:100%"></div></div></div>
-    <div class="display-box mt-4"><div class="display-label">CONSUMPTION KG/MIN</div><div class="display-value cyan" id="disp_fuelConsump">0.0</div></div></div>
+    <div class="sub-panel mt-4"><div class="sub-panel-title">Fuel</div><div class="display-box"><div class="display-value amber" id="disp_fuelRemaining">100.0</div><div class="bar-gauge"><div class="bar-fill green" id="bar_fuelRemaining" style="width:100%"></div></div></div>
+    <div class="display-box mt-4"><div class="display-label">CONSUMPTION</div><div class="display-value cyan" id="disp_fuelConsump">0.0</div></div></div>
   </div></div>
   <div id="panelControlsWrap" style="grid-column:2;grid-row:1/3;display:grid;grid-template-columns:1fr 1fr .75fr;grid-template-rows:auto 1fr auto;gap:0;height:100%">
     <div class="panel" id="ctrlSwitches" style="grid-column:1/4"><div class="panel-label">Primary Switch Bank</div><div class="panel-body"><div class="switch-row" id="switchBank1"></div></div></div>
@@ -244,7 +286,7 @@
     <div class="panel" id="ctrlKnobs" style="grid-column:3;grid-row:2"><div class="panel-label">Tuning</div><div class="panel-body flex-col gap-8" id="knobPanel" style="align-items:center"></div></div>
     <div class="panel" id="ctrlSubsys" style="grid-column:1;grid-row:3"><div class="panel-label">Subsystems</div><div class="panel-body"><div class="switch-row" id="switchBank2"></div></div></div>
     <div class="panel" id="ctrlIgnition" style="grid-column:2;grid-row:3"><div class="panel-label">Ignition</div><div class="panel-body flex-center gap-12" id="buttonPanel"></div></div>
-    <div class="panel" id="ctrlEmergency" style="grid-column:3;grid-row:3"><div class="panel-label">Emergency</div><div class="panel-body flex-center gap-12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="push-btn amber-btn" id="purgeBtn" style="width:60px;height:60px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><button class="scram-btn" id="scramBtn">SCRAM</button><div class="switch-name">Emergency Shutdown</div></div></div></div>
+    <div class="panel" id="ctrlEmergency" style="grid-column:3;grid-row:3"><div class="panel-label">Emergency</div><div class="panel-body flex-center gap-12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="push-btn amber-btn" id="purgeBtn" style="width:60px;height:60px">LINE<br>PURGE</div><div class="switch-name">PURGE</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;position:relative"><div id="scramConfirm" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(15,17,19,0.96);border:1px solid var(--red);border-radius:3px;padding:8px 10px;z-index:200;text-align:center;white-space:nowrap"><div style="font-size:10px;letter-spacing:2px;color:var(--red);margin-bottom:6px">SHUT DOWN REACTOR?</div><div style="display:flex;gap:6px"><button id="scramConfirmYes" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:4px 10px;background:rgba(255,46,46,0.15);border:1px solid var(--red);color:var(--red);cursor:pointer;border-radius:2px">CONFIRM</button><button id="scramConfirmNo" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:4px 10px;background:var(--panel-surface);border:1px solid #444;color:#888;cursor:pointer;border-radius:2px">CANCEL</button></div></div><button class="scram-btn" id="scramBtn">SCRAM</button><div class="switch-name">Emergency Shutdown</div></div></div></div>
   </div>
   <div class="panel" id="panelDiag" style="grid-column:3;grid-row:1/3"><div class="panel-label">Diagnostics</div><div class="panel-body flex-col gap-6">
     <div class="sub-panel" id="diagCore"><div class="sub-panel-title">Core</div><div class="display-grid cols-2" id="coreReadings"></div></div>
@@ -255,7 +297,7 @@
 </div></div>
 <div class="tab-content" id="tab-manual"><div class="manual-container"><div class="manual-nav">
   <div style="font-family:Orbitron,sans-serif;font-size:10px;color:var(--amber-dim);letter-spacing:3px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #3a3528">OPERATOR MANUAL</div><div class="stamp">CLASSIFIED</div>
-  <button class="manual-nav-btn active" data-manual="startup">I. Startup</button><button class="manual-nav-btn" data-manual="shutdown">II. Shutdown</button><button class="manual-nav-btn" data-manual="emergency">III. Emergency</button><button class="manual-nav-btn" data-manual="malfunctions">IV. Malfunctions</button><button class="manual-nav-btn" data-manual="modes">V. Module Modes</button><button class="manual-nav-btn" data-manual="reference">VI. Reference</button><button class="manual-nav-btn" data-manual="resupply">VII. Resupply</button>
+  <button class="manual-nav-btn active" data-manual="startup">I. Startup</button><button class="manual-nav-btn" data-manual="emergency">II. Emergency</button><button class="manual-nav-btn" data-manual="malfunctions">III. Malfunctions</button><button class="manual-nav-btn" data-manual="modes">IV. Module Modes</button><button class="manual-nav-btn" data-manual="reference">V. Reference</button><button class="manual-nav-btn" data-manual="resupply">VI. Resupply</button>
 </div><div class="manual-body" id="manualBody"></div></div></div>
 <div class="tab-content" id="tab-monitors"><div class="monitors-grid" id="monitorsGrid"></div></div>
 <div class="tab-content" id="tab-systems"><div class="panel" style="border:none;flex:1;display:flex;flex-direction:column;min-height:0"><div class="panel-label">Control Module Management</div><div class="panel-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:6px"><div class="systems-grid" id="systemsGrid"></div></div></div></div>
@@ -267,6 +309,18 @@
 <div class="tab-content" id="tab-resupply"><div class="resupply-grid" id="resupplyGrid"></div></div>
 <div id="turbineArrow" style="display:none"><svg viewBox="0 0 22 30" width="22" height="30" fill="none"><path d="M4 12 L11 26 L18 12 L14 12 L14 4 L8 4 L8 12 Z" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
 <div class="event-overlay" id="eventOverlay"><div class="event-panel"><div class="event-header"><div class="event-title" id="eventTitle">⚠ ALERT</div><div class="event-timer" id="eventTimer">00:00</div></div><div class="event-body"><div class="event-desc" id="eventDesc"></div><div class="event-viz" id="eventViz"></div><div id="eventSteps"></div><div class="event-progress"><div class="event-progress-fill" id="eventProgress" style="width:0%"></div></div></div></div></div>
+
+<!-- Diagnose All confirmation dialog (fixed overlay) -->
+<div id="diagAllConfirm" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:5000;background:rgba(0,0,0,0.75);align-items:center;justify-content:center">
+  <div style="background:#181c20;border:1px solid var(--amber);border-radius:6px;padding:22px 28px;max-width:380px;text-align:center">
+    <div id="diagAllConfirmTitle" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;color:var(--amber);margin-bottom:10px">DIAGNOSE ALL MODULES?</div>
+    <div id="diagAllConfirmMsg" style="font-size:13px;letter-spacing:0.5px;color:#c4c8d1;margin-bottom:18px;line-height:1.65"></div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button id="diagAllConfirmYes" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;padding:7px 18px;background:rgba(255,159,28,0.15);border:1px solid var(--amber);color:var(--amber);cursor:pointer;border-radius:3px">PROCEED</button>
+      <button id="diagAllConfirmNo" style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;padding:7px 18px;background:var(--panel-surface);border:1px solid #777;color:#c4c4c4;cursor:pointer;border-radius:3px">CANCEL</button>
+    </div>
+  </div>
+</div>
 <div id="gameOverScreen"><div id="gameOverInner">
   <div class="go-title" id="goTitle">MELTDOWN</div>
   <div class="go-subtitle" id="goSubtitle">CRITICAL REACTOR FAILURE</div>

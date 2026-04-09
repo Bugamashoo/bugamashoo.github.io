@@ -53,6 +53,10 @@ function hideHelpTooltip() {
 function getHelpInfo(el) {
   if (!el) return null;
 
+  // Warning light (individual indicators in #warningRow)
+  const wl = el.closest('.warning-light');
+  if (wl && wl.id && HELP_WARN_LIGHTS[wl.id]) return HELP_WARN_LIGHTS[wl.id];
+
   // Knife switch
   const ks = el.closest('.knife-switch');
   if (ks && ks.dataset.switch) return HELP_CTRL[ks.dataset.switch] || null;
@@ -115,6 +119,7 @@ function getHelpInfo(el) {
     if (oc.includes('toggleRepair('))return HELP_SYS_BTN.repair;
     if (oc.includes('powerAllMods')) return HELP_BULK_BTN.powerAll;
     if (oc.includes('rstAllMods'))   return HELP_BULK_BTN.restartAll;
+    if (oc.includes('showDiagAllConfirm') || oc.includes('cancelDiagAll')) return HELP_BULK_BTN.diagAllBtn;
     if (oc.includes("setAllMode('normal')"))    return HELP_BULK_BTN.allNormal;
     if (oc.includes("setAllMode('overclock')")) return HELP_BULK_BTN.allOverclock;
     if (oc.includes("setAllMode('eco')"))       return HELP_BULK_BTN.allEco;
@@ -140,6 +145,16 @@ function getHelpInfo(el) {
 
   // Money header box
   if (el.closest('.hdr-box-money')) return HELP_MONEY;
+
+  // Warning indicator (STATUS header box)
+  if (el.closest('#warnBox')) return HELP_WARN;
+
+  // Startup sequence step
+  const seqStep = el.closest('.seq-step');
+  if (seqStep) {
+    const idx = parseInt((seqStep.id || '').replace('seq_', ''));
+    if (!isNaN(idx) && HELP_SEQ[idx]) return HELP_SEQ[idx];
+  }
 
   // Resupply tab elements
   const resBtn = el.closest('.resupply-btn');
@@ -167,6 +182,13 @@ function getHelpInfo(el) {
     if (oc.includes("'repair'"))     return HELP_RESUPPLY.upgRepair;
   }
 
+  // Special upgrade cards (Event Suppression, Emergency Delayer, Backup Gen, Turbine Speed)
+  const sc = el.closest('.spec-upgrade-card');
+  if (sc && sc.id) {
+    const key = sc.id.replace('specCard_', '');
+    if (HELP_SPEC_UPGRADES[key]) return HELP_SPEC_UPGRADES[key];
+  }
+
   return null;
 }
 
@@ -182,13 +204,29 @@ function getHelpInfo(el) {
     const under = document.elementFromPoint(lastX, lastY);
     this.style.pointerEvents = '';
 
+    // Show pointer cursor when hovering over clickable passthrough targets
+    const isClickable = under && (under.closest('#helpBtn') || under.closest('.tab-btn'));
+    this.style.cursor = isClickable ? 'pointer' : 'crosshair';
+
     const info = getHelpInfo(under);
     if (info) showHelpTooltip(lastX, lastY, info);
     else hideHelpTooltip();
   });
 
   overlay.addEventListener('mouseleave', () => hideHelpTooltip());
-  overlay.addEventListener('click', e => e.stopPropagation());
+  overlay.addEventListener('click', function(e) {
+    // Allow clicks through to the help toggle button and tab navigation buttons
+    this.style.pointerEvents = 'none';
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    this.style.pointerEvents = '';
+    if (under) {
+      const hb = under.closest('#helpBtn');
+      const tb = under.closest('.tab-btn');
+      if (hb) { hb.click(); return; }
+      if (tb) { tb.click(); return; }
+    }
+    e.stopPropagation();
+  });
 
   // Touch support for mobile help mode
   overlay.addEventListener('touchstart', function (e) {

@@ -56,6 +56,7 @@
 .panel-lock-btn.affordable{border-color:var(--green-dim);color:var(--green)}
 .panel-lock-btn.affordable:hover{background:rgba(57,255,20,.08);border-color:var(--green);box-shadow:0 0 12px rgba(57,255,20,.2)}
 .panel-lock-price{font-family:'Share Tech Mono',monospace;font-size:13px;color:#8a8f96;display:block;margin-top:2px}
+.panel-lock-note{font-family:'Share Tech Mono',monospace;font-size:11px;color:#5a5f66;text-align:center;max-width:160px}
 
 /* Startup sequence steps pulse */
 #seqSteps.seq-pulse{border-radius:3px;animation:seqStepsPulse 1.4s ease-in-out infinite}

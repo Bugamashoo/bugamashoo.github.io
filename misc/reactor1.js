@@ -87,6 +87,7 @@ const SEQUENCE = [
   { label:'RAD SHIELDING',  check:()=>S.radShield                          },
   { label:'FUEL PUMPS',     check:()=>S.fuelPumps                          },
   { label:'COOLANT PUMPS',  check:()=>S.coolantPumps                       },
+  { label:'COOLANT >60%',   check:()=>S.coolantFlow>=SEQ_COOLANT_MIN       },
   { label:'MAG COILS',      check:()=>S.magCoils                           },
   { label:'CONTAIN >60%',   check:()=>S.containPower>=SEQ_CONTAIN_MIN      },
   { label:'FUEL INJ >10%',  check:()=>S.fuelInject>=SEQ_FUEL_INJ_MIN       },
@@ -107,10 +108,12 @@ const MH          = MONITOR_HISTORY_LEN; // monitor history length (set in vars.
 let repairTarget        = null; // module key currently being repaired (null = no active repair)
 let diagTarget          = null; // module key currently being diagnosed (null = no active diag)
 let bypassRestartTarget = null; // module key mid-bypass-restart (null = none)
-let modPowerTimers = {};        // { [moduleKey]: { dir:'on'|'off', id:timeoutId } }
+let modPowerTimers = {};        // { [moduleKey]: { dir:'on'|'off', endTick:number } }
 let rstTargets = new Set();     // module keys currently mid-restart
+let rstEndTicks = {};           // { [moduleKey]: tick when restart completes }
+let hardResetEndTick = 0;       // tick when hard reset offline phase ends (0 = no hard reset pending)
 let gaugeDamageTimes = {};     // { [gaugeId]: next S.uptime to deal damage, or null if disarmed }
-let diagStart     = 0;    // Date.now() when diagnosis started
+let diagStart     = 0;    // tick when diagnosis started
 let diagDuration  = 0;    // random 1-5s duration for current diagnosis
 let nextErrorTime  = ERR_SPAWN_INIT_MIN + Math.random() * ERR_SPAWN_INIT_RANGE; // uptime threshold for next system error
 let recentEventIds = []; // last 3 triggered event IDs - prevents same event repeating until 3 others have fired
@@ -125,7 +128,7 @@ let ignitionGraceTick = -100; // tick when plasma ignited; suppresses stability 
 
 // Money & resupply globals
 let moduleUpgrades = {};    // { [moduleKey]: { health: 0, efficiency: 0, drain: 0, repair: 0 } } - tier purchased (0=none)
-let specialUpgrades = { eventSuppression: 0, emergencyDelayer: 0, backupGenerator: 0, turbineSpeedUpgrade: 0 }; // tier purchased (0=none)
+let specialUpgrades = { eventSuppression: 0, emergencyDelayer: 0, backupGenerator: 0, turbineSpeedUpgrade: 0, diagSpeed: 0 }; // tier purchased (0=none)
 let modeUnlocks = { overclock: 0, eco: 0, bypass: 0 }; // global mode unlock tiers (0=locked, 1-3=tier)
 let overclockBoostEnd = 0;  // tick when overclock boost expires (0 = inactive)
 let resupplyPulseDone = false; // true once resupply tab pulse has been clicked - never pulses again
@@ -135,10 +138,30 @@ let commsLockedControls = []; // lever/knob IDs on main panel locked by comms sy
 let sensorFaultyGauges  = []; // gauge IDs in diagnostics showing per-fault sensor noise
 let FLASH_DISABLED = false;   // set true by intro checkbox - skips all flashing/shaking effects
 var EVENTS_DISABLED = false;  // set true by intro checkbox - disables random events, -75% score rate
+var TOASTS_DISABLED = false;  // set true by intro checkbox - suppresses all toast notifications
+var fuelUnlocked = false;     // set true when startup is first completed (S.startupComplete)
+let moduleBelow80Warned = false; // fires once ever as a new-player tutorial hint
+let firstSysErrorToasted      = false; // one-shot: fires when first hidden sysError spawns
+let firstModuleOfflineToasted = false; // one-shot: fires when first module goes offline
+let commsErrToasted           = false; // one-shot: fires when comms first locks controls
+let scramGuidanceToasted      = false; // one-shot: fires on first SCRAM
+let uptimeResetToasted        = false; // one-shot: fires when plasma-off resets uptime
+let lowFuelMoneyToasted       = false; // one-shot: fires when fuel+money grace period starts
+let lastContainWarnTick       = -9999; // tick of last containment approach-to-scram warning
+let lastShutdownToastTick     = -9999; // tick of last shutdown-reason toast (throttle to 1 per 5s)
+var critHintTicks = {};              // { [gaugeId]: tick when last control hint was logged }
+var cheatFastMode = false;           // fast-forward tick rate cheat toggle
 // Panel unlock progression (controls tab sections)
 // Using var so they are accessible on the window object for dynamic keyed assignment
 var unlockedEmergency = false;   // ctrlEmergency (PURGE + SCRAM) - $20k
 var unlockedSubsystems = false;  // ctrlSubsys (switchBank2) - $10k; gates events + non-core tabs
 var unlockedTuning = false;      // ctrlKnobs (knobPanel) - $300k
+var sysDirty = false;            // set true whenever module health/status changes; triggers buildSys() in ui.js
+// Diagnose All sweep state
+var diagAllActive  = false;  // true while sweep is in progress
+var diagAllQueue   = [];     // ordered list of module keys still to diagnose in current sweep
+var diagAllIndex   = 0;      // index of current module being diagnosed in the sweep
+var diagAllResults = [];     // buffered {key, had_error} pairs, revealed all at once when sweep ends
+var diagAllToasted = false;  // one-shot: first-use tutorial toast
 // Initialize upgrade tracking for each module
 Object.keys(S.modules).forEach(k => { moduleUpgrades[k] = { health: 0, efficiency: 0, drain: 0, repair: 0 }; });

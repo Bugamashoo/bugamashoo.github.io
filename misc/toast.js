@@ -23,6 +23,7 @@ const TOAST_MAX=3,TOAST_DURATION=15000,TOAST_FADE=2000,TOAST_FADE_CLOSE=750;
   }
 
   window.showToast=function(msg){
+    if(TOASTS_DISABLED) return;
     const wraps=c.querySelectorAll('.toast-wrap');
     if(wraps.length>=TOAST_MAX){remove(wraps[wraps.length-1])}
     const w=document.createElement('div');w.className='toast-wrap';

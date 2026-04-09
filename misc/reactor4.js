@@ -5,7 +5,7 @@
 // Tab navigation ─
 document.querySelectorAll('.tab-btn').forEach(b => {
   b.addEventListener('click', () => {
-    if (b.classList.contains('tab-locked')) return;
+    if (b.classList.contains('tab-locked')) { addLog('Unlock SUBSYSTEMS from the Controls tab to access this section', 'warn'); return; }
     document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
@@ -148,104 +148,170 @@ function syncKnifeSwitches() {
   });
 }
 
-function spawnSwitchSparks(el) {
-  const GRAVITY = 520;
-  // Inherit ~50% of the handle's average downward snap velocity (56px / 160ms)
-  const SNAP_VY = (KS.DOWN_Y - KS.UP_Y) / (160 / 1000) * 0.5;
-  const swRect = el.getBoundingClientRect();
+// ── Canvas-based switch spark system ─────────────────────────────────────────
+// Each "bundle" = one physics object that renders as 3 parallel strands.
+// Per toggle: 1-2 bundles total — far fewer objects than individual-spark approach.
+const SPARK_GRAVITY   = 520;       // px/s²
+const SPARK_COLOR     = '#ffe08a'; // amber strand color
+const SPARK_ARC_COLOR = '#00e5ff'; // cyan arc color
+let   sparkCanvas     = null;
+let   sparkCtx        = null;
+const sparkBundles    = [];  // { x, y, initVx, vy, len, maxLife, startTime, offsets:[f,f,f] }
+const sparkArcPts     = [];  // { pts:[{x,y}], startTime, dur }
+let   sparkLastMs     = 0;
+let   sparkRafId      = null;
 
-  const armDefs = [
+function ensureSparkCanvas() {
+  if (sparkCanvas) return;
+  sparkCanvas = document.createElement('canvas');
+  sparkCanvas.style.cssText = 'position:fixed;left:0;top:0;pointer-events:none;z-index:12000';
+  sparkCanvas.width  = window.innerWidth;
+  sparkCanvas.height = window.innerHeight;
+  document.body.appendChild(sparkCanvas);
+  sparkCtx = sparkCanvas.getContext('2d');
+  window.addEventListener('resize', () => {
+    if (!sparkCanvas) return;
+    sparkCanvas.width  = window.innerWidth;
+    sparkCanvas.height = window.innerHeight;
+  });
+}
+
+function sparkLoop(now) {
+  const dt = Math.min((now - sparkLastMs) / 1000, 0.05);
+  sparkLastMs = now;
+  sparkCtx.clearRect(0, 0, sparkCanvas.width, sparkCanvas.height);
+
+  // Draw arcs (short-lived, fade out quickly)
+  sparkCtx.lineCap  = 'round';
+  sparkCtx.lineJoin = 'round';
+  for (let i = sparkArcPts.length - 1; i >= 0; i--) {
+    const a = sparkArcPts[i];
+    const t = (now - a.startTime) / a.dur;
+    if (t < 0) continue;
+    if (t >= 1) { sparkArcPts.splice(i, 1); continue; }
+    sparkCtx.globalAlpha = 1 - t;
+    sparkCtx.strokeStyle = SPARK_ARC_COLOR;
+    sparkCtx.lineWidth   = 1.5;
+    sparkCtx.beginPath();
+    sparkCtx.moveTo(a.pts[0].x, a.pts[0].y);
+    for (let j = 1; j < a.pts.length; j++) sparkCtx.lineTo(a.pts[j].x, a.pts[j].y);
+    sparkCtx.stroke();
+  }
+
+  // Draw bundles — one physics update per bundle, 3 parallel strands drawn from it
+  sparkCtx.lineCap = 'round';
+  for (let i = sparkBundles.length - 1; i >= 0; i--) {
+    const b = sparkBundles[i];
+    if (now < b.startTime) continue;
+    const elapsed = now - b.startTime;
+    if (elapsed >= b.maxLife) { sparkBundles.splice(i, 1); continue; }
+
+    // Physics — one update for all 3 strands
+    b.vy += SPARK_GRAVITY * dt;
+    const vxNow = b.initVx * (1 - elapsed / b.maxLife);
+    b.x += vxNow * dt;
+    b.y += b.vy  * dt;
+
+    const alpha = Math.max(0, 1 - (elapsed / b.maxLife) * 1.3);
+    const angle = Math.atan2(b.vy, vxNow);
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    // Perpendicular unit vector for lateral strand offsets
+    const px = -sin, py = cos;
+    const hL = b.len / 2;
+
+    // Amber outer strands (all 3 in one pass)
+    sparkCtx.strokeStyle = SPARK_COLOR;
+    sparkCtx.lineWidth   = 2;
+    sparkCtx.globalAlpha = alpha;
+    for (let s = 0; s < 3; s++) {
+      const off = b.offsets[s];
+      const cx = b.x + px * off, cy = b.y + py * off;
+      sparkCtx.beginPath();
+      sparkCtx.moveTo(cx - cos * hL, cy - sin * hL);
+      sparkCtx.lineTo(cx + cos * hL, cy + sin * hL);
+      sparkCtx.stroke();
+    }
+    // White core strands (all 3 in one pass)
+    sparkCtx.strokeStyle = '#ffffff';
+    sparkCtx.lineWidth   = 0.8;
+    sparkCtx.globalAlpha = alpha * 0.7;
+    for (let s = 0; s < 3; s++) {
+      const off = b.offsets[s];
+      const cx = b.x + px * off, cy = b.y + py * off;
+      sparkCtx.beginPath();
+      sparkCtx.moveTo(cx - cos * hL * 0.5, cy - sin * hL * 0.5);
+      sparkCtx.lineTo(cx + cos * hL * 0.5, cy + sin * hL * 0.5);
+      sparkCtx.stroke();
+    }
+  }
+
+  if (sparkBundles.length === 0 && sparkArcPts.length === 0) {
+    sparkCtx.clearRect(0, 0, sparkCanvas.width, sparkCanvas.height);
+    sparkRafId = null;
+    return;
+  }
+  sparkRafId = requestAnimationFrame(sparkLoop);
+}
+
+function spawnSwitchSparks(el) {
+  ensureSparkCanvas();
+  const SNAP_VY = (KS.DOWN_Y - KS.UP_Y) / (160 / 1000) * 0.5;
+  const now = performance.now();
+
+  const ARM_DEFS = [
     { sel: '.ks-arm-left',  dir: -1 },
     { sel: '.ks-arm-right', dir: +1 }
   ];
 
-  for (const { sel, dir } of armDefs) {
-    const arm = el.querySelector(sel);
+  for (const armDef of ARM_DEFS) {
+    const arm = el.querySelector(armDef.sel);
     if (!arm) continue;
     const armRect = arm.getBoundingClientRect();
-    const ox = armRect.left + armRect.width / 2;
-    const oy = armRect.bottom;
+    // Skip if arm has no layout (hidden/detached element)
+    if (!armRect.width && !armRect.height) continue;
+    const ox  = armRect.left + armRect.width / 2;
+    const oy  = armRect.bottom;
+    const dir = armDef.dir;
 
-    // --- Sparks (body-fixed, shoot in arm direction) ---
-    const count = 2 + Math.floor(Math.random() * 2);
-    for (let i = 0; i < count; i++) {
-      const spark = document.createElement('div');
-      spark.className = 'switch-spark';
-      const len = (5 + Math.random() * 6) * 1.5;
-      spark.style.width = len + 'px';
-      spark.style.height = '2px';
-      document.body.appendChild(spark);
-
-      let x = ox, y = oy;
-      const initVx = dir * (20 + Math.random() * 120);
-      let vy = SNAP_VY + (-5 + (Math.random() - 0.5) * 45);
-      const lifespan = 1100 + Math.random() * 700;
-      const startTime = performance.now() + Math.random() * 60;
-      let lastTime = null;
-
-      (function frame(now) {
-        if (now < startTime) { requestAnimationFrame(frame); return; }
-        const elapsed = now - startTime;
-        if (elapsed >= lifespan) { spark.remove(); return; }
-        const vx = initVx * (1 - elapsed / lifespan);
-        if (lastTime !== null) {
-          const dt = Math.min((now - lastTime) / 1000, 0.05);
-          vy += GRAVITY * dt;
-          x  += vx * dt;
-          y  += vy * dt;
-        }
-        lastTime = now;
-        const angle = Math.atan2(vy, vx) * 180 / Math.PI;
-        spark.style.left      = (x - len / 2) + 'px';
-        spark.style.top       = (y - 1) + 'px';
-        spark.style.transform = 'rotate(' + angle + 'deg)';
-        spark.style.opacity   = Math.max(0, 1 - (elapsed / lifespan) * 1.3);
-        requestAnimationFrame(frame);
-      })(performance.now());
+    // 1-2 bundles per arm, each bundle = 3 parallel strands
+    const bundleCount = Math.random() < 0.5 ? 1 : 2;
+    for (let b = 0; b < bundleCount; b++) {
+      // Strands placed randomly within a ±9 px zone (farther apart, random positions)
+      const offsets = Array.from({ length: 3 }, () => (Math.random() * 18 - 9));
+      sparkBundles.push({
+        x: ox, y: oy,
+        initVx:    dir * (30 + Math.random() * 100),
+        vy:        SNAP_VY + (Math.random() - 0.5) * 40,
+        len:       (5 + Math.random() * 6) * 1.5,
+        startTime: now + b * 45,
+        maxLife:   900 + Math.random() * 600,
+        offsets
+      });
     }
 
-    // --- Electric arcs (appended into switch, below handle at z-index 4) ---
-    const lx = ox - swRect.left;
-    const ly = oy - swRect.top;
+    // 2 arc flashes per arm (4 total across both arms — original count)
     for (let a = 0; a < 2; a++) {
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:4;overflow:visible';
-
-      const arcLen = 18 + Math.random() * 24;
-      const baseAngle = dir === -1 ? Math.PI : 0;
-      const arcAngle = baseAngle + (Math.random() - 0.5) * (Math.PI / 2);
-      const endX = lx + Math.cos(arcAngle) * arcLen;
-      const endY = ly + Math.sin(arcAngle) * arcLen;
+      const arcLen   = 18 + Math.random() * 24;
+      const arcAngle = (Math.random() * 2 - 1) * (50 * Math.PI / 180) + (dir === -1 ? Math.PI : 0);
+      const endX = ox + Math.cos(arcAngle) * arcLen;
+      const endY = oy + Math.sin(arcAngle) * arcLen;
       const segs = 3 + Math.floor(Math.random() * 3);
-      let d = `M ${lx.toFixed(1)} ${ly.toFixed(1)}`;
+      const pts  = [{ x: ox, y: oy }];
       for (let s = 1; s < segs; s++) {
         const t = s / segs;
-        const mx = lx + (endX - lx) * t + (Math.random() - 0.5) * 3;
-        const my = ly + (endY - ly) * t + (Math.random() - 0.5) * 5;
-        d += ` L ${mx.toFixed(1)} ${my.toFixed(1)}`;
+        pts.push({
+          x: ox + (endX - ox) * t + (Math.random() - 0.5) * 8,
+          y: oy + (endY - oy) * t + (Math.random() - 0.5) * 8
+        });
       }
-      d += ` L ${endX.toFixed(1)} ${endY.toFixed(1)}`;
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', d);
-      path.setAttribute('stroke', '#00e5ff');
-      path.setAttribute('stroke-width', '1.5');
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke-linecap', 'round');
-      path.setAttribute('stroke-linejoin', 'round');
-      svg.appendChild(path);
-      el.appendChild(svg);
-
-      const dur = 100 + Math.random() * 160;
-      const arcStart = performance.now() + a * 40;
-      (function fade(now) {
-        if (now < arcStart) { requestAnimationFrame(fade); return; }
-        const t = (now - arcStart) / dur;
-        if (t >= 1) { svg.remove(); return; }
-        svg.style.opacity = (1 - t).toString();
-        requestAnimationFrame(fade);
-      })(performance.now());
+      pts.push({ x: endX, y: endY });
+      sparkArcPts.push({ pts, startTime: now + a * 20, dur: 120 + Math.random() * 140 });
     }
+  }
+
+  if (!sparkRafId) {
+    sparkLastMs = now;
+    sparkRafId  = requestAnimationFrame(sparkLoop);
   }
 }
 
@@ -654,7 +720,7 @@ document.getElementById('seqSteps').classList.add('seq-pulse');
 (function() {
   const LOCKS = [
     { panelId: 'ctrlSubsys',    label: 'SUBSYSTEMS', cost: 10000,  costLabel: '$10k',  key: 'unlockedSubsystems' },
-    { panelId: 'ctrlEmergency', label: 'EMERGENCY',  cost: 20000,  costLabel: '$20k',  key: 'unlockedEmergency'  },
+    { panelId: 'ctrlEmergency', label: 'EMERGENCY',  cost: 50000,  costLabel: '$50k',  key: 'unlockedEmergency'  },
     { panelId: 'ctrlKnobs',     label: 'TUNING',     cost: 300000, costLabel: '$300k',  key: 'unlockedTuning'     }
   ];
 
@@ -682,6 +748,14 @@ document.getElementById('seqSteps').classList.add('seq-pulse');
       ov.remove();
       addLog(def.label + ' UNLOCKED', 'ok');
       doFlash();
+      if (def.key === 'unlockedSubsystems') showToast(toastSubsystemsUnlocked);
+      if (def.key === 'unlockedEmergency')  showToast(toastEmergencyUnlocked);
+
+      // A2: When BOTH gates are now open for the first time, reset event/error timers from NOW
+      if (unlockedSubsystems && unlockedEmergency) {
+        nextEventTime = S.uptime + EVT_POST_CLOSE_MIN + Math.random() * EVT_POST_CLOSE_RANGE;
+        nextErrorTime = S.uptime + ERR_SPAWN_INIT_MIN + Math.random() * ERR_SPAWN_INIT_RANGE;
+      }
 
       if (def.key === 'unlockedSubsystems') {
         // Unlock gated tabs
@@ -693,6 +767,82 @@ document.getElementById('seqSteps').classList.add('seq-pulse');
           document.querySelector('[data-tab="backup"]').classList.add('tab-pulse');
         }
       }
+
+      if (def.key === 'unlockedEmergency') {
+        // Also remove the backup tab emergency panel lock
+        const beLock = document.getElementById('lock_backupEmerg');
+        if (beLock) beLock.remove();
+      }
     });
   });
+
+  // Lock #backupEmerg on the Backup tab if ctrlEmergency is not yet unlocked
+  (() => {
+    const bePanel = document.getElementById('backupEmerg');
+    if (!bePanel) return;
+    bePanel.style.position = 'relative';
+    const beOv = document.createElement('div');
+    beOv.className = 'panel-lock-overlay';
+    beOv.id = 'lock_backupEmerg';
+    beOv.innerHTML =
+      '<div class="panel-lock-label">EMERGENCY</div>' +
+      '<div class="panel-lock-note">Unlock EMERGENCY panel on Controls tab first</div>';
+    bePanel.appendChild(beOv);
+  })();
+})();
+
+// ── Warn Indicator Tooltip ───────────────────────────────────────────────────
+// Shows a breakdown of active warning lights on hover/touch of the STATUS box.
+const WARN_LABELS = [
+  { id: 'warnOvertemp',    label: 'Overtemperature' },
+  { id: 'warnOverpressure',label: 'Overpressure' },
+  { id: 'warnContainment', label: 'Containment' },
+  { id: 'warnCoolant',     label: 'Low Coolant Flow' },
+  { id: 'warnFuel',        label: 'Low Fuel' },
+  { id: 'warnRadiation',   label: 'High Radiation' },
+  { id: 'warnScram',       label: 'SCRAM Active' },
+  { id: 'warnOnline',      label: 'Reactor Online' },
+  { id: 'warnModFault',    label: 'Module Fault' },
+  { id: 'warnSysFault',    label: 'System Error' },
+  { id: 'warnEvent',       label: 'Active Event' },
+];
+
+function updateWarnTooltip() {
+  const tt = document.getElementById('warnTooltip');
+  if (!tt) return;
+  const rows = [];
+  WARN_LABELS.forEach(w => {
+    const el = document.getElementById(w.id);
+    if (!el) return;
+    let color = null;
+    if (el.classList.contains('active-red'))   color = 'red';
+    else if (el.classList.contains('active-amber')) color = 'amber';
+    else if (el.classList.contains('active-green')) color = 'green';
+    if (color) {
+      rows.push(
+        `<div class="warn-tooltip-row">` +
+        `<span class="warn-tooltip-dot ${color}"></span>` +
+        `<span>${w.label}</span>` +
+        `</div>`
+      );
+    }
+  });
+  if (rows.length === 0) {
+    tt.innerHTML = '<div class="warn-tooltip-row"><span>All systems nominal</span></div>';
+  } else {
+    tt.innerHTML = rows.join('');
+  }
+}
+
+(() => {
+  const box = document.getElementById('warnBox');
+  const tt  = document.getElementById('warnTooltip');
+  if (!box || !tt) return;
+  box.addEventListener('mouseenter', () => { updateWarnTooltip(); tt.style.display = 'block'; });
+  box.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+  box.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (tt.style.display === 'block') { tt.style.display = 'none'; return; }
+    updateWarnTooltip(); tt.style.display = 'block';
+  }, { passive: false });
 })();

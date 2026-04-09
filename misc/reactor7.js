@@ -14,41 +14,8 @@ const MP = {
     `<div class="manual-note">First-hour throttle 30-50%. Allow equilibrium.</div>
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
-  shutdown:
-    `<div class="manual-header">II. CONTROLLED SHUTDOWN</div>
-     <div class="manual-step">
-       <div class="manual-step-num">01</div>
-       <div class="manual-step-text"><b>GRID SYNC OFF</b> - Decouple from grid before reducing output.</div>
-     </div>
-     <div class="manual-step">
-       <div class="manual-step-num">02</div>
-       <div class="manual-step-text"><b>THROTTLE > 20%</b> - Reduce main throttle gradually to avoid thermal shock.</div>
-     </div>
-     <div class="manual-step">
-       <div class="manual-step-num">03</div>
-       <div class="manual-step-text"><b>TURBINE OFF</b> - Disengage turbine once RPM can drop safely.</div>
-     </div>
-     <div class="manual-step">
-       <div class="manual-step-num">04</div>
-       <div class="manual-step-text"><b>FUEL INJ > 0%</b>, then <b>IGN PRIME OFF</b> - Terminate plasma. Coolant pumps must remain on during cooldown.</div>
-     </div>
-     <div class="manual-step">
-       <div class="manual-step-num">05</div>
-       <div class="manual-step-text"><b>CONTAIN PWR > 0%</b> once core temp drops below 500°C. Then <b>MAG COILS OFF</b>.</div>
-     </div>
-     <div class="manual-step">
-       <div class="manual-step-num">06</div>
-       <div class="manual-step-text"><b>FUEL PUMPS OFF</b> - 8-second fuel flow grace period applies. Plasma will extinguish automatically if flow drops with low stability.</div>
-     </div>
-     <div class="manual-step">
-       <div class="manual-step-num">07</div>
-       <div class="manual-step-text"><b>COOLANT PUMPS OFF > RAD SHIELD OFF > AUX POWER OFF</b> - In that order, after temperatures are nominal.</div>
-     </div>
-     <div class="manual-note">⚠ Do not shut off coolant pumps while core temp exceeds 500°C. Thermal runaway is possible without active cooling.</div>
-     <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
-
   emergency:
-    `<div class="manual-header">III. EMERGENCY PROCEDURES</div>
+    `<div class="manual-header">II. EMERGENCY PROCEDURES</div>
      <div class="manual-warning">⚠ FAILURE TO RESOLVE EVENTS RESULTS IN CATASTROPHIC AND PERMANENT REACTOR FAILURE.</div>
 
      <div class="manual-note" style="margin-bottom:6px">SCRAM (red button, top panel)</div>
@@ -82,7 +49,7 @@ const MP = {
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
   malfunctions:
-    `<div class="manual-header">IV. MALFUNCTIONS</div>
+    `<div class="manual-header">III. MALFUNCTIONS</div>
 
      <div class="manual-note" style="margin-bottom:8px">§ A - LATENT SYSTEM FAULTS</div>
      <div style="margin-bottom:12px">
@@ -145,7 +112,7 @@ const MP = {
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
   modes:
-    `<div class="manual-header">V. MODULE MODES &amp; SYSTEMS</div>
+    `<div class="manual-header">IV. MODULE MODES &amp; SYSTEMS</div>
      <div style="margin-bottom:12px">
        Each subsystem may be set to one of four operating modes governing output capacity, wear rate, and thermal contribution. Changes take effect immediately.<br><br>
        <b style="color:var(--green)">NORMAL</b> - 100% performance, standard wear rate, no heat modifier. Certified operating envelope. No stress on interconnected modules.<br><br>
@@ -183,7 +150,7 @@ const MP = {
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
   reference:
-    `<div class="manual-header">VI. QUICK REFERENCE</div>
+    `<div class="manual-header">V. QUICK REFERENCE</div>
 
      <div class="manual-note" style="margin-bottom:6px">SAFE OPERATING RANGES</div>
      <div style="margin-bottom:10px;font-size:12px">
@@ -215,7 +182,7 @@ const MP = {
      <div class="manual-note" style="margin-bottom:6px">WARNING LIGHTS</div>
      <div style="margin-bottom:10px;font-size:12px">
        OVERTEMP / OVERPRES / CONTAINMENT / COOLANT / FUEL / RADIATION - gauge alerts<br>
-       SCRAM - active during 5s lockout<br>
+       SCRAM - active while scrammed<br>
        ONLINE - green when reactor state is ONLINE<br>
        MOD FAULT - any module not fully online<br>
        SYS FAULT - amber: >=2 hidden system errors; red: >=6 errors<br>
@@ -234,7 +201,7 @@ const MP = {
      <div class="stamp">DO NOT REMOVE FROM CONTROL ROOM</div>`,
 
   resupply:
-    `<div class="manual-header">VII. RESUPPLY &amp; ECONOMY</div>
+    `<div class="manual-header">VI. RESUPPLY &amp; ECONOMY</div>
 
      <div class="manual-note" style="margin-bottom:6px">REVENUE</div>
      <div style="margin-bottom:12px">

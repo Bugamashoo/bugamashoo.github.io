@@ -63,6 +63,7 @@ function spendMoney(amount) {
 
 window.buyFuel = function(pct) {
   if (commsBlockPurchase()) return;
+  if (!fuelUnlocked) { addLog('Fuel market locked until first startup complete', 'warn'); return; }
   if (!S.fuelFirstPurchase) {
     S.fuelFirstPurchase = true;
     S.fuelPriceNextChange = tick + FUEL_PRICE_CHANGE_MIN + Math.random() * FUEL_PRICE_CHANGE_RANGE;
@@ -81,6 +82,7 @@ window.buyFuel = function(pct) {
 
 window.buyFuelMax = function() {
   if (commsBlockPurchase()) return;
+  if (!fuelUnlocked) { addLog('Fuel market locked until first startup complete', 'warn'); return; }
   const maxCap = getMaxFuel();
   const space = maxCap - S.fuelRemaining;
   if (space <= 0) { addLog('Fuel tanks full', 'warn'); return; }
@@ -100,6 +102,7 @@ window.buyFuelMax = function() {
 
 window.sellFuel = function(pct) {
   if (commsBlockPurchase()) return;
+  if (!fuelUnlocked) { addLog('Fuel market locked until first startup complete', 'warn'); return; }
   if (S.fuelRemaining <= 0) { addLog('No fuel to sell', 'warn'); return; }
   const actual = Math.min(pct, S.fuelRemaining);
   if (actual <= 0) return;
@@ -208,6 +211,7 @@ window.buyQuickRepair = function(key) {
   } else {
     if (S.money < ITEM_QUICK_REPAIR_COST) { addLog('Insufficient funds', 'warn'); return; }
     quickRepairPending = !quickRepairPending;
+    if (quickRepairPending) addLog('Quick Repair ready - select a module below', 'ok');
     buildResupply();
   }
 };
@@ -440,6 +444,45 @@ function buildTurbineSpeedUpgradeCard() {
   </div>`;
 }
 
+function buildDiagSpeedUpgradeCard() {
+  const tier     = specialUpgrades.diagSpeed || 0;
+  const maxTiers = SPEC_UPG_DIAG_SPEED_TIERS;
+  const tierBadge = tier > 0 ? 'T' + tier + '\u2009/\u2009T' + maxTiers : '\u2014\u2009/\u2009T' + maxTiers;
+  const speedMult = DIAG_ALL_SPEED_TIERS[tier];
+  const effectText = speedMult + '\u00d7 Diagnose All speed';
+  const maxed  = tier >= maxTiers;
+  const dimmed = maxed || S.money < (SPEC_UPG_DIAG_SPEED_COSTS[tier] || Infinity);
+
+  let actionHtml;
+  if (maxed) {
+    actionHtml = `<button class="spec-upgrade-btn" disabled>MAXED</button>`;
+  } else {
+    const nextMult = DIAG_ALL_SPEED_TIERS[tier + 1];
+    const cost     = SPEC_UPG_DIAG_SPEED_COSTS[tier];
+    actionHtml = `<button class="spec-upgrade-btn" id="specUpgDiagSpeed" onclick="buyDiagSpeedUpgrade()" ${S.money < cost ? 'disabled' : ''}>\u2192 T${tier + 1}\u2002${nextMult}\u00d7 speed\u2002${fmtMoney(cost)}</button>`;
+  }
+  return `<div class="spec-upgrade-card${dimmed ? ' dimmed' : ''}" id="specCard_diagSpeed">
+    <div class="spec-upgrade-header">
+      <span class="spec-upgrade-name">DIAGNOSE SPEED</span>
+      <span class="spec-upgrade-tier-badge">${tierBadge}</span>
+    </div>
+    <div class="spec-upgrade-effect">${effectText}</div>
+    ${actionHtml}
+  </div>`;
+}
+
+window.buyDiagSpeedUpgrade = function() {
+  const tier = specialUpgrades.diagSpeed || 0;
+  if (tier >= SPEC_UPG_DIAG_SPEED_TIERS) { addLog('Diag Speed already maxed', 'warn'); return; }
+  const cost = SPEC_UPG_DIAG_SPEED_COSTS[tier];
+  if (S.money < cost) { addLog('Insufficient funds', 'warn'); return; }
+  S.money -= cost;
+  S.totalSpent += cost;
+  specialUpgrades.diagSpeed = tier + 1;
+  addLog('Diag Speed upgraded to T' + (tier + 1) + ' (' + DIAG_ALL_SPEED_TIERS[tier + 1] + '\u00d7)', 'ok');
+  buildResupply();
+};
+
 // BUILD RESUPPLY TAB (full DOM rebuild - structural changes only)
 let resupplyBuilt = false;
 let resupplyQRP = false; // tracks quickRepairPending state at last build
@@ -458,7 +501,7 @@ function buildResupply() {
   let html = '';
 
   // FUEL MARKET PANEL
-  html += `<div class="resupply-panel">
+  html += `<div class="resupply-panel" id="rsFuelPanel" style="position:relative">
     <div class="resupply-panel-title">FUEL MARKET</div>
     <div class="fuel-price-display">
       <span class="fuel-price-label">PRICE</span>
@@ -483,11 +526,13 @@ function buildResupply() {
         <button class="resupply-btn buy" id="rsBuyFull" onclick="fuelActionFull()"><span id="rsBuyFullL">FULL REFILL</span><br><span class="btn-price" id="rsBuyFullP"></span></button>
       </div>
     </div>
-    <div class="resupply-panel-title" style="margin-top:10px">MODE UNLOCKS</div>
+    ${!fuelUnlocked ? `<div class="panel-lock-overlay" id="rsFuelLock"><div class="panel-lock-label">FUEL MARKET</div><div class="panel-lock-note">Complete first startup to unlock</div></div>` : ''}
+    <div class="resupply-panel-title" style="margin-top:10px">MODE UPGRADES</div>
     <div class="mode-unlocks-grid">
       ${buildModeUnlockCard('overclock')}
       ${buildModeUnlockCard('eco')}
       ${buildModeUnlockCard('bypass')}
+      ${buildDiagSpeedUpgradeCard()}
     </div>
   </div>`;
 

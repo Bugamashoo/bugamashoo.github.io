@@ -9,4 +9,14 @@ const
 	toastLockedBypass    = "Bypass mode is locked. Buy it from the STORE tab to allow for a repair speed boost without turning off the module at the cost of some performance. Damage gets redirected to backup systems.",
 	toastUnlockOverclock = "Overclock mode unlocked! Overclock mode allows for increased system module performance at the cost of significantly more damage and reactor heat.",
 	toastUnlockEco       = "Eco mode unlocked! Eco mode allows for massively reduced system module damage and reactor heat in exchange for some performance loss.",
-	toastUnlockBypass    = "Bypass mode unlocked! Bypass mode allows for a repair speed boost without turning off the module, although it loses some performance while bypassed. Damage gets redirected to backup systems.";
+	toastUnlockBypass    = "Bypass mode unlocked! Bypass mode allows for a repair speed boost without turning off the module, although it loses some performance while bypassed. Damage gets redirected to backup systems.",
+	toastSubsystemsUnlocked = "SUBSYSTEMS UNLOCKED! Module health will now drain over time and system errors can appear. Check the SYSTEMS tab regularly — diagnose modules to find hidden faults and repair them before they fail.",
+	toastEmergencyUnlocked  = "EMERGENCY PANEL UNLOCKED! You now have access to LINE PURGE (reduces pressure), EMERG VENT, FUEL DUMP, and the PLASMA DUMP and COOLANT FLOOD emergency buttons.",
+	toastFirstSysError      = "A hidden system error has appeared! Head to the SYSTEMS tab and DIAGNOSE each module to find it. Restart the faulty module once found to clear the error and restore full performance.",
+	toastFirstModuleOffline = "A module has gone OFFLINE! Go to the SYSTEMS tab and use RESTART or POWER ON to bring it back. Offline modules shut down their associated reactor systems.",
+	toastCommsError         = "COMMS UPLINK has a system error that is silently locking some of your switches and levers! Diagnose and restart it from the SYSTEMS tab to restore full control.",
+	toastScramGuidance      = "Reactor scrammed. Re-enable AUX POWER and follow the startup sequence to restart. Check the SYSTEMS tab first if any modules need repair.",
+	toastUptimeReset        = "Plasma was off for 10+ seconds — uptime reset to zero. Re-ignite quickly to resume your run timer.",
+	toastLowFuelMoney       = "CRITICAL: Fuel is empty and funds nearly depleted! Buy fuel from the STORE tab immediately — you have 5 seconds before reactor failure.",
+	toastDiagAllFirstUse    = "DIAGNOSE ALL sweeps every module one-by-one, revealing hidden system errors across the entire reactor. Use the DIAG SPEED upgrade in the STORE to speed up future sweeps.",
+	toastToastsOff = "Buga recommends that you leave this on for your first playthrough!";

@@ -4,9 +4,26 @@
 //           GAUGE_DANGERS, updD, updDN, setW, init log + interval
 
 // SCRAM
-document.getElementById('scramBtn').addEventListener('click', doScram);
+const _scramBtn    = document.getElementById('scramBtn');
+const _scramConfirm = document.getElementById('scramConfirm');
+const _scramYes     = document.getElementById('scramConfirmYes');
+const _scramNo      = document.getElementById('scramConfirmNo');
+
+function hideScramConfirm() { if (_scramConfirm) _scramConfirm.style.display = 'none'; }
+
+_scramBtn.addEventListener('click', () => {
+  if (S.activeEvent) {
+    doScram();
+  } else {
+    const showing = _scramConfirm.style.display !== 'none';
+    _scramConfirm.style.display = showing ? 'none' : 'block';
+  }
+});
+_scramYes.addEventListener('click', () => { hideScramConfirm(); doScram(); });
+_scramNo.addEventListener('click',  () => { hideScramConfirm(); });
 
 function doScram() {
+  hideScramConfirm();
   S.scramActive = 1;
   S.reactorState = 'SCRAM';
   addLog('*** SCRAM ***', 'err');
@@ -19,6 +36,11 @@ function doScram() {
   S.igniting = 0; S.ignitionHeld = 0; S.startupComplete = 0; S.seqStep = 0;
   S.mainThrottle = 0; S.fuelInject = 0; S.containPower = 0;
 
+  if (S.activeEvent) {
+    addLog('EVENT ABORTED BY SCRAM', 'warn');
+    closeEvt();
+  }
+
   document.querySelectorAll('[data-lever]').forEach(t => {
     const id = t.dataset.lever;
     const r  = document.getElementById('readout_' + id);
@@ -28,7 +50,12 @@ function doScram() {
   syncLeverPositions();
   syncKnifeSwitches();
 
-  setTimeout(() => { S.scramActive = 0; addLog('SCRAM reset', 'ok'); }, SCRAM_LOCKOUT_MS);
+  S.scramActive = 0;
+  addLog('SCRAM reset', 'ok');
+  if (!scramGuidanceToasted) {
+    scramGuidanceToasted = true;
+    showToast(toastScramGuidance);
+  }
 }
 
 // HARD RESET
@@ -44,8 +71,12 @@ function hardReset() {
     S.modules[k].errorCount = 0;
   });
   diagTarget = null; diagStart = 0;
+  if (diagAllActive) cancelDiagAll();
   syncCommsLocks(); syncSensorFaults();
-  Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
+  Object.keys(modPowerTimers).forEach(k => { delete modPowerTimers[k]; });
+  Object.keys(rstEndTicks).forEach(k => { delete rstEndTicks[k]; });
+  rstTargets.clear();
+  bypassRestartTarget = null;
   S.igniting = 0; S.startupComplete = 0; S.scramActive = 0; S.seqStep = 0;
   ['fuelPumps','coolantPumps','containField','ignPrime','turbineEngage','gridSync','magCoils','radShield','ventSystem']
     .forEach(k => S[k] = 0);
@@ -53,24 +84,21 @@ function hardReset() {
   syncLeverPositions();
   syncKnifeSwitches();
 
-  setTimeout(() => {
-    Object.keys(S.modules).forEach(k => { S.modules[k].status = 'online'; S.modules[k].mode = 'normal'; });
-    addLog('Modules restarted', 'ok');
-  }, HARD_RESET_OFFLINE_MS);
+  hardResetEndTick = tick + HARD_RESET_OFFLINE_TICKS;
 }
 
 // IGNITION hold logic
 function sI() {
   if (!S.ignPrime || !S.auxPower) { addLog('IGN FAIL', 'err'); return; }
   S.ignitionHeld = 1;
-  ignHoldStart   = Date.now();
+  ignHoldStart   = tick;
   addLog('IGNITION...', 'warn');
 }
 
 function eI() {
   S.ignitionHeld = 0;
   if (S.igniting) return;
-  if (ignHoldStart > 0 && Date.now() - ignHoldStart < IGN_HOLD_MS) addLog('IGN ABORT', 'err');
+  if (ignHoldStart > 0 && tick - ignHoldStart < IGN_HOLD_TICKS) addLog('IGN ABORT', 'err');
   ignHoldStart = 0;
 }
 
@@ -87,12 +115,16 @@ function checkSeq() {
       const next = step < SEQUENCE.length ? ' - next: ' + SEQUENCE[step].label : '';
       addLog('SEQ ' + step + '/' + SEQUENCE.length + next, 'ok');
       doFlash();
+    } else {
+      const failed = SEQUENCE[step];
+      if (failed) addLog('SEQ STEP LOST: ' + failed.label, 'warn');
     }
     S.seqStep = step;
   }
   if (step >= SEQUENCE.length && !S.startupComplete) {
     S.startupComplete = 1;
     S.reactorState = 'ONLINE';
+    fuelUnlocked = true;
     addLog('*** REACTOR ONLINE ***', 'ok');
     doShake(); doFlash();
     if (FIRST_ON == 0) {

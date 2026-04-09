@@ -113,11 +113,16 @@ const REPAIR_OFFLINE_RATE   = 5 / 30;  // Health regained per tick when offline 
 const DIAG_DURATION_BASE_MS  = 1000;  // Minimum diagnosis duration (ms)
 const DIAG_DURATION_RANGE_MS = 4000;  // Random extra duration added (total: 1–5s)
 const DIAG_BYPASS_MULT       = 0.4;   // Duration multiplied by this when module is in bypass mode (0.5–2.5s)
+const DIAG_DURATION_BASE_TICKS  = Math.round(DIAG_DURATION_BASE_MS / 50);   // 20 ticks (1s)
+const DIAG_DURATION_RANGE_TICKS = Math.round(DIAG_DURATION_RANGE_MS / 50);  // 80 ticks (4s)
 
 // MODULE MANAGEMENT TIMERS
 const MODULE_POWER_TRANSITION_MS = 2500;  // Milliseconds for a module to power on or off
 const MODULE_RESTART_MS          = 6000;  // Milliseconds for a module restart to complete
+const MODULE_POWER_TRANSITION_TICKS = Math.round(MODULE_POWER_TRANSITION_MS / 50); // 50 ticks (2.5s)
+const MODULE_RESTART_TICKS          = Math.round(MODULE_RESTART_MS / 50);          // 120 ticks (6s)
 
 // HARD RESET
 const HARD_RESET_OFFLINE_MS   = 4000;  // Milliseconds modules stay offline during hard reset
 const HARD_RESET_MIN_HEALTH   = 60;    // Module health floored to this % during hard reset (not zeroed)
+const HARD_RESET_OFFLINE_TICKS = Math.round(HARD_RESET_OFFLINE_MS / 50); // 80 ticks (4s)

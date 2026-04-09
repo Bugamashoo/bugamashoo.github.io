@@ -129,3 +129,249 @@ function getBackupGenFuelMult() {
   const tier = specialUpgrades.backupGenerator || 0;
   return 1.0 - tier * (1.0 - SPEC_UPG_BACKUP_GEN_MIN_FUEL) / SPEC_UPG_BACKUP_GEN_TIERS;
 }
+
+// Show an informational toast explaining why the plasma just went out / reactor just scrammed.
+// Throttled to once per 5 seconds to avoid spam during rapid oscillation.
+// reasons: 'ignPrime' | 'fuelEmpty' | 'lowFlow' | 'stability' | 'autoScram'
+function buildShutdownToast(reason) {
+  if (tick - lastShutdownToastTick < 100) return; // 100 ticks = 5s at 20Hz
+  lastShutdownToastTick = tick;
+  const msgs = {
+    ignPrime:  '⚛ IGN PRIME switched off — plasma lost',
+    fuelEmpty: '⛽ Fuel depleted — plasma extinguished',
+    lowFlow:   '🌊 Fuel flow too low — plasma extinguished',
+    stability: '⚡ Plasma instability — magnetic confinement lost',
+    autoScram: '🔴 Containment critical — auto-SCRAM triggered',
+  };
+  const msg = msgs[reason];
+  if (msg) showToast(msg);
+}
+
+// ─── CRITICAL GAUGE CONTROL HINTS ────────────────────────────────────────────
+// getCritHints(gaugeId): returns up to 3 actionable hint strings for a gauge
+// that has entered its critical range. Only suggests controls that are
+// currently unlocked, not comms-locked, and where the action would help.
+
+function getCritHints(gaugeId) {
+  const hints = [];
+
+  // Comms-lock checks
+  const swFree = (id) => !commsLockedSwitches.includes(id);
+  const lvFree = (id) => !commsLockedControls.includes(id);
+
+  // Conditional push — only adds if condition is met and we still have room
+  const h = (cond, msg) => { if (cond && hints.length < 3) hints.push(msg); };
+
+  switch (gaugeId) {
+
+    case 'coreTemp': {
+      // Priority: increase cooling → reduce heat input → emergency → rods
+      h(!S.coolantPumps && swFree('coolantPumps'),
+        'Enable COOLANT PUMPS switch to restore primary cooling');
+      h(S.coolantPumps && S.coolantFlow < 85 && lvFree('coolantFlow'),
+        'Raise COOLANT FLOW lever for more primary cooling');
+      h(!S.coolantPumps && S.coolantFlow < 85 && lvFree('coolantFlow'),
+        'Also raise COOLANT FLOW lever once pumps are on');
+      h(unlockedSubsystems && !S.auxCoolPump && swFree('auxCoolPump'),
+        'Enable AUX COOL PUMP switch for supplemental cooling');
+      h(unlockedSubsystems && S.auxCoolPump && !S.auxCoolLoop && swFree('auxCoolLoop'),
+        'Enable AUX COOL LOOP switch to activate aux cooling circuit');
+      h(unlockedSubsystems && S.auxCoolPump && S.auxCoolLoop && S.auxCoolRate < 80 && lvFree('auxCoolRate'),
+        'Raise AUX COOL RATE lever for more auxiliary cooling');
+      h(S.mainThrottle > 20 && lvFree('mainThrottle'),
+        'Lower MAIN THROTTLE to reduce heat generation');
+      h(S.fuelInject > 20 && lvFree('fuelInject'),
+        'Lower FUEL INJECT lever to reduce plasma heat output');
+      h(unlockedTuning && Math.abs(S.mixRatio - 50) > 20 && lvFree('mixRatio'),
+        'Move MIX RATIO knob toward 50% to reduce core heat');
+      h(unlockedEmergency,
+        'Use COOL FLOOD emergency action for rapid temperature reduction');
+      h(unlockedEmergency && !S.emergVent && swFree('emergVent'),
+        'Enable EMERG VENT switch to vent excess heat');
+      h(unlockedEmergency && S.rodSafetyOff && swFree('rodSafetyOff'),
+        'Turn OFF ROD SAFETY switch then raise ROD A/B/C levers to absorb neutrons');
+      h(unlockedEmergency && !S.rodSafetyOff && (S.rodA < 80 || S.rodB < 80 || S.rodC < 80),
+        'Raise ROD A/B/C levers to increase neutron absorption');
+      break;
+    }
+
+    case 'corePres': {
+      // Priority: vent pressure → reduce drivers → emergency → rods
+      h(unlockedTuning && S.pressureRelief < 85 && lvFree('pressureRelief'),
+        'Raise PRESSURE RELIEF knob to vent excess core pressure');
+      h(S.mainThrottle > 20 && lvFree('mainThrottle'),
+        'Lower MAIN THROTTLE to reduce plasma confinement pressure');
+      h(S.fuelInject > 20 && lvFree('fuelInject'),
+        'Lower FUEL INJECT lever to reduce pressure contribution');
+      h(S.coolantFlow < 80 && lvFree('coolantFlow'),
+        'Raise COOLANT FLOW to carry heat away and relieve pressure');
+      h(!S.coolantPumps && swFree('coolantPumps'),
+        'Enable COOLANT PUMPS for coolant-assisted pressure relief');
+      h(unlockedEmergency,
+        'Use PURGE emergency button to rapidly vent core pressure');
+      h(unlockedEmergency && !S.emergVent && swFree('emergVent'),
+        'Enable EMERG VENT switch for additional pressure venting');
+      h(unlockedEmergency && S.rodSafetyOff && swFree('rodSafetyOff'),
+        'Turn OFF ROD SAFETY switch then raise ROD A/B/C levers to dampen reaction');
+      h(unlockedEmergency && !S.rodSafetyOff && (S.rodA < 80 || S.rodB < 80 || S.rodC < 80),
+        'Raise ROD A/B/C levers to reduce reaction rate and pressure');
+      break;
+    }
+
+    case 'plasma': {
+      // Priority: containment power → containment field → field tune → backup → root causes
+      h(S.containPower < 75 && lvFree('containPower'),
+        'Raise CONTAINMENT POWER lever to strengthen magnetic confinement');
+      h(!S.containField && swFree('containField'),
+        'Enable CONTAINMENT FIELD switch for plasma stability boost');
+      h(unlockedTuning && S.fieldTune < 80 && lvFree('fieldTune'),
+        'Raise FIELD TUNE knob for better plasma confinement geometry');
+      h(unlockedSubsystems && (!S.backupContA || !S.backupContB),
+        'Enable BACKUP CONT A and B switches for additional field support');
+      h(unlockedSubsystems && S.backupContA && S.backupContB && S.backupContPow < 70 && lvFree('backupContPow'),
+        'Raise BACKUP CONT POWER lever to boost backup containment field');
+      h(!S.magCoils && swFree('magCoils'),
+        'Enable MAG COILS switch — required for magnetic field generation');
+      h(S.coreTemp > SAFE_TEMP_RED,
+        'Reduce core temperature — overtemp actively degrades plasma stability');
+      h(S.containIntegrity < SAFE_CONTAIN_RED,
+        'Improve CONTAINMENT INTEGRITY — low integrity destabilises plasma');
+      h(S.modules.magnetic.status !== 'online',
+        'MAGNETIC CTRL module is offline — restart it from the SYSTEMS tab');
+      break;
+    }
+
+    case 'coolFlow': {
+      // Priority: get pumps on → raise flow → aux cool → module health
+      h(!S.coolantPumps && swFree('coolantPumps'),
+        'Enable COOLANT PUMPS switch to restore coolant flow');
+      h(S.coolantFlow < 80 && lvFree('coolantFlow'),
+        'Raise COOLANT FLOW lever to increase flow rate');
+      h(unlockedSubsystems && !S.auxCoolPump && swFree('auxCoolPump'),
+        'Enable AUX COOL PUMP for supplemental coolant flow');
+      h(unlockedSubsystems && S.auxCoolPump && !S.auxCoolLoop && swFree('auxCoolLoop'),
+        'Enable AUX COOL LOOP to activate aux cooling circuit');
+      h(unlockedSubsystems && S.auxCoolPump && S.auxCoolLoop && S.auxCoolRate < 70 && lvFree('auxCoolRate'),
+        'Raise AUX COOL RATE lever for more auxiliary flow');
+      h(!S.auxPower && swFree('auxPower'),
+        'Enable AUX POWER — required for coolant system to function');
+      h(S.modules.coolant.status !== 'online',
+        'PRIMARY COOLANT module degraded — restart from the SYSTEMS tab');
+      break;
+    }
+
+    case 'coolTemp': {
+      // Priority: increase flow → increase cooling capacity → reduce heat input
+      h(S.coolantFlow < 85 && lvFree('coolantFlow'),
+        'Raise COOLANT FLOW lever to improve heat exchange');
+      h(!S.coolantPumps && swFree('coolantPumps'),
+        'Enable COOLANT PUMPS switch to restore coolant circulation');
+      h(unlockedSubsystems && (!S.auxCoolPump || !S.auxCoolLoop),
+        'Enable AUX COOL PUMP + LOOP to assist the primary coolant loop');
+      h(unlockedSubsystems && S.auxCoolPump && S.auxCoolLoop && S.auxCoolRate < 70 && lvFree('auxCoolRate'),
+        'Raise AUX COOL RATE lever for more aux cooling power');
+      h(S.mainThrottle > 25 && lvFree('mainThrottle'),
+        'Lower MAIN THROTTLE to reduce the core heat fed into coolant');
+      h(S.fuelInject > 25 && lvFree('fuelInject'),
+        'Lower FUEL INJECT lever to reduce plasma heat contribution');
+      h(unlockedEmergency,
+        'Use COOL FLOOD emergency action to rapidly reduce coolant temperature');
+      break;
+    }
+
+    case 'contain': {
+      // Priority: get above 50% threshold → field → backup → root cause
+      h(S.containPower < CONTAIN_POWER_THRESHOLD && lvFree('containPower'),
+        'Raise CONTAINMENT POWER above ' + CONTAIN_POWER_THRESHOLD + '% — required to stop integrity drain and begin regeneration');
+      h(S.containPower >= CONTAIN_POWER_THRESHOLD && S.containPower < 80 && lvFree('containPower'),
+        'Raise CONTAINMENT POWER lever further to accelerate integrity regeneration');
+      h(!S.containField && swFree('containField'),
+        'Enable CONTAINMENT FIELD switch — required for active containment regeneration');
+      h(unlockedSubsystems && (!S.backupContA || !S.backupContB),
+        'Enable BACKUP CONT A and B switches for emergency containment support');
+      h(unlockedSubsystems && S.backupContA && S.backupContB && S.backupContPow < 70 && lvFree('backupContPow'),
+        'Raise BACKUP CONT POWER lever to boost backup containment field');
+      h(S.coreTemp > SAFE_TEMP_RED,
+        'Reduce core temperature — temps above ' + SAFE_TEMP_RED + '°C actively drain containment integrity');
+      h(S.modules.magnetic.status !== 'online',
+        'MAGNETIC CTRL module offline — containment integrity cannot regenerate');
+      break;
+    }
+
+    case 'radiation': {
+      // Priority: shielding → contain → reduce neutron source
+      h(!S.radShield && swFree('radShield'),
+        'Enable RAD SHIELD switch to block radiation output');
+      h(!S.radShield && !swFree('radShield'),
+        'RAD SHIELD is COMMS-LOCKED — diagnose/restart COMMS module to regain control');
+      h(S.containIntegrity < 60,
+        'Improve CONTAINMENT INTEGRITY — low integrity allows radiation to escape');
+      h(S.containPower < 50 && lvFree('containPower'),
+        'Raise CONTAINMENT POWER above 50% to stop integrity drain');
+      h(unlockedTuning && S.pressureRelief > 40 && lvFree('pressureRelief'),
+        'Lower PRESSURE RELIEF knob — high venting increases neutron escapement');
+      h(S.fuelInject > 35 && lvFree('fuelInject'),
+        'Lower FUEL INJECT lever to reduce neutron production');
+      h(unlockedTuning && S.mixRatio < 45 && lvFree('mixRatio'),
+        'Raise MIX RATIO knob toward 50–95% to reduce neutron output');
+      break;
+    }
+
+    case 'turbineRPM': {
+      // Priority: limiter switch → reduce throttle → reduce inject
+      h(unlockedSubsystems && !S.turbineLimiter && swFree('turbineLimiter'),
+        'Enable TURBINE LIMITER switch to automatically cap RPM at safe maximum');
+      h(S.mainThrottle > 20 && lvFree('mainThrottle'),
+        'Lower MAIN THROTTLE lever to reduce turbine drive');
+      h(S.fuelInject > 20 && lvFree('fuelInject'),
+        'Lower FUEL INJECT lever to reduce plasma power to turbine');
+      h(S.turbineEngage && swFree('turbineEngage'),
+        'Disengage TURBINE ENGAGE switch to cut turbine drive entirely');
+      break;
+    }
+
+    case 'heatSink': {
+      // Priority: coolant flow → aux cool → reduce heat generation
+      h(S.coolantFlow < 80 && lvFree('coolantFlow'),
+        'Raise COOLANT FLOW lever — coolant cools the heat sink');
+      h(!S.coolantPumps && swFree('coolantPumps'),
+        'Enable COOLANT PUMPS switch to restore heat sink cooling');
+      h(unlockedSubsystems && (!S.auxCoolPump || !S.auxCoolLoop),
+        'Enable AUX COOL PUMP + LOOP for additional heat sink cooling');
+      h(unlockedSubsystems && S.auxCoolPump && S.auxCoolLoop && S.auxCoolRate < 70 && lvFree('auxCoolRate'),
+        'Raise AUX COOL RATE lever for more cooling capacity');
+      h(S.mainThrottle > 35 && lvFree('mainThrottle'),
+        'Lower MAIN THROTTLE to reduce overall heat generation');
+      h(S.fuelInject > 35 && lvFree('fuelInject'),
+        'Lower FUEL INJECT to reduce plasma heat output');
+      break;
+    }
+
+    case 'auxCoolTemp': {
+      // Aux coolant temp rises from core heat; aux system COOLS it, not heats it
+      // Priority: run aux cooling at max → reduce core heat → check backup module
+      h(unlockedSubsystems && !S.auxCoolPump && swFree('auxCoolPump'),
+        'Enable AUX COOL PUMP — aux cooling circuit must run to manage aux temp');
+      h(unlockedSubsystems && S.auxCoolPump && !S.auxCoolLoop && swFree('auxCoolLoop'),
+        'Enable AUX COOL LOOP to complete the aux cooling circuit');
+      h(unlockedSubsystems && S.auxCoolPump && S.auxCoolLoop && S.auxCoolRate < 90 && lvFree('auxCoolRate'),
+        'Raise AUX COOL RATE lever to maximum to cool the aux circuit');
+      h(S.coreTemp > 4000,
+        'Reduce core temperature — high core temp is driving the aux coolant hot');
+      h(S.mainThrottle > 30 && lvFree('mainThrottle'),
+        'Lower MAIN THROTTLE to reduce core heat feeding the aux circuit');
+      h(S.modules.backup.status !== 'online',
+        'BACKUP SYSTEMS module degraded — aux cooling performance is reduced');
+      break;
+    }
+  }
+
+  return hints.slice(0, 3);
+}
+
+// Logs all critical hints for a gauge as individual 'warn' log entries.
+// Each line is prefixed with the gauge label for quick scanning.
+function fireCritHints(gaugeId, label) {
+  const hints = getCritHints(gaugeId);
+  hints.forEach(h => addLog('[' + label + '] ' + h, 'warn'));
+}

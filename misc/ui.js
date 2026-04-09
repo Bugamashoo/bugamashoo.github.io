@@ -31,11 +31,11 @@ function updateUI() {
   // Fuel
   const sensorOff = S.modules.sensor.status !== 'online';
   const fe = document.getElementById('disp_fuelRemaining');
-  if (fe) fe.textContent = sensorOff ? 'Sensor ERR' : S.fuelRemaining.toFixed(1);
+  if (fe) fe.textContent = sensorOff ? 'Sensor ERR' : S.fuelRemaining.toFixed(1) + '%';
   const fb = document.getElementById('bar_fuelRemaining');
   if (fb) { const fv = sensorOff && sensorNoise.fuelRemaining !== undefined ? parseFloat(sensorNoise.fuelRemaining) : S.fuelRemaining; fb.style.width = fv + '%'; fb.className = 'bar-fill ' + (fv < DISP_FUEL_RED ? 'red' : fv < DISP_FUEL_AMBER ? 'amber' : 'green'); }
   const fc = document.getElementById('disp_fuelConsump');
-  if (fc) fc.textContent = sensorOff ? 'Sensor ERR' : S.fuelConsump.toFixed(1);
+  if (fc) fc.textContent = sensorOff ? 'Sensor ERR' : S.fuelConsump.toFixed(2) + '%/min';
 
   // Toggle no-power CSS class - hides display values, zeros bars, hides warning row + seq steps
   document.body.classList.toggle('no-power', noPower);
@@ -78,18 +78,30 @@ function updateUI() {
       rvCore.setAttribute('fill', rvTempPct > 0.7 ? '#2a0808' : '#0a1520');
       rvCore.setAttribute('stroke', rvCoreClr);
       rvCore.setAttribute('stroke-width', (1 + rvIntens * 2.5).toFixed(1));
+      rvCore.setAttribute('stroke-opacity', '1');
       rvCore.setAttribute('filter', 'url(#rGlow)');
     } else if (sq > 0) {
       // Pre-ignition: core gradually wakes up
       const startupClr = sq >= 8 ? '#00e5ff' : '#1e4860';
       rvCore.setAttribute('fill', sq >= 5 ? '#0a1218' : '#0d1418');
       rvCore.setAttribute('stroke', startupClr);
-      rvCore.setAttribute('stroke-width', (1.5 + sqProg * 1).toFixed(1));
-      if (sq >= 8) rvCore.setAttribute('filter', 'url(#rGlow)'); else rvCore.removeAttribute('filter');
+      if (S.ignPrime) {
+        // ignPrime active: flicker stroke-width and opacity before ignition
+        const flicker = 0.5 + 0.5 * Math.sin(tick * 0.25);
+        rvCore.setAttribute('stroke-width', (1.5 + sqProg * 1 + flicker * 2.7).toFixed(1));
+        rvCore.setAttribute('stroke-opacity', (0.5 + flicker * 0.5).toFixed(2));
+        if (flicker > 0.85) rvCore.setAttribute('filter', 'url(#rGlow)');
+        else if (sq < 8) rvCore.removeAttribute('filter');
+      } else {
+        rvCore.setAttribute('stroke-width', (1.5 + sqProg * 1).toFixed(1));
+        rvCore.setAttribute('stroke-opacity', '1');
+        if (sq >= 8) rvCore.setAttribute('filter', 'url(#rGlow)'); else rvCore.removeAttribute('filter');
+      }
     } else {
       rvCore.setAttribute('fill', '#0d1418');
       rvCore.setAttribute('stroke', '#1e2830');
       rvCore.setAttribute('stroke-width', '1.5');
+      rvCore.setAttribute('stroke-opacity', '1');
       rvCore.removeAttribute('filter');
     }
   }
@@ -97,12 +109,26 @@ function updateUI() {
   // Core glow halo (radial gradient circle, scales with power)
   const rvGlow = document.getElementById('coreGlowCirc');
   if (rvGlow) {
-    rvGlow.setAttribute('r', rvOn ? (14 + rvIntens * 20).toFixed(1) : '22');
+    // Throttle breathing: radius gently pulses with main throttle (2.6)
+    // Mix ratio shifts glow radius slightly and tints s1 gradient color (2.8)
+    const rvMix = S.mixRatio / 100;
+    const rvThrottle = S.mainThrottle / 100;
+    const throttleBreathe = rvOn ? Math.sin(tick * 0.1) * rvThrottle * 3 : 0;
+    const mixRadBoost = rvMix * 3;
+    rvGlow.setAttribute('r', rvOn ? (14 + rvIntens * 20 + throttleBreathe + mixRadBoost).toFixed(1) : '22');
     rvGlow.setAttribute('opacity', rvOn ? (0.25 + rvIntens * 0.75).toFixed(2) : '0');
     const s0 = document.getElementById('cgS0');
     const s1 = document.getElementById('cgS1');
     if (s0) s0.setAttribute('stop-color', rvOn && S.coreTemp > 7000 ? '#ffcc44' : '#ffffff');
-    if (s1) s1.setAttribute('stop-color', rvCoreClr);
+    if (s1) {
+      // Mix ratio shifts color: 0% = pure cyan (#00e5ff), 100% = warm teal (rgb(50,185,125))
+      if (rvOn && S.coreTemp <= 5950) {
+        const mr = S.mixRatio / 100;
+        s1.setAttribute('stop-color', `rgb(${Math.round(mr*50)},${Math.round(229-mr*44)},${Math.round(255-mr*130)})`);
+      } else {
+        s1.setAttribute('stop-color', rvCoreClr);
+      }
+    }
     if (rvOn && rvIntens > 0.1) rvGlow.setAttribute('filter', 'url(#rGlowStr)');
     else rvGlow.removeAttribute('filter');
   }
@@ -126,6 +152,13 @@ function updateUI() {
     if (magActive && rvFlux > 0.2) rvR2.setAttribute('filter', 'url(#rGlow)'); else rvR2.removeAttribute('filter');
     const r2Spin = S.magneticFlux > 2 ? ' rviz-spin-med' : '';
     rvR2.setAttribute('class', 'rviz-ring' + r2Spin);
+    // Field tune jitter: ring2 trembles with fieldTune value (2.9)
+    if (S.fieldTune > 0 && magActive) {
+      const jit = (S.fieldTune / 100) * 1.5;
+      rvR2.setAttribute('transform', `translate(${((Math.random()-0.5)*jit).toFixed(2)},${((Math.random()-0.5)*jit).toFixed(2)})`);
+    } else {
+      rvR2.removeAttribute('transform');
+    }
   }
 
   // Ring 3 - containment field (outermost, slow spin)
@@ -137,6 +170,33 @@ function updateUI() {
     const r3Spin = contActive && S.containIntegrity > 40 ? ' rviz-spin-slow' : '';
     rvR3.setAttribute('class', 'rviz-ring' + r3Spin);
   }
+
+  // Contain field glow: blurred hex fill pulsing when containField switch active (3.2)
+  const cfGlow = document.getElementById('containFieldGlow');
+  if (cfGlow) {
+    if (S.containField && S.containPower > 20) {
+      const cfPulse = 0.5 + 0.5 * Math.sin(tick * 0.08);
+      cfGlow.setAttribute('opacity', (0.04 + rvContain * 0.08 * cfPulse).toFixed(3));
+      cfGlow.setAttribute('fill', rvContain < 0.3 ? '#ff2e2e' : '#00e5ff');
+    } else {
+      cfGlow.setAttribute('opacity', '0');
+    }
+  }
+
+  // Backup containment field arcs: sliding dashed segments (3.3)
+  ['backupFieldA', 'backupFieldB'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const sw = i === 0 ? S.backupContA : S.backupContB;
+    if (sw && S.backupContPow > 0) {
+      const bStr = Math.min(1, S.backupFieldStr / 100);
+      el.setAttribute('opacity', (0.3 + bStr * 0.6).toFixed(2));
+      el.setAttribute('stroke-dashoffset', ((tick * 0.4 + i * 30) % 20).toFixed(1));
+      el.setAttribute('stroke', bStr > 0.7 ? '#ff9f1c' : '#ffcc44');
+    } else {
+      el.setAttribute('opacity', '0');
+    }
+  });
 
   // Hex border + corner dots react to state + startup progress
   const rvBorder = document.getElementById('hexBorder');
@@ -150,11 +210,23 @@ function updateUI() {
     const dot = document.getElementById('rDot' + d);
     if (!dot) continue;
     if (rvOn) {
-      dot.setAttribute('fill', rvCoreClr); dot.setAttribute('filter', 'url(#rGlow)');
+      dot.setAttribute('fill', rvCoreClr);
+      dot.setAttribute('filter', 'url(#rGlow)');
+      // Grid sync: dots wave-pulse sequentially around hexagon (2.5)
+      if (S.gridSync) {
+        const wave = 0.5 + 0.5 * Math.sin(tick * 0.15 - d * Math.PI / 3);
+        dot.setAttribute('r', (2.5 + wave * 1.5).toFixed(1));
+        dot.setAttribute('opacity', (0.5 + wave * 0.5).toFixed(2));
+      } else {
+        dot.setAttribute('r', '2.5');
+        dot.setAttribute('opacity', '1');
+      }
     } else if (sq > 0 && d < Math.ceil(sq / 2)) {
       dot.setAttribute('fill', sq >= 8 ? '#00e5ff' : '#1e5870'); dot.removeAttribute('filter');
+      dot.setAttribute('r', '2.5'); dot.setAttribute('opacity', '1');
     } else {
       dot.setAttribute('fill', '#1e2830'); dot.removeAttribute('filter');
+      dot.setAttribute('r', '2.5'); dot.setAttribute('opacity', '1');
     }
   }
 
@@ -175,9 +247,20 @@ function updateUI() {
     }
     if (fuelFillEl) {
       fuelFillEl.setAttribute('fill', '#ff9f1c');
-      fuelFillEl.setAttribute('opacity', fuelActive ? (0.15 + fp * 0.7).toFixed(2) : '0');
+      // fuelPumps pulse: active pumping throb visible on fuel fill (2.1)
+      const fPumpPulse = S.fuelPumps ? (1 + 0.18 * Math.sin(tick * 0.28)) : 1;
+      fuelFillEl.setAttribute('opacity', fuelActive ? ((0.15 + fp * 0.7) * fPumpPulse).toFixed(2) : '0');
       if (fuelActive) fuelFillEl.setAttribute('filter', 'url(#rGlow)'); else fuelFillEl.removeAttribute('filter');
     }
+  }
+
+  // Emergency dump: override fuel indicator to flash bright red (2.10)
+  if (S.emergDump && fuelFillEl) {
+    fuelFillEl.setAttribute('fill', '#ff2e2e');
+    fuelFillEl.setAttribute('opacity', (0.6 + 0.4 * Math.abs(Math.sin(tick * 0.4))).toFixed(2));
+    fuelFillEl.setAttribute('filter', 'url(#rGlow)');
+  } else if (!S.emergDump && fuelFillEl) {
+    fuelFillEl.setAttribute('fill', '#ff9f1c');
   }
 
   // Coolant flow indicator (blue triangle, lower-right) - color shifts with coolant temp
@@ -198,7 +281,9 @@ function updateUI() {
     }
     if (coolFillEl) {
       coolFillEl.setAttribute('fill', coolClr);
-      coolFillEl.setAttribute('opacity', coolActive ? (0.15 + cp * 0.7).toFixed(2) : '0');
+      // coolantPumps pulse: active pumping throb on coolant fill (2.2)
+      const cPumpPulse = S.coolantPumps ? (1 + 0.15 * Math.sin(tick * 0.22 + 1.5)) : 1;
+      coolFillEl.setAttribute('opacity', coolActive ? ((0.15 + cp * 0.7) * cPumpPulse).toFixed(2) : '0');
       if (coolActive) coolFillEl.setAttribute('filter', 'url(#rGlow)'); else coolFillEl.removeAttribute('filter');
     }
   }
@@ -219,6 +304,19 @@ function updateUI() {
     radAura.setAttribute('opacity', (rvRad * 0.25).toFixed(3));
   }
 
+  // Rad shield hex: rotating dashed scan line, color/opacity scale with radiation (3.1)
+  const shieldHex = document.getElementById('shieldHex');
+  if (shieldHex) {
+    if (S.radShield) {
+      const shColor = rvRad > 0.67 ? '#ff2e2e' : rvRad > 0.33 ? '#ff9f1c' : '#39ff14';
+      shieldHex.setAttribute('stroke', shColor);
+      shieldHex.setAttribute('opacity', (0.35 + rvRad * 0.45).toFixed(2));
+      shieldHex.setAttribute('stroke-dashoffset', (tick * 0.3 % 12).toFixed(1));
+    } else {
+      shieldHex.setAttribute('opacity', '0');
+    }
+  }
+
   // Fuel arc - stroke-dasharray progress ring showing remaining fuel
   const fuelArc = document.getElementById('fuelArc');
   if (fuelArc) {
@@ -236,18 +334,106 @@ function updateUI() {
       turbEl.style.animationPlayState = 'running';
       turbEl.setAttribute('opacity', (0.15 + rvRPM * 0.55).toFixed(2));
       turbEl.setAttribute('stroke', rvRPM > 0.87 ? '#ff9f1c' : '#00e5ff');
+      // turbineEngage: engaged = normal dashes; disengaged = slipping drift (2.4)
+      if (S.turbineEngage) {
+        turbEl.setAttribute('stroke-dasharray', '3 7');
+        turbEl.removeAttribute('stroke-dashoffset');
+      } else {
+        turbEl.setAttribute('stroke-dasharray', '2 9');
+        turbEl.setAttribute('stroke-dashoffset', (tick * 0.4 % 22).toFixed(1));
+      }
     } else {
       turbEl.style.animationPlayState = 'paused';
       turbEl.setAttribute('opacity', '0');
     }
   }
 
+  // Turbine speed limiter ring: 3-tier warning with animated dashoffset (3.4)
+  const limRing = document.getElementById('limiterRing');
+  if (limRing) {
+    const safeMax = getTurbineSafeMax();
+    const rpmFrac = S.turbineRPM / safeMax;
+    if (rpmFrac > 0.88) {
+      // Near limit: red rapid flash + fast dashoffset
+      const lFlash = 0.4 + 0.6 * Math.abs(Math.sin(tick * 0.5));
+      limRing.setAttribute('opacity', lFlash.toFixed(2));
+      limRing.setAttribute('stroke', '#ff2e2e');
+      limRing.setAttribute('stroke-width', '2.5');
+      limRing.setAttribute('stroke-dashoffset', (tick * 0.6 % 10).toFixed(1));
+    } else if (rpmFrac > 0.75) {
+      // Warning zone: amber medium pulse
+      limRing.setAttribute('opacity', (0.4 + 0.3 * Math.sin(tick * 0.15)).toFixed(2));
+      limRing.setAttribute('stroke', '#ff9f1c');
+      limRing.setAttribute('stroke-width', '1.5');
+      limRing.setAttribute('stroke-dashoffset', (tick * 0.2 % 10).toFixed(1));
+    } else if (S.turbineRPM > 80) {
+      // Normal running: dim teal slow drift
+      limRing.setAttribute('opacity', '0.18');
+      limRing.setAttribute('stroke', '#00bcd4');
+      limRing.setAttribute('stroke-width', '1');
+      limRing.setAttribute('stroke-dashoffset', (tick * 0.08 % 10).toFixed(1));
+    } else {
+      limRing.setAttribute('opacity', '0');
+    }
+  }
+
+  // Vent system streaks: 6 radial exhaust lines, scale thickness with heat (3.5)
+  for (let i = 0; i < 6; i++) {
+    const vs = document.getElementById('vStr' + i);
+    if (!vs) continue;
+    if (S.ventSystem && S.auxPower) {
+      const heatW = 1 + rvHeat * 3;
+      const flicker = 0.6 + 0.4 * Math.sin(tick * 0.2 + i * 1.05);
+      vs.setAttribute('opacity', (0.4 + rvHeat * 0.5 * flicker).toFixed(2));
+      vs.setAttribute('stroke-width', heatW.toFixed(1));
+      vs.setAttribute('stroke', rvHeat > 0.7 ? '#ff9f1c' : '#00e5ff');
+    } else {
+      vs.setAttribute('opacity', '0');
+    }
+  }
+
+  // Emergency vent burst: pulsing spike lines at hex vertices (3.6)
+  for (let i = 0; i < 6; i++) {
+    const ev = document.getElementById('evb' + i);
+    if (!ev) continue;
+    if (S.emergVent) {
+      const burst = 0.5 + 0.5 * Math.abs(Math.sin(tick * 0.35 + i * 1.05));
+      ev.setAttribute('opacity', burst.toFixed(2));
+      ev.setAttribute('stroke-width', (1.5 + burst * 2).toFixed(1));
+    } else {
+      ev.setAttribute('opacity', '0');
+    }
+  }
+
   // Pressure pulse - pulsing ring, frequency and intensity driven by core pressure
+  // pressureRelief knob scales ring radius: higher relief = larger pulse radius (2.7)
   const pressPulse = document.getElementById('pressPulse');
   if (pressPulse) {
+    const rvRelief = S.pressureRelief / 100;
+    pressPulse.setAttribute('r', (16 + rvRelief * 12).toFixed(1));
     const pOp = rvPres > 0.1 ? (0.2 + rvPres * 0.55) * Math.abs(Math.sin(tick * (0.04 + rvPres * 0.18))) : 0;
     pressPulse.setAttribute('opacity', pOp.toFixed(3));
     pressPulse.setAttribute('stroke', rvPres > 0.83 ? '#ff2e2e' : rvPres > 0.67 ? '#ff9f1c' : '#00e5ff');
+  }
+
+  // Aux cooling orbit dots: 3 dots orbit at r=35 when auxCoolPump active (3.7)
+  if (tick % 2 === 0) {
+    const auxActive = S.auxCoolPump && S.auxPower;
+    for (let i = 0; i < 3; i++) {
+      const dot = document.getElementById('aOrb' + i);
+      if (!dot) continue;
+      if (auxActive && S.auxCoolFlow > 0) {
+        const orbitSpeed = 0.015 + (S.auxCoolFlow / 100) * 0.055;
+        const a = tick * orbitSpeed + (i * Math.PI * 2 / 3);
+        dot.setAttribute('cx', (70 + 35 * Math.cos(a)).toFixed(1));
+        dot.setAttribute('cy', (62.5 + 35 * Math.sin(a)).toFixed(1));
+        dot.setAttribute('opacity', (0.5 + (S.auxCoolFlow / 100) * 0.5).toFixed(2));
+        dot.setAttribute('fill', S.auxCoolTemp > SAFE_AUXCOOL_RED ? '#ff9f1c' : '#00bfff');
+        dot.setAttribute('filter', 'url(#rGlow)');
+      } else {
+        dot.setAttribute('opacity', '0');
+      }
+    }
   }
 
   // Neutron cloud dots - 8 dots flicker with neutron density (updated every 2 ticks)
@@ -278,6 +464,25 @@ function updateUI() {
     el.setAttribute('opacity', pct > 0 ? (0.5 + pct * 0.5).toFixed(2) : '0');
   });
 
+  // Backup generator glow: amber halo + pulse ring behind core hex (3.8)
+  const bkGlow = document.getElementById('backupGlow');
+  const bkRing = document.getElementById('backupGlowRing');
+  if (bkGlow && bkRing) {
+    if (S.backupGen) {
+      const bkOut = Math.min(1, (S.backupGenOutput || 0) / 2);
+      const bkPhase = tick * 0.08;
+      const bkPulse = 0.5 + 0.5 * Math.sin(bkPhase);
+      const bkAnti  = 0.5 + 0.5 * Math.sin(bkPhase + Math.PI);
+      bkGlow.setAttribute('r', (14 + bkOut * 6 + bkPulse * 4).toFixed(1));
+      bkGlow.setAttribute('opacity', (0.30 + bkOut * 0.40 * bkPulse).toFixed(2));
+      bkRing.setAttribute('r', (18 + bkAnti * 8).toFixed(1));
+      bkRing.setAttribute('opacity', (0.25 + bkOut * 0.35 * bkAnti).toFixed(2));
+    } else {
+      bkGlow.setAttribute('opacity', '0');
+      bkRing.setAttribute('opacity', '0');
+    }
+  }
+
   // Electrical arcs (updated every 3 ticks ~ 0.15s)
   if (tick % 3 === 0) {
     const instab   = rvOn ? Math.max(0, (100 - S.plasmaStability) / 100) : 0;
@@ -294,12 +499,19 @@ function updateUI() {
         let d;
         const arcType = i % 3; // 0=2-seg thin, 1=3-seg jagged, 2=off-center branch
         if (arcType === 0) {
-          // Two-segment arc from center
+          // Two-segment arc from center; fork branch when arc reaches far (4.1)
           const jx = rvCX + (ex - rvCX) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 20;
           const jy = rvCY + (ey - rvCY) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 20;
           d = `M${rvCX} ${rvCY} L${jx.toFixed(1)} ${jy.toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          if (reach > 30 && Math.random() < rvIntens * 0.7) {
+            const fa = angle + (Math.random() - 0.5) * 1.2;
+            const fr = reach * (0.3 + Math.random() * 0.35);
+            const fx = (jx + fr * Math.cos(fa)).toFixed(1);
+            const fy = (jy + fr * Math.sin(fa)).toFixed(1);
+            d += ` M${jx.toFixed(1)} ${jy.toFixed(1)} L${fx} ${fy}`;
+          }
         } else if (arcType === 1) {
-          // Three-segment jagged arc from center
+          // Three-segment jagged arc from center; Y-fork from second joint when far (4.1)
           const t1 = 0.25 + Math.random() * 0.25;
           const t2 = 0.55 + Math.random() * 0.25;
           const j1x = rvCX + (ex - rvCX) * t1 + (Math.random() - 0.5) * 26;
@@ -307,6 +519,13 @@ function updateUI() {
           const j2x = rvCX + (ex - rvCX) * t2 + (Math.random() - 0.5) * 16;
           const j2y = rvCY + (ey - rvCY) * t2 + (Math.random() - 0.5) * 16;
           d = `M${rvCX} ${rvCY} L${j1x.toFixed(1)} ${j1y.toFixed(1)} L${j2x.toFixed(1)} ${j2y.toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)}`;
+          if (reach > 30 && Math.random() < rvIntens * 0.6) {
+            const fa1 = angle + 0.4 + Math.random() * 0.5;
+            const fa2 = angle - 0.4 - Math.random() * 0.5;
+            const fr = (reach - Math.hypot(j2x - rvCX, j2y - rvCY)) * (0.4 + Math.random() * 0.3);
+            d += ` M${j2x.toFixed(1)} ${j2y.toFixed(1)} L${(j2x + fr*Math.cos(fa1)).toFixed(1)} ${(j2y + fr*Math.sin(fa1)).toFixed(1)}`;
+            d += ` M${j2x.toFixed(1)} ${j2y.toFixed(1)} L${(j2x + fr*Math.cos(fa2)).toFixed(1)} ${(j2y + fr*Math.sin(fa2)).toFixed(1)}`;
+          }
         } else {
           // Branch arc: starts offset from center, shorter reach
           const bAngle = Math.random() * Math.PI * 2;
@@ -344,12 +563,22 @@ function updateUI() {
   setW('warnSysFault',    activeErrors >= 6 ? 'red' : activeErrors >= 2 ? 'amber' : '');
   setW('warnEvent',       S.activeEvent            ? 'red'   : '');
   // Sequence steps
+  const HOLD_IGN_STEP = SEQUENCE.findIndex(s => s.label === 'HOLD IGN 3s');
   for (let i = 0; i < SEQUENCE.length; i++) {
     const e = document.getElementById('seq_' + i);
     if (!e) continue;
     e.classList.remove('active','complete');
     if (i < S.seqStep)        e.classList.add('complete');
     else if (i === S.seqStep) e.classList.add('active');
+  }
+  // Mobile IGN arrow: show when HOLD IGN step is the active pending step
+  const ignArrow = document.getElementById('seqIgnArrow');
+  if (ignArrow) {
+    if (S.seqStep === HOLD_IGN_STEP && S.reactorState === 'STARTUP') {
+      ignArrow.classList.add('mobile-show');
+    } else {
+      ignArrow.classList.remove('mobile-show');
+    }
   }
 
   // Header status bar
@@ -398,8 +627,11 @@ function updateUI() {
     drawG('mon_radiation', monHist.radiation, 'rgb(255,46,46)',   DISP_RAD_MAX,          'mSv');
   }
 
-  // Systems tab (throttled rebuild)
-  if (document.getElementById('tab-systems').classList.contains('active') && tick % 40 === 0) buildSys();
+  // Systems tab — rebuild on sysDirty flag (module status/health changed) or periodic tick
+  if (document.getElementById('tab-systems').classList.contains('active') && (sysDirty || tick % 40 === 0)) {
+    sysDirty = false;
+    buildSys();
+  }
 
   // Resupply tab (patch values only - no DOM rebuild)
   if (document.getElementById('tab-resupply').classList.contains('active') && tick % 20 === 0) updateResupplyValues();

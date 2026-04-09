@@ -51,14 +51,105 @@ buildDG('emergReadings',     [{ id:'rodPosition',    label:'ROD INS',      color
 
 // Startup sequence steps
 (function() {
+  // Map each seq step index to a CSS selector for the corresponding control
+  const SEQ_CTRL_SEL = [
+    '[data-switch="auxPower"]',    // 0 AUX POWER
+    '[data-switch="radShield"]',   // 1 RAD SHIELDING
+    '[data-switch="fuelPumps"]',   // 2 FUEL PUMPS
+    '[data-switch="coolantPumps"]',// 3 COOLANT PUMPS
+    '[data-lever="coolantFlow"]',  // 4 COOLANT >60%
+    '[data-switch="magCoils"]',    // 5 MAG COILS
+    '[data-lever="containPower"]', // 6 CONTAIN >60%
+    '[data-lever="fuelInject"]',   // 7 FUEL INJ >10%
+    '[data-switch="ignPrime"]',    // 8 IGN PRIME
+    '#ignBtn',                     // 9 HOLD IGN 3s
+    '[data-lever="mainThrottle"]', // 10 THROTTLE >20%
+    '[data-switch="turbineEngage"]',// 11 TURBINE
+    '[data-switch="gridSync"]'     // 12 GRID SYNC
+  ];
+
+  // Pointer arrow for off-screen targeting
+  const arrow = document.createElement('div');
+  arrow.id = 'seqPointerArrow';
+  arrow.textContent = '▶';
+  arrow.style.display = 'none';
+  document.body.appendChild(arrow);
+
+  let activeCtrl = null;
+  let rafId = 0;
+
+  function positionArrow() {
+    if (!activeCtrl) return;
+    const rect = activeCtrl.getBoundingClientRect();
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const visible = rect.top >= 0 && rect.bottom <= h &&
+                    rect.left >= 0 && rect.right <= w;
+    if (visible) {
+      arrow.style.display = 'none';
+    } else {
+      const tx = (rect.left + rect.right) / 2;
+      const ty = (rect.top + rect.bottom) / 2;
+      const pad = 18;
+      // Closest point on viewport edge to the target
+      const ax = Math.max(pad, Math.min(w - pad, tx));
+      const ay = Math.max(pad, Math.min(h - pad, ty));
+      const angle = Math.atan2(ty - ay, tx - ax) * 180 / Math.PI;
+      arrow.style.display = 'block';
+      arrow.style.left = (ax - 12) + 'px';
+      arrow.style.top  = (ay - 12) + 'px';
+      arrow.style.transform = `rotate(${angle}deg)`;
+    }
+  }
+
+  function onScroll() {
+    if (!activeCtrl) return;
+    if (!rafId) {
+      rafId = requestAnimationFrame(() => { rafId = 0; positionArrow(); });
+    }
+  }
+
+  // Track scrolling on the controls tab to update the arrow direction
+  const tabControls = document.getElementById('tab-controls');
+  if (tabControls) tabControls.addEventListener('scroll', onScroll, { passive: true });
+
+  const HOLD_IGN_INDEX = SEQUENCE.findIndex(s => s.label === 'HOLD IGN 3s');
+
   SEQUENCE.forEach((s, i) => {
     const e = document.createElement('div');
     e.className = 'seq-step';
     e.id = 'seq_' + i;
-    e.innerHTML = `<div class="seq-dot"></div><div class="seq-label">${i+1}. ${s.label}</div>`;
+    let inner = `<div class="seq-dot"></div><div class="seq-label">${i+1}. ${s.label}</div>`;
+    // Mobile arrow on the HOLD IGN step
+    if (i === HOLD_IGN_INDEX) {
+      inner += `<div class="seq-ign-arrow" id="seqIgnArrow">▼ HOLD IGN BUTTON ▼</div>`;
+    }
+    e.innerHTML = inner;
     document.getElementById('seqSteps').appendChild(e);
+
+    // Seq step hover → highlight control + scroll-aware arrow
+    const sel = SEQ_CTRL_SEL[i];
+    e.addEventListener('mouseenter', function() {
+      if (!sel) return;
+      const ctrl = document.querySelector(sel);
+      if (!ctrl) return;
+      if (activeCtrl && activeCtrl !== ctrl) activeCtrl.classList.remove('seq-highlight');
+      activeCtrl = ctrl;
+      ctrl.classList.add('seq-highlight');
+      positionArrow();
+    });
+    e.addEventListener('mouseleave', function() {
+      if (!sel) return;
+      if (activeCtrl) {
+        activeCtrl.classList.remove('seq-highlight');
+        activeCtrl = null;
+      }
+      arrow.style.display = 'none';
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+    });
   });
 })();
+
 
 // Monitor canvas grid
 (function() {

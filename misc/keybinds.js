@@ -10,10 +10,10 @@
 
   // ── Lever mappings: key → [leverId, value] ──
   const LEVER_KEYS = {
-    q:['containPower',100], a:['containPower',50], z:['containPower',0],
-    w:['fuelInject',100],   s:['fuelInject',50],   x:['fuelInject',0],
-    e:['mainThrottle',100], d:['mainThrottle',50],  c:['mainThrottle',0],
-    r:['coolantFlow',100],  f:['coolantFlow',50],   v:['coolantFlow',0]
+    q:['containPower',100], a:['containPower',60], z:['containPower',20],
+    w:['fuelInject',100],   s:['fuelInject',60],   x:['fuelInject',20],
+    e:['mainThrottle',100], d:['mainThrottle',60],  c:['mainThrottle',20],
+    r:['coolantFlow',100],  f:['coolantFlow',60],   v:['coolantFlow',20]
   };
 
   // ── Knob mappings: key → [knobId, value] ──
@@ -33,6 +33,18 @@
       S.totalEarned += 100000000;
       addLog('DEBUG: +$100m', 'sys');
       setTimeout(() => { cheatCooldown = false; }, 500);
+    }
+  }
+
+  // ── Fast-forward cheat: press ', ] and = simultaneously ──
+  const FAST_KEYS = new Set(["'", ']', '=']);
+  const fastHeld  = new Set();
+  let fastCheatCooldown = false;
+  function checkFastCheat() {
+    if (FAST_KEYS.size === fastHeld.size && [...FAST_KEYS].every(k => fastHeld.has(k)) && !fastCheatCooldown) {
+      fastCheatCooldown = true;
+      toggleFastMode();
+      setTimeout(() => { fastCheatCooldown = false; }, 500);
     }
   }
 
@@ -173,6 +185,9 @@
     const ck = e.key.toLowerCase();
     if (ck in cheatKeys) { cheatKeys[ck] = true; checkCheat(); }
 
+    // Fast-forward cheat tracking
+    if (FAST_KEYS.has(e.key)) { fastHeld.add(e.key); checkFastCheat(); }
+
     // ESC — SCRAM hold (works regardless of tab)
     if (e.key === 'Escape') {
       e.preventDefault();
@@ -202,6 +217,23 @@
       spaceHeld = true;
       document.getElementById('ignBtn').classList.add('active-amber');
       sI();
+      return;
+    }
+
+    // ',' / '.' — navigate to previous/next tab
+    if (e.key === ',' || e.key === '.') {
+      e.preventDefault();
+      const allBtns = Array.from(document.querySelectorAll('.tab-btn'));
+      // Only consider non-locked, currently visible buttons
+      const btns = allBtns.filter(b =>
+        !b.classList.contains('tab-locked') && b.offsetParent !== null
+      );
+      if (btns.length < 2) return;
+      const curIdx = btns.findIndex(b => b.classList.contains('active'));
+      const nextIdx = e.key === '.'
+        ? (curIdx + 1) % btns.length
+        : (curIdx - 1 + btns.length) % btns.length;
+      btns[nextIdx].click();
       return;
     }
 
@@ -272,6 +304,7 @@
   document.addEventListener('keyup', function(e) {
     const ckUp = e.key.toLowerCase();
     if (ckUp in cheatKeys) cheatKeys[ckUp] = false;
+    if (FAST_KEYS.has(e.key)) fastHeld.delete(e.key);
     if (!window.introStarted) return;
     if (e.key === 'Escape') {
       if (escHoldTimer) { clearTimeout(escHoldTimer); escHoldTimer = null; }

@@ -93,5 +93,11 @@ const REPAIR_SPEED_MULT           = [0.5, 0.7, 1.0, 1.5, 2.15, 3.0];  // [base, 
 const REPAIR_COST_MULT            = [0.25, 0.35, 0.5, 0.75, 1.075, 1.5]; // cost mult at each tier
 const UPGRADE_REPAIR_SPEED_COST   = [15000, 50000, 150000, 400000, 1000000]; // Base cost per tier
 
+// DIAG ALL (Diagnose All sweep) speed upgrade
+const DIAG_ALL_BASE_MULT         = 0.1;   // Per-module speed for base Diag All sweep (0.1× = 10× slower than manual single diag)
+const DIAG_ALL_SPEED_TIERS       = [0.1, 0.2, 0.4]; // Per-module speed tiers: T0=0.1×  T1=0.2×  T2=0.4× (max)
+const SPEC_UPG_DIAG_SPEED_TIERS  = 2;   // Number of purchasable tiers (T1 and T2 can be bought; T0 = no upgrade)
+const SPEC_UPG_DIAG_SPEED_COSTS  = [150000, 600000]; // Cost to buy T1, then T2
+
 // FUEL+MONEY EXHAUSTION
 const FUEL_MONEY_GAMEOVER_DELAY  = 100;    // Ticks with fuel=0 AND money=0 before game over (5s grace)

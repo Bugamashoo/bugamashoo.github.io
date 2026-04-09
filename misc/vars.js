@@ -28,16 +28,19 @@ const AUX_COOL_IDLE   = 12;   // Idle aux coolant temperature (°C)
 
 // STARTUP SEQUENCE THRESHOLDS
 // Minimum lever positions required to advance the startup checklist.
-const SEQ_CONTAIN_MIN   = 60;  // Containment power must be >= this % (step 6)
-const SEQ_FUEL_INJ_MIN  = 10;  // Fuel injection must be >= this % (step 7)
-const SEQ_THROTTLE_MIN  = 20;  // Main throttle must be >= this % (step 10)
+const SEQ_COOLANT_MIN   = 60;  // Coolant flow must be >= this % (step 5)
+const SEQ_CONTAIN_MIN   = 60;  // Containment power must be >= this % (step 7)
+const SEQ_FUEL_INJ_MIN  = 10;  // Fuel injection must be >= this % (step 8)
+const SEQ_THROTTLE_MIN  = 20;  // Main throttle must be >= this % (step 11)
 const IGN_HOLD_MS       = 3000; // Milliseconds the ignition button must be held to fire plasma
+const IGN_HOLD_TICKS    = Math.round(IGN_HOLD_MS / SIM_INTERVAL_MS);  // 60 ticks (3s)
 
 // FUEL SYSTEM
 // Fuel consumption rates and plasma extinction thresholds.
 const FUEL_CONSUME_RATE    = 0.005;  // Fuel drained per 1% injection per dt (base rate)
 const FUEL_CONSUME_DISPLAY = 0.3;    // Scale factor for the fuelConsump readout (visual only)
 const FUEL_CONSUME_DECAY   = 0.9;    // Per-tick decay of fuelConsump when not igniting (fraction)
+const FUEL_CONSUMP_LERP    = 1 / 600; // Lerp rate for fuelConsump display value (~30s to settle, same as pump spindown)
 const FUEL_DUMP_DRAIN      = 0.5;    // Fuel drained per second when emergency dump is active (%)
 const BACKUP_GEN_FUEL_DRAIN = 0.0001; // Fuel % drained per tick when backup generator is on (~medium reactor consumption)
 const FUEL_PUMP_SPINDOWN_RATE    = 1 / 600;  // Flow decrease per tick when fuel pumps go offline (~30s to zero at 20Hz)
@@ -260,6 +263,7 @@ const EVT_TIME_AUX_POWER_FAULT  = 30;
 
 // De-escalation phase (after all steps complete, hold controls steady to resolve)
 const DEESC_HOLD_MS   = 15000; // Milliseconds of stable controls required to resolve the event
+const DEESC_HOLD_TICKS = Math.round(DEESC_HOLD_MS / SIM_INTERVAL_MS); // 300 ticks (15s)
 const DEESC_TOLERANCE = 2;     // +- units of change allowed in a tracked control before timer resets
 
 // Game-over screen
@@ -280,6 +284,7 @@ const PLASMA_OFF_RESET_SECS   = 10;   // Seconds plasma must be off before uptim
 const SCORE_DIVISOR           = 3500; // Score increments +1 every floor(SCORE_DIVISOR / MW) ticks
 const HEALTH_ALERT_THRESHOLDS = [75, 50, 25, 10, 5]; // Health % levels that trigger log alerts
 const PERIODIC_WARN_TICKS     = 80;   // Ticks between periodic system warning log messages
+const CRIT_HINT_RETRIGGER_TICKS = 400; // Ticks between repeated control hints while a gauge stays critical (~20s)
 
 // INTRO OVERLAY
 const INTRO_TITLE            = "Buga's Reactor Command";

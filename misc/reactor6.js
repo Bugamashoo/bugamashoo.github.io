@@ -19,6 +19,7 @@ function buildSys() {
     `<div style="display:flex;flex-direction:column;gap:6px">` +
       `<button class="mod-btn" style="width:100%" onclick="powerAllMods()">${allOnline ? 'POWER ALL OFF' : 'POWER ALL ON'}</button>` +
       `<button class="mod-btn" style="width:100%" onclick="rstAllMods()">RESTART ALL</button>` +
+      `<button class="mod-btn${diagAllActive ? ' active-mode' : ''}" style="width:100%" onclick="${diagAllActive ? 'cancelDiagAll()' : 'showDiagAllConfirm()'}">${diagAllActive ? 'CANCEL SWEEP' : 'DIAGNOSE ALL (SLOW)'}</button>` +
       `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px">` +
         `<button class="mod-btn" onclick="setAllMode('normal')">ALL NORMAL</button>` +
         `<button class="mod-btn ${modeUnlocks.overclock<1?'locked':''}" onclick="${modeUnlocks.overclock<1?'showToast(toastLockedOverclock)':'setAllMode(\'overclock\')'}">${modeUnlocks.overclock<1?'LOCKED':'ALL OVERCLOCK'}</button>` +
@@ -104,27 +105,17 @@ window.setMode = function(k, mode) {
 window.powerAllMods = function() {
   const allOnline = Object.values(S.modules).every(m => m.status !== 'offline');
   // Cancel all existing power transitions
-  Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
+  Object.keys(modPowerTimers).forEach(k => { delete modPowerTimers[k]; });
   if (allOnline) {
     addLog('ALL MODULES POWERING OFF...', 'warn');
-    Object.entries(S.modules).forEach(([k, m]) => {
-      modPowerTimers[k] = { dir: 'off', id: setTimeout(() => {
-        m.status = 'offline'; m.mode = 'normal';
-        m.sysError = false; m.sysErrorVisible = false;
-        m.errorPenalty = 1; m.errorCount = 0;
-        delete modPowerTimers[k];
-        buildSys();
-      }, MODULE_POWER_TRANSITION_MS) };
+    Object.entries(S.modules).forEach(([k]) => {
+      modPowerTimers[k] = { dir: 'off', endTick: tick + MODULE_POWER_TRANSITION_TICKS };
     });
   } else {
     addLog('ALL MODULES POWERING ON...', 'ok');
     Object.entries(S.modules).forEach(([k, m]) => {
       if (m.status === 'offline') {
-        modPowerTimers[k] = { dir: 'on', id: setTimeout(() => {
-          m.status = 'online';
-          delete modPowerTimers[k];
-          buildSys();
-        }, MODULE_POWER_TRANSITION_MS) };
+        modPowerTimers[k] = { dir: 'on', endTick: tick + MODULE_POWER_TRANSITION_TICKS };
       }
     });
   }
@@ -133,21 +124,20 @@ window.powerAllMods = function() {
 
 window.rstAllMods = function() {
   addLog('RESTARTING ALL MODULES...', 'warn');
-  Object.keys(modPowerTimers).forEach(k => { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; });
+  Object.keys(modPowerTimers).forEach(k => { delete modPowerTimers[k]; });
+  Object.keys(rstEndTicks).forEach(k => { delete rstEndTicks[k]; });
   if (diagTarget) { diagTarget = null; diagStart = 0; }
+  if (diagAllActive) cancelDiagAll();
   bypassRestartTarget = null;
   rstTargets.clear();
   Object.entries(S.modules).forEach(([k, m]) => {
     m.status = 'offline'; m.mode = 'normal';
     m.sysError = false; m.sysErrorVisible = false;
     m.errorPenalty = 1; m.errorCount = 0;
+    rstEndTicks[k] = tick + MODULE_RESTART_TICKS;
+    rstTargets.add(k);
   });
   buildSys();
-  setTimeout(() => {
-    Object.entries(S.modules).forEach(([, m]) => { m.status = 'online'; });
-    addLog('ALL MODULES ONLINE', 'ok');
-    buildSys();
-  }, MODULE_RESTART_MS);
 };
 
 window.setAllMode = function(mode) {
@@ -169,7 +159,6 @@ window.powerMod = function(k) {
   const m = S.modules[k];
   // If already transitioning, cancel it
   if (modPowerTimers[k]) {
-    clearTimeout(modPowerTimers[k].id);
     delete modPowerTimers[k];
     addLog(m.name + ' power transition cancelled', 'sys');
     buildSys();
@@ -177,22 +166,10 @@ window.powerMod = function(k) {
   }
   if (m.status !== 'offline') {
     addLog(m.name + ' powering off...', 'warn');
-    modPowerTimers[k] = { dir: 'off', id: setTimeout(() => {
-      m.status = 'offline'; m.mode = 'normal';
-      m.sysError = false; m.sysErrorVisible = false;
-      m.errorPenalty = 1; m.errorCount = 0;
-      delete modPowerTimers[k];
-      addLog(m.name + ' POWERED OFF', 'warn');
-      buildSys();
-    }, MODULE_POWER_TRANSITION_MS) };
+    modPowerTimers[k] = { dir: 'off', endTick: tick + MODULE_POWER_TRANSITION_TICKS };
   } else {
     addLog(m.name + ' powering on...', 'ok');
-    modPowerTimers[k] = { dir: 'on', id: setTimeout(() => {
-      m.status = 'online';
-      delete modPowerTimers[k];
-      addLog(m.name + ' POWERED ON', 'ok');
-      buildSys();
-    }, MODULE_POWER_TRANSITION_MS) };
+    modPowerTimers[k] = { dir: 'on', endTick: tick + MODULE_POWER_TRANSITION_TICKS };
   }
   buildSys();
 };
@@ -202,25 +179,14 @@ window.rstMod = function(k) {
   const wasBypassed = m.mode === 'bypass';
   addLog('Restarting ' + m.name + (wasBypassed ? ' (bypass)' : '') + '...', 'sys');
   // Cancel power transition and diagnosis if targeting this module
-  if (modPowerTimers[k]) { clearTimeout(modPowerTimers[k].id); delete modPowerTimers[k]; }
+  if (modPowerTimers[k]) { delete modPowerTimers[k]; }
   if (diagTarget === k) { diagTarget = null; diagStart = 0; }
   rstTargets.add(k);
   if (wasBypassed) {
-    // Bypass restart: stays online in bypass mode, errors cleared after 5s
+    // Bypass restart: stays online in bypass mode, errors cleared after restart timer
     bypassRestartTarget = k;
+    rstEndTicks[k] = tick + MODULE_RESTART_TICKS;
     buildSys();
-    setTimeout(() => {
-      m.sysError = false;
-      m.sysErrorVisible = false;
-      m.errorPenalty = 1;
-      m.errorCount = 0;
-      bypassRestartTarget = null;
-      rstTargets.delete(k);
-      if (k === 'comms') syncCommsLocks();
-      if (k === 'sensor') syncSensorFaults();
-      addLog(m.name + ' errors cleared (bypass)', 'ok');
-      buildSys();
-    }, MODULE_RESTART_MS);
   } else {
     m.status = 'offline';
     m.mode = 'normal';
@@ -230,13 +196,8 @@ window.rstMod = function(k) {
     m.errorCount = 0;
     if (k === 'comms') syncCommsLocks();
     if (k === 'sensor') syncSensorFaults();
+    rstEndTicks[k] = tick + MODULE_RESTART_TICKS;
     buildSys();
-    setTimeout(() => {
-      m.status = 'online';
-      rstTargets.delete(k);
-      addLog(m.name + ' ONLINE', 'ok');
-      buildSys();
-    }, MODULE_RESTART_MS);
   }
 };
 
@@ -254,10 +215,16 @@ window.toggleRepair = function(k) {
 window.diagMod = function(k) {
   const m = S.modules[k];
   if (diagTarget === k) {
-    // Cancel current diagnosis
+    // Cancel current diagnosis (and sweep if it's part of one)
     diagTarget = null; diagStart = 0;
     addLog('Diagnosis cancelled: ' + m.name, 'sys');
+    if (diagAllActive) cancelDiagAll();
     buildSys();
+    return;
+  }
+  // If a sweep is active and the user tries to start a manual diag, show confirm to cancel sweep
+  if (diagAllActive) {
+    showDiagAllConfirm('interrupting', k);
     return;
   }
   if (diagTarget !== null) {
@@ -265,10 +232,167 @@ window.diagMod = function(k) {
     return;
   }
   diagTarget = k;
-  diagStart = Date.now();
-  diagDuration = (DIAG_DURATION_BASE_MS + Math.random() * DIAG_DURATION_RANGE_MS) * (m.mode === 'bypass' ? DIAG_BYPASS_MULT : 1); // 1-5s normal; 0.5-2.5s in bypass
+  diagStart = tick;
+  diagDuration = Math.round((DIAG_DURATION_BASE_TICKS + Math.random() * DIAG_DURATION_RANGE_TICKS) * (m.mode === 'bypass' ? DIAG_BYPASS_MULT : 1));
   addLog('Diagnosing ' + m.name + '...', 'sys');
   buildSys();
 };
+
+// ── Diagnose All sweep functions ─────────────────────────────────────────────
+
+// Returns the diagnosis speed multiplier for the current diagSpeed upgrade tier
+function getDiagAllSpeedMult() {
+  const tier = specialUpgrades.diagSpeed || 0;
+  return DIAG_ALL_SPEED_TIERS[Math.min(tier, DIAG_ALL_SPEED_TIERS.length - 1)] || DIAG_ALL_BASE_MULT;
+}
+
+// Show the confirm dialog before starting a sweep (or when interrupting one with a manual diag)
+// mode: 'start' | 'interrupting' | 'sweepOverride'
+window.showDiagAllConfirm = function(mode, pendingKey) {
+  const overlay = document.getElementById('diagAllConfirm');
+  const title   = document.getElementById('diagAllConfirmTitle');
+  const msg     = document.getElementById('diagAllConfirmMsg');
+  const yes     = document.getElementById('diagAllConfirmYes');
+  const no      = document.getElementById('diagAllConfirmNo');
+  if (!overlay) return;
+
+  if (mode === 'interrupting') {
+    // Manual diag was clicked while sweep is active
+    title.textContent = 'INTERRUPT SWEEP?';
+    msg.innerHTML = `Diagnosing <strong style="color:#e0e4ea">${S.modules[pendingKey].name}</strong> manually will cancel the current Diagnose All sweep. Continue?<br><br><span style="color:var(--amber)">Manual diagnosis is faster than a sweep.</span>`;
+    yes.onclick = () => {
+      cancelDiagAll();
+      // Start the manual diag now
+      diagTarget = pendingKey;
+      diagStart = tick;
+      const m = S.modules[pendingKey];
+      diagDuration = Math.round((DIAG_DURATION_BASE_TICKS + Math.random() * DIAG_DURATION_RANGE_TICKS) * (m.mode === 'bypass' ? DIAG_BYPASS_MULT : 1));
+      addLog('Diagnosing ' + m.name + '...', 'sys');
+      overlay.style.display = 'none';
+      buildSys();
+    };
+  } else if (mode === 'sweepOverride') {
+    // Diag All was clicked while a manual diagnosis was in progress
+    title.textContent = 'START SWEEP?';
+    msg.innerHTML = `A diagnosis of <strong style="color:#e0e4ea">${S.modules[diagTarget].name}</strong> is in progress. Starting a sweep will cancel it and diagnose all modules in sequence.<br><br><span style="color:var(--amber)">⚠ Sweep diagnosis is slower than manual — proceed?</span>`;
+    yes.onclick = () => {
+      overlay.style.display = 'none';
+      _launchDiagAll();
+    };
+  } else {
+    // Normal start — no second argument needed
+    const speedMult  = getDiagAllSpeedMult();
+    const count      = Object.keys(S.modules).length;
+    const avgDiagTicks = (DIAG_DURATION_BASE_TICKS + DIAG_DURATION_RANGE_TICKS / 2) / speedMult;
+    const estTotalSec  = Math.round(avgDiagTicks * count / 20);
+    const estFmt = estTotalSec >= 60
+      ? Math.floor(estTotalSec / 60) + 'm ' + (estTotalSec % 60) + 's'
+      : estTotalSec + 's';
+    title.textContent = 'DIAGNOSE ALL MODULES?';
+    msg.innerHTML =
+      `<span style="color:var(--amber);font-weight:700">⚠ Each module takes significantly longer to diagnose during a sweep than when diagnosing manually — individual diagnosis is always faster.</span>` +
+      `<br><br>` +
+      `Scans all ${count} modules one-by-one and reveals any hidden system errors.` +
+      `<br><br>` +
+      `Estimated sweep time: <strong style="color:#e0e4ea">~${estFmt}</strong>`;
+    yes.onclick = () => {
+      overlay.style.display = 'none';
+      if (diagTarget !== null) {
+        showDiagAllConfirm('sweepOverride');
+        return;
+      }
+      _launchDiagAll();
+    };
+  }
+
+  no.onclick = () => { overlay.style.display = 'none'; };
+  overlay.style.display = 'flex';
+
+  // Show first-use tutorial toast
+  if (!diagAllToasted) {
+    diagAllToasted = true;
+    showToast(toastDiagAllFirstUse);
+  }
+};
+
+// Called when the confirm dialog is accepted — initializes the sweep
+function _launchDiagAll() {
+  if (diagTarget !== null) { diagTarget = null; diagStart = 0; }
+  diagAllActive  = true;
+  diagAllQueue   = Object.keys(S.modules);
+  diagAllIndex   = 0;
+  diagAllResults = [];
+  addLog('DIAGNOSE ALL: sweep started (' + diagAllQueue.length + ' modules)', 'sys');
+  _startNextDiagAllModule();
+  buildSys();
+}
+
+// Start diagnosis on the next module in the queue
+function _startNextDiagAllModule() {
+  // Skip offline modules
+  while (diagAllIndex < diagAllQueue.length) {
+    const k = diagAllQueue[diagAllIndex];
+    if (S.modules[k].status !== 'offline') break;
+    diagAllResults.push({ key: k, skipped: true });
+    diagAllIndex++;
+  }
+  if (diagAllIndex >= diagAllQueue.length) {
+    _finishDiagAll();
+    return;
+  }
+  const k = diagAllQueue[diagAllIndex];
+  const m = S.modules[k];
+  const spd = getDiagAllSpeedMult();
+  diagTarget   = k;
+  diagStart    = tick;
+  diagDuration = Math.round((DIAG_DURATION_BASE_TICKS + Math.random() * DIAG_DURATION_RANGE_TICKS) / spd * (m.mode === 'bypass' ? DIAG_BYPASS_MULT : 1));
+  addLog('Sweep: diagnosing ' + m.name + ' (' + (diagAllIndex + 1) + '/' + diagAllQueue.length + ')...', 'sys');
+  buildSys();
+}
+
+// Called when user explicitly cancels the sweep
+function cancelDiagAll() {
+  if (!diagAllActive) return;
+  if (diagTarget !== null) { diagTarget = null; diagStart = 0; }
+  diagAllActive = false;
+  diagAllQueue  = [];
+  diagAllResults = [];
+  addLog('DIAGNOSE ALL: sweep cancelled', 'warn');
+  buildSys();
+}
+window.cancelDiagAll = cancelDiagAll;
+
+// Called from sim.js when a diagnosis completes and diagAllActive is true.
+// hadError: true if the module had a hidden sysError that was just revealed.
+function _advanceDiagAll(k, hadError) {
+  if (!diagAllActive) return;
+  diagAllResults.push({ key: k, hadError: hadError });
+  diagAllIndex++;
+  if (diagAllIndex >= diagAllQueue.length) {
+    _finishDiagAll();
+  } else {
+    _startNextDiagAllModule();
+  }
+}
+
+// Reveal all buffered results and log summary
+function _finishDiagAll() {
+  const errModules = diagAllResults.filter(r => r.hadError).map(r => S.modules[r.key].name);
+  const skipped    = diagAllResults.filter(r => r.skipped).map(r => S.modules[r.key].name);
+  diagAllActive  = false;
+  diagAllQueue   = [];
+  diagAllResults = [];
+  diagTarget     = null;
+  diagStart      = 0;
+  if (errModules.length === 0) {
+    addLog('DIAGNOSE ALL: sweep complete — no errors found', 'ok');
+  } else {
+    addLog('DIAGNOSE ALL: sweep complete — errors in: ' + errModules.join(', '), 'err');
+  }
+  if (skipped.length > 0) {
+    addLog('DIAGNOSE ALL: skipped offline modules: ' + skipped.join(', '), 'sys');
+  }
+  buildSys();
+}
 
 buildSys();
