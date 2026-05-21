@@ -185,32 +185,64 @@
 					tx = 0; ty = 0; start();
 				});
 
-				/* Ripple + tilt on buttons */
-				document.querySelectorAll('button').forEach(function (btn) {
-					btn.addEventListener('mousemove', function (e) {
-						var r = btn.getBoundingClientRect();
-						var rx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
-						var ry = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
-						btn.style.setProperty('--btn-rx', rx.toFixed(2) + 'deg');
-						btn.style.setProperty('--btn-ry', ry.toFixed(2) + 'deg');
-					});
-					btn.addEventListener('mouseleave', function () {
-						btn.style.setProperty('--btn-rx', '0deg');
-						btn.style.setProperty('--btn-ry', '0deg');
-					});
-					btn.addEventListener('click', function (e) {
-						var r = btn.getBoundingClientRect();
+				/* Shared ripple spawner - strong=true for buttons, false for ambient */
+					function spawnRipple(container, x, y, strong) {
 						var dot = document.createElement('span');
+						var a1 = strong ? 0.65 : 0.14;
+						var a2 = strong ? 0.28 : 0.05;
 						dot.style.cssText =
 							'position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;' +
-							'background:radial-gradient(circle, rgba(255,220,255,0.65) 0%, rgba(190,80,255,0.28) 55%, transparent 100%);' +
-							'left:' + (e.clientX - r.left - 5) + 'px;' +
-							'top:'  + (e.clientY - r.top  - 5) + 'px;' +
+							'background:radial-gradient(circle,rgba(255,220,255,' + a1 + ') 0%,rgba(190,80,255,' + a2 + ') 55%,transparent 100%);' +
+							'left:' + (x - 5) + 'px;top:' + (y - 5) + 'px;' +
 							'animation:liquidRipple 0.65s ease-out forwards;';
-						btn.appendChild(dot);
+						container.appendChild(dot);
 						setTimeout(function () { dot.remove(); }, 700);
+					}
+
+					/* Ripple + tilt on buttons - touch fires immediately, click skips if touch just fired */
+					document.querySelectorAll('button').forEach(function (btn) {
+						var lastTouchMs = 0;
+						btn.addEventListener('mousemove', function (e) {
+							var r = btn.getBoundingClientRect();
+							btn.style.setProperty('--btn-rx', (((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) *  1).toFixed(2) + 'deg');
+							btn.style.setProperty('--btn-ry', (-((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) *  1).toFixed(2) + 'deg');
+						});
+						btn.addEventListener('mouseleave', function () {
+							btn.style.setProperty('--btn-rx', '0deg');
+							btn.style.setProperty('--btn-ry', '0deg');
+						});
+						btn.addEventListener('touchstart', function (e) {
+							lastTouchMs = Date.now();
+							var t = e.touches[0];
+							var r = btn.getBoundingClientRect();
+							spawnRipple(btn, t.clientX - r.left, t.clientY - r.top, true);
+						}, { passive: true });
+						btn.addEventListener('click', function (e) {
+							if (Date.now() - lastTouchMs < 600) return;
+							var r = btn.getBoundingClientRect();
+							spawnRipple(btn, e.clientX - r.left, e.clientY - r.top, true);
+						});
 					});
-				});
+
+					/* Ambient ripple on non-interactive taps/clicks within the panel */
+					var interactiveTags = { BUTTON: 1, A: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, LABEL: 1 };
+					var lastAmbientTouchMs = 0;
+					function ambientRipple(clientX, clientY) {
+						var r = site.getBoundingClientRect();
+						if (clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) return;
+						spawnRipple(site, clientX - r.left, clientY - r.top, false);
+					}
+					document.addEventListener('touchend', function (e) {
+						if (interactiveTags[e.target.tagName]) return;
+						lastAmbientTouchMs = Date.now();
+						var t = e.changedTouches[0];
+						ambientRipple(t.clientX, t.clientY);
+					}, { passive: true });
+					document.addEventListener('click', function (e) {
+						if (interactiveTags[e.target.tagName]) return;
+						if (Date.now() - lastAmbientTouchMs < 600) return;
+						ambientRipple(e.clientX, e.clientY);
+					});
 
 				/* Disable scroll while panel fits fully on screen */
 					function updateScrollLock() {
