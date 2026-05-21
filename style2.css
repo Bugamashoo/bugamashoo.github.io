@@ -33,7 +33,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3vh 0;
+    padding: 1vh 0;
     position: relative;
 }
 
@@ -84,7 +84,7 @@ body::after {
     width: calc(100% - 1em);
     max-width: 860px;
     margin: 0;
-    padding: 1em 0.75em 0.75em;
+    padding: 0.6em 0.75em 0.5em;
     border-radius: 32px;
     overflow: hidden;
 
@@ -194,8 +194,8 @@ p {
 
 .info {
     font-size: 0.6em;
-    padding-bottom: 1em;
-    padding-top: 0.3em;
+    padding-bottom: 0.55em;
+    padding-top: 0.2em;
     color: #6D28D9;
     font-weight: 500;
     line-height: 1.45;
@@ -206,8 +206,8 @@ p {
 /* --- Layout --- */
 
 div {
-    margin-bottom: 0.6em;
-    padding-top: 0.3em;
+    margin-bottom: 0.3em;
+    padding-top: 0.2em;
     position: relative;
     z-index: 2;
 }
@@ -217,7 +217,7 @@ div {
 }
 
 form {
-    padding-bottom: 0.6em;
+    padding-bottom: 0.35em;
 }
 
 /* --- Ripple keyframe (triggered by JS on click) --- */
@@ -240,7 +240,7 @@ button {
     cursor: pointer;
     letter-spacing: 0.2px;
     line-height: 1.25;
-    padding: 14px 28px;
+    padding: 9px 28px;
     border-radius: 100px;
     position: relative;
     overflow: hidden;
