@@ -212,12 +212,26 @@
 					});
 				});
 
-				/* Tilt on social icon circles */
-				document.querySelectorAll('a.socials').forEach(function (icon) {
+				/* Disable scroll while panel fits fully on screen */
+					function updateScrollLock() {
+						var rect = site.getBoundingClientRect();
+						var fits = rect.height <= window.innerHeight;
+						var lock = fits ? 'hidden' : '';
+						document.documentElement.style.overflow = lock;
+						document.body.style.overflow = lock;
+					}
+					updateScrollLock();
+					window.addEventListener('resize', updateScrollLock);
+					if (window.ResizeObserver) {
+						new ResizeObserver(updateScrollLock).observe(site);
+					}
+
+					/* Tilt on social icon circles */
+					document.querySelectorAll('a.socials').forEach(function (icon) {
 					icon.addEventListener('mousemove', function (e) {
 						var r = icon.getBoundingClientRect();
-						var rx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 4;
-						var ry = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 4;
+						var rx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 8;
+							var ry = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 8;
 						icon.style.setProperty('--icon-rx', rx.toFixed(2) + 'deg');
 						icon.style.setProperty('--icon-ry', ry.toFixed(2) + 'deg');
 					});
