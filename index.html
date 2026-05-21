@@ -144,5 +144,88 @@
 				</a>
 			</div>
 		</div>
+		<script>
+			(function () {
+				var site = document.querySelector('.site');
+				var cx = 0, cy = 0, tx = 0, ty = 0;
+				var running = false;
+
+				function lerp(a, b, t) { return a + (b - a) * t; }
+
+				function tick() {
+					cx = lerp(cx, tx, 0.08);
+					cy = lerp(cy, ty, 0.08);
+					var moving = Math.abs(cx - tx) > 0.004 || Math.abs(cy - ty) > 0.004
+						|| Math.abs(cx) > 0.004 || Math.abs(cy) > 0.004;
+					/* Shift edge highlight left/right with tilt - simulates gyro light */
+					site.style.setProperty('--light-x', (Math.max(15, Math.min(85, 50 - cy * 12))).toFixed(1) + '%');
+					if (moving) {
+						site.style.transform =
+							'perspective(1400px) rotateX(' + cx.toFixed(3) + 'deg) rotateY(' + cy.toFixed(3) + 'deg)';
+						requestAnimationFrame(tick);
+					} else {
+						site.style.transform = '';
+						running = false;
+					}
+				}
+
+				function start() {
+					if (!running) { running = true; requestAnimationFrame(tick); }
+				}
+
+				document.addEventListener('mousemove', function (e) {
+					var r = site.getBoundingClientRect();
+					tx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
+					ty = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
+					start();
+				});
+
+				document.addEventListener('mouseleave', function () {
+					tx = 0; ty = 0; start();
+				});
+
+				/* Ripple + tilt on buttons */
+				document.querySelectorAll('button').forEach(function (btn) {
+					btn.addEventListener('mousemove', function (e) {
+						var r = btn.getBoundingClientRect();
+						var rx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
+						var ry = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
+						btn.style.setProperty('--btn-rx', rx.toFixed(2) + 'deg');
+						btn.style.setProperty('--btn-ry', ry.toFixed(2) + 'deg');
+					});
+					btn.addEventListener('mouseleave', function () {
+						btn.style.setProperty('--btn-rx', '0deg');
+						btn.style.setProperty('--btn-ry', '0deg');
+					});
+					btn.addEventListener('click', function (e) {
+						var r = btn.getBoundingClientRect();
+						var dot = document.createElement('span');
+						dot.style.cssText =
+							'position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;' +
+							'background:radial-gradient(circle, rgba(255,220,255,0.65) 0%, rgba(190,80,255,0.28) 55%, transparent 100%);' +
+							'left:' + (e.clientX - r.left - 5) + 'px;' +
+							'top:'  + (e.clientY - r.top  - 5) + 'px;' +
+							'animation:liquidRipple 0.65s ease-out forwards;';
+						btn.appendChild(dot);
+						setTimeout(function () { dot.remove(); }, 700);
+					});
+				});
+
+				/* Tilt on social icon circles */
+				document.querySelectorAll('a.socials').forEach(function (icon) {
+					icon.addEventListener('mousemove', function (e) {
+						var r = icon.getBoundingClientRect();
+						var rx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 4;
+						var ry = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 4;
+						icon.style.setProperty('--icon-rx', rx.toFixed(2) + 'deg');
+						icon.style.setProperty('--icon-ry', ry.toFixed(2) + 'deg');
+					});
+					icon.addEventListener('mouseleave', function () {
+						icon.style.setProperty('--icon-rx', '0deg');
+						icon.style.setProperty('--icon-ry', '0deg');
+					});
+				});
+			}());
+		</script>
 	</body>
 </html>
