@@ -14,21 +14,27 @@
                 <div class="config-row">
                     <div class="config-group">
                         <label for="speed">Speed (sec/60°):</label>
-                        <input type="number" id="speed" value="0.35" step="0.1" min="0.1" max="60" />
+                        <input type="number" id="speed" value="0.5" step="0.1" min="0.1" max="60" />
                     </div>
 
                     <div class="config-group">
                         <label for="sweep">Sweep Angle (°):</label>
-                        <input type="number" id="sweep" value="60" step="1" min="1" max="360" />
+                        <input type="number" id="sweep" value="60" step="15" min="15" max="360" />
                     </div>
 
                     <div class="config-group">
-                        <label for="easing">Easing:</label>
-                        <select id="easing">
-                            <option value="off">50% Load Estimate</option>
-                            <option value="linear" selected>Linear</option>
-                            <option value="cubic">Cubic</option>
-                        </select>
+                        <label>Easing:</label>
+                        <div class="glass-select" id="easingSelect" data-value="linear">
+                            <button class="glass-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="glass-select-label">Linear</span>
+                                <svg class="glass-select-chevron" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>
+                            </button>
+                            <div class="glass-select-panel" role="listbox">
+                                <button class="glass-select-option" data-value="off"     type="button" role="option">50% Load</button>
+                                <button class="glass-select-option selected" data-value="linear" type="button" role="option">Linear</button>
+                                <button class="glass-select-option" data-value="cubic"   type="button" role="option">Cubic</button>
+                            </div>
+                        </div>
                     </div>
 
                     <button class="update-btn" onclick="updateConfiguration()">Update Config</button>
@@ -147,7 +153,7 @@
             function updateConfiguration() {
                 const speedInput = document.getElementById("speed");
                 const sweepInput = document.getElementById("sweep");
-                const easingSelect = document.getElementById("easing");
+                const easingSelect = document.getElementById("easingSelect");
 
                 // Validate inputs
                 const newSpeed = parseFloat(speedInput.value);
@@ -165,7 +171,7 @@
 
                 speedPer60Deg = newSpeed;
                 sweepAngle = newSweep;
-                easingMode = easingSelect.value;
+                easingMode = easingSelect.dataset.value;
 
                 // Update displays
                 const actualDuration = getActualDuration();
@@ -240,21 +246,21 @@
                 ctx.scale(scale, -scale); // Flip Y axis for mathematical coordinates
 
                 // Draw servo base (circle)
-                ctx.fillStyle = "#000000";
+                ctx.fillStyle = "#6D28D9";
                 ctx.beginPath();
                 ctx.arc(0, 0, 0.1, 0, 2 * Math.PI);
                 ctx.fill();
 
                 // Draw movement range arc
                 const maxAngleRad = (Math.min(sweepAngle, 180) * Math.PI) / 180;
-                ctx.strokeStyle = "rgba(128, 128, 128, 0.5)";
+                ctx.strokeStyle = "rgba(109, 40, 217, 0.30)";
                 ctx.lineWidth = 0.025;
                 ctx.beginPath();
                 ctx.arc(0, 0, 1.2, 0, maxAngleRad);
                 ctx.stroke();
 
                 // Draw angle markers
-                ctx.fillStyle = "#000000";
+                ctx.fillStyle = "#6D28D9";
                 const fontSize = Math.max(0.22, (0.01 * scale) / 4); // Scale font size inversely with scale
                 ctx.font = `${fontSize}px Arial`;
                 ctx.textAlign = "center";
@@ -281,7 +287,7 @@
                 const armEndX = armLength * Math.cos(angleRad);
                 const armEndY = armLength * Math.sin(angleRad);
 
-                ctx.strokeStyle = "#6728a5";
+                ctx.strokeStyle = "#6D28D9";
                 ctx.lineWidth = 0.05;
                 ctx.lineCap = "round";
                 ctx.beginPath();
@@ -290,7 +296,7 @@
                 ctx.stroke();
 
                 // Draw arm end marker
-                ctx.fillStyle = "#6728a5";
+                ctx.fillStyle = "#6D28D9";
                 ctx.beginPath();
                 ctx.arc(armEndX, armEndY, 0.08, 0, 2 * Math.PI);
                 ctx.fill();
@@ -299,7 +305,7 @@
                 ctx.restore();
 
                 // Draw title
-                ctx.fillStyle = "#6728a5";
+                ctx.fillStyle = "#6D28D9";
                 const titleFontSize = Math.max(12, 18 * Math.min(dims.width / 800, 1));
                 ctx.font = `bold ${titleFontSize}px Arial`;
                 ctx.textAlign = "center";
@@ -400,6 +406,202 @@
                     drawServoArm(currentAngle);
                 }
             });
+        </script>
+        <script>
+            /* Liquid Glass interactions - panel tilt, button ripple/tilt, ambient ripple */
+            (function () {
+                var container = document.querySelector('.container');
+                var configPanel = document.querySelector('.config-panel');
+                var canvasContainer = document.querySelector('.canvas-container');
+
+                function lerp(a, b, t) { return a + (b - a) * t; }
+
+                /* --- Base container tilt --- */
+                var cx = 0, cy = 0, tx = 0, ty = 0;
+                var running = false;
+
+                function tick() {
+                    cx = lerp(cx, tx, 0.08);
+                    cy = lerp(cy, ty, 0.08);
+                    var moving = Math.abs(cx - tx) > 0.004 || Math.abs(cy - ty) > 0.004
+                        || Math.abs(cx) > 0.004 || Math.abs(cy) > 0.004;
+                    container.style.setProperty('--light-x', (Math.max(15, Math.min(85, 50 - cy * 12))).toFixed(1) + '%');
+                    if (moving) {
+                        container.style.transform =
+                            'perspective(1400px) rotateX(' + cx.toFixed(3) + 'deg) rotateY(' + cy.toFixed(3) + 'deg)';
+                        requestAnimationFrame(tick);
+                    } else {
+                        container.style.transform = '';
+                        running = false;
+                    }
+                }
+
+                function start() { if (!running) { running = true; requestAnimationFrame(tick); } }
+
+                container.addEventListener('mousemove', function (e) {
+                    var r = container.getBoundingClientRect();
+                    tx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
+                    ty = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
+                    start();
+                });
+                container.addEventListener('mouseleave', function () { tx = 0; ty = 0; start(); });
+
+                /* --- Independent sub-panel tilt (stacks on top of base tilt) --- */
+                [configPanel, canvasContainer].forEach(function (panel) {
+                    var scx = 0, scy = 0, stx = 0, sty = 0;
+                    var sRunning = false;
+
+                    function tickPanel() {
+                        scx = lerp(scx, stx, 0.08);
+                        scy = lerp(scy, sty, 0.08);
+                        var moving = Math.abs(scx - stx) > 0.004 || Math.abs(scy - sty) > 0.004
+                            || Math.abs(scx) > 0.004 || Math.abs(scy) > 0.004;
+                        if (moving) {
+                            panel.style.transform =
+                                'perspective(900px) rotateX(' + scx.toFixed(3) + 'deg) rotateY(' + scy.toFixed(3) + 'deg)';
+                            requestAnimationFrame(tickPanel);
+                        } else {
+                            panel.style.transform = '';
+                            sRunning = false;
+                        }
+                    }
+
+                    function startPanel() { if (!sRunning) { sRunning = true; requestAnimationFrame(tickPanel); } }
+
+                    panel.addEventListener('mousemove', function (e) {
+                        var r = panel.getBoundingClientRect();
+                        stx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
+                        sty = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
+                        startPanel();
+                    });
+                    panel.addEventListener('mouseleave', function () { stx = 0; sty = 0; startPanel(); });
+                });
+
+                /* Shared ripple spawner - strong=true for buttons, false for ambient */
+                function spawnRipple(el, x, y, strong) {
+                    var dot = document.createElement('span');
+                    var a1 = strong ? 0.65 : 0.14;
+                    var a2 = strong ? 0.28 : 0.05;
+                    dot.style.cssText =
+                        'position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;' +
+                        'background:radial-gradient(circle,rgba(255,220,255,' + a1 + ') 0%,rgba(190,80,255,' + a2 + ') 55%,transparent 100%);' +
+                        'left:' + (x - 5) + 'px;top:' + (y - 5) + 'px;' +
+                        'animation:liquidRipple 0.65s ease-out forwards;';
+                    el.appendChild(dot);
+                    setTimeout(function () { dot.remove(); }, 700);
+                }
+
+                /* Custom spin buttons for number inputs */
+                document.querySelectorAll('input[type="number"]').forEach(function (inp) {
+                    var wrap = document.createElement('span');
+                    wrap.className = 'spin-wrap';
+                    inp.parentNode.insertBefore(wrap, inp);
+                    wrap.appendChild(inp);
+                    var btns = document.createElement('span');
+                    btns.className = 'spin-btns';
+                    var up = document.createElement('button');
+                    up.type = 'button'; up.className = 'spin-up'; up.tabIndex = -1; up.setAttribute('aria-label', 'Increase');
+                    var dn = document.createElement('button');
+                    dn.type = 'button'; dn.className = 'spin-down'; dn.tabIndex = -1; dn.setAttribute('aria-label', 'Decrease');
+                    btns.appendChild(up); btns.appendChild(dn); wrap.appendChild(btns);
+                    up.addEventListener('click', function () { inp.stepUp(); inp.dispatchEvent(new Event('change', { bubbles: true })); });
+                    dn.addEventListener('click', function () { inp.stepDown(); inp.dispatchEvent(new Event('change', { bubbles: true })); });
+                });
+
+                /* Custom glass select dropdown */
+                document.querySelectorAll('.glass-select').forEach(function (sel) {
+                    var trigger  = sel.querySelector('.glass-select-trigger');
+                    var panel    = sel.querySelector('.glass-select-panel');
+                    var labelEl  = sel.querySelector('.glass-select-label');
+                    var opts     = sel.querySelectorAll('.glass-select-option');
+
+                    function openSel() {
+                        /* Move panel out of config-panel's compositor layer
+                           so backdrop-filter can blur the content behind it */
+                        var cont = document.querySelector('.container');
+                        if (panel.parentElement !== cont) {
+                            cont.appendChild(panel);
+                        }
+                        var tRect = trigger.getBoundingClientRect();
+                        var cRect = cont.getBoundingClientRect();
+                        panel.style.top      = (tRect.bottom - cRect.top  + 5) + 'px';
+                        panel.style.left     = (tRect.left   - cRect.left    ) + 'px';
+                        panel.style.minWidth = tRect.width + 'px';
+                        sel.classList.add('open');
+                        panel.classList.add('open');
+                        trigger.setAttribute('aria-expanded', 'true');
+                    }
+
+                    function closeSel() {
+                        sel.classList.remove('open');
+                        panel.classList.remove('open');
+                        trigger.setAttribute('aria-expanded', 'false');
+                    }
+
+                    trigger.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        panel.classList.contains('open') ? closeSel() : openSel();
+                    });
+
+                    opts.forEach(function (opt) {
+                        opt.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            opts.forEach(function (o) { o.classList.remove('selected'); });
+                            opt.classList.add('selected');
+                            sel.dataset.value = opt.dataset.value;
+                            labelEl.textContent = opt.textContent;
+                            closeSel();
+                        });
+                    });
+
+                    document.addEventListener('click', closeSel);
+                });
+
+
+                document.querySelectorAll('button:not(.spin-up):not(.spin-down):not(.glass-select-option):not(.glass-select-trigger)').forEach(function (btn) {
+                    var lastTouchMs = 0;
+                    btn.addEventListener('mousemove', function (e) {
+                        var r = btn.getBoundingClientRect();
+                        btn.style.setProperty('--btn-rx', (((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) *  1).toFixed(2) + 'deg');
+                        btn.style.setProperty('--btn-ry', (-((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) *  1).toFixed(2) + 'deg');
+                    });
+                    btn.addEventListener('mouseleave', function () {
+                        btn.style.setProperty('--btn-rx', '0deg');
+                        btn.style.setProperty('--btn-ry', '0deg');
+                    });
+                    btn.addEventListener('touchstart', function (e) {
+                        lastTouchMs = Date.now();
+                        var t = e.touches[0];
+                        var r = btn.getBoundingClientRect();
+                        spawnRipple(btn, t.clientX - r.left, t.clientY - r.top, true);
+                    }, { passive: true });
+                    btn.addEventListener('click', function (e) {
+                        if (Date.now() - lastTouchMs < 600) return;
+                        var r = btn.getBoundingClientRect();
+                        spawnRipple(btn, e.clientX - r.left, e.clientY - r.top, true);
+                    });
+                });
+
+                /* Ambient ripple on non-interactive taps/clicks within the panel */
+                var interactiveTags = { BUTTON: 1, A: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, LABEL: 1, CANVAS: 1 };
+                var lastAmbientTouchMs = 0;
+                function ambientRipple(clientX, clientY) {
+                    var r = container.getBoundingClientRect();
+                    if (clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) return;
+                    spawnRipple(container, clientX - r.left, clientY - r.top, false);
+                }
+                document.addEventListener('touchend', function (e) {
+                    if (interactiveTags[e.target.tagName]) return;
+                    lastAmbientTouchMs = Date.now();
+                    var t = e.changedTouches[0];
+                    ambientRipple(t.clientX, t.clientY);
+                }, { passive: true });
+                document.addEventListener('click', function (e) {
+                    if (interactiveTags[e.target.tagName]) return;
+                    if (Date.now() - lastAmbientTouchMs < 600) return;
+                    ambientRipple(e.clientX, e.clientY);
+                });
+            }());
         </script>
     </body>
 </html>

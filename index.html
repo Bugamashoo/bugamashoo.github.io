@@ -174,14 +174,14 @@
 					if (!running) { running = true; requestAnimationFrame(tick); }
 				}
 
-				document.addEventListener('mousemove', function (e) {
+				site.addEventListener('mousemove', function (e) {
 					var r = site.getBoundingClientRect();
 					tx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
 					ty = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
 					start();
 				});
 
-				document.addEventListener('mouseleave', function () {
+				site.addEventListener('mouseleave', function () {
 					tx = 0; ty = 0; start();
 				});
 

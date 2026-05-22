@@ -4,56 +4,387 @@
         <meta charset="UTF-8" />
         <title>Edit Whitespace</title>
         <style>
+            /* Liquid Glass theme - matching main page */
+
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+
+            html {
+                background: linear-gradient(15deg, #a2a6fe, #e2acff, #f7d0f9);
+                min-height: 100vh;
+            }
+
             body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-                    sans-serif;
-                margin: 20px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 20px;
+                position: relative;
             }
-            #dataTextarea {
-                width: 95%;
-                height: 600px;
+
+            /* --- Main glass panel --- */
+
+            .container {
+                position: relative;
+                z-index: 1;
+                width: calc(100% - 1em);
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 24px 28px 28px;
+                border-radius: 32px;
+                overflow: hidden;
+
+                background: linear-gradient(
+                    175deg,
+                    rgba(255, 255, 255, 0.11) 0%,
+                    rgba(255, 255, 255, 0.03) 50%,
+                    rgba(180, 100, 255, 0.07) 100%
+                );
+                backdrop-filter: blur(56px) saturate(160%) brightness(1.06);
+                -webkit-backdrop-filter: blur(56px) saturate(160%) brightness(1.06);
+
+                border: 1px solid rgba(255, 255, 255, 0.70);
+
+                box-shadow:
+                    0 8px  28px  rgba(60,  0,  110, 0.12),
+                    0 28px 70px  rgba(80,  10, 140, 0.15),
+                    0 65px 130px rgba(90,  10, 150, 0.09),
+                    inset 0  2px   0   rgba(255, 255, 255, 0.95),
+                    inset 0 -2px   0   rgba(200, 140, 255, 0.55),
+                    inset  2px 0   0   rgba(255, 255, 255, 0.45),
+                    inset -2px 0   0   rgba(255, 255, 255, 0.38),
+                    inset 0   0  90px rgba(160,  80, 255, 0.04);
+
+                transform-style: preserve-3d;
+                will-change: transform;
+            }
+
+            /* Top specular edge highlight - shifts with tilt via --light-x */
+            .container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(
+                    90deg,
+                    transparent                       calc(var(--light-x, 50%) - 20%),
+                    rgba(255, 255, 255, 0.96)         var(--light-x, 50%),
+                    transparent                       calc(var(--light-x, 50%) + 20%)
+                );
+                filter: blur(0.25px);
+                border-radius: 32px 32px 0 0;
+                pointer-events: none;
+                z-index: 10;
+            }
+
+            /* Caustic light blob tracks tilt via --light-x */
+            .container::after {
+                content: '';
+                position: absolute;
+                top: -8%;
+                left: 0;
+                right: 0;
+                height: 65%;
+                background: radial-gradient(
+                    ellipse 50% 55% at var(--light-x, 50%) 0%,
+                    rgba(255, 255, 255, 0.17) 0%,
+                    rgba(255, 255, 255, 0.05) 42%,
+                    transparent 68%
+                );
+                border-radius: 32px 32px 0 0;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            /* --- Typography --- */
+
+            h1 {
+                text-align: center;
+                margin-bottom: 16px;
+                font-size: 2em;
+                font-weight: 800;
+                letter-spacing: -0.025em;
+                line-height: 1.1;
+                color: #6D28D9;
+                filter: drop-shadow(0 2px 12px rgba(109, 40, 217, 0.22));
+                position: relative;
+                z-index: 2;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* --- Buttons wrapper --- */
+
+            #buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* --- Options row --- */
+
+            .options-row {
                 margin-bottom: 10px;
-                font-size: 12px;
-                border: 2px solid rgba(155, 89, 182, 0.3);
-                border-radius: 10px;
-                padding: 12px;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                box-shadow: 0 10px 40px rgba(101, 23, 133, 0.6);
-                outline: none;
-                color: #495057;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-                    sans-serif;
+                position: relative;
+                z-index: 2;
             }
+
+            .options-row label {
+                font-weight: 600;
+                color: #6D28D9;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            input[type="checkbox"] {
+                /* Hidden - replaced by .glass-check span */
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
+                pointer-events: none;
+            }
+
+            .glass-check {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+                border-radius: 50%;
+                border: 1.5px solid rgba(255, 255, 255, 0.60);
+                background: linear-gradient(
+                    175deg,
+                    rgba(255, 255, 255, 0.28) 0%,
+                    rgba(200, 170, 255, 0.16) 100%
+                );
+                backdrop-filter: blur(20px) saturate(150%);
+                -webkit-backdrop-filter: blur(20px) saturate(150%);
+                box-shadow:
+                    inset 0 1.5px 0 rgba(255, 255, 255, 0.80),
+                    inset 0 -1px  0 rgba(200, 130, 255, 0.22),
+                    0 2px 6px rgba(80, 0, 140, 0.06);
+                transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* CSS border checkmark - works on all platforms with no font/SVG rendering */
+            .glass-check::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 5px;
+                height: 9px;
+                border-right: 2px solid rgba(255, 255, 255, 0.95);
+                border-bottom: 2px solid rgba(255, 255, 255, 0.95);
+                transform: translate(-50%, -62%) rotate(45deg) scale(0);
+                opacity: 0;
+                transition: opacity 0.12s ease, transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            /* Checked state - filled purple glass */
+            input[type="checkbox"]:checked + .glass-check {
+                background: linear-gradient(
+                    175deg,
+                    rgba(182, 148, 255, 0.70) 0%,
+                    rgba(120,  40, 200, 0.58) 100%
+                );
+                border-color: rgba(255, 255, 255, 0.82);
+                box-shadow:
+                    0 2px 8px rgba(100, 0, 180, 0.22),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.38),
+                    inset 0 -1px  0 rgba(180,  80, 255, 0.40);
+            }
+
+            input[type="checkbox"]:checked + .glass-check::before {
+                opacity: 1;
+                transform: translate(-50%, -62%) rotate(45deg) scale(1);
+            }
+
+            /* --- Textarea --- */
+
+            #dataTextarea {
+                width: 100%;
+                height: 500px;
+                font-size: 13px;
+                border: 1px solid rgba(255, 255, 255, 0.55);
+                border-radius: 16px;
+                padding: 14px 16px;
+                background: rgba(255, 255, 255, 0.24);
+                box-shadow:
+                    inset 0 1.5px 0 rgba(255, 255, 255, 0.80),
+                    inset 0 -1px  0 rgba(200, 130, 255, 0.22),
+                    0 4px 16px rgba(80, 0, 140, 0.07);
+                outline: none;
+                color: #3d2060;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                font-weight: 500;
+                font-size: 13px;
+                resize: vertical;
+                display: block;
+                margin-top: 4px;
+                position: relative;
+                z-index: 2;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+                will-change: transform;
+            }
+
+            #dataTextarea:focus {
+                border-color: rgba(255, 255, 255, 0.82);
+                box-shadow:
+                    inset 0 1.5px 0 rgba(255, 255, 255, 0.90),
+                    inset 0 -1px  0 rgba(200, 130, 255, 0.32),
+                    0 0 0 3px rgba(180, 100, 255, 0.18);
+            }
+
+            /* --- Undo row --- */
+
+            .undo-row {
+                margin-top: 12px;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* --- Ripple keyframe --- */
+
+            @keyframes liquidRipple {
+                0%   { transform: scale(0);   opacity: 1;    }
+                50%  { opacity: 0.40; }
+                100% { transform: scale(30);  opacity: 0;    }
+            }
+
+            /* --- Buttons - Liquid Glass Pills (purple tint) --- */
+
             button {
-                padding: 6px 6px;
-                font-size: 16px;
-                margin-right: 2px;
-                margin-bottom: 6px;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-                    sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                font-size: 14px;
                 font-weight: 600;
                 outline: none;
-                color: white;
-                background: linear-gradient(45deg, #8044f0, #8200b9);
-                border: none;
-                border-radius: 10px;
                 cursor: pointer;
-                transition: all 0.3s ease;
-                letter-spacing: 0.5px;
-                box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);
+                letter-spacing: 0.2px;
+                line-height: 1.25;
+                padding: 8px 18px;
+                border-radius: 100px;
+                position: relative;
+                overflow: hidden;
+                color: #6D28D9;
+                text-shadow: 0 1px 2px rgba(255, 255, 255, 0.55);
+                background: linear-gradient(
+                    175deg,
+                    rgba(168, 112, 255, 0.40) 0%,
+                    rgba(132,  18, 200, 0.30) 100%
+                );
+                backdrop-filter: blur(32px) saturate(180%) brightness(1.10);
+                -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.10);
+                border: 1px solid rgba(255, 255, 255, 0.50);
+                box-shadow:
+                    0 4px  12px rgba(90,  0, 160, 0.13),
+                    0 12px 32px rgba(110, 0, 180, 0.11),
+                    inset 0  1.5px 0   rgba(255, 255, 255, 0.72),
+                    inset 0 -1px   0   rgba(180,  80, 255, 0.35),
+                    inset 0  0    18px rgba(200, 120, 255, 0.08);
+                transform: perspective(500px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg));
+                transition:
+                    transform    0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
+                    box-shadow   0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s,
+                    background   0.3s ease,
+                    border-color 0.3s ease;
+                -webkit-font-smoothing: antialiased;
             }
-            button:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(103, 32, 133, 0.6);
+
+            /* Shimmer sweep on hover */
+            button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 50%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent               0%,
+                    rgba(255, 255, 255, 0.08) 50%,
+                    transparent               100%
+                );
+                pointer-events: none;
+                transition: left 0.65s ease;
             }
-            html {
-                background: linear-gradient(15deg, #8098ff, #db82ff, #f2baff);
-                min-height: 100vh;
+
+            /* Top specular edge */
+            button::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 20%;
+                right: 20%;
+                height: 1px;
+                background: linear-gradient(
+                    90deg,
+                    transparent               0%,
+                    rgba(255, 255, 255, 0.75) 50%,
+                    transparent               100%
+                );
+                pointer-events: none;
+            }
+
+            button:hover:not(:disabled) {
+                transform: perspective(500px) scale(1.04) translateY(-4px) rotateX(var(--btn-rx, 0deg)) rotateY(var(--btn-ry, 0deg));
+                background: linear-gradient(
+                    175deg,
+                    rgba(172, 112, 255, 0.54) 0%,
+                    rgba(148,  24, 218, 0.44) 100%
+                );
+                border-color: rgba(255, 255, 255, 0.62);
+                box-shadow:
+                    0 6px  18px rgba(100,  0, 180, 0.18),
+                    0 20px 44px rgba(110,  0, 190, 0.14),
+                    inset 0  1.5px 0   rgba(255, 255, 255, 0.82),
+                    inset 0 -1px   0   rgba(180,  80, 255, 0.40);
+                transition:
+                    transform    0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0s,
+                    box-shadow   0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0s,
+                    background   0.3s ease,
+                    border-color 0.3s ease;
+            }
+
+            button:hover:not(:disabled)::before {
+                left: 160%;
+            }
+
+            button:active:not(:disabled) {
+                transform: scale(0.97) translateY(1px);
+                box-shadow:
+                    0 1px 4px   rgba(90,  0, 160, 0.18),
+                    0 3px 10px  rgba(110, 0, 180, 0.22),
+                    inset 0 0  28px rgba(240, 180, 255, 0.30),
+                    inset 0 1px  0  rgba(255, 255, 255, 0.40),
+                    inset 0 3px  8px rgba(0,   0,   0,   0.08);
+                transition: transform 0.12s ease, box-shadow 0.12s ease;
+            }
+
+            button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
             }
         </style>
     </head>
     <body>
+        <div class="container">
         <h1>Buga's Quick Formatter</h1>
         <div id="buttons">
             <button onclick="replaceMultipleSpaces()">Remove Duplicate Spaces</button>
@@ -64,14 +395,15 @@
             <button onclick="makeUppercase()">ALL CAPS</button>
             <button onclick="makeLowercase()">no caps</button>
         </div>
-        <div>
+        <div class="options-row">
             <label>
                 <input type="checkbox" id="ignoreQuotes" checked />
+                <span class="glass-check"></span>
                 Ignore Text Enclosed With Quotes
             </label>
         </div>
-        <textarea id="dataTextarea" rows="10" cols="50" style="margin-top: 10px"></textarea>
-        <div>
+        <textarea id="dataTextarea" rows="10" cols="50"></textarea>
+        <div class="undo-row">
             <button id="undoButton" onclick="undo()">Undo (0)</button>
         </div>
         <script>
@@ -79,7 +411,9 @@
             function updateUndoButton() {
                 const undoButton = document.getElementById("undoButton");
                 undoButton.textContent = "Undo (" + undoStack.length + ")";
+                undoButton.disabled = undoStack.length === 0;
             }
+            updateUndoButton();
             function pushUndo() {
                 const textarea = document.getElementById("dataTextarea");
                 undoStack.push(textarea.value);
@@ -219,6 +553,140 @@
                     textarea.value = textarea.value.toLowerCase();
                 }
             }
+        </script>
+        </div>
+        <script>
+            /* Liquid Glass interactions - panel tilt, button ripple/tilt, ambient ripple */
+            (function () {
+                var container = document.querySelector('.container');
+            var textarea  = document.getElementById('dataTextarea');
+            var cx = 0, cy = 0, tx = 0, ty = 0;
+            var running = false;
+
+            function lerp(a, b, t) { return a + (b - a) * t; }
+
+            function tick() {
+                cx = lerp(cx, tx, 0.08);
+                cy = lerp(cy, ty, 0.08);
+                var moving = Math.abs(cx - tx) > 0.004 || Math.abs(cy - ty) > 0.004
+                    || Math.abs(cx) > 0.004 || Math.abs(cy) > 0.004;
+                /* Shift edge highlight left/right with tilt - simulates gyro light */
+                container.style.setProperty('--light-x', (Math.max(15, Math.min(85, 50 - cy * 12))).toFixed(1) + '%');
+                if (moving) {
+                    container.style.transform =
+                        'perspective(1400px) rotateX(' + cx.toFixed(3) + 'deg) rotateY(' + cy.toFixed(3) + 'deg)';
+                    requestAnimationFrame(tick);
+                } else {
+                    container.style.transform = '';
+                    running = false;
+                }
+            }
+
+            function start() {
+                if (!running) { running = true; requestAnimationFrame(tick); }
+            }
+
+            container.addEventListener('mousemove', function (e) {
+                var r = container.getBoundingClientRect();
+                tx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
+                ty = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
+                start();
+            });
+
+            container.addEventListener('mouseleave', function () {
+                tx = 0; ty = 0; start();
+            });
+
+            /* Independent textarea tilt - mirrors mouse position within the textarea */
+            (function () {
+                var scx = 0, scy = 0, stx = 0, sty = 0;
+                var sRunning = false;
+
+                function tickTA() {
+                    scx = lerp(scx, stx, 0.08);
+                    scy = lerp(scy, sty, 0.08);
+                    var moving = Math.abs(scx - stx) > 0.004 || Math.abs(scy - sty) > 0.004
+                        || Math.abs(scx) > 0.004 || Math.abs(scy) > 0.004;
+                    if (moving) {
+                        textarea.style.transform =
+                            'perspective(900px) rotateX(' + scx.toFixed(3) + 'deg) rotateY(' + scy.toFixed(3) + 'deg)';
+                        requestAnimationFrame(tickTA);
+                    } else {
+                        textarea.style.transform = '';
+                        sRunning = false;
+                    }
+                }
+
+                function startTA() { if (!sRunning) { sRunning = true; requestAnimationFrame(tickTA); } }
+
+                textarea.addEventListener('mousemove', function (e) {
+                    var r = textarea.getBoundingClientRect();
+                    stx =  ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) * 1;
+                    sty = -((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) * 1;
+                    startTA();
+                });
+                textarea.addEventListener('mouseleave', function () { stx = 0; sty = 0; startTA(); });
+            }());
+
+                /* Shared ripple spawner - strong=true for buttons, false for ambient */
+                function spawnRipple(el, x, y, strong) {
+                    var dot = document.createElement('span');
+                    var a1 = strong ? 0.65 : 0.14;
+                    var a2 = strong ? 0.28 : 0.05;
+                    dot.style.cssText =
+                        'position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;' +
+                        'background:radial-gradient(circle,rgba(255,220,255,' + a1 + ') 0%,rgba(190,80,255,' + a2 + ') 55%,transparent 100%);' +
+                        'left:' + (x - 5) + 'px;top:' + (y - 5) + 'px;' +
+                        'animation:liquidRipple 0.65s ease-out forwards;';
+                    el.appendChild(dot);
+                    setTimeout(function () { dot.remove(); }, 700);
+                }
+
+                /* Ripple + tilt on buttons */
+                document.querySelectorAll('button').forEach(function (btn) {
+                    var lastTouchMs = 0;
+                    btn.addEventListener('mousemove', function (e) {
+                        var r = btn.getBoundingClientRect();
+                        btn.style.setProperty('--btn-rx', (((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5)) *  1).toFixed(2) + 'deg');
+                        btn.style.setProperty('--btn-ry', (-((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5)) *  1).toFixed(2) + 'deg');
+                    });
+                    btn.addEventListener('mouseleave', function () {
+                        btn.style.setProperty('--btn-rx', '0deg');
+                        btn.style.setProperty('--btn-ry', '0deg');
+                    });
+                    btn.addEventListener('touchstart', function (e) {
+                        lastTouchMs = Date.now();
+                        var t = e.touches[0];
+                        var r = btn.getBoundingClientRect();
+                        spawnRipple(btn, t.clientX - r.left, t.clientY - r.top, true);
+                    }, { passive: true });
+                    btn.addEventListener('click', function (e) {
+                        if (Date.now() - lastTouchMs < 600) return;
+                        var r = btn.getBoundingClientRect();
+                        spawnRipple(btn, e.clientX - r.left, e.clientY - r.top, true);
+                    });
+                });
+
+                /* Ambient ripple on non-interactive taps/clicks within the panel */
+                var interactiveTags = { BUTTON: 1, A: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, LABEL: 1 };
+                var lastAmbientTouchMs = 0;
+                function ambientRipple(clientX, clientY) {
+                    var r = container.getBoundingClientRect();
+                    if (clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) return;
+                    spawnRipple(container, clientX - r.left, clientY - r.top, false);
+                }
+                document.addEventListener('touchend', function (e) {
+                    if (interactiveTags[e.target.tagName]) return;
+                    lastAmbientTouchMs = Date.now();
+                    var t = e.changedTouches[0];
+                    ambientRipple(t.clientX, t.clientY);
+                }, { passive: true });
+                document.addEventListener('click', function (e) {
+                    if (interactiveTags[e.target.tagName]) return;
+                    if (Date.now() - lastAmbientTouchMs < 600) return;
+                    ambientRipple(e.clientX, e.clientY);
+                });
+            }());
         </script>
     </body>
 </html>

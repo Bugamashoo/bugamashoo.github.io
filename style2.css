@@ -4,20 +4,6 @@
     box-sizing: border-box;
 }
 
-/* --- Animated gradient background --- */
-
-@keyframes orbDrift1 {
-    0%, 100% { transform: translate(0,     0);    }
-    33%       { transform: translate(4vw,  -3vh); }
-    66%       { transform: translate(-2vw,  5vh); }
-}
-
-@keyframes orbDrift2 {
-    0%, 100% { transform: translate(0,     0);    }
-    33%       { transform: translate(-5vw,  4vh); }
-    66%       { transform: translate(3vw,  -2vh); }
-}
-
 html {
     background: linear-gradient(15deg, #a2a6fe, #e2acff, #f7d0f9);
     min-height: 100vh;
@@ -35,43 +21,6 @@ body {
     justify-content: center;
     padding: 1vh 0;
     position: relative;
-}
-
-/* Soft floating depth orbs */
-body::before {
-    content: '';
-    position: fixed;
-    top: -15%;
-    left: -10%;
-    width: 55vw;
-    height: 55vw;
-    background: radial-gradient(
-        circle at 38% 38%,
-        rgba(138, 74, 230, 0.24) 0%,
-        transparent 68%
-    );
-    border-radius: 50%;
-    animation: orbDrift1 24s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 0;
-}
-
-body::after {
-    content: '';
-    position: fixed;
-    bottom: -15%;
-    right: -10%;
-    width: 48vw;
-    height: 48vw;
-    background: radial-gradient(
-        circle at 62% 62%,
-        rgba(206, 100, 247, 0.23) 0%,
-        transparent 68%
-    );
-    border-radius: 50%;
-    animation: orbDrift2 30s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 0;
 }
 
 /* --- Main glass panel --- */
