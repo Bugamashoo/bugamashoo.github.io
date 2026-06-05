@@ -34,6 +34,7 @@ var cscore;
 var carName;
 var randomNum = (0.5 - Math.random());
 var yPlaceholder = 0;
+var frameCount = 0;
 
 var sSelection = 1; //Stage selection
 var groundVertices;
@@ -185,7 +186,7 @@ function refresh() {
 	sectTwo = false;
 	carName.text = cCar.name;
 	game.world.setBounds(-10000, -50000, Infinity, Infinity);
-	game.desiredFps = 30;
+	game.time.desiredFps = 30; // was game.desiredFps which is not a valid Phaser 2 property - game was running at 60fps
 	game.stage.backgroundColor = '#203050';
 
 	// Enable Box2D physics
@@ -193,6 +194,7 @@ function refresh() {
 	game.physics.box2d.gravity.y = (279 * gStats.grav);
 	game.physics.box2d.friction = (0.26 * gStats.grip);
 	game.physics.box2d.restitution = 0;
+	game.physics.box2d.frameRate = 1 / 30; // match physics timestep to 30fps so simulation runs at real-time speed
 
 	//enable touch input
 	cursors = game.input.keyboard.createCursorKeys();
@@ -319,7 +321,8 @@ function update() {
 	}
 
 
-	if (sSelection != 0) {
+	frameCount++;
+	if (sSelection != 0 && frameCount % 4 === 0) {
 		continuousTerrainGen2();
 	}
 
@@ -384,17 +387,14 @@ function update() {
 		if ((vehicleBody.x > score2) && (selection != 15)) {
 			score2 = vehicleBody.x;
 			vMax = (Math.floor((vehicleBody.x) / 5) * 5);
-			if (selection != 15) {
-				score.text = ('High score: ' + vMax);
-			}
-
-			scorei = 0;
+			score.text = ('High score: ' + vMax);
 		}
 		if (selection != 15) {
 			cscore.text = ('Score: ' + (Math.floor((vehicleBody.x) / 5) * 5));
 		} else {
 			cscore.text = ('Score: N/A');
 		}
+		scorei = 0; // reset here so score updates every 40 frames, not every frame
 	} else {
 		scorei++;
 	}

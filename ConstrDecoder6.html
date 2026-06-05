@@ -1,166 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Buga's Encoder/Decoder</title>
+    <title>Buga's .ecar Encoder/Decoder</title>
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a1d23;
+            color: #d4d8e0;
+            min-height: 100vh;
+            padding: 24px;
         }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e8eaf0;
+            margin-bottom: 18px;
+            letter-spacing: 0.3px;
+        }
+
+        #dropZone {
+            border: 2px dashed #3a4055;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 14px;
+            background: #21252f;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        #dropZone.dragover {
+            border-color: #5b7cf6;
+            background: #252b3d;
+        }
+        #dropZone .drop-hint {
+            color: #7a8099;
+            font-size: 14px;
+            flex: 1;
+        }
+        #dropZone .drop-hint span {
+            color: #5b7cf6;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        #fileInput { display: none; }
+
+        #toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        #filenameInput {
+            background: #21252f;
+            border: 1px solid #3a4055;
+            border-radius: 5px;
+            color: #d4d8e0;
+            font-size: 13px;
+            padding: 6px 10px;
+            width: 220px;
+        }
+        #filenameInput:focus { outline: none; border-color: #5b7cf6; }
+
+        button {
+            padding: 7px 16px;
+            font-size: 13px;
+            font-family: inherit;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+        .btn-primary   { background: #5b7cf6; color: #fff; font-weight: 600; }
+        .btn-primary:hover { background: #4a68e0; }
+        .btn-secondary { background: #2d3245; color: #c0c6d8; }
+        .btn-secondary:hover { background: #363d58; }
+        .btn-danger    { background: #6e2f2f; color: #f4b8b8; }
+        .btn-danger:hover { background: #7e3636; }
+
+        #statusBar {
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            min-height: 30px;
+            background: #21252f;
+            color: #7a8099;
+        }
+        #statusBar.ok  { color: #6fcf97; background: #1a2b22; }
+        #statusBar.err { color: #f47c7c; background: #2b1a1a; }
+
         #dataTextarea {
             width: 100%;
-            height: 600px;
-            margin-bottom: 10px;
+            height: calc(100vh - 280px);
+            min-height: 300px;
+            background: #21252f;
+            color: #c9d1e0;
+            border: 1px solid #3a4055;
+            border-radius: 6px;
+            font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+            font-size: 12.5px;
+            line-height: 1.5;
+            padding: 12px;
+            resize: vertical;
+            tab-size: 2;
+        }
+        #dataTextarea:focus { outline: none; border-color: #5b7cf6; }
+
+        #advancedToggle {
+            background: none;
+            border: none;
+            color: #5b7cf6;
             font-size: 12px;
+            cursor: pointer;
+            padding: 4px 0;
+            margin-top: 10px;
+            text-decoration: underline;
         }
-        #buttons {
-            margin-bottom: 10px;
+        #advancedPanel {
+            display: none;
+            margin-top: 8px;
+            padding: 12px;
+            background: #21252f;
+            border: 1px solid #3a4055;
+            border-radius: 6px;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-right: 10px;
+        #advancedPanel .adv-label {
+            font-size: 12px;
+            color: #7a8099;
+            margin-bottom: 8px;
+        }
+        #advancedPanel .adv-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
 <body>
-    <h1>".ecar" Encoder/Decoder</h1>
-    <textarea id="dataTextarea" placeholder="Enter or paste your data here..."></textarea>
-    <div id="buttons">
-        <button id="decodeButton">Decode</button>
-        <button id="encodeButton">Encode</button>
-    </div>
-    <!-- Include the pako library from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    
 
+<h1>&#x1F697; .ecar Encoder/Decoder</h1>
+
+<div id="dropZone">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5b7cf6" stroke-width="1.8">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+    </svg>
+    <p class="drop-hint">Drag &amp; drop an <strong>.ecar</strong> file here, or <span id="browseLink">browse</span></p>
+    <input type="file" id="fileInput" accept=".ecar">
+</div>
+
+<div id="toolbar">
+    <input type="text" id="filenameInput" value="my_car.ecar" spellcheck="false" title="Output filename">
+    <button id="downloadBtn" class="btn-primary">&#x2193; Download .ecar</button>
+    <button id="copyBtn"     class="btn-secondary">&#x2398; Copy XML</button>
+    <button id="formatBtn"   class="btn-secondary">&#x2630; Format XML</button>
+    <button id="clearBtn"    class="btn-danger">&#x2715; Clear</button>
+</div>
+
+<div id="statusBar">Ready. Load a .ecar file or paste base64 below.</div>
+
+<textarea id="dataTextarea" placeholder="Load a .ecar file above, or paste raw base64 here and use Decode (Advanced)..."></textarea>
+
+<button id="advancedToggle">+ Advanced (raw base64)</button>
+<div id="advancedPanel">
+    <p class="adv-label">For pasting raw base64 strings directly (no XOR layer). Textarea must contain base64 to decode, or XML to encode.</p>
+    <div class="adv-row">
+        <button id="decodeButton" class="btn-secondary">Decode base64 &rarr; XML</button>
+        <button id="encodeButton" class="btn-secondary">Encode XML &rarr; base64</button>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script>
-    const dataTextarea = document.getElementById('dataTextarea');
-    const decodeButton = document.getElementById('decodeButton');
-    const encodeButton = document.getElementById('encodeButton');
-	
-    // Global variable to store the original sliced bytes
+    const dropZone       = document.getElementById('dropZone');
+    const fileInput      = document.getElementById('fileInput');
+    const browseLink     = document.getElementById('browseLink');
+    const filenameInput  = document.getElementById('filenameInput');
+    const downloadBtn    = document.getElementById('downloadBtn');
+    const copyBtn        = document.getElementById('copyBtn');
+    const formatBtn      = document.getElementById('formatBtn');
+    const clearBtn       = document.getElementById('clearBtn');
+    const statusBar      = document.getElementById('statusBar');
+    const dataTextarea   = document.getElementById('dataTextarea');
+    const advancedToggle = document.getElementById('advancedToggle');
+    const advancedPanel  = document.getElementById('advancedPanel');
+    const decodeButton   = document.getElementById('decodeButton');
+    const encodeButton   = document.getElementById('encodeButton');
+
+    // XOR key used by DCRE to encrypt .ecar files
+    // Derived from: SiteLock.getStr().split(";")[8].split(",")[1]
+    const XOR_KEY = 'http://dreamcarracing.com/social/likefb.html?userid=';
+
+    // "aa" prefix bytes captured during last decode; prepended on re-encode
     let originalPrefixBytes = null;
 
-    /**
-    * Removes all occurrences of the literal "\n" from the input string.
-    * @param {string} str - The original string.
-    * @returns {string} - The modified string without any "\n".
-    */
-    function removeLiteralNewlines(str) {
-        return str.replace(/\\n/g, '');
+    function setStatus(msg, type) {
+        statusBar.textContent = msg;
+        statusBar.className   = type || '';
+    }
+    const setOk  = (msg) => setStatus(msg, 'ok');
+    const setErr = (msg) => setStatus(msg, 'err');
+
+    function xorDecrypt(bytes) {
+        let out = '';
+        for (let i = 0; i < bytes.length; i++)
+            out += String.fromCharCode(bytes[i] ^ XOR_KEY.charCodeAt(i % XOR_KEY.length));
+        return out;
     }
 
-    /**
-     * Inserts the literal "\n" every 76 characters in the input string.
-     * @param {string} str - The original string.
-     * @returns {string} - The modified string with "\n" inserted every 76 characters.
-     */
-    function insertLiteralNewlines(str) {
-        const interval = 76;
-        let result = '';
-
-        for (let i = 0; i < str.length; i += interval) {
-            result += str.slice(i, i + interval) + '\\n';
-        }
-
-        return result;
-    }
-
-    // Function to decode base64 string to Uint8Array
-    function base64ToUint8Array(base64) {
-        let binaryString = atob(base64);
-        let len = binaryString.length;
-        let bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
+    function xorEncrypt(str) {
+        const bytes = new Uint8Array(str.length);
+        for (let i = 0; i < str.length; i++)
+            bytes[i] = str.charCodeAt(i) ^ XOR_KEY.charCodeAt(i % XOR_KEY.length);
         return bytes;
     }
 
-    // Function to encode Uint8Array to base64 string
-    function uint8ArrayToBase64(uint8Array) {
-        let binaryString = "";
-        for (let i = 0; i < uint8Array.length; i++) {
-            binaryString += String.fromCharCode(uint8Array[i]);
-        }
-        return btoa(binaryString);
+    function base64ToBytes(b64) {
+        const bin = atob(b64);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
     }
 
-    // Function to convert Uint8Array to UTF-8 string
-    function uint8ArrayToString(uint8Array) {
-        let decoder = new TextDecoder('utf-8');
-        return decoder.decode(uint8Array);
+    function bytesToBase64(arr) {
+        let bin = '';
+        for (let i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+        return btoa(bin);
     }
 
-    // Function to convert UTF-8 string to Uint8Array
-    function stringToUint8Array(string) {
-        let encoder = new TextEncoder();
-        return encoder.encode(string);
-    }
-
-    // Decode button click event
-    decodeButton.addEventListener('click', () => {
+    // Pretty-print XML string
+    function prettyXML(xmlStr) {
         try {
-            // Get the base64-encoded, compressed string from the textarea
-            let base64Input = dataTextarea.value.trim();
-            base64Input = removeLiteralNewlines(base64Input);
+            const doc = new DOMParser().parseFromString(xmlStr.trim(), 'application/xml');
+            if (doc.documentElement.nodeName === 'parseerror') return xmlStr;
+            return serializeNode(doc.documentElement, 0);
+        } catch (_) { return xmlStr; }
+    }
 
-            // Step 1: Decode base64 string to Uint8Array
-            let compressedData = base64ToUint8Array(base64Input);
-
-            // Step 2: Uncompress the data using pako (ZLIB)
-            let uncompressedData = pako.inflate(compressedData);
-            console.log(uncompressedData);
-
-            // Step 3: Store the first two bytes and then slice them off
-            originalPrefixBytes = uncompressedData.slice(0, 2);
-            let dataWithoutFirstTwoBytes = uncompressedData.slice(2);
-
-            // Step 4: Convert the remaining bytes to a UTF-8 string
-            let resultString = uint8ArrayToString(dataWithoutFirstTwoBytes);
-
-            // Step 5: Update the textarea with the decoded string
-            dataTextarea.value = resultString;
-        } catch (error) {
-            console.error("An error occurred during decoding:", error);
-            alert("An error occurred during decoding. Please check the input data.");
+    function serializeNode(node, depth) {
+        const pad = '  '.repeat(depth);
+        if (node.nodeType === 3) {
+            const t = node.textContent.trim();
+            return t ? pad + t : '';
         }
+        const attrs    = Array.from(node.attributes).map(a => ` ${a.name}="${a.value}"`).join('');
+        const children = Array.from(node.childNodes).map(c => serializeNode(c, depth + 1)).filter(s => s !== '');
+        if (children.length === 0) return `${pad}<${node.tagName}${attrs}/>`;
+        if (children.length === 1 && !children[0].includes('\n'))
+            return `${pad}<${node.tagName}${attrs}>${children[0].trim()}</${node.tagName}>`;
+        return `${pad}<${node.tagName}${attrs}>\n${children.join('\n')}\n${pad}</${node.tagName}>`;
+    }
+
+    // Decompress base64 string and show as formatted XML
+    function inflateBase64ToXML(b64) {
+        const clean      = b64.trim().replace(/\\n/g, '');
+        const compressed = base64ToBytes(clean);
+        const raw        = pako.inflate(compressed);
+        originalPrefixBytes = raw.slice(0, 2);
+        const xml        = new TextDecoder('utf-8').decode(raw.slice(2));
+        dataTextarea.value  = prettyXML(xml);
+    }
+
+    // Compress XML from textarea and return base64 string
+    function xmlToBase64() {
+        const prefix = (originalPrefixBytes && originalPrefixBytes.length === 2)
+                       ? originalPrefixBytes : new TextEncoder().encode('aa');
+        const body   = new TextEncoder().encode(dataTextarea.value);
+        const full   = new Uint8Array(prefix.length + body.length);
+        full.set(prefix);
+        full.set(body, prefix.length);
+        const compressed = pako.deflate(full, { level: 9 });
+        let b64 = bytesToBase64(compressed);
+        // Normalise zlib header to 0x78 0xDA (Flash best-compression)
+        b64 = 'eNq' + b64.slice(3);
+        return b64;
+    }
+
+    // Load a File object as a .ecar
+    function loadEcarFile(file) {
+        filenameInput.value = file.name;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const b64 = xorDecrypt(new Uint8Array(e.target.result));
+                inflateBase64ToXML(b64);
+                setOk('Loaded: ' + file.name);
+            } catch (err) {
+                setErr('Failed to load: ' + err.message);
+                console.error(err);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // Drag & drop
+    document.addEventListener('dragover',  (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    document.addEventListener('dragleave', (e) => { if (!e.relatedTarget) dropZone.classList.remove('dragover'); });
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) loadEcarFile(file);
     });
 
-    // Encode button click event
-    encodeButton.addEventListener('click', () => {
+    browseLink.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click', (e) => { if (e.target !== browseLink) fileInput.click(); });
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadEcarFile(fileInput.files[0]); });
+
+    downloadBtn.addEventListener('click', () => {
         try {
-            // Get the original string from the textarea
-            let originalString = dataTextarea.value;
+            const bytes = xorEncrypt(xmlToBase64());
+            const url   = URL.createObjectURL(new Blob([bytes], { type: 'application/octet-stream' }));
+            const name  = filenameInput.value || 'my_car.ecar';
+            Object.assign(document.createElement('a'), { href: url, download: name }).click();
+            URL.revokeObjectURL(url);
+            setOk('Downloaded: ' + name);
+        } catch (err) { setErr('Download failed: ' + err.message); console.error(err); }
+    });
 
-            // Step 1: Use the previously stored prefix bytes if available, otherwise use 'aa'
-            let prefixBytes = (originalPrefixBytes && originalPrefixBytes.length === 2)
-                              ? originalPrefixBytes
-                              : stringToUint8Array('aa');
+    copyBtn.addEventListener('click', () => {
+        if (!dataTextarea.value) { setErr('Nothing to copy.'); return; }
+        navigator.clipboard.writeText(dataTextarea.value)
+            .then(() => setOk('Copied to clipboard.'))
+            .catch(() => { dataTextarea.select(); document.execCommand('copy'); setOk('Copied to clipboard.'); });
+    });
 
-            // Step 2: Convert the original string to Uint8Array
-            let stringBytes = stringToUint8Array(originalString);
+    formatBtn.addEventListener('click', () => {
+        const fmt = prettyXML(dataTextarea.value);
+        if (fmt === dataTextarea.value) { setStatus('Already formatted (or not valid XML).'); return; }
+        dataTextarea.value = fmt;
+        setOk('XML formatted.');
+    });
 
-            // Step 3: Concatenate prefix and string bytes
-            let dataToCompress = new Uint8Array(prefixBytes.length + stringBytes.length);
-            dataToCompress.set(prefixBytes);
-            dataToCompress.set(stringBytes, prefixBytes.length);
+    clearBtn.addEventListener('click', () => {
+        dataTextarea.value  = '';
+        originalPrefixBytes = null;
+        filenameInput.value = 'my_car.ecar';
+        fileInput.value     = '';
+        setStatus('Cleared.');
+    });
 
-            // Step 4: Compress the data using pako (ZLIB)
-            let compressedData = pako.deflate(dataToCompress);
+    advancedToggle.addEventListener('click', () => {
+        const open = advancedPanel.style.display === 'block';
+        advancedPanel.style.display = open ? 'none' : 'block';
+        advancedToggle.textContent  = (open ? '+ ' : '- ') + 'Advanced (raw base64)';
+    });
 
-            // Step 5: Encode to base64
-            let base64String = uint8ArrayToBase64(compressedData);
-            // Adjusting the base64 string as in the original code
-            base64String = "eNq" + base64String.slice(3);
+    decodeButton.addEventListener('click', () => {
+        try   { inflateBase64ToXML(dataTextarea.value); setOk('Decoded base64 to XML.'); }
+        catch (err) { setErr('Decode failed: ' + err.message); }
+    });
 
-            // Step 6: Update the textarea with the encoded string
-            dataTextarea.value = base64String;
-        } catch (error) {
-            console.error("An error occurred during encoding:", error);
-            alert("An error occurred during encoding. Please try again.");
-        }
+    encodeButton.addEventListener('click', () => {
+        try   { dataTextarea.value = xmlToBase64(); setOk('Encoded XML to base64.'); }
+        catch (err) { setErr('Encode failed: ' + err.message); }
     });
 </script>
 </body>
