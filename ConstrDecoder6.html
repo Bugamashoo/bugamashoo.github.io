@@ -276,9 +276,7 @@
         full.set(prefix);
         full.set(body, prefix.length);
         const compressed = pako.deflate(full, { level: 9 });
-        let b64 = bytesToBase64(compressed);
-        // Normalise zlib header to 0x78 0xDA (Flash best-compression)
-        b64 = 'eNq' + b64.slice(3);
+        const b64 = bytesToBase64(compressed);
         return b64;
     }
 
