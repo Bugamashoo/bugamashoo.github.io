@@ -141,6 +141,31 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+
+        #visualizerContainer {
+            margin-bottom: 10px;
+            background: #21252f;
+            border: 1px solid #3a4055;
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: none;
+        }
+        #visualizerContainer h2 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #7a8099;
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+        #carCanvas {
+            background: #1a1d23;
+            border: 1px solid #2a2f3f;
+            border-radius: 4px;
+            width: 100%;
+            display: block;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -164,6 +189,11 @@
 </div>
 
 <div id="statusBar">Ready. Load a .ecar file or paste base64 below.</div>
+
+<div id="visualizerContainer">
+    <h2>&#x1F3CE; Vehicle Visualizer &mdash; hover parts/dots to highlight XML &bull; click XML lines to highlight canvas</h2>
+    <canvas id="carCanvas" width="800" height="220"></canvas>
+</div>
 
 <textarea id="dataTextarea" placeholder="Load a .ecar file above, or paste raw base64 here and use Decode (Advanced)..."></textarea>
 
@@ -265,6 +295,7 @@
         originalPrefixBytes = raw.slice(0, 2);
         const xml        = new TextDecoder('utf-8').decode(raw.slice(2));
         dataTextarea.value  = prettyXML(xml);
+        drawCar();
     }
 
     // Compress XML from textarea and return base64 string
@@ -334,6 +365,7 @@
         if (fmt === dataTextarea.value) { setStatus('Already formatted (or not valid XML).'); return; }
         dataTextarea.value = fmt;
         setOk('XML formatted.');
+        drawCar();
     });
 
     clearBtn.addEventListener('click', () => {
@@ -342,6 +374,7 @@
         filenameInput.value = 'my_car.ecar';
         fileInput.value     = '';
         setStatus('Cleared.');
+        drawCar();
     });
 
     advancedToggle.addEventListener('click', () => {
@@ -358,6 +391,394 @@
     encodeButton.addEventListener('click', () => {
         try   { dataTextarea.value = xmlToBase64(); setOk('Encoded XML to base64.'); }
         catch (err) { setErr('Encode failed: ' + err.message); }
+    });
+
+    // ── Vehicle Visualizer ───────────────────────────────────────────────────
+    const vizCanvas    = document.getElementById('carCanvas');
+    const vizCtx       = vizCanvas.getContext('2d');
+    const vizContainer = document.getElementById('visualizerContainer');
+
+    let vizDots     = {};   // ind -> { x, y, lineNum }
+    let vizParts    = [];   // [{ t, d0, d1, lineNum }]
+    let vizScrDots  = {};   // ind -> { sx, sy }      (screen-space, rebuilt each render)
+    let vizScrParts = [];   // [{ sx1,sy1,sx2,sy2, index }]
+    let vizHovered  = null; // { kind:'dot'|'part', key|index }  — from canvas hover
+    let vizActive   = null; // { kind:'dot'|'part', key|index }  — from textarea cursor
+
+    function vizLineNum(charPos) {
+        return dataTextarea.value.substring(0, charPos).split('\n').length - 1;
+    }
+
+    function vizLineRange(lineNum) {
+        const lines = dataTextarea.value.split('\n');
+        let start = 0;
+        for (let i = 0; i < lineNum; i++) start += lines[i].length + 1;
+        return { start, end: start + lines[lineNum].length };
+    }
+
+    function vizScrollToLine(lineNum) {
+        const style = getComputedStyle(dataTextarea);
+        const lh    = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5 || 19;
+        const pt    = parseFloat(style.paddingTop) || 0;
+        dataTextarea.scrollTop = pt + lineNum * lh - dataTextarea.clientHeight / 2;
+    }
+
+    function vizParseData() {
+        vizDots  = {};
+        vizParts = [];
+        dataTextarea.value.split('\n').forEach((line, lineNum) => {
+            const s = line.trim();
+            if (s.startsWith('<dot ')) {
+                const ind = s.match(/ind="([^"]+)"/)?.[1];
+                const x   = parseFloat(s.match(/\bx="([^"]+)"/)?.[1]);
+                const y   = parseFloat(s.match(/\by="([^"]+)"/)?.[1]);
+                if (ind != null && !isNaN(x) && !isNaN(y)) vizDots[ind] = { x, y, lineNum };
+            } else if (s.startsWith('<Part ')) {
+                const t   = s.match(/\bt="([^"]+)"/)?.[1];
+                const d0  = s.match(/\bd0="([^"]+)"/)?.[1];
+                const d1  = s.match(/\bd1="([^"]+)"/)?.[1] ?? null;
+                const d2  = s.match(/\bd2="([^"]+)"/)?.[1] ?? null;
+                const rad = parseFloat(s.match(/\brad="([^"]+)"/)?.[1]) || 0;
+                if (d0 != null) vizParts.push({ t, d0, d1, d2, rad, lineNum });
+            }
+        });
+    }
+
+    // Returns { color, width, dash } for a given part type
+    function vizPartStyle(t) {
+        switch (t) {
+            case '0':  return { color: '#ffcc44', width: 3,   dash: [] };        // seat / body
+            case '1':  return { color: '#4dd0e1', width: 1.5, dash: [] };        // frame beam (cyan)
+            case '2':  return { color: '#ff6b6b', width: 2,   dash: [] };        // wheel (circle)
+            case '3':  return { color: '#50dd78', width: 2,   dash: [6, 3] };    // engine inline
+            case '4':  return { color: '#50dd78', width: 1.5, dash: [3, 3] };    // spring
+            case '5':  return { color: '#ff5500', width: 2,   dash: [] };        // solid axle (capsule)
+            case '8':  return { color: '#9c64ff', width: 2,   dash: [] };        // pivot / motor
+            case '12': return { color: '#ff4444', width: 2,   dash: [] };        // engine marker
+            default:   return { color: '#8888aa', width: 1.5, dash: [] };
+        }
+    }
+
+    function vizRender() {
+        const w = vizCanvas.width, h = vizCanvas.height;
+        vizCtx.clearRect(0, 0, w, h);
+        if (!Object.keys(vizDots).length) return;
+
+        // Bounding box
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        for (const k in vizDots) {
+            minX = Math.min(minX, vizDots[k].x); maxX = Math.max(maxX, vizDots[k].x);
+            minY = Math.min(minY, vizDots[k].y); maxY = Math.max(maxY, vizDots[k].y);
+        }
+
+        const pad   = 40;
+        const scale = Math.min((w - pad * 2) / (maxX - minX || 1),
+                               (h - pad * 2) / (maxY - minY || 1), 4);
+        const offX  = (w - (maxX - minX) * scale) / 2 - minX * scale;
+        const offY  = (h - (maxY - minY) * scale) / 2 - minY * scale;
+        const tx = x => x * scale + offX;
+        const ty = y => y * scale + offY;
+
+        // Rebuild screen-space coords
+        vizScrDots = {};
+        for (const k in vizDots) vizScrDots[k] = { sx: tx(vizDots[k].x), sy: ty(vizDots[k].y) };
+
+        // Build screen-space parts array (index-aligned with vizParts; null if dots missing)
+        vizScrParts = vizParts.map(p => {
+            const s = vizScrDots[p.d0];
+            if (!s) return null;
+            if (p.d1 == null) {
+                // Single-dot part (wheel, engine marker, etc.)
+                return { kind: 'single', sx: s.sx, sy: s.sy, scrRad: p.rad * scale };
+            }
+            const e = vizScrDots[p.d1];
+            if (!e) return null;
+            if (p.t === '5') {
+                // Capsule: solid axle drawn as a stadium/pill shape
+                return { kind: 'capsule', sx1: s.sx, sy1: s.sy, sx2: e.sx, sy2: e.sy };
+            }
+            if (p.d2 != null && vizScrDots[p.d2]) {
+                const d2 = vizScrDots[p.d2];
+                if (p.t === '3') {
+                    // Inline engine: line d0→d1, d2 is the midpoint joint marker
+                    return { kind: 'inline', sx0: s.sx, sy0: s.sy, sx1: e.sx, sy1: e.sy, sx2: d2.sx, sy2: d2.sy };
+                } else {
+                    // Pivot: d0 is the hub; d1 and d2 are independent arms
+                    return { kind: 'pivot', sx0: s.sx, sy0: s.sy, sx1: e.sx, sy1: e.sy, sx2: d2.sx, sy2: d2.sy };
+                }
+            }
+            return { kind: 'line', sx1: s.sx, sy1: s.sy, sx2: e.sx, sy2: e.sy };
+        });
+
+        // Helper: draw one part
+        const drawLinePart = (i, hi) => {
+            const sp = vizScrParts[i];
+            if (!sp || sp.kind === 'single') return;
+            const st = vizPartStyle(vizParts[i].t);
+            const col = hi ? '#ffffff' : st.color;
+            const lw  = hi ? st.width + 1.5 : st.width;
+            vizCtx.strokeStyle = col;
+            vizCtx.lineWidth   = lw;
+            vizCtx.globalAlpha = hi ? 1 : 0.88;
+            vizCtx.setLineDash(hi ? [] : st.dash);
+
+            if (sp.kind === 'line') {
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx1, sp.sy1);
+                vizCtx.lineTo(sp.sx2, sp.sy2);
+                vizCtx.stroke();
+
+            } else if (sp.kind === 'capsule') {
+                const hw    = hi ? 11 : 9;
+                const angle = Math.atan2(sp.sy2 - sp.sy1, sp.sx2 - sp.sx1);
+                const px    = -Math.sin(angle) * hw;
+                const py    =  Math.cos(angle) * hw;
+                // Path: top-left → top-right → right cap → bottom-right → bottom-left → left cap
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx1 + px, sp.sy1 + py);
+                vizCtx.lineTo(sp.sx2 + px, sp.sy2 + py);
+                vizCtx.arc(sp.sx2, sp.sy2, hw, angle + Math.PI / 2, angle - Math.PI / 2, true);
+                vizCtx.lineTo(sp.sx1 - px, sp.sy1 - py);
+                vizCtx.arc(sp.sx1, sp.sy1, hw, angle - Math.PI / 2, angle + Math.PI / 2, true);
+                vizCtx.closePath();
+                vizCtx.fillStyle = col + '18';
+                vizCtx.fill();
+                vizCtx.lineWidth = hi ? 2.5 : 2;
+                vizCtx.stroke();
+
+            } else if (sp.kind === 'inline') {
+                // Engine / shock: line d0→d1, perpendicular tick at d2 (midpoint joint)
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx0, sp.sy0);
+                vizCtx.lineTo(sp.sx1, sp.sy1);
+                vizCtx.stroke();
+                // Tick mark at d2
+                vizCtx.setLineDash([]);
+                vizCtx.globalAlpha = hi ? 0.9 : 0.55;
+                const tAngle = Math.atan2(sp.sy1 - sp.sy0, sp.sx1 - sp.sx0) + Math.PI / 2;
+                const tk = 5;
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx2 - Math.cos(tAngle) * tk, sp.sy2 - Math.sin(tAngle) * tk);
+                vizCtx.lineTo(sp.sx2 + Math.cos(tAngle) * tk, sp.sy2 + Math.sin(tAngle) * tk);
+                vizCtx.stroke();
+
+            } else if (sp.kind === 'pivot') {
+                // Motor/hinge: two arms from the large d0 hub
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx0, sp.sy0);
+                vizCtx.lineTo(sp.sx1, sp.sy1);
+                vizCtx.stroke();
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx0, sp.sy0);
+                vizCtx.lineTo(sp.sx2, sp.sy2);
+                vizCtx.stroke();
+                // Large filled hub circle at d0
+                vizCtx.setLineDash([]);
+                vizCtx.globalAlpha = hi ? 1 : 0.9;
+                vizCtx.beginPath();
+                vizCtx.arc(sp.sx0, sp.sy0, hi ? 9 : 7, 0, Math.PI * 2);
+                vizCtx.fillStyle = col;
+                vizCtx.fill();
+                // Darker inner ring for depth
+                vizCtx.beginPath();
+                vizCtx.arc(sp.sx0, sp.sy0, hi ? 9 : 7, 0, Math.PI * 2);
+                vizCtx.strokeStyle = '#1a1d23';
+                vizCtx.lineWidth = 1.5;
+                vizCtx.stroke();
+            }
+
+            vizCtx.setLineDash([]);
+            vizCtx.globalAlpha = 1;
+        };
+
+        // Draw non-highlighted lines first, then highlighted on top
+        vizParts.forEach((_, i) => {
+            const hi = (vizHovered?.kind === 'part' && vizHovered.index === i) ||
+                       (vizActive?.kind  === 'part' && vizActive.index  === i);
+            if (!hi) drawLinePart(i, false);
+        });
+        vizParts.forEach((_, i) => {
+            const hi = (vizHovered?.kind === 'part' && vizHovered.index === i) ||
+                       (vizActive?.kind  === 'part' && vizActive.index  === i);
+            if (hi) drawLinePart(i, true);
+        });
+
+        // Draw single-dot parts (wheels, engines, etc.)
+        vizParts.forEach((p, i) => {
+            const sp = vizScrParts[i];
+            if (!sp || sp.kind !== 'single') return;
+            const hi = (vizHovered?.kind === 'part' && vizHovered.index === i) ||
+                       (vizActive?.kind  === 'part' && vizActive.index  === i);
+            const st = vizPartStyle(p.t);
+            vizCtx.globalAlpha = hi ? 1 : 0.85;
+
+            if (p.t === '2' && sp.scrRad > 2) {
+                // Wheel: outer ring + inner hub dot
+                vizCtx.beginPath();
+                vizCtx.arc(sp.sx, sp.sy, sp.scrRad, 0, Math.PI * 2);
+                vizCtx.strokeStyle = hi ? '#ffffff' : st.color;
+                vizCtx.lineWidth   = hi ? 3 : 2;
+                vizCtx.stroke();
+                vizCtx.beginPath();
+                vizCtx.arc(sp.sx, sp.sy, Math.max(2, sp.scrRad * 0.12), 0, Math.PI * 2);
+                vizCtx.fillStyle = hi ? '#ffffff' : st.color;
+                vizCtx.fill();
+            } else {
+                // Generic single-dot part: filled circle with crosshair
+                const r = hi ? 7 : 5;
+                vizCtx.beginPath();
+                vizCtx.arc(sp.sx, sp.sy, r, 0, Math.PI * 2);
+                vizCtx.fillStyle = hi ? '#ffffff' : st.color;
+                vizCtx.fill();
+                vizCtx.beginPath();
+                vizCtx.moveTo(sp.sx - r, sp.sy); vizCtx.lineTo(sp.sx + r, sp.sy);
+                vizCtx.moveTo(sp.sx, sp.sy - r); vizCtx.lineTo(sp.sx, sp.sy + r);
+                vizCtx.strokeStyle = '#1a1d23';
+                vizCtx.lineWidth = 1;
+                vizCtx.stroke();
+            }
+            vizCtx.globalAlpha = 1;
+        });
+
+        // Draw joint dots on top of everything
+        for (const k in vizDots) {
+            const sd = vizScrDots[k];
+            const hi = (vizHovered?.kind === 'dot' && vizHovered.key === k) ||
+                       (vizActive?.kind  === 'dot' && vizActive.key  === k);
+            vizCtx.beginPath();
+            vizCtx.arc(sd.sx, sd.sy, hi ? 5.5 : 3, 0, Math.PI * 2);
+            vizCtx.fillStyle = hi ? '#ffffff' : '#8888aa';
+            if (hi) { vizCtx.shadowColor = '#ffffff'; vizCtx.shadowBlur = 6; }
+            vizCtx.fill();
+            vizCtx.shadowBlur = 0;
+        }
+    }
+
+    function vizDistToSeg(px, py, x1, y1, x2, y2) {
+        const dx = x2 - x1, dy = y2 - y1, l2 = dx * dx + dy * dy;
+        if (!l2) return Math.hypot(px - x1, py - y1);
+        const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / l2));
+        return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+    }
+
+    function vizHitTest(mx, my) {
+        // Joint dots take priority
+        for (const k in vizScrDots) {
+            if (Math.hypot(mx - vizScrDots[k].sx, my - vizScrDots[k].sy) <= 8)
+                return { kind: 'dot', key: k };
+        }
+        let bestD = 8, bestI = -1;
+        vizScrParts.forEach((sp, i) => {
+            if (!sp) return;
+            let d;
+            if (sp.kind === 'single') {
+                if (vizParts[i].t === '2' && sp.scrRad > 2) {
+                    d = Math.abs(Math.hypot(mx - sp.sx, my - sp.sy) - sp.scrRad);
+                } else {
+                    d = Math.hypot(mx - sp.sx, my - sp.sy) <= 8 ? 0 : Infinity;
+                }
+            } else if (sp.kind === 'capsule') {
+                // Hit inside the capsule width
+                d = vizDistToSeg(mx, my, sp.sx1, sp.sy1, sp.sx2, sp.sy2);
+                if (d > 11) d = Infinity;
+            } else if (sp.kind === 'inline') {
+                d = vizDistToSeg(mx, my, sp.sx0, sp.sy0, sp.sx1, sp.sy1);
+            } else if (sp.kind === 'pivot') {
+                d = Math.min(
+                    vizDistToSeg(mx, my, sp.sx0, sp.sy0, sp.sx1, sp.sy1),
+                    vizDistToSeg(mx, my, sp.sx0, sp.sy0, sp.sx2, sp.sy2)
+                );
+            } else if (sp.kind === 'line') {
+                d = vizDistToSeg(mx, my, sp.sx1, sp.sy1, sp.sx2, sp.sy2);
+            }
+            if (d < bestD) { bestD = d; bestI = i; }
+        });
+        return bestI >= 0 ? { kind: 'part', index: bestI } : null;
+    }
+
+    vizCanvas.addEventListener('mousemove', e => {
+        const r  = vizCanvas.getBoundingClientRect();
+        const mx = (e.clientX - r.left) * (vizCanvas.width  / r.width);
+        const my = (e.clientY - r.top)  * (vizCanvas.height / r.height);
+        const hit = vizHitTest(mx, my);
+
+        if (JSON.stringify(hit) !== JSON.stringify(vizHovered)) {
+            vizHovered = hit;
+            vizRender();
+        }
+        vizCanvas.style.cursor = hit ? 'pointer' : 'default';
+    });
+
+    vizCanvas.addEventListener('mouseleave', () => {
+        vizHovered = null;
+        vizRender();
+        vizCanvas.style.cursor = 'default';
+    });
+
+    // Clicking a part/dot selects its line in the textarea
+    vizCanvas.addEventListener('click', () => {
+        if (!vizHovered) return;
+        const ln = vizHovered.kind === 'dot'
+            ? vizDots[vizHovered.key]?.lineNum
+            : vizParts[vizHovered.index]?.lineNum;
+        if (ln == null) return;
+        const { start, end } = vizLineRange(ln);
+        dataTextarea.focus();
+        dataTextarea.setSelectionRange(start, end);
+        vizScrollToLine(ln);
+    });
+
+    // Moving the textarea cursor highlights the corresponding canvas element
+    function vizUpdateActive() {
+        const ln = vizLineNum(dataTextarea.selectionStart);
+        let hit  = null;
+        for (const k in vizDots) {
+            if (vizDots[k].lineNum === ln) { hit = { kind: 'dot', key: k }; break; }
+        }
+        if (!hit) {
+            const idx = vizParts.findIndex(p => p.lineNum === ln);
+            if (idx >= 0) hit = { kind: 'part', index: idx };
+        }
+        if (JSON.stringify(hit) !== JSON.stringify(vizActive)) {
+            vizActive = hit;
+            vizRender();
+        }
+    }
+
+    dataTextarea.addEventListener('click',  vizUpdateActive);
+    dataTextarea.addEventListener('keyup',  vizUpdateActive);
+    document.addEventListener('selectionchange', () => {
+        if (document.activeElement === dataTextarea) vizUpdateActive();
+    });
+
+    // Main entry point — call after any XML change
+    function drawCar() {
+        const xml = dataTextarea.value;
+        if (!xml || !xml.toLowerCase().includes('<machine')) {
+            vizContainer.style.display = 'none';
+            dataTextarea.style.height  = '';
+            dataTextarea.style.minHeight = '';
+            return;
+        }
+        vizParseData();
+        if (!Object.keys(vizDots).length) {
+            vizContainer.style.display = 'none';
+            dataTextarea.style.height  = '';
+            dataTextarea.style.minHeight = '';
+            return;
+        }
+        vizContainer.style.display  = 'block';
+        dataTextarea.style.height    = 'calc(100vh - 560px)';
+        dataTextarea.style.minHeight = '180px';
+        vizHovered = null;
+        vizRender();
+    }
+
+    // Re-parse on manual edits (debounced)
+    let vizDebounce;
+    dataTextarea.addEventListener('input', () => {
+        clearTimeout(vizDebounce);
+        vizDebounce = setTimeout(drawCar, 400);
     });
 </script>
 </body>
